@@ -1,0 +1,103 @@
+version: v1
+name: Fivetran ELT
+pipeline:
+  cb6dd3f0-d584-4b08-82df-ca7a74185892:
+    tasks:
+      22ca9cd8-8951-4497-9d20-50a84ad92753:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: manual_carrier
+        depends_on: []
+        condition: null
+        name: Google Sheets ingestion
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      google_sheet_fivetran:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: accommodation_assure
+        depends_on: []
+        condition: null
+        name: Google Sheets ingestion
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      hubspot_fivetran:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: roast_chicken
+        depends_on: []
+        condition: null
+        name: Hubspot ingestion
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      oracle_fivetran:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: wooden_stick
+        depends_on: []
+        condition: null
+        name: Oracle ingestion
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      c49b3aa5-1927-4d10-9f76-3832033eef3f:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: pasted_dog
+        depends_on: []
+        condition: null
+        name: Import salesforce
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+  bbf08297-239b-404e-96e4-aef6a4d63d28:
+    tasks:
+      0b2dc4bd-e1b5-4998-aa33-ce492e783dc2:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build;
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        condition: null
+        name: dbt build
+        tags: []
+        connection: dbt_core_bigquery_prod_38077
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - cb6dd3f0-d584-4b08-82df-ca7a74185892
+    condition: null
+    name: ''
+schedule:
+- name: Daily at 8am (UTC)
+  cron: 0 8 ? * * *
+  timezone: UTC
+trigger_events: []
+webhook:
+  enabled: false
+  operation_metadata: null
+configuration: null
