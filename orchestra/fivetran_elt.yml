@@ -10,6 +10,58 @@ pipeline:
           connector_id: manual_carrier
         depends_on: []
         condition: null
+        name: Salesforce ingestion
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      google_sheet_fivetran:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: accommodation_assure
+        depends_on: []
+        condition: null
+        name: Google Sheets ingestion
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      hubspot_fivetran:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: roast_chicken
+        depends_on: []
+        condition: null
+        name: Hubspot ingestion
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      oracle_fivetran:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: wooden_stick
+        depends_on: []
+        condition: null
+        name: Oracle ingestion
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      22ca9cd8-8951-4497-9d20-50a84ad92753:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: manual_carrier
+        depends_on: []
+        condition: null
         name: Google Sheets ingestion
         tags: []
         connection: null
