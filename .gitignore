@@ -14,3 +14,4 @@ manifest.json
 run_results.json
 partial_parse.msgpack
 graph.gpickle
+dbt_projects/postgres/jaffle_shop_postgres/target/*
