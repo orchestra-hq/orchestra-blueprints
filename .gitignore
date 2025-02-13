@@ -8,3 +8,7 @@ test.py
 logs
 debug.log
 dbt_projects/postgres/jaffle_shop_postgres/target
+**/manifest.json
+**/run_results.json
+manifest.json
+run_results.json
