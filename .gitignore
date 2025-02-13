@@ -7,3 +7,4 @@ test.py
 3.0.0
 logs
 debug.log
+dbt_projects/postgres/jaffle_shop_postgres/target

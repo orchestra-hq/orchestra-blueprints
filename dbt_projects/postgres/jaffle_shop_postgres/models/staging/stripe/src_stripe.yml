@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: stripe
-    database: raw
+    database: postgres
     schema: stripe
     tables:
       - name: payment
