@@ -1,6 +1,6 @@
 # orchestra-blueprints
 
-This repo includes all the code you need to develop a fully code-driven, end-to-end data platform.
+This repo includes all the code you need to develop a fully-featured data platform capable of running end-to-end data pipelines across different tools, using a monorepository structure.
 
 ## Codebase Structure
 
