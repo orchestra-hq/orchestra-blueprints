@@ -23,7 +23,7 @@ pipeline:
           command: python -m run_dlt_pipelines
           package_manager: PIP
           python_version: '3.12'
-          build_command: pip install -r dlt/requirements.txt
+          build_command: pip install -r requirements.txt
           project_dir: dlt
           shallow_clone_dirs: dlt
         depends_on: []
