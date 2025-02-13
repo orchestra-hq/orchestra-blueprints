@@ -50,7 +50,7 @@ pipeline:
         condition: null
         name: dbt build
         tags: []
-        connection: dbt_bigquery_bitbucket_56320
+        connection: dbt_core_bigquery_prod_38077
         operation_metadata:
           f66e4983-6322-409f-802f-f2c08c7bf126:
             s3_bucket_name: null
