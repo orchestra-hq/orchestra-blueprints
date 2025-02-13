@@ -1,0 +1,96 @@
+version: v1
+name: End-to-end pipeline
+pipeline:
+  ac041ec8-d2f0-4304-aac8-f3529942e976:
+    tasks:
+      6224469a-923f-44c7-b916-3d67abf424df:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: manual_carrier
+        depends_on: []
+        condition: null
+        name: Ingest data from database
+        tags: []
+        connection: h_94547
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      1569d225-28a7-4de8-b162-a4f56ebbf402:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python -m run_dlt_pipelines
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r dlt/requirements.txt
+          project_dir: dlt
+          shallow_clone_dirs: dlt
+        depends_on: []
+        condition: null
+        name: Run dlt
+        tags: []
+        connection: python__production__blueprints__19239
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+  aa0ee828-8948-438a-ae0e-d0780f62c37b:
+    tasks:
+      148186e2-858d-4a6e-bcd1-0682c75ac96e:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        condition: null
+        name: dbt build
+        tags: []
+        connection: dbt_bigquery_bitbucket_56320
+        operation_metadata:
+          f66e4983-6322-409f-802f-f2c08c7bf126:
+            s3_bucket_name: null
+            s3_key_prefix: null
+            dbt_warehouse_identifier: null
+            integration: GCP_BIG_QUERY
+            connection: dbt_bigquery_24777
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - ac041ec8-d2f0-4304-aac8-f3529942e976
+    condition: null
+    name: ''
+  b5c00853-372f-41dc-b84f-997c515ace9b:
+    tasks:
+      fc835e58-ac0e-4705-94fd-9098a18247d5:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: 5e83dd8a-2c30-44ec-8f53-e5e751ae515d
+        depends_on: []
+        condition: null
+        name: Refresh Dataset
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - aa0ee828-8948-438a-ae0e-d0780f62c37b
+    condition: null
+    name: ''
+schedule:
+- name: Daily at 8am (UTC)
+  cron: 0 8 ? * * *
+  timezone: UTC
+  environment: null
+  branch: null
+trigger_events: []
+webhook:
+  enabled: false
+  operation_metadata: null
+configuration: null
