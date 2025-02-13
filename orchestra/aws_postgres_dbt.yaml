@@ -1,0 +1,101 @@
+version: v1
+name: AWS/Python/Postgres
+pipeline:
+  32be8199-4e28-437e-9a3a-2b1a10107bd9:
+    tasks:
+      64569afa-ed14-43d4-8c33-64e6b8309593:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python -m run_dlt_pipelines
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+        depends_on: []
+        condition: null
+        name: Run DLT
+        tags: []
+        connection: orchestra_python_96778
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      41cb8bfc-4230-4065-b91e-6a601b4ea2af:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python -m computation
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+        depends_on: []
+        condition: null
+        name: Complex ELT
+        tags: []
+        connection: orchestra_python_96778
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      00c3e276-4dc7-452c-a2ae-29c7b4f02aae:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: manual_carrier
+        depends_on: []
+        condition: null
+        name: Fivetran
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      1d74a440-f1a1-418b-8584-79dcad0c8eb7:
+        integration: AWS_LAMBDA
+        integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
+        parameters:
+          function_name: ' aws_lambda_test'
+        depends_on: []
+        condition: null
+        name: Lambda ingest
+        tags: []
+        connection: aws_lambda__dev__70069
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+  7a61c803-5624-4644-bb1e-fae8379eeaa8:
+    tasks:
+      c3300454-c37d-4bfc-8894-a11a279a576e:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          project_dir: dbt_projects/postgres/jaffle_shop_postgres
+          shallow_clone_dirs: dbt_projects/postgres
+        depends_on: []
+        condition: null
+        name: dbt run
+        tags: []
+        connection: postgres__prod__27132
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - 32be8199-4e28-437e-9a3a-2b1a10107bd9
+    condition: task_groups['32be8199-4e28-437e-9a3a-2b1a10107bd9'].all().status ==
+      'COMPLETED'
+    name: ''
+schedule:
+- name: Manual trigger
+  cron: 0 8 ? * * *
+  timezone: UTC
+  environment: null
+  branch: null
+trigger_events: []
+webhook:
+  enabled: false
+  operation_metadata: null
+configuration: null
