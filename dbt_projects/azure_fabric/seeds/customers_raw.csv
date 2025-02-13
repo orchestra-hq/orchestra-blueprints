@@ -1,0 +1,101 @@
+customer_id,first_name,last_name,email,phone_number,address,city,state,zip_code,account_creation_date,last_purchase_date,loyalty_points
+CUST0001,Susan,Wade,frankanderson@hotmail.com,(316)485-1318,"0393 Wyatt Creek, Davismouth, IL 79112",Obrienchester,Louisiana,77766,2022-06-21,2024-05-27,1260
+CUST0002,Thomas,Rowe,alexandra10@farley.info,(859)537-8375,"48667 Alvarez Branch, Harrisonchester, FL 92765",Port Joshuahaven,Nebraska,12373,2022-12-20,2023-12-26,9870
+CUST0003,Larry,Anderson,qkeller@stokes.biz,8225910339,"15745 Willis Station, Edwardsfurt, DE 89121",South Laurenshire,Colorado,28311,2024-10-17,2024-03-06,3794
+CUST0004,Joshua,Hansen,jason40@gmail.com,+1-625-547-1592x749,"97365 Flores Underpass Suite 785, Lake Johnny, MI 73025",Turnerborough,Michigan,57204,2021-01-13,2024-09-28,7817
+CUST0005,Christopher,Moore,murphyjoseph@hotmail.com,(401)350-9285x520,"27420 Lisa Course, New Nicole, WY 64112",East Nathanton,Georgia,21335,2021-04-24,2024-08-19,1058
+CUST0006,Amber,Thompson,lambbrent@wilson.com,001-459-884-9560,"2208 Donna Point, Port Julie, GA 87394",New Jenny,Maine,41460,2023-11-10,2024-01-30,5851
+CUST0007,James,Neal,erikbrown@buchanan.com,1082075688,"987 Rebecca Rue Suite 032, North Samuel, DC 13680",New Timothy,Wisconsin,67966,2023-02-24,2024-03-28,500
+CUST0008,Crystal,Gay,michaelhensley@gmail.com,806-178-4606x9117,"0974 Smith Ways, Bowmanville, IA 15699",Kathyland,Alaska,13781,2023-05-25,2024-06-14,7026
+CUST0009,Stephanie,Payne,kellygilbert@lee.com,001-405-503-3487x41254,"706 Suzanne Islands, Dayberg, WI 08157",West Mary,Alabama,29619,2020-09-30,2024-09-09,2531
+CUST0010,Michelle,Williams,ugill@yahoo.com,684.756.4247x21654,"272 Walker Stravenue Suite 725, Elizabethtown, ID 73082",Jamesland,Minnesota,25293,2021-11-02,2024-03-22,7905
+CUST0011,Bruce,Houston,jonestyrone@yahoo.com,321.991.5253x93073,"9680 Jaclyn Unions Apt. 299, New James, ME 07581",South Melissa,Tennessee,54778,2020-07-14,2024-03-12,6451
+CUST0012,Amy,Carter,rochamichelle@yahoo.com,350.355.7686,"8716 Fernando Well Apt. 539, Lake Daniel, NV 20220",North Amber,Illinois,35528,2023-06-22,2024-02-24,6136
+CUST0013,Mark,Patterson,perezjoyce@brown.com,087.119.7702x624,"88414 Henry Estate Apt. 740, New Brenda, OK 63289",Lewismouth,Oklahoma,20930,2023-02-10,2024-07-06,9740
+CUST0014,Jeremy,Smith,thomasandrea@yahoo.com,3897561127,"5101 Lindsay Drive Suite 578, North Sherry, WY 99498",West Scottmouth,Washington,84377,2023-08-05,2024-10-26,673
+CUST0015,Jessica,Roth,jamie68@yahoo.com,454.134.4331x988,"6908 Edward Lodge Apt. 921, Corystad, FL 31207",West Stephanieberg,North Carolina,31262,2024-02-13,2024-06-28,7526
+CUST0016,Lisa,Cooley,cruzmathew@yahoo.com,(725)606-4500x82155,"4710 Bowen Shore, North Juan, NJ 46187",Phillipfort,Utah,28951,2023-09-19,2024-04-05,4865
+CUST0017,Julie,Huynh,crystalmason@gmail.com,745.704.6632,"PSC 6294, Box 3122, APO AA 87093",West Hollychester,Florida,74492,2020-09-03,2024-07-07,1752
+CUST0018,Michelle,Figueroa,dixonmarcus@lambert-webb.com,001-637-412-5816x475,"USCGC Newton, FPO AP 30142",Lake Heiditon,Alabama,39508,2023-03-30,2024-06-16,3755
+CUST0019,Kelly,Gray,barbara77@gmail.com,001-199-137-9152x5940,"8268 Daniel Roads, Alexmouth, WV 04419",South Jeffreyhaven,Iowa,96518,2023-11-18,2024-06-26,8372
+CUST0020,Terri,Griffith,martin17@gmail.com,+1-547-759-5465x624,"94854 Lauren Oval Suite 190, East Angelaberg, MT 58331",Shawbury,West Virginia,80772,2022-09-29,2023-12-03,654
+CUST0021,Michelle,Valentine,jose95@munoz.biz,+1-541-073-7552x6397,"7480 Walton Prairie Suite 119, North David, IL 93476",Kelleystad,Arkansas,64282,2022-12-21,2024-05-04,8481
+CUST0022,Carl,Jackson,ihendrix@yahoo.com,5466097394,"4873 Nichole Mews, Walkerside, SC 35407",West Michael,Massachusetts,58678,2020-10-23,2023-11-24,1597
+CUST0023,Diamond,Spence,gdavis@ellis.com,500.129.6633x3551,"99152 Michael Junctions Apt. 304, South Jerrychester, IN 76001",Davisborough,New Jersey,19830,2019-11-19,2024-11-04,7094
+CUST0024,Tyler,Zimmerman,sharon16@peters.com,+1-822-915-2539x2191,"7533 David Ramp, Mosleyhaven, NV 01494",Nathanmouth,Connecticut,45175,2022-09-03,2023-12-19,7005
+CUST0025,James,Moon,smithmary@sawyer.com,+1-185-096-6155,"252 Kimberly Extensions, East Sean, IL 63699",Stacybury,Vermont,66583,2022-02-07,2024-01-28,5171
+CUST0026,Travis,Hanson,vbrown@webster.com,687-986-3907x80780,"8658 Williams Crescent Suite 913, Port Jasonstad, LA 49267",Andersonland,Texas,48806,2019-12-31,2023-12-09,9759
+CUST0027,Donna,Campbell,christina57@rodriguez.org,001-177-810-0346x028,"776 Jesse Cliff, Robertsonstad, FL 73735",West Heidi,Pennsylvania,94090,2023-01-28,2024-05-19,2200
+CUST0028,Richard,Cooper,qgarcia@johns.info,839-583-5775x60317,"306 Hancock Crossing Suite 298, Hayesberg, IN 46430",South Meganchester,New Mexico,85458,2024-07-01,2024-02-03,5831
+CUST0029,Barry,Morgan,makaylathomas@fox.com,+1-270-112-1950,"158 Reed Stravenue Apt. 082, Wolfeborough, CA 94818",New Margaret,Delaware,57632,2024-08-06,2023-12-27,7110
+CUST0030,Stephen,Brown,abond@yahoo.com,(297)395-2042x977,"478 Henson Pines Suite 282, Elizabethview, IL 83705",Lake Julie,New Hampshire,35531,2021-04-28,2024-06-24,3257
+CUST0031,Michael,Lyons,marystewart@braun.com,613.930.2377,"USNV Barrera, FPO AE 58950",Moorechester,Virginia,07462,2021-03-05,2024-09-15,6312
+CUST0032,Ruth,Howard,jonesdiana@simpson.com,+1-692-737-0085,"9227 Wright Harbors Suite 118, West Jaclynside, KY 40715",Stephenbury,Louisiana,46345,2024-01-05,2024-09-15,9001
+CUST0033,Rebecca,Young,christianvasquez@hotmail.com,428-029-4744,"71502 Kaitlyn Centers Suite 406, Jamesshire, AR 21454",Feliciabury,New Jersey,36906,2022-12-27,2024-10-28,187
+CUST0034,Janet,Ibarra,jennifer16@may.com,902-630-9870x7030,"64089 Mclean Tunnel, New Trevor, OR 25185",Woodschester,Arkansas,40153,2023-12-04,2024-07-13,9184
+CUST0035,Denise,Martin,jbarber@gmail.com,887.299.6059,"99699 Brown Vista Suite 664, Katherineside, MI 49493",Lake Mariofort,Wyoming,65669,2022-10-04,2024-02-07,5629
+CUST0036,Reginald,Ford,dawn49@hotmail.com,+1-473-545-6566x65375,"7804 Diane Rest, East Steven, NY 31788",Port Kevin,Georgia,76312,2023-04-03,2023-12-16,5019
+CUST0037,Jimmy,Allen,anthonygarza@espinoza.info,063-919-3296x57577,"371 Tyler Drives Apt. 796, Rebeccaland, MA 61806",Jenniferbury,Illinois,80242,2020-06-01,2024-09-24,6405
+CUST0038,Brandon,Larson,kaylasmith@avery.com,190.110.6150x908,"445 Kristen Rue, Weekschester, TN 74636",South Cindy,Alabama,46978,2020-09-19,2024-06-02,9999
+CUST0039,Christopher,Hoffman,anna01@yahoo.com,001-597-542-0363,"Unit 8395 Box 5745, DPO AA 22537",South Paulhaven,Virginia,46051,2023-10-26,2024-10-26,3409
+CUST0040,Jerry,Carey,michaelsmith@yahoo.com,115.054.5008,"65865 Keller Ridge, North Nicole, VT 03574",Davistown,Idaho,22562,2021-04-29,2023-12-14,5500
+CUST0041,Sandra,Jacobs,garciajoshua@johnson.biz,001-482-137-3962x489,"0358 Zamora Flats Apt. 469, South Anthonyview, SC 93926",Cassandrafurt,Oklahoma,71299,2021-11-14,2024-08-29,2204
+CUST0042,Brian,Hanson,brendarhodes@hill.biz,(060)092-7695x40906,"3022 Lisa Locks Suite 264, New Lindsaymouth, MS 71625",Port Christopher,Wisconsin,24773,2020-09-19,2024-02-18,3337
+CUST0043,Paul,Ross,daniel51@hotmail.com,001-899-651-9054,"61834 Nichols Orchard Apt. 676, South Roger, NJ 41877",New David,Rhode Island,06473,2023-06-09,2024-02-18,8909
+CUST0044,Michele,Jimenez,vjackson@hotmail.com,732.666.3228x3281,"03999 Sandra Viaduct Apt. 672, North Samantha, ND 79478",Johnsonhaven,California,05790,2021-12-05,2024-08-31,1815
+CUST0045,Sheila,Acosta,tramsey@powers-hudson.com,7335823578,"19196 William Corners Suite 013, South Deborahbury, MA 60807",West Barbara,South Dakota,87659,2019-12-02,2024-08-09,2563
+CUST0046,Samantha,Stewart,mathew58@garcia-cross.com,(803)936-0216x679,"482 Timothy Neck, Josephberg, KS 77089",Christopherborough,New York,03062,2023-04-07,2024-02-01,4654
+CUST0047,Kyle,Stanley,garygrant@yahoo.com,732.126.9642,"143 Matthew Circle Suite 759, North Dennis, MT 61327",East Timothymouth,New Hampshire,09614,2024-10-16,2023-12-15,2986
+CUST0048,Daryl,Munoz,amy92@reed.biz,851-295-6560x119,"USCGC Nichols, FPO AP 31660",South Michael,Wyoming,45496,2020-07-23,2024-06-25,5264
+CUST0049,Terrance,Sloan,gvaldez@munoz.com,001-881-790-2325,"75928 Ashley Passage, Michelleborough, WA 39528",Lake Lisabury,North Dakota,19883,2022-04-09,2023-11-30,8507
+CUST0050,Debra,Escobar,hbass@hotmail.com,452-480-8830,"56122 Jones Roads, Lake Brandonberg, VA 86591",Ballton,Alabama,91288,2022-05-17,2024-10-01,6688
+CUST0051,Rhonda,Webb,justinfisher@yahoo.com,2994986293,"88932 Richard Mountains, Jayborough, KS 96603",Danielbury,Louisiana,77641,2023-05-17,2024-03-11,845
+CUST0052,Renee,Massey,landryroger@yahoo.com,294-723-3821,"76924 Mitchell Parkway, Maryburgh, WV 62682",East Tammy,Ohio,72043,2023-01-06,2023-12-12,4029
+CUST0053,Brandon,Lawson,richardhoward@yahoo.com,001-220-747-8612,"863 Higgins Harbors Suite 991, Stephensonview, WY 78767",East Robertmouth,Arkansas,61563,2023-08-01,2024-08-29,826
+CUST0054,Heather,Griffin,zfernandez@hotmail.com,031-901-0740x613,"3031 Tony Knolls Apt. 011, Port Angela, AR 22444",Cisnerosfurt,Pennsylvania,01024,2023-09-24,2024-05-24,3697
+CUST0055,Robin,Jennings,osullivan@hotmail.com,(968)286-1988,"78359 Bates Place, Davidbury, AR 46856",Lake Heather,Utah,81288,2023-08-30,2024-05-04,6308
+CUST0056,Wayne,Gross,deniseharris@sandoval.com,228.256.4910x20318,"898 Mathews Road Suite 611, West Ryan, AK 72617",Gileschester,Ohio,11820,2021-01-17,2024-05-24,6814
+CUST0057,Jessica,Rios,sampsonpatricia@powers-collins.org,(856)064-5471x332,"24644 Padilla Station, North Arielfort, DC 48515",Smithmouth,Mississippi,39677,2021-05-19,2024-07-08,8795
+CUST0058,Alexa,Lawrence,barbaramooney@yahoo.com,+1-326-026-0663x1064,"USCGC Berry, FPO AA 81570",Baileyshire,Washington,11586,2021-04-30,2024-04-26,2709
+CUST0059,Ronald,West,michaelross@stafford.info,(368)855-7458x9320,"20148 Bauer Ville Apt. 727, Jasminetown, TX 92718",Isaacfort,Oregon,45117,2020-04-26,2024-06-08,5503
+CUST0060,Steven,Roberts,jamiedavis@yahoo.com,011.360.3782x605,"4149 Michelle Coves Suite 425, Ryanburgh, CO 35714",Melissamouth,Delaware,25189,2022-03-30,2024-06-15,9623
+CUST0061,Vanessa,Ward,kristin92@hotmail.com,(271)172-9644x4724,"724 Johnston Lock Apt. 697, East Heatherville, MA 98530",Lake Garrett,Indiana,72608,2020-11-14,2024-06-23,4645
+CUST0062,Jesse,Warren,lowecarmen@yahoo.com,(986)944-9221x561,"722 Young Brooks, Ramseyton, HI 90839",New Georgeton,Arizona,71021,2024-06-23,2024-01-04,1261
+CUST0063,John,Liu,michaelgross@hotmail.com,9089137052,"426 Pratt Trail Suite 302, South Elizabeth, NV 06566",Port Ronald,New Jersey,00712,2023-08-20,2023-12-25,9874
+CUST0064,Sylvia,York,selena38@hotmail.com,972-177-6513x130,"USS Ryan, FPO AE 58114",Baxterbury,Wisconsin,33268,2023-05-11,2024-08-11,9856
+CUST0065,Russell,Armstrong,stephanie36@goodwin.com,+1-011-515-0950x6432,"698 Watson Squares Apt. 078, East Harold, NV 21649",South Melissa,Vermont,72535,2023-07-17,2024-06-18,4334
+CUST0066,Holly,Hall,xclark@may-massey.com,350-645-9207,"96390 Ortega Ports Apt. 115, West Holly, ME 99367",Jamesbury,Missouri,94947,2022-07-22,2023-12-29,1898
+CUST0067,Jeremiah,Snyder,dunnjessica@gmail.com,+1-582-601-6512x04876,"35557 Thomas Ridge Suite 557, Lake Brentfurt, AR 11860",South Hannah,Alabama,67562,2021-04-21,2024-08-25,9978
+CUST0068,Ryan,Harrison,jordanjessica@gmail.com,(671)415-3700,"4080 Cervantes Knoll Apt. 225, South Rebeccashire, MD 22314",Perezmouth,Kansas,34147,2021-10-31,2024-10-29,8846
+CUST0069,Jennifer,Bailey,william76@king.com,163.722.0233x19288,"8693 Cody Hollow Suite 899, Johnsonfort, MD 48919",Gibsonmouth,Alabama,21602,2021-01-28,2023-11-11,548
+CUST0070,Jose,Ruiz,jsosa@davis-bridges.com,605-083-3825x8725,"3793 Johnson Road Suite 979, Bradleyville, AZ 84030",Charlesbury,South Carolina,95851,2022-08-15,2024-08-09,5320
+CUST0071,Brian,Miller,jessica44@yahoo.com,(360)321-5967x0482,"527 Miller Spurs Apt. 124, Melanieburgh, WI 07889",East Jennifer,Texas,55399,2022-05-02,2024-06-12,3944
+CUST0072,Francisco,Johnson,matthewjones@yahoo.com,(430)388-7126,"493 Alexandra Place, South Patricia, LA 46560",Floreston,Oklahoma,94450,2020-02-16,2023-11-23,9246
+CUST0073,Laura,Robles,khodges@cooper.com,112-507-4246x469,"6447 Stewart Ports, Rodriguezview, IL 46232",Port Travisport,Illinois,05714,2020-10-21,2024-10-16,9364
+CUST0074,Ian,Rodriguez,kathleenjohnson@mitchell-salas.com,(431)563-2773,"88299 Shawn Plaza, Lake Shelbyshire, GA 36851",Charlenestad,Massachusetts,83363,2023-02-03,2024-05-14,6036
+CUST0075,Andrea,Yoder,jlewis@kelley.com,454.237.9158x782,"13795 Katherine Streets, South Victoria, PA 66678",Lake Austinhaven,Ohio,49346,2023-12-08,2024-09-21,2172
+CUST0076,Connie,Davis,donaldmartinez@henderson.com,581-501-8831x10582,"6374 Baker Way Apt. 936, South Alexander, WY 33426",North Geraldport,Wisconsin,73241,2021-08-26,2024-05-08,3649
+CUST0077,Brian,Lee,david34@hotmail.com,001-942-457-4699x57069,"Unit 9459 Box 4575, DPO AA 77508",Port Ericport,South Dakota,91333,2022-11-11,2024-10-17,1258
+CUST0078,Matthew,Evans,parkjessica@gmail.com,+1-120-551-4972,"0290 Kim Mount, East Davidstad, MI 61892",Port Marialand,Mississippi,88550,2020-04-12,2024-01-25,7186
+CUST0079,Thomas,West,davidwilliams@haas.com,730.214.7565,"37706 Debra Extension, East Jesse, PA 57124",Mckeemouth,Delaware,42511,2020-10-11,2024-02-23,612
+CUST0080,Scott,Bonilla,andradejessica@newton.com,+1-039-561-4875x788,"70999 Olson Meadow Apt. 873, East Sonyaland, AL 55283",South Steven,Michigan,06765,2019-12-07,2023-11-05,4795
+CUST0081,Marissa,Crawford,williamsrobert@gmail.com,798.873.1157,"675 Nicole Shore Suite 057, Turnertown, NM 38877",North Christopherchester,West Virginia,90779,2022-02-13,2024-05-06,5953
+CUST0082,David,Oliver,meaganalexander@gmail.com,631-667-1401,"308 Adam Harbor Apt. 819, Port Ericfort, VT 03266",Jeffreystad,Florida,81665,2024-08-03,2024-03-29,7335
+CUST0083,Max,Wallace,jmcgrath@jones.com,534.790.7777x946,"370 Rich Club, West Johnbury, DC 11472",Jessicaville,Hawaii,55110,2023-05-14,2024-02-02,7990
+CUST0084,Sarah,Hunter,elliottcarl@yahoo.com,(930)163-8420x563,"8794 William Valley, New Rebeccabury, SC 67566",West Larry,New Jersey,84416,2020-02-09,2023-11-08,1211
+CUST0085,Todd,Dunn,kathryn53@hotmail.com,+1-818-571-8486x135,"9469 Morrow Brooks Suite 979, Robinshire, IL 95137",Jenniferland,Pennsylvania,46128,2023-12-03,2024-10-18,9992
+CUST0086,Bailey,Harris,amberwatkins@gmail.com,+1-842-046-6342x2249,"34076 Jennifer Street Suite 121, Port Sara, NH 58350",West Marytown,Washington,75545,2021-12-01,2024-08-17,2320
+CUST0087,Kristen,Adams,tinadavis@smith.net,001-406-817-6004x6226,"040 Christina Ranch, Torresland, NV 61489",West Rachelview,Colorado,21854,2024-07-19,2024-01-06,369
+CUST0088,Brian,Wise,jeanettemedina@james-lopez.biz,1973512401,"174 Anderson Rapid Suite 354, Jamieton, MA 67046",Adrianborough,Wyoming,44095,2020-03-30,2024-10-28,8044
+CUST0089,Donna,Dennis,garciaclayton@hotmail.com,+1-179-516-5901,"179 Campbell Loaf Suite 064, Dennischester, DE 74160",South Edward,Oklahoma,64275,2020-06-19,2024-01-03,1356
+CUST0090,Denise,Conrad,rebeccaherrera@sanchez.com,001-302-790-0290x5754,"4484 Tony Overpass, East Michaelchester, KY 56706",Morrisburgh,Oregon,17910,2020-10-10,2023-12-05,9521
+CUST0091,Sarah,Anderson,gonzalezjohn@munoz.com,892.265.3232,"65989 Daniel Drives, Lake John, VA 70821",New Lauren,Texas,33249,2022-05-14,2024-07-14,1672
+CUST0092,Shelly,Welch,richard79@chandler.org,7157504977,"PSC 9228, Box 0341, APO AA 45971",Mollymouth,Massachusetts,52180,2024-05-22,2023-12-05,8222
+CUST0093,Micheal,Smith,phillip62@farrell-gutierrez.biz,475-850-2719x936,"49375 Walter Bridge, Paulport, WI 17295",Port Troyfort,Maine,73464,2024-06-06,2024-05-05,6242
+CUST0094,Dawn,Velazquez,mariaperez@yahoo.com,+1-977-817-5962x6922,"2811 Garrett Stravenue Apt. 932, Port Audreyview, IA 56419",Port David,New Hampshire,36236,2019-12-27,2024-04-14,3645
+CUST0095,Nicholas,Pugh,petersonmelissa@thomas.org,001-189-655-8119x111,"79797 Randy Gateway Suite 828, Wrightfurt, NJ 96291",South Carla,Rhode Island,13494,2020-09-20,2024-10-24,9690
+CUST0096,Rodney,Osborne,wmunoz@gmail.com,(738)072-4375,"1300 Thomas Junctions Apt. 688, Lake Luis, NC 67756",Marshallborough,Montana,40369,2021-01-01,2024-08-26,2102
+CUST0097,Laura,Johnson,jamiemejia@rivera-campbell.com,3595814924,"488 Smith Gateway Suite 462, Port Michelle, FL 55226",Sanchezburgh,Alaska,05981,2021-05-06,2023-12-22,6406
+CUST0098,Duane,Serrano,jeffruiz@ho.com,(511)474-6100x746,"25313 Jacobs Ridges, Lake Alexanderland, AK 55255",Jonesfurt,Ohio,75539,2024-10-29,2024-06-03,1118
+CUST0099,Robert,Patterson,chaneydawn@hotmail.com,(884)540-2910x05209,"9564 Patrick Green Apt. 181, Kristenfort, MT 66845",East Jeffrey,New Mexico,73756,2024-03-03,2023-12-29,98
+CUST0100,Lisa,Bauer,hmorrow@thomas-shannon.com,942-915-0984,"305 Brian Hill, Coreyburgh, NC 07139",West Sandra,Missouri,12205,2022-08-23,2024-08-28,1392

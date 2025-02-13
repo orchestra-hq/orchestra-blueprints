@@ -1,0 +1,44 @@
+
+version: 2
+
+models:
+  - name: app_events_clean
+    config:
+      tags: ['daily', 'test']
+    description: "Cleaned Google Analytics Events"
+    columns:
+      - name: _pk
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
+  - name: customers
+    config:
+      tags: ['daily', 'test']
+    description: "Cleaned Google Analytics Events"
+    columns:
+      - name: _pk
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
+  - name: orders
+    config:
+      tags: ['daily', 'test']
+    description: "Cleaned Google Analytics Events"
+    columns:
+      - name: _pk
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
+  - name: products
+    config:
+      tags: ['daily', 'test']
+    description: "Cleaned Google Analytics Events"
+    columns:
+      - name: _pk
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null

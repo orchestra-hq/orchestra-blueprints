@@ -1,0 +1,14 @@
+
+version: 2
+
+models:
+  - name: orders_with_products
+    config:
+      tags: ['daily', 'test']
+    description: "Cleaned Google Analytics Events"
+    columns:
+      - name: _pk
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
