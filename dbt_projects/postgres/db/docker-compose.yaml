@@ -1,0 +1,12 @@
+services:
+  create-db:
+    build: .
+    volumes:
+      - .:/app
+    environment:
+      - POSTGRES_PASSWORD=<PASSWORD_OF_INSTANCE>
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_HOST=<HOST_OF_INSTANCE>
+      - POSTGRES_PORT=5432
+    working_dir: /app
