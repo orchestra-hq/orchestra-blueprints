@@ -88,6 +88,27 @@ pipeline:
     condition: task_groups['32be8199-4e28-437e-9a3a-2b1a10107bd9'].all().status ==
       'COMPLETED'
     name: ''
+  d2b74cb1-c546-4e0e-920a-2e39d290661b:
+    tasks:
+      cba7b7a7-9044-4a00-8fd5-2aaf485f9ee1:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt test
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        condition: null
+        name: dbt test
+        tags: []
+        connection: postgres__prod__27132
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - 7a61c803-5624-4644-bb1e-fae8379eeaa8
+    condition: null
+    name: ''
 schedule:
 - name: Manual trigger
   cron: 0 8 ? * * *
