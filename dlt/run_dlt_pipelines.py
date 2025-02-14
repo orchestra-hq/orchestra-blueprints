@@ -3,4 +3,4 @@ import os
 
 
 run_pipeline()
-print("SUccess")
+print("Success")
