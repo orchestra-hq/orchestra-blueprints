@@ -23,7 +23,7 @@ pipeline:
           command: python -m run_dlt_pipelines
           package_manager: PIP
           python_version: '3.12'
-          build_command: pip install -r dlt/requirements.txt
+          build_command: pip install -r requirements.txt
           project_dir: dlt
           shallow_clone_dirs: dlt
         depends_on: []
@@ -50,7 +50,7 @@ pipeline:
         condition: null
         name: dbt build
         tags: []
-        connection: dbt_bigquery_bitbucket_56320
+        connection: dbt_core_bigquery_prod_38077
         operation_metadata:
           f66e4983-6322-409f-802f-f2c08c7bf126:
             s3_bucket_name: null

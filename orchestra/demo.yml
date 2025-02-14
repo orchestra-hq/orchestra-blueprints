@@ -1,0 +1,28 @@
+version: v1
+name: test
+pipeline:
+  c46ef5f2-a845-448d-9771-9a85e12675a3:
+    tasks:
+      bbbf1d26-b08d-479c-b96a-c63d6c04c5c1:
+        integration: AIRBYTE_CLOUD
+        integration_job: AIRBYTE_CLOUD_JOB
+        parameters:
+          connection_id: dfd
+          job_type: reset
+        depends_on: []
+        condition: null
+        name: dfd
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+schedule: []
+trigger_events: []
+webhook:
+  enabled: false
+  operation_metadata: null
+configuration: null
