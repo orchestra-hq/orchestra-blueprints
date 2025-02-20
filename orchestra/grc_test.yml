@@ -1,0 +1,27 @@
+version: v1
+name: grc_test
+pipeline:
+  e13b77c7-6a40-41fa-bd70-c20814dce700:
+    tasks:
+      ebf27936-eb3c-4f4b-be60-20886d2fab81:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: manual_carrier
+        depends_on: []
+        condition: null
+        name: sync
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+schedule: []
+trigger_events: []
+webhook:
+  enabled: false
+  operation_metadata: null
+configuration: null
