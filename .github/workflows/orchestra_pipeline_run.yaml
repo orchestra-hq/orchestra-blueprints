@@ -26,4 +26,4 @@ jobs:
           api_key: ${{ secrets.ORCHESTRA_API_KEY }}
           pipeline_id: a4208ef2-cc6e-4aba-8bc0-543694cb2725
           poll_interval: 20
-          environment: ${{ github.event_name == 'pull_request' && 'staging' || 'production' }}
+          environment: ${{ github.event_name == 'pull_request' && 'Staging' || 'Production' }}
