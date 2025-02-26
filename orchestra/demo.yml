@@ -12,7 +12,7 @@ pipeline:
           python_version: '3.12'
         depends_on: []
         condition: null
-        name: dbt build__
+        name: dbt build
         tags: []
         connection: ${{ ENV.DBT_CORE_CONNECTION }}
         operation_metadata:
