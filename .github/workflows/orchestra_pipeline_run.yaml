@@ -15,7 +15,7 @@ on:
 
 jobs:
   test-action:
-    runs-on: actions-runner-set-small-builder
+    runs-on: ubuntu-latest
     environment: production
     steps:
       - name: Checkout code
