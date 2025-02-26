@@ -1,0 +1,29 @@
+name: Test orchestra-hq/run-pipeline action
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "orchestra/demo.yaml"
+  push:
+    branches:
+      - main
+    paths:
+      - "orchestra/demo.yaml"
+  workflow_dispatch:
+
+jobs:
+  test-action:
+    runs-on: actions-runner-set-small-builder
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  
+      - name: Run Custom Action
+        uses: orchestra-hq/run-pipeline@v1
+        with:
+          api_key: ${{ secrets.ORCHESTRA_API_KEY }}
+          pipeline_id: a4208ef2-cc6e-4aba-8bc0-543694cb2725
+          poll_interval: 20
+          environment: ${{ github.event_name == 'pull_request' && 'staging' || 'production' }}
