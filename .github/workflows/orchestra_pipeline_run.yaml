@@ -5,12 +5,12 @@ on:
     branches:
       - main
     paths:
-      - "orchestra/demo.yaml"
+      - "orchestra/demo.yml"
   push:
     branches:
       - main
     paths:
-      - "orchestra/demo.yaml"
+      - "orchestra/demo.yml"
   workflow_dispatch:
 
 jobs:
