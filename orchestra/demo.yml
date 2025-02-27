@@ -7,12 +7,12 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: dbt ru
+          commands: dbt run;
           package_manager: PIP
           python_version: '3.12'
         depends_on: []
         condition: null
-        name: dbt build
+        name: dbt run
         tags: []
         connection: ${{ ENV.DBT_CORE_CONNECTION }}
         operation_metadata:
