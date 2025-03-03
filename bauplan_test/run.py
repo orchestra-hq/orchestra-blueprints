@@ -124,7 +124,7 @@ def wap_with_bauplan(
     https://docs-3.prefect.io/3.0rc/develop/transactions#write-your-first-transaction
     """
     print("Starting WAP at {}!".format(datetime.now()))
-    bauplan_client = bauplan.Client(os.environ['BAUPLAN_API_KEY'])
+    bauplan_client = bauplan.Client(api_key=os.environ['BAUPLAN_API_KEY'])
     ### THIS IS THE WRITE
     # first, ingest data from the s3 source into a table the Bauplan branch
     source_to_iceberg_table(
