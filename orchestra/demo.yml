@@ -27,6 +27,32 @@ pipeline:
     depends_on: []
     condition: null
     name: ''
+  36b9771d-4941-4f01-ab8e-caa7f618e3b5:
+    tasks:
+      d77ae3d4-1707-4400-ba62-0c9952604171:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt run;
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        condition: null
+        name: '[COPY] dbt run'
+        tags: []
+        connection: ${{ ENV.DBT_CORE_CONNECTION }}
+        operation_metadata:
+          2bf43aba-de82-4826-ac38-ef517cc78581:
+            s3_bucket_name: null
+            s3_key_prefix: null
+            dbt_warehouse_identifier: null
+            integration: GCP_BIG_QUERY
+            connection: bigquery_metadata_79232
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
 schedule: []
 trigger_events: []
 webhook:
