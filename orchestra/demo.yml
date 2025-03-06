@@ -1,5 +1,5 @@
 version: v1
-name: test
+name: Github dbt-core
 pipeline:
   c46ef5f2-a845-448d-9771-9a85e12675a3:
     tasks:
