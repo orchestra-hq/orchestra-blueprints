@@ -1,0 +1,30 @@
+version: v1
+name: new_fabric
+pipeline:
+  bd69d477-fbf3-4ba9-a988-cd3ae8468630:
+    tasks:
+      93a7dade-1a3e-48bc-93c1-a5890ee206df:
+        integration: AZURE_DATA_FACTORY
+        integration_job: ADF_PIPELINE_RUN
+        parameters:
+          resource_group: datafactory-rg454
+          data_factory: orchestra-test-datafactory
+          pipeline_name: copy_wait_loop
+        depends_on: []
+        condition: null
+        name: Run Data Factory
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+schedule: []
+sensors: []
+trigger_events: []
+webhook:
+  enabled: false
+  operation_metadata: null
+configuration: null
