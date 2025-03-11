@@ -8,7 +8,7 @@ pipeline:
         integration_job: AWS_EC2_SSM_RUN_SCRIPT
         parameters:
           instance_id: i-12347
-          command: python -m backfill
+          command: python -m ingest
           os_type: windows
         depends_on: []
         condition: null
