@@ -18,6 +18,20 @@ pipeline:
         operation_metadata: null
         treat_failure_as_warning: null
         configuration: null
+      9bd43c6b-78ea-471a-bf64-ed84e8127b81:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: execute task insert_task;
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Snowflake Query
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
     depends_on: []
     condition: null
     name: ''
