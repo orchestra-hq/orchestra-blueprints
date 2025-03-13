@@ -1,0 +1,74 @@
+version: v1
+name: bruno
+pipeline:
+  8f3b6407-e93e-4da8-853c-61c4500d1d94:
+    tasks:
+      a62d5413-f3a3-4bf4-b6f9-78e346d2c794:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python -m run_dlt_pipelines.py
+          package_manager: PIP
+          python_version: '3.12'
+          set_outputs: false
+          build_command: pip install -r requirements.txt
+          project_dir: dlt
+          shallow_clone_dirs: dlt
+        depends_on: []
+        condition: null
+        name: Run DLT
+        tags: []
+        connection: python__production__blueprints__19239
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+  13e61d0f-24eb-4241-a909-b2a5b9572305:
+    tasks:
+      2aae2cd7-e6c6-42e0-88ea-bc1ef62f6afa:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build;
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        condition: null
+        name: dbt core on bigquery
+        tags: []
+        connection: dbt_core_bigquery_prod_38077
+        operation_metadata:
+          39846ee5-df3f-4171-ab7d-40292f9a65aa:
+            s3_bucket_name: null
+            s3_key_prefix: null
+            dbt_warehouse_identifier: null
+            integration: GCP_BIG_QUERY
+            connection: bigquery_metadata_79232
+        treat_failure_as_warning: null
+        configuration: null
+      09a0f018-d515-4176-9198-b0106549a5c9:
+        integration: GCP_BIG_QUERY
+        integration_job: GCP_BQ_RUN_SCHEDULED_QUERY_JOB
+        parameters:
+          resource_name: Scheduled_Query_Job
+        depends_on: []
+        condition: null
+        name: Run Scheduled query
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - 8f3b6407-e93e-4da8-853c-61c4500d1d94
+    condition: null
+    name: ''
+schedule: []
+sensors: []
+trigger_events: []
+webhook:
+  enabled: false
+  operation_metadata: null
+configuration: null
