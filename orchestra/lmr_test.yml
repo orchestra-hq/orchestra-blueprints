@@ -1,0 +1,44 @@
+version: v1
+name: lmr_test
+pipeline:
+  965d6c5d-feb5-448e-a6d6-8408d075a72e:
+    tasks:
+      babe6e87-b06a-47bb-9c0d-9427ab069dfb:
+        integration: AWS_EC2
+        integration_job: AWS_EC2_SSM_RUN_SCRIPT
+        parameters:
+          instance_id: i-12347
+          command: python -m ingest
+          os_type: windows
+        depends_on: []
+        condition: null
+        name: EC2
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      9bd43c6b-78ea-471a-bf64-ed84e8127b81:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: execute task insert_task;
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Snowflake Query
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+schedule: []
+sensors: []
+trigger_events: []
+webhook:
+  enabled: false
+  operation_metadata: null
+configuration: null
