@@ -1,0 +1,50 @@
+
+version: 2
+
+models:
+  - name: snowflake_orders_staging
+    description: "A staging model for orders"
+    columns:
+      - name: _pk
+        description: "The primary key for this table"
+        tests:
+          - not_null
+          - unique
+  - name: product_usage_staging
+    config:
+      tags:
+        - massive_dag 
+    description: "A staging model for orders"
+    columns:
+      - name: vid
+        description: "The primary key for this table"
+        tests:
+          - not_null
+          - unique
+  - name: product_objects_staging
+    config:
+      tags:
+        - massive_dag 
+        - test_1
+        - test_2
+    description: "A staging model for orders"
+    columns:
+      - name: vid
+        description: "The primary key for this table"
+        tests:
+          - not_null
+          - unique
+  - name: marketing_data_staging
+    config:
+      tags:
+        - massive_dag 
+        - test_1
+    description: "A staging model for orders"
+    columns:
+      - name: vid
+        description: "The primary key for this table"
+        tests:
+          - not_null
+          - unique
+
+

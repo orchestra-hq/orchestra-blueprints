@@ -1,0 +1,101 @@
+version: 2
+
+models:
+  - name: snowflake_customers_clean
+    description: "Customers with dates cleaned up and pk added"
+    columns:
+      - name: _pk
+        description: "The primary key for this table"
+        tests:
+          - unique
+  - name: snowflake_orders_clean
+    description: "Orders with dates cleaned up and pk added"
+    columns:
+      - name: _pk
+        description: "The primary key for this table"
+        tests:
+          - not_null
+          - unique
+      - name: ship_date
+        description: "The primary key for this table"
+        tests:
+          - test_recent_days:
+              num_days: 1000000
+          - not_null
+  - name: customers_clean
+    config:
+      tags:
+        - massive_dag
+    description: "dummy data"
+    columns:
+      - name: vid
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
+  - name: logins_clean
+    config:
+      tags:
+        - massive_dag
+    description: "dummy data"
+    columns:
+      - name: vid
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
+  - name: pipelines_clean
+    config:
+      tags:
+        - massive_dag
+    description: "dummy data"
+    columns:
+      - name: vid
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
+  - name: ga_data_clean
+    config:
+      tags:
+        - massive_dag
+    description: "dummy data"
+    columns:
+      - name: vid
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
+  - name: tasks_clean
+    config:
+        tags:
+          - massive_dag
+    description: "dummy data"
+    columns:
+      - name: vid
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
+  - name: task_runs_clean
+    config:
+      tags:
+        - massive_dag
+    description: "dummy data"
+    columns:
+      - name: vid
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
+  - name: pipeline_runs_clean
+    config:
+      tags:
+        - massive_dag
+    description: "dummy data"
+    columns:
+      - name: vid
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
