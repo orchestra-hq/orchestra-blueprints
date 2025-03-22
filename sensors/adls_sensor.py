@@ -82,7 +82,7 @@ def authenticate(blob_path:str, container_path:str):
     return
 
 def start(blob_path:str, container_path:str, minutes: int):
-    container_client = get_client(blob_path:str, container_path:str):
+    container_client = get_client(blob_path, container_path)
     blobs = container_client.list_blobs()
     new_blobs = [i.get('name') for i in blobs if is_within_last_minutes(i.get('creation_time'), minutes)]
     if len(blobs_to_download) > 0:
@@ -91,4 +91,4 @@ def start(blob_path:str, container_path:str, minutes: int):
         raise Exception("No new Data")
 
 if __name__=='__main__':
-    authenticate("blob_path", "container_path")
+    authenticate("adlssensor", "test-data")
