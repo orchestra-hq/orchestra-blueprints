@@ -1,5 +1,5 @@
 version: v1
-name: PlayOnSports
+name: ADF/Fabric end to end
 pipeline:
   5173831e-d118-4aeb-bf37-ac445f6ef2df:
     tasks:
@@ -51,39 +51,11 @@ pipeline:
         operation_metadata: null
         treat_failure_as_warning: null
         configuration: null
-      57578f42-2257-4cd6-88e0-00820966ad8b:
-        integration: AWS_GLUE
-        integration_job: AWS_GLUE_RUN_JOB
-        parameters:
-          job_name: Testing
-        depends_on: []
-        condition: null
-        name: Data sync for API
-        tags: []
-        connection: null
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
     depends_on: []
     condition: null
     name: ''
   79316261-8a5d-4b74-b0f8-e7ee94314f63:
     tasks:
-      6813182e-50cf-4d34-826f-3eb671ca48e5:
-        integration: SNOWFLAKE
-        integration_job: SNOWFLAKE_RUN_QUERY
-        parameters:
-          statement: 'Execute task kick_off_task;
-
-            call stored_procedure();'
-        depends_on: []
-        condition: null
-        name: Execute Task
-        tags: []
-        connection: null
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
       fdfb72da-920e-4c34-9a2a-5efdcf3c8a4c:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
@@ -106,15 +78,29 @@ pipeline:
         treat_failure_as_warning: null
         configuration: null
       df6df27c-c3a8-438c-a619-53d63f9da118:
-        integration: AWS_EC2
-        integration_job: AWS_EC2_SSM_RUN_SCRIPT
+        integration: FABRIC
+        integration_job: FABRIC_RUN_DATA_PIPELINE
         parameters:
-          instance_id: i-3456
-          command: sqlmesh run
-          os_type: windows
+          workspace_id: 38afb493-02bd-4cbc-9f33-c08b03c9cfba
+          data_pipeline_id: ea0feb2e-9aec-48ce-8b1a-0317d5606e77
         depends_on: []
         condition: null
-        name: SQLMesh
+        name: Fabric Data Pipeline
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      4cd9d635-66c6-43cf-8002-7f2d339732f4:
+        integration: FABRIC
+        integration_job: FABRIC_RUN_NOTEBOOK
+        parameters:
+          workspace_id: c0e8269c-fd45-46b3-9bb3-284211494fa1
+          notebook_id: 3fdca973-b6b0-420a-bc1d-8a54ad94f623
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Fabric Notebook
         tags: []
         connection: null
         operation_metadata: null
@@ -125,67 +111,18 @@ pipeline:
     - deb19ebc-885e-4dfa-b59d-fb5d534c0601
     condition: null
     name: ''
-  a5b44558-912b-491e-99ce-29f9cd8d0d1c:
-    tasks:
-      81c8fbde-831c-4b2c-a810-10d573c7f074:
-        integration: HIGHTOUCH
-        integration_job: HIGHTOUCH_SYNC
-        parameters:
-          sync_id: '2023628'
-        depends_on: []
-        condition: null
-        name: Reverse ELT
-        tags: []
-        connection: null
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
-      c0adcda0-46ae-4de0-b491-b8f1c51a216f:
-        integration: TABLEAU_CLOUD
-        integration_job: TABLEAU_REFRESH_EXTRACT
-        parameters:
-          project_name: Irvine
-          datasource_name: Irvine_1
-        depends_on: []
-        condition: null
-        name: Refresh Data
-        tags: []
-        connection: null
-        operation_metadata: null
-        treat_failure_as_warning: true
-        configuration: null
-    depends_on:
-    - 79316261-8a5d-4b74-b0f8-e7ee94314f63
-    condition: null
-    name: ''
-  a16a0abb-daf1-4203-a3fc-efafaacb9752:
-    tasks:
-      cca10d8e-5d1a-4b78-9107-aa6220bedc51:
-        integration: HIGHTOUCH
-        integration_job: HIGHTOUCH_SYNC
-        parameters:
-          sync_id: '1233'
-        depends_on: []
-        condition: null
-        name: Run sync
-        tags: []
-        connection: null
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
-    depends_on:
-    - deb19ebc-885e-4dfa-b59d-fb5d534c0601
-    condition: null
-    name: ''
 schedule:
 - name: 5f0b30ff-375b-4051-99f3-20d5788f1e16
   cron: 0 8 ? * * *
   timezone: UTC
   environment: null
   branch: null
+  run_inputs: null
 sensors: []
 trigger_events: []
 webhook:
   enabled: false
   operation_metadata: null
+  run_inputs: null
 configuration: null
+inputs: null
