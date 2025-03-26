@@ -25,16 +25,8 @@ pipeline:
           notebook_id: 3fdca973-b6b0-420a-bc1d-8a54ad94f623
           execution_data: "{\n    \"executionData\": {\n        \"parameters\": {\n\
             \            \"parameterName\": {\n                \"value\": \"new value\"\
-            ,\n                \"type\": \"string\"\n            }\n        },\n \
-            \       \"configuration\": {\n            \"conf\": {\n              \
-            \  \"spark.conf1\": \"value\"\n            },\n            \"environment\"\
-            : {\n                \"id\": \"<environment_id>\",\n                \"\
-            name\": \"<environment_name>\"\n            },\n            \"defaultLakehouse\"\
-            : {\n                \"name\": \"<lakehouse-name>\",\n               \
-            \ \"id\": \"<lakehouse-id>\",\n                \"workspaceId\": \"<(optional)\
-            \ workspace-id-that-contains-the-lakehouse>\"\n            },\n      \
-            \      \"useStarterPool\": false,\n            \"useWorkspacePool\": \"\
-            <workspace-pool-name>\"\n        }\n    }\n}"
+            ,\n                \"type\": \"string\"\n            }\n        }\n}\n\
+            }"
           set_outputs: false
         depends_on: []
         condition: null
