@@ -107,10 +107,9 @@ sensors:
   checks:
     S3 Sensor Check:
       integration: AWS_S3
-      connection: null
+      connection: aws_s3_sensor__prod__92531
       sensor_type: AWS_S3_FILE
       parameters:
-        connection: aws_s3_sensor__prod__92531
         bucket_name: orchestra-sensor
         prefix: event_data
       outputs: false
