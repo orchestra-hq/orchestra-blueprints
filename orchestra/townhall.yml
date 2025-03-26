@@ -11,7 +11,7 @@ pipeline:
           set_outputs: true
         depends_on: []
         condition: null
-        name: 'Select from '
+        name: Select some data
         tags: []
         connection: null
         operation_metadata: null
