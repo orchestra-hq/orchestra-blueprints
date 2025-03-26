@@ -13,7 +13,7 @@ pipeline:
         condition: null
         name: Select some data
         tags: []
-        connection: null
+        connection: ${{ ENV.snowflake_connection }}
         operation_metadata: null
         treat_failure_as_warning: null
         configuration: null
