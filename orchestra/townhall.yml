@@ -109,9 +109,9 @@ sensors:
   frequency_secs: null
   run_inputs: null
 - name: S3 Sensor
-  cron: 0 8 ? * * *
+  cron: 40 14 ? * * *
   timezone: UTC
-  timeout_mins: 60
+  timeout_mins: 10
   checks:
     S3 Sensor Check:
       integration: AWS_S3
