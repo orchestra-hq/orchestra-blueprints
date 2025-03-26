@@ -94,9 +94,9 @@ sensors:
   frequency_secs: null
   run_inputs: null
 - name: Sensor trigger
-  cron: 0 8 ? * * *
+  cron: 33 14 ? * * *
   timezone: UTC
-  timeout_mins: 60
+  timeout_mins: 5
   checks:
     Webhook Check:
       integration: ORCHESTRA
