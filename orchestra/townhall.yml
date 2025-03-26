@@ -68,7 +68,7 @@ pipeline:
 schedule: []
 sensors:
 - name: Orchestra Pipeline
-  cron: 34 14 ? * * *
+  cron: 50 14 ? * * *
   timezone: UTC
   timeout_mins: 10
   checks:
@@ -94,7 +94,7 @@ sensors:
   frequency_secs: null
   run_inputs: null
 - name: Sensor trigger
-  cron: 33 14 ? * * *
+  cron: 50 14 ? * * *
   timezone: UTC
   timeout_mins: 5
   checks:
@@ -109,7 +109,7 @@ sensors:
   frequency_secs: null
   run_inputs: null
 - name: S3 Sensor
-  cron: 40 14 ? * * *
+  cron: 50 14 ? * * *
   timezone: UTC
   timeout_mins: 10
   checks:
