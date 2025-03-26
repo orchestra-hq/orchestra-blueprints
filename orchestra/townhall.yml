@@ -1,0 +1,57 @@
+version: v1
+name: townhall_demo
+pipeline:
+  00a2c6e1-1dd9-49f9-b779-8fa9ae093476:
+    tasks:
+      6dcd0441-0429-44f0-89c8-bb0aac359b80:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: select * from hubspot_contacts_raw
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: 'Select from '
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+schedule: []
+sensors:
+- name: Orchestra Pipeline
+  cron: 0 8 ? * * *
+  timezone: UTC
+  timeout_mins: 10
+  checks:
+    Orchestra Sensor Block 1:
+      integration: ORCHESTRA
+      connection: null
+      sensor_type: ORCHESTRA_PIPELINE_STATUS
+      parameters:
+        pipeline_id: 628c3ba0-b874-4b60-9aff-871c202d55dc
+        statuses:
+        - SUCCEEDED
+      outputs: false
+    Orchestra Sensor Block 2:
+      integration: ORCHESTRA
+      connection: null
+      sensor_type: ORCHESTRA_PIPELINE_STATUS
+      parameters:
+        pipeline_id: 46a6b747-121c-4351-879a-0a7031923c85
+        statuses:
+        - SUCCEEDED
+      outputs: false
+  condition: null
+  frequency_secs: null
+  run_inputs: null
+trigger_events: []
+webhook:
+  enabled: false
+  operation_metadata: null
+  run_inputs: null
+configuration: null
+inputs: null
