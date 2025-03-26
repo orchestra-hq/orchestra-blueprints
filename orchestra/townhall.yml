@@ -8,7 +8,7 @@ pipeline:
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
           statement: select * from hubspot_contacts_raw
-          set_outputs: false
+          set_outputs: true
         depends_on: []
         condition: null
         name: 'Select from '
