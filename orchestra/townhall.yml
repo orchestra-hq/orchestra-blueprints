@@ -17,6 +17,51 @@ pipeline:
         operation_metadata: null
         treat_failure_as_warning: null
         configuration: null
+      80df7198-70b2-471a-96ab-1557ab957ecb:
+        integration: FABRIC
+        integration_job: FABRIC_RUN_NOTEBOOK
+        parameters:
+          workspace_id: c0e8269c-fd45-46b3-9bb3-284211494fa1
+          notebook_id: 3fdca973-b6b0-420a-bc1d-8a54ad94f623
+          execution_data: "{\n    \"executionData\": {\n        \"parameters\": {\n\
+            \            \"parameterName\": {\n                \"value\": \"new value\"\
+            ,\n                \"type\": \"string\"\n            }\n        },\n \
+            \       \"configuration\": {\n            \"conf\": {\n              \
+            \  \"spark.conf1\": \"value\"\n            },\n            \"environment\"\
+            : {\n                \"id\": \"<environment_id>\",\n                \"\
+            name\": \"<environment_name>\"\n            },\n            \"defaultLakehouse\"\
+            : {\n                \"name\": \"<lakehouse-name>\",\n               \
+            \ \"id\": \"<lakehouse-id>\",\n                \"workspaceId\": \"<(optional)\
+            \ workspace-id-that-contains-the-lakehouse>\"\n            },\n      \
+            \      \"useStarterPool\": false,\n            \"useWorkspacePool\": \"\
+            <workspace-pool-name>\"\n        }\n    }\n}"
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Fabric Notebook
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      0f44709e-dc3b-4246-8a5c-b6c3e611e530:
+        integration: FABRIC
+        integration_job: FABRIC_RUN_DATA_PIPELINE
+        parameters:
+          workspace_id: 38afb493-02bd-4cbc-9f33-c08b03c9cfba
+          data_pipeline_id: ea0feb2e-9aec-48ce-8b1a-0317d5606e77
+          execution_data: "{\n    \"executionData\": {\n        \"parameters\": {\n\
+            \            \"orchestra_task_run_id\": \"${{ ORCHESTRA.TASK_RUN_ID }}\"\
+            \n        }\n    }\n}"
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Fabric Pipeline
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
     depends_on: []
     condition: null
     name: ''
