@@ -52,14 +52,14 @@ pipeline:
           statement: '
 
             select * from test_hl_lakehouse_1.year_2017.green_tripdata_2017 limit
-            10;
+            10
 
             '
         depends_on: []
         condition: null
         name: T-SQL
         tags: []
-        connection: null
+        connection: fabric__prod__43823
         operation_metadata: null
         treat_failure_as_warning: null
         configuration: null
