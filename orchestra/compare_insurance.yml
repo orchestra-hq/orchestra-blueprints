@@ -129,7 +129,7 @@ pipeline:
           sync_id: '2023628'
         depends_on: []
         condition: null
-        name: Reverse ETL
+        name: Reverse ETL_I changed!
         tags: []
         connection: null
         operation_metadata: null
