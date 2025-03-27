@@ -3,20 +3,6 @@ name: townhall_demo
 pipeline:
   00a2c6e1-1dd9-49f9-b779-8fa9ae093476:
     tasks:
-      6dcd0441-0429-44f0-89c8-bb0aac359b80:
-        integration: SNOWFLAKE
-        integration_job: SNOWFLAKE_RUN_QUERY
-        parameters:
-          statement: select * from hubspot_contacts_raw
-          set_outputs: true
-        depends_on: []
-        condition: null
-        name: Select some data
-        tags: []
-        connection: ${{ ENV.snowflake_connection }}
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
       80df7198-70b2-471a-96ab-1557ab957ecb:
         integration: FABRIC
         integration_job: FABRIC_RUN_NOTEBOOK
@@ -54,22 +40,30 @@ pipeline:
         operation_metadata: null
         treat_failure_as_warning: null
         configuration: null
-      aacd7f12-e29b-4bd5-966b-8185f7810ec0:
-        integration: DBT_CORE
-        integration_job: DBT_CORE_EXECUTE
+    depends_on: []
+    condition: null
+    name: ''
+  c75b3468-3d61-4015-969c-b355450053bc:
+    tasks:
+      eb3b0e55-38d5-44c3-b3d8-bbd6739c96b3:
+        integration: FABRIC_SYNAPSE
+        integration_job: FABRIC_SYNAPSE_RUN_QUERY
         parameters:
-          commands: dbt run;
-          package_manager: PIP
-          python_version: '3.12'
+          statement: "SELECT TOP (100) [customer_id],\n\t\t\t[first_name],\n\t\t\t\
+            [last_name],\n\t\t\t[email],\n\t\t\t[phone_number],\n\t\t\t[address],\n\
+            \t\t\t[city],\n\t\t\t[state],\n\t\t\t[zip_code],\n\t\t\t[account_creation_date],\n\
+            \t\t\t[last_purchase_date],\n\t\t\t[loyalty_points],\n\t\t\t[_pk]\nFROM\
+            \ [test-fabric-warehouse].[dbo].[aggregated_customers]"
         depends_on: []
         condition: null
-        name: DBT TRANSFORMATIONS
+        name: T-SQL
         tags: []
         connection: null
         operation_metadata: null
         treat_failure_as_warning: null
         configuration: null
-    depends_on: []
+    depends_on:
+    - 00a2c6e1-1dd9-49f9-b779-8fa9ae093476
     condition: null
     name: ''
 schedule: []
