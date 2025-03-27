@@ -47,12 +47,16 @@ pipeline:
     tasks:
       eb3b0e55-38d5-44c3-b3d8-bbd6739c96b3:
         integration: FABRIC_SYNAPSE
-        integration_job: FABRIC_SYNAPSE_RUN_QUERY
+        integration_job: FABRIC_SYNAPSE_RUN_DQ_TEST
         parameters:
-          statement: "\nselect \nTOP 10 *\n from [test_hl_lakehouse_1].[year_2017].[green_tripdata_2017] "
+          statement: "SELECT * \nFROM test_lh_3.dbo.days\nWHERE countryOrRegion =\
+            \ 'United Kingdom' \nAND date = CURRENT_DATE \nand type = 'public_holiday'\n\
+            LIMIT 100;"
+          error_threshold_expression: '> 1000000'
+          warn_threshold_expression: = 0
         depends_on: []
         condition: null
-        name: T-SQL
+        name: Is Holiday?
         tags: []
         connection: fabric__prod__43823
         operation_metadata: null
@@ -62,23 +66,69 @@ pipeline:
     - 00a2c6e1-1dd9-49f9-b779-8fa9ae093476
     condition: null
     name: ''
-  53010e13-3869-4842-9b0e-727438bf08a9:
+  e5afe275-52f0-46c4-9f6e-587e670ace79:
     tasks:
-      6f9c0a9f-7995-4cf6-a190-b86903f7afbe:
-        integration: FABRIC_SYNAPSE
-        integration_job: FABRIC_SYNAPSE_RUN_QUERY
+      e8831c0b-e35f-4d3f-ab63-afee4d02096a:
+        integration: FABRIC
+        integration_job: FABRIC_RUN_DATA_PIPELINE
         parameters:
-          statement: SELECT TOP (1) [customer_id] FROM [test-fabric-warehouse].[dbo].[aggregated_customers]
+          workspace_id: something
+          data_pipeline_id: else
+          set_outputs: false
         depends_on: []
         condition: null
-        name: '[COPY] T-SQL'
+        name: Only on Holidays
         tags: []
-        connection: fabric__prod__43823
+        connection: null
         operation_metadata: null
         treat_failure_as_warning: null
         configuration: null
     depends_on:
-    - 00a2c6e1-1dd9-49f9-b779-8fa9ae093476
+    - c75b3468-3d61-4015-969c-b355450053bc
+    condition: task_groups['c75b3468-3d61-4015-969c-b355450053bc'].all().status ==
+      'SUCCEEDED'
+    name: ''
+  adb53afa-a341-4cd9-bd4c-984d1cef1f61:
+    tasks:
+      2d4d9e63-d44e-4c1a-b4b1-d5c1d0a01578:
+        integration: FABRIC
+        integration_job: FABRIC_RUN_DATA_PIPELINE
+        parameters:
+          workspace_id: erer
+          data_pipeline_id: erer
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Run the next PIpeline
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - e5afe275-52f0-46c4-9f6e-587e670ace79
+    condition: null
+    name: ''
+  dc18b9c2-b776-4ce6-a5b6-08965465a65c:
+    tasks:
+      9680922d-6686-4fe7-af66-afbcd6b49b2c:
+        integration: FABRIC
+        integration_job: FABRIC_RUN_DATA_PIPELINE
+        parameters:
+          workspace_id: ere
+          data_pipeline_id: ere
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: on Every Day
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - adb53afa-a341-4cd9-bd4c-984d1cef1f61
+    - c75b3468-3d61-4015-969c-b355450053bc
     condition: null
     name: ''
 schedule: []
