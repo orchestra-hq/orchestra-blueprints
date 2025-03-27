@@ -1,0 +1,150 @@
+version: v1
+name: Insurify end toe nd
+pipeline:
+  99ee4295-a66e-42ad-8139-c49d0c462053:
+    tasks:
+      ec3f188b-ba6d-46df-aec8-d0bb9584216e:
+        integration: AWS_EC2
+        integration_job: AWS_EC2_SSM_RUN_SCRIPT
+        parameters:
+          instance_id: i-0e27e289e188fa433
+          command: "echo \"Hello world\"\ncat << 'EOF' > random_logger.sh\ngenerate_random_message()\
+            \ {\n    echo \"Random Message $((RANDOM % 100 + 1))\"\n}\n\n# Start time\n\
+            start_time=$(date +%s)\n\n# Run for 20 seconds\nwhile [ $(($(date +%s)\
+            \ - start_time)) -lt 20 ]; do\n    # Get the current time\n    current_time=$(date\
+            \ '+%Y-%m-%d %H:%M:%S')\n    \n    # Generate a random message\n    random_message=$(generate_random_message)\n\
+            \    \n    # Log the message\n    echo \"$current_time - $random_message\"\
+            \n    \n    # Wait for a random interval between 0.5 and 2 seconds\n \
+            \   sleep_time=$(awk -v min=0.5 -v max=2 'BEGIN{srand(); print min+rand()*(max-min)}')\n\
+            \    sleep $sleep_time\ndone\n\n# Exit the program\nexit 0\nEOF\nsleep\
+            \ 2\nchmod +x random_logger.sh\n./random_logger.sh\necho \"Goodbye\""
+          os_type: linux
+        depends_on: []
+        condition: null
+        name: Ingest Data from AWS
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      254f1f7e-289d-4fb6-ae62-95826dc52486:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python -m run_dlt_pipelines
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Run DLT
+        tags: []
+        connection: orchestra_python_96778
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+  426e44f7-5905-4cc8-9c99-d587ea6bc97c:
+    tasks:
+      bb6fd290-540c-4be5-9885-fbabc2c01aeb:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: manual_carrier
+        depends_on: []
+        condition: null
+        name: Salesforce ingest
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+  d9a43c34-e589-44aa-a147-65f5fa8fdf9c:
+    tasks:
+      9cdeb26d-b379-436b-b3f9-77805d8eb259:
+        integration: AWS_LAMBDA
+        integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
+        parameters:
+          function_name: aws_lambda_test
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Event Ingestion
+        tags: []
+        connection: ${{ ENV.LAMBDA_CONNECTION }}
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+  8e1aae5f-b897-4a08-a465-4c675c075a00:
+    tasks:
+      01c174ff-5778-4c18-bc30-662d287f2b21:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build;
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        condition: null
+        name: dbt run
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      878b3264-af29-489e-abb0-2cc39c63ff64:
+        integration: AWS_REDSHIFT
+        integration_job: AWS_REDSHIFT_EXECUTE_STATEMENT
+        parameters:
+          statement: SELECT * from DEV.PUBLIC."raw" LIMIT 10;
+        depends_on: []
+        condition: null
+        name: Execute Stored Proc
+        tags: []
+        connection: redshift_prod_02183
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - 426e44f7-5905-4cc8-9c99-d587ea6bc97c
+    - 99ee4295-a66e-42ad-8139-c49d0c462053
+    - d9a43c34-e589-44aa-a147-65f5fa8fdf9c
+    condition: null
+    name: ''
+  2655e993-a3cc-4c5b-8976-870ae887f564:
+    tasks:
+      f17a9414-c1d4-4d4c-9ac2-59b867a2b61f:
+        integration: HIGHTOUCH
+        integration_job: HIGHTOUCH_SYNC
+        parameters:
+          sync_id: '2023628'
+        depends_on: []
+        condition: null
+        name: Reverse ETL
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - 8e1aae5f-b897-4a08-a465-4c675c075a00
+    condition: null
+    name: ''
+schedule: []
+sensors: []
+trigger_events: []
+webhook:
+  enabled: false
+  operation_metadata: null
+  run_inputs: null
+configuration: null
+inputs: null
