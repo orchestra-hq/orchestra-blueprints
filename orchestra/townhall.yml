@@ -68,10 +68,7 @@ pipeline:
         integration: FABRIC_SYNAPSE
         integration_job: FABRIC_SYNAPSE_RUN_QUERY
         parameters:
-          statement: "SELECT TOP (1) [customer_id],\n\t\t\t[first_name],\n\t\t\t[last_name],\n\
-            \t\t\t[email],\n\t\t\t[phone_number],\n\t\t\t[address],\n\t\t\t[city],\n\
-            \t\t\t[state],\n\t\t\t[zip_code],\n\t\t\t[account_creation_date],\n\t\t\
-            \t[last_purchase_date],\n\t\t\t[loyalty_points],\n\t\t\t[_pk]\nFROM [test-fabric-warehouse].[dbo].[aggregated_customers]"
+          statement: SELECT TOP (1) [customer_id] FROM [test-fabric-warehouse].[dbo].[aggregated_customers]
         depends_on: []
         condition: null
         name: '[COPY] T-SQL'
