@@ -1,0 +1,29 @@
+name: Test orchestra-hq/run-pipeline action
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "orchestra/compare_insurance.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "orchestra/compare_insurance.yml"
+  workflow_dispatch:
+
+jobs:
+  test-action:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  
+      - name: Run Custom Action
+        uses: orchestra-hq/run-pipeline@v1
+        with:
+          api_key: ${{ secrets.ORCHESTRA_API_KEY }}
+          pipeline_id: a67f7ba3-d22a-4b9b-be0b-0f80b2e35936
+          poll_interval: 20
+          environment: ${{ github.event_name == 'pull_request' && 'Staging' || 'Production' }}
