@@ -129,7 +129,7 @@ pipeline:
           sync_id: '2023628'
         depends_on: []
         condition: null
-        name: Hightouch
+        name: Reverse ETL
         tags: []
         connection: null
         operation_metadata: null
