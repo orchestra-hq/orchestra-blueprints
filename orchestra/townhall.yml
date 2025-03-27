@@ -62,6 +62,28 @@ pipeline:
     - 00a2c6e1-1dd9-49f9-b779-8fa9ae093476
     condition: null
     name: ''
+  53010e13-3869-4842-9b0e-727438bf08a9:
+    tasks:
+      6f9c0a9f-7995-4cf6-a190-b86903f7afbe:
+        integration: FABRIC_SYNAPSE
+        integration_job: FABRIC_SYNAPSE_RUN_QUERY
+        parameters:
+          statement: "SELECT TOP (1) [customer_id],\n\t\t\t[first_name],\n\t\t\t[last_name],\n\
+            \t\t\t[email],\n\t\t\t[phone_number],\n\t\t\t[address],\n\t\t\t[city],\n\
+            \t\t\t[state],\n\t\t\t[zip_code],\n\t\t\t[account_creation_date],\n\t\t\
+            \t[last_purchase_date],\n\t\t\t[loyalty_points],\n\t\t\t[_pk]\nFROM [test-fabric-warehouse].[dbo].[aggregated_customers]"
+        depends_on: []
+        condition: null
+        name: '[COPY] T-SQL'
+        tags: []
+        connection: fabric__prod__43823
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - 00a2c6e1-1dd9-49f9-b779-8fa9ae093476
+    condition: null
+    name: ''
 schedule: []
 sensors:
 - name: Orchestra Pipeline
