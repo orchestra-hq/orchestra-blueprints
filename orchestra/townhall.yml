@@ -49,12 +49,7 @@ pipeline:
         integration: FABRIC_SYNAPSE
         integration_job: FABRIC_SYNAPSE_RUN_QUERY
         parameters:
-          statement: '
-
-            select * from test_hl_lakehouse_1.year_2017.green_tripdata_2017 limit
-            10
-
-            '
+          statement: "\nselect \nTOP 10 *\n from [test_hl_lakehouse_1].[year_2017].[green_tripdata_2017] "
         depends_on: []
         condition: null
         name: T-SQL
