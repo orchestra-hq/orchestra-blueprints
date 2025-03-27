@@ -49,9 +49,7 @@ pipeline:
         integration: FABRIC_SYNAPSE
         integration_job: FABRIC_SYNAPSE_RUN_DQ_TEST
         parameters:
-          statement: "SELECT * \nFROM test_lh_3.dbo.days\nWHERE countryOrRegion =\
-            \ 'United Kingdom' \nAND date = CURRENT_DATE \nand type = 'public_holiday'\n\
-            LIMIT 100;"
+          statement: "SELECT TOP 1 * \nFROM test_lh_3.dbo.holidays;"
           error_threshold_expression: '> 1000000'
           warn_threshold_expression: = 0
         depends_on: []
@@ -69,12 +67,10 @@ pipeline:
   e5afe275-52f0-46c4-9f6e-587e670ace79:
     tasks:
       e8831c0b-e35f-4d3f-ab63-afee4d02096a:
-        integration: FABRIC
-        integration_job: FABRIC_RUN_DATA_PIPELINE
+        integration: FABRIC_SYNAPSE
+        integration_job: FABRIC_SYNAPSE_RUN_QUERY
         parameters:
-          workspace_id: something
-          data_pipeline_id: else
-          set_outputs: false
+          statement: "SELECT TOP 1 * \nFROM test_lh_3.dbo.holidays;"
         depends_on: []
         condition: null
         name: Only on Holidays
@@ -91,12 +87,10 @@ pipeline:
   adb53afa-a341-4cd9-bd4c-984d1cef1f61:
     tasks:
       2d4d9e63-d44e-4c1a-b4b1-d5c1d0a01578:
-        integration: FABRIC
-        integration_job: FABRIC_RUN_DATA_PIPELINE
+        integration: FABRIC_SYNAPSE
+        integration_job: FABRIC_SYNAPSE_RUN_QUERY
         parameters:
-          workspace_id: erer
-          data_pipeline_id: erer
-          set_outputs: false
+          statement: "SELECT TOP 1 * \nFROM test_lh_3.dbo.holidays;"
         depends_on: []
         condition: null
         name: Run the next PIpeline
@@ -112,12 +106,10 @@ pipeline:
   dc18b9c2-b776-4ce6-a5b6-08965465a65c:
     tasks:
       9680922d-6686-4fe7-af66-afbcd6b49b2c:
-        integration: FABRIC
-        integration_job: FABRIC_RUN_DATA_PIPELINE
+        integration: FABRIC_SYNAPSE
+        integration_job: FABRIC_SYNAPSE_RUN_QUERY
         parameters:
-          workspace_id: ere
-          data_pipeline_id: ere
-          set_outputs: false
+          statement: "SELECT TOP 1 * \nFROM test_lh_3.dbo.holidays;"
         depends_on: []
         condition: null
         name: on Every Day
