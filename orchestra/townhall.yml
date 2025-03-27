@@ -49,7 +49,7 @@ pipeline:
         integration: FABRIC_SYNAPSE
         integration_job: FABRIC_SYNAPSE_RUN_DQ_TEST
         parameters:
-          statement: "SELECT TOP 1 * \nFROM [test_lh_3].[dbo].[publicholidays];"
+          statement: "SELECT TOP 0 * \nFROM [test_lh_3].[dbo].[publicholidays];"
           error_threshold_expression: '> 1000000'
           warn_threshold_expression: = 0
         depends_on: []
