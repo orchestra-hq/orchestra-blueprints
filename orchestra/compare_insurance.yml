@@ -1,5 +1,5 @@
 version: v1
-name: Insurify end toe nd
+name: Insurify end to end
 pipeline:
   99ee4295-a66e-42ad-8139-c49d0c462053:
     tasks:
