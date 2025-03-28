@@ -167,7 +167,7 @@ sensors:
   frequency_secs: null
   run_inputs: null
 - name: S3 Sensor
-  cron: 0 16 ? * * *
+  cron: 45 8 ? * * *
   timezone: UTC
   timeout_mins: 10
   checks:
@@ -178,76 +178,6 @@ sensors:
       parameters:
         bucket_name: orchestra-sensor
         prefix: event_data
-      outputs: false
-  condition: null
-  frequency_secs: null
-  run_inputs: null
-- name: Sensor trigger
-  cron: 0 0 ? * * *
-  timezone: UTC
-  timeout_mins: 1440
-  checks:
-    '15 Minute Data ':
-      integration: ORCHESTRA
-      connection: null
-      sensor_type: ORCHESTRA_PIPELINE_STATUS
-      parameters:
-        pipeline_id: 46a6b747-121c-4351-879a-0a7031923c85
-        statuses:
-        - SUCCEEDED
-        - WARNING
-      outputs: false
-    Daily data:
-      integration: ORCHESTRA
-      connection: null
-      sensor_type: ORCHESTRA_PIPELINE_STATUS
-      parameters:
-        pipeline_id: 628c3ba0-b874-4b60-9aff-871c202d55dc
-        statuses:
-        - SUCCEEDED
-        - WARNING
-      outputs: false
-  condition: null
-  frequency_secs: null
-  run_inputs: null
-- name: Sensor trigger
-  cron: 0 0 ? * * *
-  timezone: UTC
-  timeout_mins: 1440
-  checks:
-    '15 Minute Data ':
-      integration: ORCHESTRA
-      connection: null
-      sensor_type: ORCHESTRA_PIPELINE_STATUS
-      parameters:
-        pipeline_id: 46a6b747-121c-4351-879a-0a7031923c85
-        statuses:
-        - SUCCEEDED
-        - WARNING
-      outputs: false
-    Daily data:
-      integration: ORCHESTRA
-      connection: null
-      sensor_type: ORCHESTRA_PIPELINE_STATUS
-      parameters:
-        pipeline_id: 628c3ba0-b874-4b60-9aff-871c202d55dc
-        statuses:
-        - SUCCEEDED
-        - WARNING
-      outputs: false
-    Orchestra webhook:
-      integration: ORCHESTRA
-      connection: null
-      sensor_type: ORCHESTRA_WEBHOOK_EVENT
-      parameters:
-        event_type: table_b
-      outputs: false
-    Table A:
-      integration: ORCHESTRA
-      connection: null
-      sensor_type: ORCHESTRA_WEBHOOK_EVENT
-      parameters:
-        event_type: table_a
       outputs: false
   condition: null
   frequency_secs: null
