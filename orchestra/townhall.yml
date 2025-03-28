@@ -125,7 +125,7 @@ pipeline:
     name: ''
 schedule: []
 sensors:
-  9f88503f-e706-4393-b373-dd9154f9cb29:
+  9b9c3dc3-1fcf-47f2-bfad-fff12d69029b:
     name: Orchestra Pipeline
     cron: 10 10 ? * * *
     environments: null
@@ -153,9 +153,9 @@ sensors:
     condition: null
     frequency_secs: null
     run_inputs: null
-  b748adaf-cf92-4997-8fc9-cc4aa741c746:
+  e0a93a72-e2a6-4503-88f2-f2c638f64cbd:
     name: Sensor trigger
-    cron: 36 15 ? * * *
+    cron: 47 15 ? * * *
     environments: null
     timezone: UTC
     timeout_mins: 5
@@ -170,7 +170,7 @@ sensors:
     condition: null
     frequency_secs: null
     run_inputs: null
-  56dc84ca-724c-473c-85f9-12d624f7849b:
+  5be2a6cd-fb95-4288-aa96-cc70b590e587:
     name: S3 Sensor
     cron: 45 8 ? * * *
     environments: null
