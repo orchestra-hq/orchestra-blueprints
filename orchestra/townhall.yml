@@ -126,7 +126,7 @@ pipeline:
 schedule: []
 sensors:
 - name: Orchestra Pipeline
-  cron: 45 8 ? * * *
+  cron: 10 10 ? * * *
   timezone: UTC
   timeout_mins: 10
   checks:
