@@ -125,63 +125,69 @@ pipeline:
     name: ''
 schedule: []
 sensors:
-- name: Orchestra Pipeline
-  cron: 10 10 ? * * *
-  timezone: UTC
-  timeout_mins: 10
-  checks:
-    Orchestra Sensor Block 1:
-      integration: ORCHESTRA
-      connection: null
-      sensor_type: ORCHESTRA_PIPELINE_STATUS
-      parameters:
-        pipeline_id: 628c3ba0-b874-4b60-9aff-871c202d55dc
-        statuses:
-        - SUCCEEDED
-      outputs: false
-    Orchestra Sensor Block 2:
-      integration: ORCHESTRA
-      connection: null
-      sensor_type: ORCHESTRA_PIPELINE_STATUS
-      parameters:
-        pipeline_id: 46a6b747-121c-4351-879a-0a7031923c85
-        statuses:
-        - SUCCEEDED
-      outputs: false
-  condition: null
-  frequency_secs: null
-  run_inputs: null
-- name: Sensor trigger
-  cron: 45 9 ? * * *
-  timezone: UTC
-  timeout_mins: 5
-  checks:
-    Webhook Check:
-      integration: ORCHESTRA
-      connection: null
-      sensor_type: ORCHESTRA_WEBHOOK_EVENT
-      parameters:
-        event_type: demo_event
-      outputs: false
-  condition: null
-  frequency_secs: null
-  run_inputs: null
-- name: S3 Sensor
-  cron: 45 8 ? * * *
-  timezone: UTC
-  timeout_mins: 10
-  checks:
-    S3 Sensor Check:
-      integration: AWS_S3
-      connection: null
-      sensor_type: AWS_S3_FILE
-      parameters:
-        bucket_name: orchestra-sensor
-        prefix: event_data
-      outputs: false
-  condition: null
-  frequency_secs: null
-  run_inputs: null
+  26b774b1-6a1d-43bb-be83-ea48e0cae12f:
+    name: Orchestra Pipeline
+    cron: 10 10 ? * * *
+    environments: null
+    timezone: UTC
+    timeout_mins: 10
+    checks:
+      Orchestra Sensor Block 1:
+        integration: ORCHESTRA
+        connection: null
+        sensor_type: ORCHESTRA_PIPELINE_STATUS
+        parameters:
+          pipeline_id: 628c3ba0-b874-4b60-9aff-871c202d55dc
+          statuses:
+          - SUCCEEDED
+        outputs: false
+      Orchestra Sensor Block 2:
+        integration: ORCHESTRA
+        connection: null
+        sensor_type: ORCHESTRA_PIPELINE_STATUS
+        parameters:
+          pipeline_id: 46a6b747-121c-4351-879a-0a7031923c85
+          statuses:
+          - SUCCEEDED
+        outputs: false
+    condition: null
+    frequency_secs: null
+    run_inputs: null
+  16148942-a0b8-4c8f-9803-47b637d9ecdb:
+    name: Sensor trigger
+    cron: 45 9 ? * * *
+    environments: null
+    timezone: UTC
+    timeout_mins: 5
+    checks:
+      Webhook Check:
+        integration: ORCHESTRA
+        connection: null
+        sensor_type: ORCHESTRA_WEBHOOK_EVENT
+        parameters:
+          event_type: demo_event
+        outputs: false
+    condition: null
+    frequency_secs: null
+    run_inputs: null
+  31ff86c6-c875-4497-af05-225b984b64cc:
+    name: S3 Sensor
+    cron: 45 8 ? * * *
+    environments: null
+    timezone: UTC
+    timeout_mins: 10
+    checks:
+      S3 Sensor Check:
+        integration: AWS_S3
+        connection: null
+        sensor_type: AWS_S3_FILE
+        parameters:
+          bucket_name: orchestra-sensor
+          prefix: event_data
+        outputs: false
+    condition: null
+    frequency_secs: null
+    run_inputs: null
 trigger_events: []
 webhook:
   enabled: false
