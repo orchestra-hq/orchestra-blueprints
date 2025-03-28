@@ -152,7 +152,7 @@ sensors:
   frequency_secs: null
   run_inputs: null
 - name: Sensor trigger
-  cron: 45 8 ? * * *
+  cron: 45 9 ? * * *
   timezone: UTC
   timeout_mins: 5
   checks:
