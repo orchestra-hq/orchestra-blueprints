@@ -1,6 +1,8 @@
 import time
 import numpy as np
 import os 
+import json
+import requests
 
 def power_iteration(A, num_simulations=2500):
     # Starting with a random vector
