@@ -35,9 +35,10 @@ data = {
     "event_type": "SET_OUTPUT",
     "task_run_id": os.getenv('ORCHESTRA_TASK_RUN_ID'),  # Replace with actual taskRunId
     "output_name": "DBT_TABLES",
-    "output_value": "event_parameters+ deals+"
+    "output_value": "event_parameters+ deals_clean+"
 }
 
+url = "https://webhook.getorchestra.io"
 api_key = os.getenv('ORCHESTRA_API_KEY')
 # Set headers with Bearer authentication
 headers = {
