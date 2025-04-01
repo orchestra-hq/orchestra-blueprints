@@ -121,7 +121,9 @@ pipeline:
     depends_on:
     - adb53afa-a341-4cd9-bd4c-984d1cef1f61
     - c75b3468-3d61-4015-969c-b355450053bc
-    condition: null
+    condition: task_groups['adb53afa-a341-4cd9-bd4c-984d1cef1f61'].all().status in
+      ['SUCCEEDED', 'SKIPPED'] and task_groups['c75b3468-3d61-4015-969c-b355450053bc'].all().status
+      in ['SUCCEEDED', 'WARNING']
     name: ''
 schedule: []
 sensors:
