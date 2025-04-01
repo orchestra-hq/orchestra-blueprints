@@ -1,5 +1,5 @@
 version: v1
-name: townhall_demo
+name: Fabric Demo
 pipeline:
   00a2c6e1-1dd9-49f9-b779-8fa9ae093476:
     tasks:
