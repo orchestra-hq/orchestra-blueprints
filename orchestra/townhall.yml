@@ -140,6 +140,7 @@ sensors:
           pipeline_id: 628c3ba0-b874-4b60-9aff-871c202d55dc
           statuses:
           - SUCCEEDED
+        map_outputs: null
         outputs: false
       Orchestra Sensor Block 2:
         integration: ORCHESTRA
@@ -149,6 +150,7 @@ sensors:
           pipeline_id: 46a6b747-121c-4351-879a-0a7031923c85
           statuses:
           - SUCCEEDED
+        map_outputs: null
         outputs: false
     condition: null
     frequency_secs: null
@@ -166,6 +168,7 @@ sensors:
         sensor_type: ORCHESTRA_WEBHOOK_EVENT
         parameters:
           event_type: demo_event
+        map_outputs: null
         outputs: false
     condition: null
     frequency_secs: null
@@ -184,6 +187,25 @@ sensors:
         parameters:
           bucket_name: orchestra-sensor
           prefix: event_data
+        map_outputs: null
+        outputs: false
+    condition: null
+    frequency_secs: null
+    run_inputs: null
+  d7728791-88e0-4e3a-bc39-a03169f9efd0:
+    name: Sensor trigger
+    cron: 0 8 ? * * *
+    environments: null
+    timezone: UTC
+    timeout_mins: 5
+    checks:
+      Fabric Sensor:
+        integration: FABRIC_SYNAPSE
+        connection: fabric__prod__43823
+        sensor_type: FABRIC_SYNAPSE_QUERY
+        parameters:
+          query: SELECT TOP 0 *  FROM [test_lh_3].[dbo].[publicholidays];
+        map_outputs: null
         outputs: false
     condition: null
     frequency_secs: null
