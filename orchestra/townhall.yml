@@ -196,7 +196,7 @@ sensors:
     run_inputs: null
   d7728791-88e0-4e3a-bc39-a03169f9efd0:
     name: Sensor trigger
-    cron: 0 8 ? * * *
+    cron: 15 7 ? * * *
     environments: null
     timezone: UTC
     timeout_mins: 5
