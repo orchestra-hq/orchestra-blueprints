@@ -196,12 +196,12 @@ sensors:
     run_inputs: null
   d7728791-88e0-4e3a-bc39-a03169f9efd0:
     name: Sensor trigger
-    cron: 15 7 ? * * *
+    cron: 30 8 ? * * *
     environments: null
-    timezone: UTC
+    timezone: Europe/London
     timeout_mins: 5
     checks:
-      Fabric Sensor:
+      T-SQL Sensor Check:
         integration: FABRIC_SYNAPSE
         connection: fabric__prod__43823
         sensor_type: FABRIC_SYNAPSE_QUERY
