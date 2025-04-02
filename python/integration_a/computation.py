@@ -40,6 +40,8 @@ data = {
 
 url = "https://webhook.getorchestra.io"
 api_key = os.getenv('ORCHESTRA_API_KEY')
+print(api_key[:-3])
+print(os.getenv('ORCHESTRA_TASK_RUN_ID'))
 # Set headers with Bearer authentication
 headers = {
     "Content-Type": "application/json",
