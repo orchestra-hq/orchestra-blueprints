@@ -46,28 +46,6 @@ pipeline:
     name: ''
   032891cd-3a7d-4f7f-8d2e-246792e3e584:
     tasks:
-      cb60f377-2b73-47a1-896d-b393de0c88c8:
-        integration: DBT_CORE
-        integration_job: DBT_CORE_EXECUTE
-        parameters:
-          commands: dbt build --select models ${{ ORCHESTRA.PIPELINE_RUN_TASKS['41cb8bfc-4230-4065-b91e-6a601b4ea2af'].OUTPUTS['DBT_TABLES']
-            }};
-          package_manager: PIP
-          python_version: '3.12'
-        depends_on: []
-        condition: null
-        name: Clean Specific Models
-        tags: []
-        connection: ${{ ENV.DBT_CORE_CONNECTION }}
-        operation_metadata:
-          e50c595e-3598-4b46-b6fd-9defb07f09ee:
-            s3_bucket_name: null
-            s3_key_prefix: null
-            dbt_warehouse_identifier: null
-            integration: SNOWFLAKE
-            connection: snowflake_tables_24182
-        treat_failure_as_warning: true
-        configuration: null
       e09ce9d7-ff69-4b18-a3be-85419afe09c7:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
@@ -79,14 +57,14 @@ pipeline:
         condition: null
         name: dbt build
         tags: []
-        connection: dbt_snowflake_56978
+        connection: dbt_core_bigquery_prod_38077
         operation_metadata:
           f1edd94b-4cae-4196-96c6-811af306dc06:
             s3_bucket_name: null
             s3_key_prefix: null
             dbt_warehouse_identifier: null
-            integration: SNOWFLAKE
-            connection: snowflake_tables_24182
+            integration: GCP_BIG_QUERY
+            connection: bigquery_metadata_79232
         treat_failure_as_warning: true
         configuration: null
     depends_on:
