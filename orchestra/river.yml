@@ -1,0 +1,181 @@
+version: v1
+name: Riverside 1. AWS/Python
+pipeline:
+  32be8199-4e28-437e-9a3a-2b1a10107bd9:
+    tasks:
+      41cb8bfc-4230-4065-b91e-6a601b4ea2af:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python -m computation
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+
+            "object":"customer",
+
+            "ORCHESTRA_TASK_RUN_ID": ${{ ORCHESTRA.TASK_RUN_ID }}}'
+          project_dir: python/integration_a
+          set_outputs: true
+        depends_on: []
+        condition: null
+        name: Self ingest Data
+        tags: []
+        connection: ${{ ENV.PYTHON_CREDENTIAL }}
+        operation_metadata: null
+        treat_failure_as_warning: true
+        configuration: null
+      acb58305-c5df-40a0-b4d7-8f7bc69baeb9:
+        integration: AWS_GLUE
+        integration_job: AWS_GLUE_RUN_JOB
+        parameters:
+          job_name: Testing
+        depends_on: []
+        condition: null
+        name: Glue Ingest
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+  032891cd-3a7d-4f7f-8d2e-246792e3e584:
+    tasks:
+      cb60f377-2b73-47a1-896d-b393de0c88c8:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build --select models ${{ ORCHESTRA.PIPELINE_RUN_TASKS['41cb8bfc-4230-4065-b91e-6a601b4ea2af'].OUTPUTS['DBT_TABLES']
+            }};
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        condition: null
+        name: Clean Specific Models
+        tags: []
+        connection: ${{ ENV.DBT_CORE_CONNECTION }}
+        operation_metadata:
+          e50c595e-3598-4b46-b6fd-9defb07f09ee:
+            s3_bucket_name: null
+            s3_key_prefix: null
+            dbt_warehouse_identifier: null
+            integration: SNOWFLAKE
+            connection: snowflake_tables_24182
+        treat_failure_as_warning: true
+        configuration: null
+      e09ce9d7-ff69-4b18-a3be-85419afe09c7:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build;
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        condition: null
+        name: dbt build
+        tags: []
+        connection: dbt_snowflake_56978
+        operation_metadata:
+          f1edd94b-4cae-4196-96c6-811af306dc06:
+            s3_bucket_name: null
+            s3_key_prefix: null
+            dbt_warehouse_identifier: null
+            integration: SNOWFLAKE
+            connection: snowflake_tables_24182
+        treat_failure_as_warning: true
+        configuration: null
+    depends_on:
+    - 32be8199-4e28-437e-9a3a-2b1a10107bd9
+    - d942ac73-14b2-4f15-bbaf-d9c2d5b5fccb
+    - ae65a3bd-b022-4d6f-b4b3-b2449044ed97
+    condition: task_groups['32be8199-4e28-437e-9a3a-2b1a10107bd9'].all().status ==
+      'COMPLETED' and task_groups['d942ac73-14b2-4f15-bbaf-d9c2d5b5fccb'].all().status
+      in ['SUCCEEDED', 'WARNING'] and task_groups['ae65a3bd-b022-4d6f-b4b3-b2449044ed97'].all().status
+      in ['SUCCEEDED', 'WARNING']
+    name: ''
+  d942ac73-14b2-4f15-bbaf-d9c2d5b5fccb:
+    tasks:
+      303035de-58c0-4325-b2bb-99a9c3a36662:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: manual_carrier
+        depends_on: []
+        condition: null
+        name: ingest CRM data
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      a785ab9f-82e3-4efe-b73b-549fc3a896c4:
+        integration: HEVO
+        integration_job: HEVO_CHECK_DESTINATION_STATUS
+        parameters:
+          hevo_destination_id: '2'
+        depends_on: []
+        condition: null
+        name: Move Data
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: true
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+  2b1be034-d048-42f8-822d-63639d81e514:
+    tasks:
+      0ff1b35d-3e40-40b9-b28b-f8aa38e73d33:
+        integration: HIGHTOUCH
+        integration_job: HIGHTOUCH_SYNC
+        parameters:
+          sync_id: '2023628'
+        depends_on: []
+        condition: null
+        name: Reverse ELT
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - 032891cd-3a7d-4f7f-8d2e-246792e3e584
+    condition: null
+    name: ''
+  ae65a3bd-b022-4d6f-b4b3-b2449044ed97:
+    tasks:
+      0b3891fd-7896-42d8-99c6-139c7ce0d5f4:
+        integration: RIVERY
+        integration_job: RIVERY_RUN_RIVER
+        parameters:
+          river_id: '2'
+        depends_on: []
+        condition: null
+        name: Rivery ingest
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: true
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+schedule:
+- name: Manual trigger
+  cron: 0 8 ? * * *
+  timezone: UTC
+  environment: null
+  branch: null
+  run_inputs: null
+sensors: {}
+trigger_events: []
+webhook:
+  enabled: false
+  operation_metadata: null
+  run_inputs: null
+configuration: null
+inputs: null
