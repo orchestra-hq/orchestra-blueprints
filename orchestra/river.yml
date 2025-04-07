@@ -11,8 +11,11 @@ pipeline:
           package_manager: PIP
           python_version: '3.12'
           build_command: pip install -r requirements.txt
-          environment_variables: '{"ORCHESTRA_TASK_RUN_ID": ${{ ORCHESTRA.TASK_RUN_ID
-            }}}'
+          environment_variables: '{
+
+            "object":"customer",
+
+            "ORCHESTRA_TASK_RUN_ID": ${{ ORCHESTRA.TASK_RUN_ID }}}'
           project_dir: python/integration_a
           set_outputs: true
         depends_on: []
