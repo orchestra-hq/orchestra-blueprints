@@ -5,12 +5,12 @@ on:
     branches:
       - main
     paths:
-      - "orchestra/demo.yml"
+      - "orchestra/river.yml"
   push:
     branches:
       - main
     paths:
-      - "orchestra/demo.yml"
+      - "orchestra/river.yml"
   workflow_dispatch:
 
 jobs:
@@ -24,6 +24,6 @@ jobs:
         uses: orchestra-hq/run-pipeline@v1
         with:
           api_key: ${{ secrets.ORCHESTRA_API_KEY }}
-          pipeline_id: a4208ef2-cc6e-4aba-8bc0-543694cb2725
+          pipeline_id: e0f8b0a4-8572-4740-858b-7cb411774367
           poll_interval: 20
           environment: ${{ github.event_name == 'pull_request' && 'Staging' || 'Production' }}
