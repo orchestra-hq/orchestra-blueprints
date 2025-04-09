@@ -142,20 +142,6 @@ pipeline:
         operation_metadata: null
         treat_failure_as_warning: true
         configuration: null
-      9d73ec36-840f-48f7-bb67-8aea4ff4e697:
-        integration: DATABRICKS
-        integration_job: DATABRICKS_EXECUTE_STATEMENT
-        parameters:
-          warehouse_id: a19d84c53280bf5f
-          statement: ' select sum(1) from orchestra_demo_2.information_schema.tables'
-        depends_on: []
-        condition: null
-        name: Databricks Insert
-        tags: []
-        connection: null
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
     depends_on: []
     condition: null
     name: ''
