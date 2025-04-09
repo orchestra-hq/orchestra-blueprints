@@ -106,6 +106,7 @@ pipeline:
         configuration: null
     depends_on:
     - 858fa38d-19f1-4d58-8c3f-952252de1aac
+    - 4a70fd49-100c-4366-92bb-75eb5e752b21
     condition: null
     name: ''
   c58d671e-5171-482a-8b89-f4771ae26a38:
@@ -124,6 +125,44 @@ pipeline:
         treat_failure_as_warning: null
         configuration: null
     depends_on: []
+    condition: null
+    name: ''
+  980a5f5d-bfe4-44dc-8c38-b52f30def6b5:
+    tasks:
+      18b61c1a-761b-4871-a9be-7c0c09c9a9fe:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: manual_carrier
+        depends_on: []
+        condition: null
+        name: Ingest CRM data
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+  4a70fd49-100c-4366-92bb-75eb5e752b21:
+    tasks:
+      d3fa2c5d-89b1-41f4-87d5-28df2bb19ef6:
+        integration: COALESCE
+        integration_job: COALESCE_RUNJOB
+        parameters:
+          environment_id: ${{format_date(orchestra.current_time, '8')}}
+          snowflake_auth_type: KeyPair
+        depends_on: []
+        condition: null
+        name: Transform with Coalesce
+        tags: []
+        connection: coalesce__prod__30733
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - 980a5f5d-bfe4-44dc-8c38-b52f30def6b5
     condition: null
     name: ''
 schedule: []
