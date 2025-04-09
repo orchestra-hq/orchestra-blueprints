@@ -82,7 +82,7 @@ pipeline:
             dbt_warehouse_identifier: null
             integration: SNOWFLAKE
             connection: snowflake_tables_24182
-        treat_failure_as_warning: null
+        treat_failure_as_warning: true
         configuration: null
     depends_on:
     - b73ae979-d662-4e46-844d-c79c80768f90
@@ -122,7 +122,7 @@ pipeline:
         tags: []
         connection: azure_synapse__prod__35822
         operation_metadata: null
-        treat_failure_as_warning: null
+        treat_failure_as_warning: true
         configuration: null
     depends_on: []
     condition: null
@@ -140,7 +140,7 @@ pipeline:
         tags: []
         connection: null
         operation_metadata: null
-        treat_failure_as_warning: null
+        treat_failure_as_warning: true
         configuration: null
     depends_on: []
     condition: null
