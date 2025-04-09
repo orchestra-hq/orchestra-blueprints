@@ -1,5 +1,5 @@
 version: v1
-name: Riverside 1. AWS/Python
+name: RealPage1. AWS/Python
 pipeline:
   32be8199-4e28-437e-9a3a-2b1a10107bd9:
     tasks:
@@ -70,10 +70,8 @@ pipeline:
     depends_on:
     - 32be8199-4e28-437e-9a3a-2b1a10107bd9
     - d942ac73-14b2-4f15-bbaf-d9c2d5b5fccb
-    - ae65a3bd-b022-4d6f-b4b3-b2449044ed97
     condition: task_groups['32be8199-4e28-437e-9a3a-2b1a10107bd9'].all().status ==
       'COMPLETED' and task_groups['d942ac73-14b2-4f15-bbaf-d9c2d5b5fccb'].all().status
-      in ['SUCCEEDED', 'WARNING'] and task_groups['ae65a3bd-b022-4d6f-b4b3-b2449044ed97'].all().status
       in ['SUCCEEDED', 'WARNING']
     name: ''
   d942ac73-14b2-4f15-bbaf-d9c2d5b5fccb:
@@ -90,19 +88,6 @@ pipeline:
         connection: null
         operation_metadata: null
         treat_failure_as_warning: null
-        configuration: null
-      a785ab9f-82e3-4efe-b73b-549fc3a896c4:
-        integration: HEVO
-        integration_job: HEVO_CHECK_DESTINATION_STATUS
-        parameters:
-          hevo_destination_id: '2'
-        depends_on: []
-        condition: null
-        name: Move Data
-        tags: []
-        connection: null
-        operation_metadata: null
-        treat_failure_as_warning: true
         configuration: null
     depends_on: []
     condition: null
@@ -124,24 +109,6 @@ pipeline:
         configuration: null
     depends_on:
     - 032891cd-3a7d-4f7f-8d2e-246792e3e584
-    condition: null
-    name: ''
-  ae65a3bd-b022-4d6f-b4b3-b2449044ed97:
-    tasks:
-      0b3891fd-7896-42d8-99c6-139c7ce0d5f4:
-        integration: RIVERY
-        integration_job: RIVERY_RUN_RIVER
-        parameters:
-          river_id: '2'
-        depends_on: []
-        condition: null
-        name: Rivery ingest
-        tags: []
-        connection: null
-        operation_metadata: null
-        treat_failure_as_warning: true
-        configuration: null
-    depends_on: []
     condition: null
     name: ''
 schedule:
