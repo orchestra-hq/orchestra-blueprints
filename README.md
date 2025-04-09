@@ -19,8 +19,26 @@ Components that require in-platform configuration are:
 
 ### dbt
 
-Contains a dbt project.
+Contains dbt projects:
+
+- Fabric
+- BigQuery (to be added)
+- Databricks (to be added)
+- Postgres
+- Snowflake
+
+You should not need the extra folder structure, i.e. dbt/project_name/project_contents. You can just have dbt/project_contents.
+
+You may wish to have multiple directories here for different teams' projects in the same folder _and_ adopting a monorepo strategy.
 
 ### dlt
 
 Contains a dlt project, for running dlt pipelines
+
+### Python
+
+Contains python code for data movement
+
+### Bauplan
+
+Contains template code for executing Bauplan jobs

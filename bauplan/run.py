@@ -187,5 +187,3 @@ if __name__ == "__main__":
         table_name='titanic_orch',
         namespace='orch'
     )
-    
-
