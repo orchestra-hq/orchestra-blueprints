@@ -1,0 +1,118 @@
+version: v1
+name: sg_end_to_ned
+pipeline:
+  c3ca64a6-8c1a-4156-b71a-57e36ff422bf:
+    tasks:
+      43baa8d3-865f-4b73-8d73-c629d4450342:
+        integration: AZURE_VM
+        integration_job: AZURE_VM_RUN_COMMAND
+        parameters:
+          resource_group: orchestra-testing
+          vm_name: test-orchestra-feb-${{format_date(orchestra.current_time, '3')}}
+          vm_architecture: x64
+          os_type: linux
+          script: echo '${{ orchestra.pipeline_run_id }}' && python3 /home/azureuser/run_script.py
+          auto_manage_vm: true
+          location: West Europe
+        depends_on: []
+        condition: null
+        name: Ingest Data from App
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      59e94d10-69ee-43f4-b02b-6d4d200ae729:
+        integration: AZURE_DATA_FACTORY
+        integration_job: ADF_PIPELINE_RUN
+        parameters:
+          resource_group: datafactory-rg454
+          data_factory: orchestra-test-datafactory
+          pipeline_name: copy_wait_loop
+        depends_on: []
+        condition: null
+        name: Ingest Data from On-Premise
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+  b73ae979-d662-4e46-844d-c79c80768f90:
+    tasks:
+      72d8f551-7a0e-4daa-be04-fcb621d3c822:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: execute task kick_off_task;
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Snowflake Task to Load
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - c3ca64a6-8c1a-4156-b71a-57e36ff422bf
+    condition: null
+    name: ''
+  858fa38d-19f1-4d58-8c3f-952252de1aac:
+    tasks:
+      8f1119b4-0aaf-42c3-92a6-72ea0c2745ef:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build;
+          package_manager: PIP
+          python_version: '3.12'
+          warehouse_identifier: JH88529.UK-SOUTH.AZURE
+        depends_on: []
+        condition: null
+        name: dbt core Snowflake
+        tags: []
+        connection: dbt_snowflake_56978
+        operation_metadata:
+          33bccd00-a0bc-4e5a-b7be-4a30979a274c:
+            s3_bucket_name: null
+            s3_key_prefix: null
+            dbt_warehouse_identifier: null
+            integration: SNOWFLAKE
+            connection: snowflake_tables_24182
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - b73ae979-d662-4e46-844d-c79c80768f90
+    condition: null
+    name: ''
+  1f886a46-9d92-4ab3-965d-ac5f355b82c3:
+    tasks:
+      a9c76a1f-6c4f-4597-bc28-9ea40bd44133:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: 5e83dd8a-2c30-44ec-8f53-e5e751ae515d
+        depends_on: []
+        condition: null
+        name: Refresh dataset
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - 858fa38d-19f1-4d58-8c3f-952252de1aac
+    condition: null
+    name: ''
+schedule: []
+sensors: {}
+trigger_events: []
+webhook:
+  enabled: false
+  operation_metadata: null
+  run_inputs: null
+configuration: null
+inputs: null
