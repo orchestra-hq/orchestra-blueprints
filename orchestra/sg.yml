@@ -159,7 +159,7 @@ pipeline:
         tags: []
         connection: coalesce__prod__30733
         operation_metadata: null
-        treat_failure_as_warning: null
+        treat_failure_as_warning: true
         configuration: null
     depends_on:
     - 980a5f5d-bfe4-44dc-8c38-b52f30def6b5
