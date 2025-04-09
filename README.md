@@ -37,7 +37,11 @@ Contains a dlt project, for running dlt pipelines
 
 ### Python
 
-Contains python code for data movement
+Contains python code for data movement.
+
+Note - Orchestra adopts a highly modular architecture which means parameters are set _in_ Orchestra which should be passed down to the python tasks at runtime. Think of your python scripts as all-purpose workers that know how to fetch data different sources like Salesforce, SAP, Postgres. They also know how to apply specific logical patterns to specific objects like Accounts, Orders, Customers, Shipments and so-on. They just need to be told _which_ sources and objects to ingest.
+
+One invocation of a script per table per run is recommended for optimal concurrency.
 
 ### Bauplan
 
