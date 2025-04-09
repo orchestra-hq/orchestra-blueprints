@@ -142,6 +142,20 @@ pipeline:
         operation_metadata: null
         treat_failure_as_warning: true
         configuration: null
+      9d73ec36-840f-48f7-bb67-8aea4ff4e697:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_EXECUTE_STATEMENT
+        parameters:
+          warehouse_id: a19d84c53280bf5f
+          statement: ' select sum(1) from orchestra_demo_2.information_schema.tables'
+        depends_on: []
+        condition: null
+        name: Databricks Insert
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
     depends_on: []
     condition: null
     name: ''
@@ -160,6 +174,28 @@ pipeline:
         connection: coalesce__prod__30733
         operation_metadata: null
         treat_failure_as_warning: true
+        configuration: null
+    depends_on:
+    - 0b52d97d-e459-44b0-90de-ad5c366c3037
+    condition: null
+    name: ''
+  0b52d97d-e459-44b0-90de-ad5c366c3037:
+    tasks:
+      36c98f9b-1abf-4118-9c65-72141704e4df:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_RUN_TEST
+        parameters:
+          warehouse_id: a19d84c53280bf5f
+          statement: ' select sum(1) from orchestra_demo_2.information_schema.tables'
+          error_threshold_expression: '> 20'
+          warn_threshold_expression: '> 10'
+        depends_on: []
+        condition: null
+        name: Data Quality Test
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
         configuration: null
     depends_on:
     - 980a5f5d-bfe4-44dc-8c38-b52f30def6b5
