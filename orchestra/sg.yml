@@ -86,6 +86,7 @@ pipeline:
         configuration: null
     depends_on:
     - b73ae979-d662-4e46-844d-c79c80768f90
+    - c58d671e-5171-482a-8b89-f4771ae26a38
     condition: null
     name: ''
   1f886a46-9d92-4ab3-965d-ac5f355b82c3:
@@ -105,6 +106,24 @@ pipeline:
         configuration: null
     depends_on:
     - 858fa38d-19f1-4d58-8c3f-952252de1aac
+    condition: null
+    name: ''
+  c58d671e-5171-482a-8b89-f4771ae26a38:
+    tasks:
+      9f62a46d-d36d-4e23-85ca-0e4e9de3271d:
+        integration: AZURE_SYNAPSE_ANALYTICS
+        integration_job: SYNAPSE_PIPELINE_RUN
+        parameters:
+          pipeline_name: TestPipeline
+        depends_on: []
+        condition: null
+        name: Synapse Pipeline
+        tags: []
+        connection: azure_synapse__prod__35822
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
     condition: null
     name: ''
 schedule: []
