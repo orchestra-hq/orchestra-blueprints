@@ -1,5 +1,5 @@
 version: v1
-name: 1. SG End to End
+name: 1. End to End pipelines
 pipeline:
   c3ca64a6-8c1a-4156-b71a-57e36ff422bf:
     tasks:
