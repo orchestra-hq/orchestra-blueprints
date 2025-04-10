@@ -134,7 +134,7 @@ def mock_sftp():
             transport.close()
 
             # Output S3-style mock path
-            #set_orchestra_output("s3_path", f"s3://mock-bucket/mock/remote/{file_to_download}")
+            set_orchestra_output("s3_path", filename)
             
         except Exception as e:
             set_orchestra_output("error", str(e))
