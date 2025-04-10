@@ -54,7 +54,7 @@ def set_orchestra_output(output_name: str, output_value:str):
     # Print the response
     print(response.status_code)
     print(response.text)
-     if response.status_code != 200:
+    if response.status_code != 200:
         raise Exception("")
 
 

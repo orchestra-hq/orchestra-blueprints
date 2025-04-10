@@ -83,7 +83,7 @@ def mock_sftp():
     username = "mock_user"
     password = "mock_pass"
     remote_directory = "/mock/remote"
-    file_to_download = "shipments.json"
+    file_to_download = os.getenv('FILE_PATH')
     local_download_path = os.path.join(os.getcwd(), file_to_download)
 
     # ==== MOCKING START ====
@@ -126,8 +126,8 @@ def mock_sftp():
             download_file(sftp, full_remote_path, local_download_path)
             print("Downloading File Complete")
             date__ = str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d'))
-            filename = "sftp/"+date__+"/"+date__+"_data.json"
-            upload_file_to_s3("shipments.json", "orchestra-databricks", filename)
+            filename = "sftp/"+date__+"/"+date__+os.getenv('FILE_PATH')
+            upload_file_to_s3(os.getenv('FILE_PATH'), "orchestra-databricks", filename)
             print("File uploaded to S3")
             # Clean up (mocked)
             sftp.close()
