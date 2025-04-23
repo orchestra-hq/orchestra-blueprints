@@ -87,13 +87,12 @@ def run_quality_checks(
 
 def wap_with_bauplan():
     """
-    Run the WAP ingestion pipeline using Bauplan in an Orchestra Pipeline
-    leveraging the new concept of transactions:
+    Run the WAP ingestion pipeline using Bauplan in Orchestra.
     
     """
     
     # get some vars from orchestra environment
-    s3_path = "s3://alpha-hello-bauplan/green-taxi/*.parquet"
+    s3_path = 's3://alpha-hello-bauplan/green-taxi/*.parquet'
     bauplan_api_key = os.getenv("BAUPLAN_API_KEY")
     # start the Bauplan client
     bauplan_client = bauplan.Client(api_key=bauplan_api_key)
@@ -134,4 +133,3 @@ def wap_with_bauplan():
 
 if __name__ == "__main__":
     wap_with_bauplan()
-    
