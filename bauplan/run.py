@@ -64,12 +64,12 @@ def run_quality_checks(
     column_to_check = 'PULocationID'
     # NOTE if you don't want to use any SQL, you can interact with the lakehouse in pure Python
     # and still back an Arrow table (in this one column) through a performant scan.
-    #print("Perform a S3 columnar scan on the column {}".format(column_to_check))
-    #wap_table = bauplan_client.scan(
-    #    table=namespace+"."+table_name,
-    #    ref=bauplan_ingestion_branch,
-    #    columns=[column_to_check]
-    #)
+    print("Perform a S3 columnar scan on the column {}".format(column_to_check))
+    wap_table = bauplan_client.scan(
+        table=namespace+"."+table_name,
+        ref=bauplan_ingestion_branch,
+        columns=[column_to_check]
+    )
     #print("Read the table successfully!")
     #assert wap_table[column_to_check].null_count > 0, "Quality check failed"
     #print("Quality check passed")
