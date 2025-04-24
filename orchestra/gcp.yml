@@ -131,7 +131,7 @@ pipeline:
           scheduled_plan_id: some_id
         depends_on: []
         condition: null
-        name: RUn scheduled plan
+        name: Run scheduled plan
         tags: []
         connection: null
         operation_metadata: null
