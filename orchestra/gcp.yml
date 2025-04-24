@@ -81,7 +81,7 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: dbt build
+          commands: dbt run --${{ inputs.dbt_type }}
           package_manager: PIP
           python_version: '3.12'
           warehouse_identifier: reference-baton-392114
@@ -150,4 +150,8 @@ webhook:
   operation_metadata: null
   run_inputs: null
 configuration: null
-inputs: null
+inputs:
+  dbt_type:
+    type: string
+    default: ' '
+    optional: null
