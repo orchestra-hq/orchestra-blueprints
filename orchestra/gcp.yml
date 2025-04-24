@@ -81,9 +81,7 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: 'dbt run;
-
-            dbt test;'
+          commands: dbt build --select models tag:bronze;
           package_manager: PIP
           python_version: '3.12'
           warehouse_identifier: reference-baton-392114
@@ -138,6 +136,28 @@ pipeline:
         connection: null
         operation_metadata: null
         treat_failure_as_warning: true
+        configuration: null
+    depends_on:
+    - de9c4231-f8c4-427f-afc5-646e3e9820ac
+    - de9c4231-f8c4-427f-afc5-646e3e9820ac
+    condition: null
+    name: ''
+  de9c4231-f8c4-427f-afc5-646e3e9820ac:
+    tasks:
+      8b7369d2-4f16-4d1c-9731-4b3e97c6d154:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build --select models tag:silver;
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        condition: null
+        name: dbt build silver
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
         configuration: null
     depends_on:
     - 4c687302-c790-48eb-a092-88b81cd4ae16
