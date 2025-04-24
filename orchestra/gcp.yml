@@ -37,7 +37,7 @@ pipeline:
         condition: null
         name: Execute python
         tags: []
-        connection: null
+        connection: python__production__blueprints__19239
         operation_metadata: null
         treat_failure_as_warning: null
         configuration: null
