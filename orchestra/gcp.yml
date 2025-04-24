@@ -81,7 +81,9 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: dbt build
+          commands: 'dbt run;
+
+            dbt test;'
           package_manager: PIP
           python_version: '3.12'
           warehouse_identifier: reference-baton-392114
@@ -89,7 +91,7 @@ pipeline:
         condition: null
         name: dbt build
         tags: []
-        connection: dbt_core_bigquery_prod_38077
+        connection: ${{ ENV.DBT_CORE_CONNECTION }}
         operation_metadata:
           04fb85a3-1bff-4b13-a18a-74bb00a668d0:
             s3_bucket_name: null
