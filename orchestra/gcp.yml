@@ -118,6 +118,22 @@ pipeline:
         operation_metadata: null
         treat_failure_as_warning: null
         configuration: null
+      54b7ae6c-6f38-4c24-9349-0d000c709116:
+        integration: GCP_BIG_QUERY
+        integration_job: GCP_BQ_RUN_QUERY_JOB
+        parameters:
+          query: 'run stored_proc with param
+
+            date=${{ inputs.loaddate }}'
+          enable_drive_scope: false
+        depends_on: []
+        condition: null
+        name: Run stored proc
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
     depends_on:
     - f639866f-220f-4c60-967a-51e70c86837b
     condition: null
@@ -154,4 +170,8 @@ inputs:
   dbt_type:
     type: string
     default: ' '
+    optional: null
+  loaddate:
+    type: string
+    default: ${{ format_date(ORCHESTRA.CURRENT_TIME, "%Y-%m-%d", "UTC") }
     optional: null
