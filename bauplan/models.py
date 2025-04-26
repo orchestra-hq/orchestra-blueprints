@@ -20,7 +20,7 @@ import bauplan
 # e.g. different functions can run with different packages, different versions of the same packages
 # and/or even different versions of the python interpreter
 @bauplan.python('3.11')
-def trips_and_zones(
+def trips_and_zones_2(
         trips=bauplan.Model(
             'taxi_fhvhv',
             # this function performs an S3 scan directly in Python, so we can specify the columns and the filter pushdown
@@ -58,7 +58,7 @@ def normalized_taxi_trips(
         data=bauplan.Model(
             # this function takes the previous one 'trips_and_zones' as an input
             # functions are chained together to form a DAG by naming convention
-            'trips_and_zones',
+            'trips_and_zones_2',
         )
 ):
     import pandas as pd
