@@ -157,33 +157,14 @@ def wap_with_bauplan(
 
 
 if __name__ == "__main__":
-    # parse the args when the script is run from the command line
-    import argparse
-    parser = argparse.ArgumentParser()
-    # table_name, branch_name and s3_path are the main arguments from
-    # the command line
-    #parser.add_argument('--table_name', type=str)
-    #parser.add_argument('--branch_name', type=str)
-    #parser.add_argument('--s3_path', type=str)
-    ##parser.add_argument('--namespace', type=str, default='bauplan')
-    # args = parser.parse_args()
-    
-    # the name of the table we will be ingesting data into
-    #table_name = args.table_name
-    # the name of the data branch in which we will be ingesting data
-    # NOTE: the name should start with your username as a prefix
-    #branch_name = args.branch_name
-    # namespace for the table: note that bauplan is the default
-    #namespace = args.namespace
-    # s3 pattern to the data we want to ingest
-    # NOTE: if you're using Bauplan Alpha environment
-    # this should be a publicly accessible path (list and get should be allowed)
-    #s3_path = args.s3_path
-    #print(f"Starting the WAP flow with the following parameters: {table_name}, {branch_name}, {s3_path}")
-    # start the flow
-    wap_with_bauplan(
-        bauplan_ingestion_branch='orchestra.wap_test_hl_2',
-        source_s3_pattern='s3://alpha-hello-bauplan/green-taxi/*.parquet',
-        table_name='titanic_orch',
-        namespace='orch'
-    )
+    print("Starting WAP at {}!".format(datetime.now()))
+    bauplan_client = bauplan.Client(api_key=os.environ['BAUPLAN_API_KEY'])
+    bauplan_client.run(ref="orchestra.dev_hugo", namespace="bauplan")
+    wap_table = bauplan_client.scan(
+            table="bauplan.trips_and_zones",
+            ref="orchestra.dev_hugo",
+            columns=["PULocationID"]
+        )
+    print("Read the table successfully!")
+
+  
