@@ -165,7 +165,7 @@ if __name__ == "__main__":
     return_object = bauplan_client.run(ref="orchestra.dev_hugo", namespace="bauplan")
     job_list = bauplan_client.get_job_logs(job_id_prefix=return_object.job_id)
     for i in job_list:
-        print(i)
+        print(i.message)
     print("Data Transformations run successfully")
 
   
