@@ -158,13 +158,14 @@ def wap_with_bauplan(
 
 if __name__ == "__main__":
     print("Starting WAP at {}!".format(datetime.now()))
+
     bauplan_client = bauplan.Client(api_key=os.environ['BAUPLAN_API_KEY'])
-    bauplan_client.run(ref="orchestra.dev_hugo", namespace="bauplan")
-    wap_table = bauplan_client.scan(
-            table="bauplan.trips_and_zones",
-            ref="orchestra.dev_hugo",
-            columns=["PULocationID"]
-        )
-    print("Read the table successfully!")
+    
+    #ghyjkl
+    return_object = bauplan_client.run(ref="orchestra.dev_hugo", namespace="bauplan")
+    job_list = bauplan_client.get_job_logs(job_id_prefix=return_object.job_id)
+    for i in job_list:
+        print(i.message)
+    print("Data Transformations run successfully")
 
   

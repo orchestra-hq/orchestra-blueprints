@@ -48,6 +48,7 @@ def trips_and_zones_2(
 
     # join 'trips' with 'zones' on 'PULocationID'
     pickup_location_table = trips.join(zones, 'PULocationID', 'LocationID').combine_chunks()
+    print("Processing trips and zone")
     return pickup_location_table
 
 
@@ -66,6 +67,7 @@ def normalized_taxi_trips(
     import math
 
     # print some debug info - you will see every print statement directly in your terminal
+    print("Processing normalisd taxi trips")
     size_in_gb = round(data.nbytes / math.pow(1024, 3), 3)
     print(f"\nThis table is {size_in_gb} GB and has {data.num_rows} rows\n")
 
