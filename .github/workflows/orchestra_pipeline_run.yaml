@@ -5,12 +5,12 @@ on:
     branches:
       - main
     paths:
-      - "orchestra/river.yml"
+      - "orchestra/hl2e.yml"
   push:
     branches:
       - main
     paths:
-      - "orchestra/river.yml"
+      - "orchestra/hl2e.yml"
   workflow_dispatch:
 
 jobs:
