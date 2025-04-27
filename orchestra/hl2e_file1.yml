@@ -1,0 +1,85 @@
+version: v1
+name: HL_file1
+pipeline:
+  b8617bc2-a542-4a6f-acb9-1dbef29d9616:
+    tasks:
+      64d62730-73ba-4538-9885-802affa163ad:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python -m sftp
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+
+            "FILE_PATH":"orders.json"
+
+            }'
+          project_dir: python/integration_a
+          shallow_clone_dirs: python/integration_a
+          set_outputs: true
+        depends_on: []
+        condition: null
+        name: Load data from SFTP
+        tags: []
+        connection: python__production__blueprints__19239
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+  b91a2f41-d249-47da-a17b-a42e32b4d64e:
+    tasks:
+      4089faf2-e236-43f0-955a-f4c93ae771e9:
+        integration: AWS_EC2
+        integration_job: AWS_EC2_SSM_RUN_SCRIPT
+        parameters:
+          instance_id: i-0e27e289e188fa433
+          command: "echo \"Starting data ingestion\"\ncat << 'EOF' > random_logger.sh\n\
+            generate_random_message() {\n    echo \"Random Message $((RANDOM % 100\
+            \ + 1))\"\n}\n\n# Start time\nstart_time=$(date +%s)\n\n# Run for 20 seconds\n\
+            while [ $(($(date +%s) - start_time)) -lt 20 ]; do\n    # Get the current\
+            \ time\n    current_time=$(date '+%Y-%m-%d %H:%M:%S')\n    \n    # Generate\
+            \ a random message\n    random_message=$(generate_random_message)\n  \
+            \  \n    # Log the message\n    echo \"$current_time - $random_message\"\
+            \n    \n    # Wait for a random interval between 0.5 and 2 seconds\n \
+            \   sleep_time=$(awk -v min=0.5 -v max=2 'BEGIN{srand(); print min+rand()*(max-min)}')\n\
+            \    sleep $sleep_time\ndone\n\n# Exit the program\nexit 0\nEOF\nsleep\
+            \ 2\nchmod +x random_logger.sh\n./random_logger.sh\necho \"Goodbye\""
+          os_type: linux
+        depends_on: []
+        condition: null
+        name: Run job on EC2
+        tags: []
+        connection: ec2_test_36880
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      d559352f-685d-413b-bf71-2d79cdeb1c99:
+        integration: AWS_LAMBDA
+        integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
+        parameters:
+          function_name: aws_lambda_test
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Ingest Lambda
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+schedule: []
+sensors: {}
+trigger_events: []
+webhook:
+  enabled: false
+  operation_metadata: null
+  run_inputs: null
+configuration: null
+inputs: null
