@@ -1,8 +1,16 @@
 # orchestra-blueprints
 
-This repo includes all the code you need to develop a fully-featured data platform capable of running end-to-end data pipelines across different tools, using a monorepository structure.
+This repo includes all the code you need to develop a fully-featured data platform capable of running end-to-end data pipelines across different tools, using a monorepo structure.
 
 ## Codebase Structure
+
+1. [Bauplan](#bauplan)
+1. [dbt Projects](#dbt)
+1. [dlt](#dlt)
+1. [Metadata API](#metadata_api)
+1. [Orchestra](#orchestra)
+1. [Python](#python)
+1. [Sensors](#sensors)
 
 ### Orchestra
 
@@ -15,7 +23,6 @@ Components that require in-platform configuration are:
 - Role-Based Access Control and User Provisioning
 - Integrations (credentials)
 - Environments
-
 
 ### dbt
 
@@ -45,4 +52,14 @@ One invocation of a script per table per run is recommended for optimal concurre
 
 ### Bauplan
 
-Contains template code for executing Bauplan jobs
+Contains template code for executing Bauplan jobs.
+
+### Sensors
+
+Contains some Python code to run custom Sensors in Orchestra. Note - Orchestra supports native sensors for many integrations now.
+
+### Metadata_API
+
+Contains Python code examples for interacting with the Orchestra Metadata API. This API contains information about your pipelines, including runs, task runs, and operations. You can use this to store orchestration data in another system such as Snowflake or BigQuery for internal reporting and monitoring.
+
+Note: this API is available to enterprise customers only.
