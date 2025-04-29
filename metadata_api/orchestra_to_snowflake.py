@@ -5,7 +5,7 @@ import snowflake.connector
 
 # Orchestra Metadata API Configuration
 API_TOKEN = os.environ.get("ORCHESTRA_API_TOKEN")
-API_URL = "https://app.getorchestra.io/api/engine/public/{RESOURCE}/"
+API_URL = "https://app.getorchestra.io/api/engine/public/{resource}/"
 API_HEADERS = {"Authorization": f"Bearer {API_TOKEN}"}
 
 # Snowflake Configuration

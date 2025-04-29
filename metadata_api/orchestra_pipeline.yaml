@@ -10,7 +10,7 @@ pipeline:
           command: python orchestra_to_snowflake.py
           package_manager: PIP
           python_version: "3.12"
-          build_command: pip install requests snowflake-connector
+          build_command: pip install requests snowflake-connector-python
           branch: eng-6193
           project_dir: metadata_api
           shallow_clone_dirs: metadata_api
