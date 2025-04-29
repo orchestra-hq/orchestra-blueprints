@@ -1,61 +1,51 @@
 import os
-import requests
+import sys
 
 import snowflake.connector
 
-# Orchestra Metadata API Configuration
-API_TOKEN = os.environ.get("ORCHESTRA_API_TOKEN")
-API_URL = "https://app.getorchestra.io/api/engine/public/{resource}/"
-API_HEADERS = {"Authorization": f"Bearer {API_TOKEN}"}
-
-# Snowflake Configuration
-SNOWFLAKE_ACCOUNT = "your_account"
-SNOWFLAKE_USER = "your_user"
-SNOWFLAKE_PASSWORD = "your_password"
-SNOWFLAKE_DATABASE = "your_database"
-SNOWFLAKE_SCHEMA = "your_schema"
-SNOWFLAKE_WAREHOUSE = "your_warehouse"
-SNOWFLAKE_TABLE = "your_table"
+from metadata_api.common import (
+    COLUMNS,
+    VALID_RESOURCES,
+    fetch_data_from_api,
+    parse_record_values,
+)
 
 
-def fetch_data_from_api(resource: str):
-    response = requests.get(API_URL.format(resource=resource), headers=API_HEADERS)
-    response.raise_for_status()
-    return response.json()
-
-
-def insert_data_into_snowflake(data):
-    # Establish Snowflake connection
+def insert_data_into_snowflake(data: list[dict], resource: str):
     conn = snowflake.connector.connect(
-        account=SNOWFLAKE_ACCOUNT,
-        user=SNOWFLAKE_USER,
-        password=SNOWFLAKE_PASSWORD,
-        database=SNOWFLAKE_DATABASE,
-        schema=SNOWFLAKE_SCHEMA,
-        warehouse=SNOWFLAKE_WAREHOUSE,
+        account=os.environ.get("SNOWFLAKE_ACCOUNT"),
+        user=os.environ.get("SNOWFLAKE_USER"),
+        password=os.environ.get("SNOWFLAKE_PASSWORD"),
+        database=os.environ.get("SNOWFLAKE_DATABASE"),
+        schema=os.environ.get("SNOWFLAKE_SCHEMA"),
+        warehouse=os.environ.get("SNOWFLAKE_WAREHOUSE"),
     )
     cursor = conn.cursor()
 
-    # Insert data into Snowflake table
     try:
         for record in data:
-            placeholders = ", ".join(["%s"] * len(record))
-            columns = ", ".join(record.keys())
-            sql = f"INSERT INTO {SNOWFLAKE_TABLE} ({columns}) VALUES ({placeholders})"
-            cursor.execute(sql, list(record.values()))
+            placeholders = ", ".join(["%s"] * len(COLUMNS[resource]))
+            columns = ", ".join(COLUMNS[resource])
+            sql = f"INSERT INTO {resource} ({columns}) VALUES ({placeholders})"
+            cursor.execute(sql, parse_record_values(list(record.values()), resource))
         conn.commit()
     finally:
         cursor.close()
         conn.close()
 
 
-def main(resource: str):
-    data = fetch_data_from_api(resource=resource)
-    if isinstance(data, list):  # Ensure data is a list of records
-        insert_data_into_snowflake(data)
-    else:
-        print(f"Unexpected data format from API: {type(data)}")
-
-
 if __name__ == "__main__":
-    main("pipeline_runs")
+    if len(sys.argv) != 2:
+        print(f"Usage: python orchestra_to_snowflake.py <{'|'.join(VALID_RESOURCES)}>")
+        exit(1)
+
+    resource = sys.argv[1].lower()
+    if resource not in VALID_RESOURCES:
+        print(
+            f"Invalid resource '{resource}'. Valid resources are: {', '.join(VALID_RESOURCES)}"
+        )
+        exit(2)
+
+    insert_data_into_snowflake(
+        fetch_data_from_api(resource=resource), resource=resource
+    )
