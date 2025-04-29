@@ -1,0 +1,37 @@
+version: v1
+name: Read from Metadata API
+pipeline:
+  33413021-52b9-4ccc-8ed5-debacf04359d:
+    tasks:
+      6dbe7736-97e3-4d99-9928-bc13afb7b027:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python orchestra_to_snowflake.py
+          package_manager: PIP
+          python_version: "3.12"
+          build_command: pip install requests snowflake-connector
+          branch: eng-6193
+          project_dir: metadata_api
+          shallow_clone_dirs: metadata_api
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Read from Metadata API
+        tags: []
+        connection: python_broken_test_84374
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ""
+schedule: []
+sensors: {}
+trigger_events: []
+webhook:
+  enabled: false
+  operation_metadata: null
+  run_inputs: null
+configuration: null
+inputs: null
