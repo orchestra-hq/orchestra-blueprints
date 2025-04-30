@@ -1,0 +1,288 @@
+version: v1
+name: Fabric Demo
+pipeline:
+  00a2c6e1-1dd9-49f9-b779-8fa9ae093476:
+    tasks:
+      80df7198-70b2-471a-96ab-1557ab957ecb:
+        integration: FABRIC
+        integration_job: FABRIC_RUN_NOTEBOOK
+        parameters:
+          workspace_id: c0e8269c-fd45-46b3-9bb3-284211494fa1
+          notebook_id: 3fdca973-b6b0-420a-bc1d-8a54ad94f623
+          execution_data: "{\n    \"executionData\": {\n        \"parameters\": {\n\
+            \            \"parameterName\": {\n                \"value\": \"new value\"\
+            ,\n                \"type\": \"string\"\n            }\n        }\n}\n\
+            }"
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Fabric Notebook
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      0f44709e-dc3b-4246-8a5c-b6c3e611e530:
+        integration: FABRIC
+        integration_job: FABRIC_RUN_DATA_PIPELINE
+        parameters:
+          workspace_id: 38afb493-02bd-4cbc-9f33-c08b03c9cfba
+          data_pipeline_id: ea0feb2e-9aec-48ce-8b1a-0317d5606e77
+          execution_data: "{\n    \"executionData\": {\n        \"parameters\": {\n\
+            \            \"orchestra_task_run_id\": \"${{ ORCHESTRA.TASK_RUN_ID }}\"\
+            \n        }\n    }\n}"
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: 'Fabric Pipeline '
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+  c75b3468-3d61-4015-969c-b355450053bc:
+    tasks:
+      eb3b0e55-38d5-44c3-b3d8-bbd6739c96b3:
+        integration: FABRIC_SYNAPSE
+        integration_job: FABRIC_SYNAPSE_RUN_DQ_TEST
+        parameters:
+          statement: "SELECT TOP 0 * \nFROM [test_lh_3].[dbo].[publicholidays];"
+          error_threshold_expression: '> 1000000'
+          warn_threshold_expression: = 0
+        depends_on: []
+        condition: null
+        name: Is Holiday?
+        tags: []
+        connection: fabric__prod__43823
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - 00a2c6e1-1dd9-49f9-b779-8fa9ae093476
+    condition: null
+    name: ''
+  e5afe275-52f0-46c4-9f6e-587e670ace79:
+    tasks:
+      e8831c0b-e35f-4d3f-ab63-afee4d02096a:
+        integration: FABRIC_SYNAPSE
+        integration_job: FABRIC_SYNAPSE_RUN_QUERY
+        parameters:
+          statement: "SELECT TOP 1 * \nFROM [test_lh_3].[dbo].[publicholidays];"
+        depends_on: []
+        condition: null
+        name: Only on Holidays
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - c75b3468-3d61-4015-969c-b355450053bc
+    condition: ${{ task_groups['c75b3468-3d61-4015-969c-b355450053bc'].all().status
+      == 'SUCCEEDED' }}
+    name: ''
+  adb53afa-a341-4cd9-bd4c-984d1cef1f61:
+    tasks:
+      2d4d9e63-d44e-4c1a-b4b1-d5c1d0a01578:
+        integration: FABRIC_SYNAPSE
+        integration_job: FABRIC_SYNAPSE_RUN_QUERY
+        parameters:
+          statement: "SELECT TOP 1 * \nFROM [test_lh_3].[dbo].[publicholidays];"
+        depends_on: []
+        condition: null
+        name: Run the next PIpeline
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - e5afe275-52f0-46c4-9f6e-587e670ace79
+    condition: null
+    name: ''
+  dc18b9c2-b776-4ce6-a5b6-08965465a65c:
+    tasks:
+      9680922d-6686-4fe7-af66-afbcd6b49b2c:
+        integration: FABRIC_SYNAPSE
+        integration_job: FABRIC_SYNAPSE_RUN_QUERY
+        parameters:
+          statement: "SELECT TOP 1 * \nFROM [test_lh_3].[dbo].[publicholidays];"
+        depends_on: []
+        condition: null
+        name: on Every Day
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - adb53afa-a341-4cd9-bd4c-984d1cef1f61
+    - c75b3468-3d61-4015-969c-b355450053bc
+    condition: ${{ task_groups['adb53afa-a341-4cd9-bd4c-984d1cef1f61'].all().status
+      in ['SUCCEEDED', 'SKIPPED'] and task_groups['c75b3468-3d61-4015-969c-b355450053bc'].all().status
+      in ['SUCCEEDED', 'WARNING'] }}
+    name: ''
+  f82af10a-8bd3-4cf2-b7f0-8c60444b4d9e:
+    tasks:
+      d8b75c73-182a-4b3d-903f-91c68b66df30:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: 'select *from table '
+          set_outputs: true
+        depends_on: []
+        condition: null
+        name: Fetch data
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - dc18b9c2-b776-4ce6-a5b6-08965465a65c
+    condition: null
+    name: ''
+  9c443e93-dea2-49a1-a0df-e73ca94307e9:
+    tasks:
+      56300a86-8622-4524-9d5b-51c8955dcd68:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python -m prompt
+          package_manager: PIP
+          python_version: '3.12'
+          environment_variables: '{
+
+            "DATA": "${{ ORCHESTRA.PIPELINE_RUN_TASKS[''d8b75c73-182a-4b3d-903f-91c68b66df30''].OUTPUTS[''<output
+            name>''] }}"
+
+
+            }
+
+            '
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Prompt LLM
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - f82af10a-8bd3-4cf2-b7f0-8c60444b4d9e
+    condition: null
+    name: ''
+schedule: []
+sensors:
+  9b9c3dc3-1fcf-47f2-bfad-fff12d69029b:
+    name: Orchestra Pipeline
+    cron: 10 10 ? * * *
+    timezone: UTC
+    timeout_mins: 10
+    environments: null
+    checks:
+      Orchestra Sensor Block 1:
+        integration: ORCHESTRA
+        connection: null
+        sensor_type: ORCHESTRA_PIPELINE_STATUS
+        parameters:
+          pipeline_id: 628c3ba0-b874-4b60-9aff-871c202d55dc
+          statuses:
+          - SUCCEEDED
+        map_outputs: null
+      Orchestra Sensor Block 2:
+        integration: ORCHESTRA
+        connection: null
+        sensor_type: ORCHESTRA_PIPELINE_STATUS
+        parameters:
+          pipeline_id: 46a6b747-121c-4351-879a-0a7031923c85
+          statuses:
+          - SUCCEEDED
+        map_outputs: null
+    condition: null
+    frequency_secs: null
+    run_inputs: null
+  e0a93a72-e2a6-4503-88f2-f2c638f64cbd:
+    name: Sensor trigger
+    cron: 47 15 ? * * *
+    timezone: UTC
+    timeout_mins: 5
+    environments: null
+    checks:
+      Webhook Check:
+        integration: ORCHESTRA
+        connection: null
+        sensor_type: ORCHESTRA_WEBHOOK_EVENT
+        parameters:
+          event_type: demo_event
+        map_outputs: null
+    condition: null
+    frequency_secs: null
+    run_inputs: null
+  5be2a6cd-fb95-4288-aa96-cc70b590e587:
+    name: S3 Sensor
+    cron: 45 8 ? * * *
+    timezone: UTC
+    timeout_mins: 10
+    environments: null
+    checks:
+      S3 Sensor Check:
+        integration: AWS_S3
+        connection: null
+        sensor_type: AWS_S3_FILE
+        parameters:
+          bucket_name: orchestra-sensor
+          prefix: event_data
+        map_outputs: null
+    condition: null
+    frequency_secs: null
+    run_inputs: null
+  d7728791-88e0-4e3a-bc39-a03169f9efd0:
+    name: Sensor trigger
+    cron: 30 8 ? * * *
+    timezone: Europe/London
+    timeout_mins: 5
+    environments: null
+    checks:
+      T-SQL Sensor Check:
+        integration: FABRIC_SYNAPSE
+        connection: fabric__prod__43823
+        sensor_type: FABRIC_SYNAPSE_QUERY
+        parameters:
+          query: SELECT TOP 0 *  FROM [test_lh_3].[dbo].[publicholidays];
+        map_outputs: null
+    condition: null
+    frequency_secs: null
+    run_inputs: null
+  bfdfbc02-b3b2-4181-b75e-678834165c64:
+    name: Sensor trigger
+    cron: 25 10 ? * MON-FRI *
+    timezone: Europe/London
+    timeout_mins: 60
+    environments: null
+    checks:
+      T-SQL check holiday:
+        integration: FABRIC_SYNAPSE
+        connection: fabric__prod__43823
+        sensor_type: FABRIC_SYNAPSE_QUERY
+        parameters:
+          query: SELECT TOP 1 *  FROM [test_lh_3].[dbo].[publicholidays];
+        map_outputs: null
+    condition: null
+    frequency_secs: null
+    run_inputs: null
+trigger_events: []
+webhook:
+  enabled: false
+  operation_metadata: null
+  run_inputs: null
+configuration: null
+inputs:
+  fff:
+    type: string
+    default: fff
+    optional: null
