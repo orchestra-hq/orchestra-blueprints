@@ -7,10 +7,10 @@ pipeline:
         integration: PYTHON
         integration_job: PYTHON_EXECUTE_SCRIPT
         parameters:
-          command: python orchestra_to_${{ inputs.warehouse }}.py
+          command: python orchestra_to_warehouse.py
           package_manager: PIP
           python_version: "3.12"
-          build_command: pip install requests snowflake-connector-python google-auth google-cloud-bigquery
+          build_command: pip install -r requirements.txt
           branch: eng-6193
           project_dir: metadata_api
           shallow_clone_dirs: metadata_api

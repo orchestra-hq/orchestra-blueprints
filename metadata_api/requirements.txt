@@ -1,0 +1,3 @@
+dlt
+dlt[snowflake]>=1.10.0
+snowflake-connector-python
