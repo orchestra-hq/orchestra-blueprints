@@ -1,0 +1,42 @@
+version: v1
+name: '[COPY] Daily'
+pipeline:
+  e3aa89a1-2b53-4f47-836b-1df664e3f7c6:
+    tasks:
+      e8b5cadf-70fc-496e-b159-63400689b923:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python -m sftp
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          project_dir: python/integration_a
+          shallow_clone_dirs: python/integration_a
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Python Task
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+schedule:
+- name: Daily at 8am (UTC)
+  cron: 0 9-17 ? * * *
+  timezone: UTC
+  environment: null
+  branch: null
+  run_inputs: null
+sensors: {}
+trigger_events: []
+webhook:
+  enabled: false
+  operation_metadata: null
+  run_inputs: null
+configuration: null
+inputs: null
