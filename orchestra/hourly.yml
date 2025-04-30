@@ -1,5 +1,5 @@
 version: v1
-name: '[COPY] Daily'
+name: Hourly
 pipeline:
   e3aa89a1-2b53-4f47-836b-1df664e3f7c6:
     tasks:
