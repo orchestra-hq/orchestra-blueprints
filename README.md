@@ -60,6 +60,6 @@ Contains some Python code to run custom Sensors in Orchestra. Note - Orchestra s
 
 ### Metadata_API
 
-Contains Python code examples for interacting with the Orchestra Metadata API. This API contains information about your pipelines, including runs, task runs, and operations. You can use this to store orchestration data in another system such as Snowflake or BigQuery for internal reporting and monitoring.
+Contains example dlt code for ingesting Orchestra Metadata via the REST API, and loading into a warehouse. This API contains information about your pipelines, including runs, task runs, and operations. You can use this to store orchestration data in another system such as Snowflake or BigQuery for internal reporting and monitoring. Also provided is an example Orchestra pipeline YAML to run similar pipelines in your account.
 
 Note: this API is available to enterprise customers only.
