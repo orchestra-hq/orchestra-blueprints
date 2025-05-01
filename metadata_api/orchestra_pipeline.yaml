@@ -1,5 +1,5 @@
 version: v1
-name: Read from Metadata API
+name: Orchestra Metadata API to Warehouse
 pipeline:
   task_group_1:
     tasks:
@@ -7,11 +7,13 @@ pipeline:
         integration: PYTHON
         integration_job: PYTHON_EXECUTE_SCRIPT
         parameters:
-          command: python run.py
+          command: python run.py ${{ inputs.warehouse }}
           package_manager: PIP
           python_version: "3.12"
           build_command: pip install -r requirements.txt
-          branch: eng-6193
+          environment_variables:
+            "{\n  \"ORCHESTRA_ENV\": \"${{ ENV.url_env }}\"\n\
+            }"
           project_dir: metadata_api
           shallow_clone_dirs: metadata_api
           set_outputs: false
@@ -19,12 +21,64 @@ pipeline:
         condition: null
         name: Read from Metadata API
         tags: []
-        connection: python_broken_test_84374
+        connection: ${{ ENV.metadata_api_cred }}
         operation_metadata: null
         treat_failure_as_warning: null
         configuration: null
     depends_on: []
     condition: null
+    name: ""
+  task_group_2:
+    tasks:
+      task_2:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_TEST
+        parameters:
+          statement:
+            "SELECT\n  *\nFROM PIPELINE_RUNS\nWHERE \nRUN_STATUS = 'FAILED'\n\
+            AND\nCREATED_AT >= '${{ format_date(ORCHESTRA.CURRENT_TIME, \"%Y-%m-%d\"\
+            , \"UTC\") }}';"
+          error_threshold_expression: "> 3"
+          warn_threshold_expression: "> 0"
+          schema: ORCHESTRA_METADATA_${{ ENV.url_env }}
+        depends_on: []
+        condition: null
+        name: Snowflake DQ
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+      - task_group_1
+    condition: ${{ task_groups['task_group_1'].all().status
+      == 'SUCCEEDED' and inputs.warehouse == 'snowflake' }}
+    name: ""
+  task_group_3:
+    tasks:
+      task_3:
+        integration: GCP_BIG_QUERY
+        integration_job: GCP_BQ_RUN_TEST
+        parameters:
+          query:
+            "SELECT\n  *\nFROM orchestrametadatastore.orchestra_metadata_${{\
+            \ ENV.url_env }}.pipeline_runs\nWHERE \nRUN_STATUS = 'FAILED'\nAND\nCREATED_AT\
+            \ >= '${{ format_date(ORCHESTRA.CURRENT_TIME, \"%Y-%m-%d\", \"UTC\") }}';"
+          enable_drive_scope: false
+          error_threshold_expression: "> 3"
+          warn_threshold_expression: "> 0"
+        depends_on: []
+        condition: null
+        name: BQ DQ
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+      - task_group_1
+    condition: ${{ task_groups['task_group_1'].all().status
+      == 'SUCCEEDED' and inputs.warehouse == 'bigquery' }}
     name: ""
 schedule: []
 sensors: {}
