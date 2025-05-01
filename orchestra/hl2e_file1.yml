@@ -1,5 +1,5 @@
 version: v1
-name: HL_file1
+name: Core Mobile App Data
 pipeline:
   b8617bc2-a542-4a6f-acb9-1dbef29d9616:
     tasks:
