@@ -97,7 +97,7 @@ pipeline:
         condition: null
         name: Ingest Lambda
         tags: []
-        connection: null
+        connection: aws_lambda__dev__70069
         operation_metadata: null
         treat_failure_as_warning: null
         configuration: null
