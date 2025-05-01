@@ -3,11 +3,10 @@ import dlt
 from dlt.sources.rest_api import rest_api_source
 from dlt.sources.helpers.rest_client.paginators import PageNumberPaginator
 
-
 orchestra_api_source = rest_api_source(
     {
         "client": {
-            "base_url": "https://dev.getorchestra.io/api/engine/public/",
+            "base_url": f"https://{dlt.config['orchestra_env']}.getorchestra.io/api/engine/public/",
             "auth": {
                 "type": "bearer",
                 "token": dlt.secrets["orchestra_api_token"],
@@ -27,41 +26,20 @@ orchestra_api_source = rest_api_source(
                 "name": "pipeline_runs",
                 "endpoint": {
                     "paginator": PageNumberPaginator(base_page=1),
-                    "params": {
-                        "time_from": "{incremental.start_value}",
-                    },
-                    "incremental": {
-                        "cursor_path": "createdAt",
-                        "initial_value": "2025-04-25",
-                    },
                 },
             },
             {
                 "name": "task_runs",
                 "endpoint": {
                     "paginator": PageNumberPaginator(base_page=1),
-                    "params": {
-                        "time_from": "{incremental.start_value}",
-                    },
-                    "incremental": {
-                        "cursor_path": "createdAt",
-                        "initial_value": "2025-04-25",
-                    },
                 },
             },
             {
                 "name": "operations",
                 "endpoint": {
                     "paginator": PageNumberPaginator(base_page=1),
-                    "params": {
-                        "time_from": "{incremental.start_value}",
-                    },
-                    "incremental": {
-                        "cursor_path": "insertedAt",
-                        "initial_value": "2025-04-25",
-                    },
                 },
-            }
+            },
         ],
     }
 )
@@ -85,7 +63,9 @@ if __name__ == "__main__":
 
     warehouse = sys.argv[1].lower()
     if warehouse not in valid_warehouses:
-        print(f"Invalid warehouse: {warehouse}. Valid options are: {', '.join(valid_warehouses)}")
+        print(
+            f"Invalid warehouse: {warehouse}. Valid options are: {', '.join(valid_warehouses)}"
+        )
         sys.exit(1)
 
     orchestra_metadata_api_dlt_pipeline(warehouse)

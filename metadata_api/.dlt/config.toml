@@ -1,3 +1,5 @@
+orchestra_env = "app" # dev | stage | app
+
 [runtime]
 log_level = "DEBUG" # the system log level of dlt
 # use the dlthub_telemetry setting to enable/disable anonymous usage data reporting, see https://dlthub.com/docs/reference/telemetry

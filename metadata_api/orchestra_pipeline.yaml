@@ -1,13 +1,13 @@
 version: v1
 name: Read from Metadata API
 pipeline:
-  33413021-52b9-4ccc-8ed5-debacf04359d:
+  task_group_1:
     tasks:
-      6dbe7736-97e3-4d99-9928-bc13afb7b027:
+      task_1:
         integration: PYTHON
         integration_job: PYTHON_EXECUTE_SCRIPT
         parameters:
-          command: python orchestra_to_warehouse.py
+          command: python run.py
           package_manager: PIP
           python_version: "3.12"
           build_command: pip install -r requirements.txt
