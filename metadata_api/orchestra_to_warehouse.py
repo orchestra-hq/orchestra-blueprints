@@ -1,3 +1,4 @@
+import sys
 import dlt
 from dlt.sources.rest_api import rest_api_source
 from dlt.sources.helpers.rest_client.paginators import PageNumberPaginator
@@ -19,32 +20,57 @@ orchestra_api_source = rest_api_source(
                     "page_size": 100,
                 },
             },
+            "primary_key": "id",
         },
         "resources": [
             {
                 "name": "pipeline_runs",
                 "endpoint": {
-                    "path": "pipeline_runs/",
                     "paginator": PageNumberPaginator(base_page=1),
                     "params": {
                         "time_from": "{incremental.start_value}",
                     },
                     "incremental": {
                         "cursor_path": "createdAt",
-                        "initial_value": "2025-04-24",
+                        "initial_value": "2025-04-25",
                     },
                 },
-                "primary_key": "id",
+            },
+            {
+                "name": "task_runs",
+                "endpoint": {
+                    "paginator": PageNumberPaginator(base_page=1),
+                    "params": {
+                        "time_from": "{incremental.start_value}",
+                    },
+                    "incremental": {
+                        "cursor_path": "createdAt",
+                        "initial_value": "2025-04-25",
+                    },
+                },
+            },
+            {
+                "name": "operations",
+                "endpoint": {
+                    "paginator": PageNumberPaginator(base_page=1),
+                    "params": {
+                        "time_from": "{incremental.start_value}",
+                    },
+                    "incremental": {
+                        "cursor_path": "insertedAt",
+                        "initial_value": "2025-04-25",
+                    },
+                },
             }
         ],
     }
 )
 
 
-def orchestra_metadata_api_dlt_pipeline() -> None:
+def orchestra_metadata_api_dlt_pipeline(warehouse: str) -> None:
     pipeline = dlt.pipeline(
         pipeline_name="orchestra_metadata_api",
-        destination="snowflake",  # could be bigquery
+        destination=warehouse,
         dataset_name="orchestra_metadata",
     )
     load_info = pipeline.run(orchestra_api_source)
@@ -52,4 +78,14 @@ def orchestra_metadata_api_dlt_pipeline() -> None:
 
 
 if __name__ == "__main__":
-    orchestra_metadata_api_dlt_pipeline()
+    valid_warehouses = ["bigquery", "mssql", "snowflake"]
+    if len(sys.argv) != 2:
+        print(f"Usage: python {sys.argv[0]} <{'|'.join(valid_warehouses)}>")
+        sys.exit(1)
+
+    warehouse = sys.argv[1].lower()
+    if warehouse not in valid_warehouses:
+        print(f"Invalid warehouse: {warehouse}. Valid options are: {', '.join(valid_warehouses)}")
+        sys.exit(1)
+
+    orchestra_metadata_api_dlt_pipeline(warehouse)
