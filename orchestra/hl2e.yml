@@ -101,6 +101,20 @@ pipeline:
         operation_metadata: null
         treat_failure_as_warning: null
         configuration: null
+      c434b9e1-f3d1-477e-b09c-d6fa07f9d930:
+        integration: AWS_LAMBDA
+        integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
+        parameters:
+          function_name: aws_test
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: New Lambda
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
     depends_on: []
     condition: null
     name: ''
@@ -132,7 +146,7 @@ pipeline:
           datasource_name: HL_DATASET
         depends_on: []
         condition: null
-        name: Refresh Extract
+        name: 'Refresh Extract '
         tags: []
         connection: null
         operation_metadata: null
