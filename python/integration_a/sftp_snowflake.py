@@ -135,10 +135,10 @@ def mock_sftp():
             transport.close()
 
             # Output S3-style mock path
-            #set_orchestra_output("s3_path", filename)
+            set_orchestra_output("s3_path", filename)
             
         except Exception as e:
-            #set_orchestra_output("error", str(e))
+            set_orchestra_output("error", str(e))
             print(f"Error: {e}")
 
 if __name__ == "__main__":
