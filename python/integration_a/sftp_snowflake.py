@@ -83,7 +83,7 @@ def mock_sftp():
     username = "mock_user"
     password = "mock_pass"
     remote_directory = "/mock/remote"
-    file_to_download = os.getenv('FILE_PATH') or "orders.json"
+    file_to_download = os.getenv('FILE_PATH') 
     local_download_path = os.path.join(os.getcwd(), file_to_download)
 
     # ==== MOCKING START ====
@@ -135,10 +135,10 @@ def mock_sftp():
             transport.close()
 
             # Output S3-style mock path
-            set_orchestra_output("s3_path", filename)
+            #set_orchestra_output("s3_path", filename)
             
         except Exception as e:
-            set_orchestra_output("error", str(e))
+            #set_orchestra_output("error", str(e))
             print(f"Error: {e}")
 
 if __name__ == "__main__":
