@@ -47,9 +47,9 @@ orchestra_api_source = rest_api_source(
 
 def orchestra_metadata_api_dlt_pipeline(warehouse: str) -> None:
     pipeline = dlt.pipeline(
-        pipeline_name="orchestra_metadata_api",
+        pipeline_name="orchestra_metadata",
         destination=warehouse,
-        dataset_name="orchestra_metadata",
+        dataset_name=f"orchestra_metadata_{dlt.config['orchestra_env']}",
     )
     load_info = pipeline.run(orchestra_api_source)
     print(load_info)
