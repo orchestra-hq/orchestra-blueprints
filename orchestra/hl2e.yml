@@ -156,7 +156,37 @@ pipeline:
     condition: null
     name: ''
 schedule: []
-sensors: {}
+sensors:
+  f910c9f8-99e5-4c21-a30d-399b9c96bab1:
+    name: Daily
+    cron: 0 7 ? * * *
+    timezone: UTC
+    timeout_mins: 1440
+    environments: null
+    checks:
+      Check First Pipeline:
+        integration: ORCHESTRA
+        connection: null
+        sensor_type: ORCHESTRA_PIPELINE_STATUS
+        parameters:
+          pipeline_id: 64fb7f67-172f-4c77-9984-1aa3d133c079
+          statuses:
+          - SUCCEEDED
+          check_latest_run: false
+        map_outputs: null
+      Check CRM:
+        integration: ORCHESTRA
+        connection: null
+        sensor_type: ORCHESTRA_PIPELINE_STATUS
+        parameters:
+          pipeline_id: 8835c6b0-f98e-4530-adfe-3fef7c94466c
+          statuses:
+          - SUCCEEDED
+          check_latest_run: false
+        map_outputs: null
+    condition: null
+    frequency_secs: null
+    run_inputs: null
 trigger_events: []
 webhook:
   enabled: false
