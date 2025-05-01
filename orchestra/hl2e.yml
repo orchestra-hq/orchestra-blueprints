@@ -52,7 +52,7 @@ pipeline:
             dbt_warehouse_identifier: null
             integration: SNOWFLAKE
             connection: snowflake_tables_24182
-        treat_failure_as_warning: null
+        treat_failure_as_warning: true
         configuration: null
     depends_on:
     - b8617bc2-a542-4a6f-acb9-1dbef29d9616
