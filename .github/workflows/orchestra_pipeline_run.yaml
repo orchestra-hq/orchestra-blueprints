@@ -24,6 +24,6 @@ jobs:
         uses: orchestra-hq/run-pipeline@v1
         with:
           api_key: ${{ secrets.ORCHESTRA_API_KEY }}
-          pipeline_id: e0f8b0a4-8572-4740-858b-7cb411774367
+          pipeline_id: 7251f164-5743-44a8-8524-15f72d363035
           poll_interval: 20
           environment: ${{ github.event_name == 'pull_request' && 'Staging' || 'Production' }}
