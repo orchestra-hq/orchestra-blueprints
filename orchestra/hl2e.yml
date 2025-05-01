@@ -44,7 +44,7 @@ pipeline:
         condition: null
         name: dbt build
         tags: []
-        connection: dbt_snowflake_56978
+        connection: ${{ ENV.DBT_CORE_SNOWFLAKE }}
         operation_metadata:
           b5be6b85-662b-4344-9edb-e1852873bb19:
             s3_bucket_name: null
