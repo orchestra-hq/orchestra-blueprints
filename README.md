@@ -62,4 +62,14 @@ Contains some Python code to run custom Sensors in Orchestra. Note - Orchestra s
 
 Contains example dlt code for ingesting Orchestra Metadata via the REST API, and loading into a warehouse. This API contains information about your pipelines, including runs, task runs, and operations. You can use this to store orchestration data in another system such as Snowflake or BigQuery for internal reporting and monitoring. Also provided is an example Orchestra pipeline YAML to run similar pipelines in your account.
 
+Credentials can be added to `.dlt/secrets.toml` in the dlt directory - this file is Git ignored. Alternatively, if running in Orchestra, you can add the credentials in the connection object JSON:
+
+```json
+{
+    "DESTINATION__SNOWFLAKE__CREDENTIALS__DATABASE": "SNOWFLAKE_DATABASE",
+    "DESTINATION__SNOWFLAKE__CREDENTIALS__PASSWORD": "********",
+    ...
+}
+```
+
 Note: this API is available to enterprise customers only.
