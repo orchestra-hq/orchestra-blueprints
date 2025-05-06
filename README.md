@@ -52,7 +52,7 @@ One invocation of a script per table per run is recommended for optimal concurre
 
 ### Bauplan
 
-Contains template code for executing Bauplan jobs.
+Contains template code for executing Bauplan jobs. For more information refer to [this article](https://www.getorchestra.io/blog/this-pattern-is-a-rude-awakening-for-the-modern-data-stack), which shows how you can build a Simple Data Stack with just Orchestra and Bauplan.
 
 ### Sensors
 

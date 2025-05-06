@@ -83,7 +83,7 @@ def mock_sftp():
     username = "mock_user"
     password = "mock_pass"
     remote_directory = "/mock/remote"
-    file_to_download = os.getenv('FILE_PATH') or "orders.json"
+    file_to_download = os.getenv('FILE_PATH') 
     local_download_path = os.path.join(os.getcwd(), file_to_download)
 
     # ==== MOCKING START ====
