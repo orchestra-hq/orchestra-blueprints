@@ -15,3 +15,10 @@ run_results.json
 partial_parse.msgpack
 graph.gpickle
 dbt_projects/postgres/jaffle_shop_postgres/target/*
+
+# terraform ignores
+.terraform
+.terraform.lock.hcl
+*.auto.tfvars
+*.tfstate
+*.tfstate.backup
