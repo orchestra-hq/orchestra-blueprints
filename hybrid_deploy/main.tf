@@ -22,6 +22,17 @@ module "ecs-compute" {
   integrations         = ["python"]
 }
 
+data "aws_security_groups" "security_groups" {}
+data "aws_subnets" "subnets" {}
+
 output "ecs-compute-outputs" {
   value = module.ecs-compute
+}
+
+output "security_groups" {
+  value = data.aws_security_groups.security_groups
+}
+
+output "subnets" {
+  value = data.aws_subnets.subnets
 }
