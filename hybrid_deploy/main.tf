@@ -12,14 +12,13 @@ provider "aws" {
 }
 
 module "ecs-compute" {
-  source  = "orchestra-hq/ecs-compute/aws"
-  version = "0.0.2"
+  source = "orchestra-hq/ecs-compute/aws"
 
   # REPLACE MY VALUES
   region               = "eu-west-2"
-  name_prefix          = "test-deploy"
-  orchestra_account_id = "266858c8-2872-4b09-bdfb-74d91cc990ba"
-  integrations         = ["python"]
+  name_prefix          = "name-prefix"
+  orchestra_account_id = "YOUR_ACCOUNT_ID"
+  integrations         = ["python", "dbt_core"]
 }
 
 data "aws_security_groups" "security_groups" {}
@@ -30,9 +29,9 @@ output "ecs-compute-outputs" {
 }
 
 output "security_groups" {
-  value = data.aws_security_groups.security_groups
+  value = data.aws_security_groups.security_groups.ids
 }
 
 output "subnets" {
-  value = data.aws_subnets.subnets
+  value = data.aws_subnets.subnets.ids
 }
