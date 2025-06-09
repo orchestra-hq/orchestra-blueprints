@@ -1,0 +1,2 @@
+dbt==1.9.2
+dbt-postgres==1.9.0
