@@ -1,0 +1,398 @@
+version: v1
+name: "Ingest Transform Refresh Pipeline"
+pipeline:
+  # INGEST STAGE - Data ingestion from multiple sources
+  data_ingestion:
+    tasks:
+      ingest_api_data:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python ./ingest_api_data.py
+          package_manager: PIP
+          python_version: "3.12"
+          build_command: "pip install -r requirements.txt"
+          environment_variables: |
+            {
+              "API_ENDPOINT": "https://api.example.com/data",
+              "API_KEY": "${{ secrets.API_KEY }}",
+              "OUTPUT_FORMAT": "json"
+            }
+          set_outputs: true
+        depends_on: []
+        condition: null
+        name: Ingest API Data
+        tags: ["ingest"]
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+
+      ingest_database_data:
+        integration: POSTGRES
+        integration_job: POSTGRES_RUN_QUERY
+        parameters:
+          statement: |
+            SELECT 
+              id,
+              name,
+              email,
+              created_at,
+              updated_at
+            FROM users 
+            WHERE updated_at >= CURRENT_DATE - INTERVAL '1 day';
+          set_outputs: true
+        depends_on: []
+        condition: null
+        name: Ingest Database Data
+        tags: ["ingest"]
+        connection: postgres__production
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+
+      ingest_file_data:
+        integration: AWS_S3
+        integration_job: S3_DOWNLOAD_FILE
+        parameters:
+          bucket_name: "data-lake-bucket"
+          key: "raw-data/daily_exports/export_{{ ds }}.csv"
+          local_path: "/tmp/daily_export.csv"
+          set_outputs: true
+        depends_on: []
+        condition: null
+        name: Ingest File Data from S3
+        tags: ["ingest"]
+        connection: aws__production
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+
+      fivetran_rapidly_growing:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: rapidly_growing
+        depends_on: []
+        condition: null
+        name: Ingest Rapidly Growing Data
+        tags: ["ingest", "fivetran"]
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+
+      fivetran_ai_workflow:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: ai_workflow
+        depends_on: []
+        condition: null
+        name: Ingest AI Workflow Data
+        tags: ["ingest", "fivetran"]
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+
+      fivetran_data_pipeline:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: data_pipeline
+        depends_on: []
+        condition: null
+        name: Ingest Data Pipeline Metrics
+        tags: ["ingest", "fivetran"]
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+
+      fivetran_seed_raising:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: seed_raising
+        depends_on: []
+        condition: null
+        name: Ingest Seed Raising Data
+        tags: ["ingest", "fivetran"]
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+
+      fivetran_tech_company:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: tech_company
+        depends_on: []
+        condition: null
+        name: Ingest Tech Company Data
+        tags: ["ingest", "fivetran"]
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: "Data Ingestion Stage"
+
+  # TRANSFORM STAGE - Data transformation and modeling
+  data_transformation:
+    tasks:
+      load_raw_data:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: |
+            -- Create raw data tables if they don't exist
+            CREATE TABLE IF NOT EXISTS raw_api_data (
+              id VARCHAR,
+              data VARIANT,
+              ingested_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+            );
+
+            CREATE TABLE IF NOT EXISTS raw_database_data (
+              id VARCHAR,
+              name VARCHAR,
+              email VARCHAR,
+              created_at TIMESTAMP_NTZ,
+              updated_at TIMESTAMP_NTZ,
+              ingested_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+            );
+
+            CREATE TABLE IF NOT EXISTS raw_file_data (
+              raw_content VARIANT,
+              file_path VARCHAR,
+              ingested_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+            );
+
+            -- Load API data
+            INSERT INTO raw_api_data (id, data)
+            SELECT 
+              '${{ ORCHESTRA.PIPELINE_RUN_TASKS['ingest_api_data'].OUTPUTS['data_id'] }}',
+              PARSE_JSON('${{ ORCHESTRA.PIPELINE_RUN_TASKS['ingest_api_data'].OUTPUTS['data'] }}');
+
+            -- Load database data
+            INSERT INTO raw_database_data (id, name, email, created_at, updated_at)
+            VALUES ${{ ORCHESTRA.PIPELINE_RUN_TASKS['ingest_database_data'].OUTPUTS['records'] }};
+
+            -- Load file data
+            INSERT INTO raw_file_data (raw_content, file_path)
+            SELECT 
+              PARSE_JSON('${{ ORCHESTRA.PIPELINE_RUN_TASKS['ingest_file_data'].OUTPUTS['file_content'] }}'),
+              '${{ ORCHESTRA.PIPELINE_RUN_TASKS['ingest_file_data'].OUTPUTS['file_path'] }}';
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Load Raw Data to Warehouse
+        tags: ["transform"]
+        connection: snowflake__production
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+
+      dbt_transformation:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: |
+            dbt deps
+            dbt seed
+            dbt run --models +mart_customer_analytics
+            dbt test
+          package_manager: PIP
+          python_version: "3.12"
+          project_dir: dbt_projects/analytics
+          shallow_clone_dirs: dbt_projects/analytics
+          warehouse_identifier: snowflake
+          environment_variables: |
+            {
+              "DBT_PROFILES_DIR": "./dbt_projects/analytics",
+              "DBT_TARGET": "prod"
+            }
+        depends_on: []
+        condition: null
+        name: Transform Data with dbt
+        tags: ["transform"]
+        connection: snowflake__production
+        operation_metadata: null
+        treat_failure_as_warning: false
+        configuration: null
+
+      data_quality_checks:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python ./data_quality_checks.py
+          package_manager: PIP
+          python_version: "3.12"
+          build_command: "pip install -r requirements.txt"
+          environment_variables: |
+            {
+              "SNOWFLAKE_ACCOUNT": "${{ secrets.SNOWFLAKE_ACCOUNT }}",
+              "SNOWFLAKE_USER": "${{ secrets.SNOWFLAKE_USER }}",
+              "SNOWFLAKE_PASSWORD": "${{ secrets.SNOWFLAKE_PASSWORD }}",
+              "SNOWFLAKE_WAREHOUSE": "COMPUTE_WH",
+              "SNOWFLAKE_DATABASE": "ANALYTICS_DB",
+              "SNOWFLAKE_SCHEMA": "MARTS"
+            }
+          set_outputs: true
+        depends_on: []
+        condition: null
+        name: Run Data Quality Checks
+        tags: ["transform", "quality"]
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: ["data_ingestion"]
+    condition: null
+    name: "Data Transformation Stage"
+
+  # REFRESH STAGE - Update downstream analytics and reporting tools
+  analytics_refresh:
+    tasks:
+      refresh_tableau_workbook:
+        integration: TABLEAU_CLOUD
+        integration_job: TABLEAU_REFRESH_WORKBOOK
+        parameters:
+          project_name: "Analytics"
+          workbook_name: "Customer Dashboard"
+        depends_on: []
+        condition: null
+        name: Refresh Tableau Workbook
+        tags: ["refresh", "bi"]
+        connection: tableau__production
+        operation_metadata: null
+        treat_failure_as_warning: true
+        configuration: null
+
+      refresh_powerbi_dataset:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: "customer-analytics-dataset-id"
+          workspace_id: "analytics-workspace-id"
+        depends_on: []
+        condition: null
+        name: Refresh Power BI Dataset
+        tags: ["refresh", "bi"]
+        connection: powerbi__production
+        operation_metadata: null
+        treat_failure_as_warning: true
+        configuration: null
+
+      update_data_catalog:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python ./update_data_catalog.py
+          package_manager: PIP
+          python_version: "3.12"
+          build_command: "pip install -r requirements.txt"
+          environment_variables: |
+            {
+              "CATALOG_API_ENDPOINT": "${{ secrets.CATALOG_API_ENDPOINT }}",
+              "CATALOG_API_KEY": "${{ secrets.CATALOG_API_KEY }}",
+              "PIPELINE_RUN_ID": "${{ ORCHESTRA.PIPELINE_RUN.ID }}",
+              "DATA_FRESHNESS": "${{ ORCHESTRA.PIPELINE_RUN_TASKS['data_quality_checks'].OUTPUTS['data_freshness'] }}"
+            }
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Update Data Catalog
+        tags: ["refresh", "metadata"]
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: true
+        configuration: null
+
+      send_completion_notification:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python ./send_notification.py
+          package_manager: PIP
+          python_version: "3.12"
+          build_command: "pip install -r requirements.txt"
+          environment_variables: |
+            {
+              "SLACK_WEBHOOK_URL": "${{ secrets.SLACK_WEBHOOK_URL }}",
+              "PIPELINE_STATUS": "SUCCESS",
+              "PIPELINE_RUN_ID": "${{ ORCHESTRA.PIPELINE_RUN.ID }}",
+              "DATA_QUALITY_SCORE": "${{ ORCHESTRA.PIPELINE_RUN_TASKS['data_quality_checks'].OUTPUTS['quality_score'] }}"
+            }
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Send Completion Notification
+        tags: ["refresh", "notification"]
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: true
+        configuration: null
+    depends_on: ["data_transformation"]
+    condition: null
+    name: "Analytics Refresh Stage"
+
+# Schedule the pipeline to run daily at 6 AM UTC
+schedule:
+  - cron: "0 6 * * *"
+    timezone: "UTC"
+    enabled: true
+
+# Sensors for monitoring data freshness and quality
+sensors:
+  data_freshness_sensor:
+    type: "data_freshness"
+    target_table: "analytics_db.marts.mart_customer_analytics"
+    threshold_hours: 25
+    enabled: true
+
+# Trigger events for manual execution or upstream dependencies
+trigger_events:
+  - name: "manual_trigger"
+    enabled: true
+  - name: "upstream_data_ready"
+    enabled: true
+
+# Webhook configuration for external integrations
+webhook:
+  enabled: true
+  operation_metadata:
+    description: "Webhook endpoint for triggering the ingest-transform-refresh pipeline"
+  run_inputs:
+    execution_date: "{{ ds }}"
+    force_refresh: false
+
+# Pipeline configuration
+configuration:
+  max_active_runs: 1
+  retries: 2
+  retry_delay: "00:05:00"
+  timeout: "02:00:00"
+
+# Pipeline inputs for parameterization
+inputs:
+  execution_date:
+    type: string
+    default: "{{ ds }}"
+    optional: false
+    description: "Execution date for the pipeline run"
+
+  force_full_refresh:
+    type: boolean
+    default: false
+    optional: true
+    description: "Whether to force a full refresh of all data"
+
+  target_models:
+    type: string
+    default: "+mart_customer_analytics"
+    optional: true
+    description: "dbt models to run (supports dbt selection syntax)"
