@@ -19,7 +19,7 @@ jobs:
     environment: production
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4  
+        uses: actions/checkout@v4
       - name: Run Custom Action
         uses: orchestra-hq/run-pipeline@v1
         with:

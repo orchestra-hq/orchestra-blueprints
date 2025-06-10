@@ -1,0 +1,202 @@
+version: v1
+name: "AWS Data Pipeline with Power BI"
+pipeline:
+  lambda_data_fetch:
+    tasks:
+      fetch_data_lambda_1:
+        integration: AWS_LAMBDA
+        integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
+        parameters:
+          function_name: "data-fetch-lambda-1"
+          payload: |
+            {
+              "source": "web_api_1",
+              "format": "json",
+              "region": "us-east-1"
+            }
+          set_outputs: true
+        depends_on: []
+        condition: null
+        name: Fetch Data via AWS Lambda 1
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+
+      fetch_data_lambda_2:
+        integration: AWS_LAMBDA
+        integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
+        parameters:
+          function_name: "data-fetch-lambda-2"
+          payload: |
+            {
+              "source": "web_api_2",
+              "format": "json",
+              "region": "us-west-2"
+            }
+          set_outputs: true
+        depends_on: []
+        condition: null
+        name: Fetch Data via AWS Lambda 2
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+
+      fetch_data_lambda_3:
+        integration: AWS_LAMBDA
+        integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
+        parameters:
+          function_name: "data-fetch-lambda-3"
+          payload: |
+            {
+              "source": "database_api",
+              "format": "csv",
+              "table": "customers"
+            }
+          set_outputs: true
+        depends_on: []
+        condition: null
+        name: Fetch Data via AWS Lambda 3
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+
+      fetch_data_lambda_4:
+        integration: AWS_LAMBDA
+        integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
+        parameters:
+          function_name: "data-fetch-lambda-4"
+          payload: |
+            {
+              "source": "sftp_server",
+              "format": "parquet",
+              "directory": "/data/orders"
+            }
+          set_outputs: true
+        depends_on: []
+        condition: null
+        name: Fetch Data via AWS Lambda 4
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+
+      fetch_data_lambda_5:
+        integration: AWS_LAMBDA
+        integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
+        parameters:
+          function_name: "data-fetch-lambda-5"
+          payload: |
+            {
+              "source": "s3_bucket",
+              "format": "json",
+              "bucket": "my-data-bucket",
+              "prefix": "analytics/"
+            }
+          set_outputs: true
+        depends_on: []
+        condition: null
+        name: Fetch Data via AWS Lambda 5
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: "Lambda Data Fetch"
+
+  redshift_load:
+    tasks:
+      load_to_redshift:
+        integration: AWS_REDSHIFT
+        integration_job: REDSHIFT_EXECUTE_STATEMENT
+        parameters:
+          statement: |
+            CREATE TABLE IF NOT EXISTS web_data (
+              id VARCHAR(255),
+              data SUPER,
+              source VARCHAR(255),
+              loaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            INSERT INTO web_data (id, data, source)
+            SELECT 
+              '${{ ORCHESTRA.PIPELINE_RUN_TASKS['fetch_data_lambda_1'].OUTPUTS['data_id'] }}',
+              JSON_PARSE('${{ ORCHESTRA.PIPELINE_RUN_TASKS['fetch_data_lambda_1'].OUTPUTS['data'] }}'),
+              'lambda_1';
+
+            INSERT INTO web_data (id, data, source)
+            SELECT 
+              '${{ ORCHESTRA.PIPELINE_RUN_TASKS['fetch_data_lambda_2'].OUTPUTS['data_id'] }}',
+              JSON_PARSE('${{ ORCHESTRA.PIPELINE_RUN_TASKS['fetch_data_lambda_2'].OUTPUTS['data'] }}'),
+              'lambda_2';
+
+            INSERT INTO web_data (id, data, source)
+            SELECT 
+              '${{ ORCHESTRA.PIPELINE_RUN_TASKS['fetch_data_lambda_3'].OUTPUTS['data_id'] }}',
+              JSON_PARSE('${{ ORCHESTRA.PIPELINE_RUN_TASKS['fetch_data_lambda_3'].OUTPUTS['data'] }}'),
+              'lambda_3';
+
+            INSERT INTO web_data (id, data, source)
+            SELECT 
+              '${{ ORCHESTRA.PIPELINE_RUN_TASKS['fetch_data_lambda_4'].OUTPUTS['data_id'] }}',
+              JSON_PARSE('${{ ORCHESTRA.PIPELINE_RUN_TASKS['fetch_data_lambda_4'].OUTPUTS['data'] }}'),
+              'lambda_4';
+
+            INSERT INTO web_data (id, data, source)
+            SELECT 
+              '${{ ORCHESTRA.PIPELINE_RUN_TASKS['fetch_data_lambda_5'].OUTPUTS['data_id'] }}',
+              JSON_PARSE('${{ ORCHESTRA.PIPELINE_RUN_TASKS['fetch_data_lambda_5'].OUTPUTS['data'] }}'),
+              'lambda_5';
+          database: "your_database_name"
+          cluster_identifier: "your-redshift-cluster"
+          db_user: "your_db_user"
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Load Data to Redshift
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: ["lambda_data_fetch"]
+    condition: null
+    name: "Redshift Load"
+
+  powerbi_refresh:
+    tasks:
+      refresh_powerbi_dataset:
+        integration: POWER_BI
+        integration_job: POWER_BI_DATASET_REFRESH
+        parameters:
+          workspace_id: "your-workspace-id"
+          dataset_id: "your-dataset-id"
+        depends_on: []
+        condition: null
+        name: Refresh Power BI Dataset
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: ["redshift_load"]
+    condition: null
+    name: "Power BI Refresh"
+
+schedule: []
+sensors: {}
+trigger_events: []
+webhook:
+  enabled: true
+  operation_metadata: null
+  run_inputs: null
+configuration: null
+inputs: null
