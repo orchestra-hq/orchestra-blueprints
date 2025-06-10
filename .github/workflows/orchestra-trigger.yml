@@ -1,0 +1,19 @@
+name: Trigger Orchestra Pipeline
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  trigger-pipeline:
+    runs-on: ubuntu-latest
+    environment: runner
+    steps:
+      - name: Run Orchestra Pipeline
+        uses: orchestra-hq/run-pipeline@v1
+        env:
+          ORCHESTRA_ENV: stage
+        with:
+          api_key: ${{ secrets.ORCHESTRA_API_KEY }}
+          pipeline_id: ${{ env.ORCHESTRA_PIPELINE_ID }}

@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+If asked to build or edit an orchestra pipeline be sure to read these example pipelines
+
+[aws_data_pipeline.yml](mdc:orchestra/aws_data_pipeline.yml)
+[sftp_pipeline.yaml](mdc:orchestra/sftp_pipeline.yaml)
+[web_data_pipeline.yml](mdc:orchestra/web_data_pipeline.yml)
