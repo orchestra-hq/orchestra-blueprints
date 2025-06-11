@@ -199,20 +199,6 @@ pipeline:
     name: ''
   18341e6a-2689-42ef-97cb-729e4d1211e9:
     tasks:
-      aa5ed8ce-6739-4d7b-a3fe-7e55dee48431:
-        integration: TABLEAU_CLOUD
-        integration_job: TABLEAU_REFRESH_EXTRACT
-        parameters:
-          project_name: HL_PROJECT
-          datasource_name: HL_DATASET
-        depends_on: []
-        condition: null
-        name: Refresh Extract
-        tags: []
-        connection: null
-        operation_metadata: null
-        treat_failure_as_warning: true
-        configuration: null
       8aa59e36-1b68-4444-822b-648cf991b666:
         integration: POWER_BI
         integration_job: POWER_BI_REFRESH_DATASET
