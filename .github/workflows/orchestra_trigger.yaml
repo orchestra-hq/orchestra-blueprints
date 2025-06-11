@@ -1,0 +1,30 @@
+name: Test orchestra-hq/run-pipeline action
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "orchestra/ingest_transform_refresh_pipeline.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "orchestra/ingest_transform_refresh_pipeline.yml"
+  workflow_dispatch:
+
+jobs:
+  test-action:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  
+      - name: Run Custom Action
+        uses: orchestra-hq/run-pipeline@v1
+        with:
+          api_key: ${{ secrets.ORCHESTRA_API_KEY }}
+          pipeline_id: 09ce3131-5ceb-4d23-9b68-660b175cdab3
+          poll_interval: 20
+          environment: ${{ github.event_name == 'pull_request' && 'Staging' || 'Production' }}
+          task_ids: "e65322a4-7a6f-4cdd-b40c-160b97c36c14,64d62730-73ba-4538-9885-802affa163ad,676e8324-f0ec-4da0-9c73-252664b548ec"
