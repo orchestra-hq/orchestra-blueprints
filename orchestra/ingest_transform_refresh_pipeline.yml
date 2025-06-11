@@ -12,7 +12,6 @@ pipeline:
           python_version: '3.12'
           build_command: pip install -r requirements.txt
           environment_variables: '{
-
             "FILE_PATH":"orders.json"
 
             }'
