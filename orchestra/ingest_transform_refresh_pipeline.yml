@@ -11,8 +11,7 @@ pipeline:
           package_manager: PIP
           python_version: '3.12'
           build_command: pip install -r requirements.txt
-          environment_variables: '{
-            "FILE_PATH":"orders.json"
+          environment_variables: '{ "FILE_PATH":"orders.json"
 
             }'
           project_dir: python/integration_a
@@ -45,7 +44,7 @@ pipeline:
         condition: null
         name: dbt build
         tags: []
-        connection: postgres__prod__27132
+        connection: ${{ ENV.DBT_CORE_CONNECTION }}
         operation_metadata: null
         treat_failure_as_warning: true
         configuration: null
