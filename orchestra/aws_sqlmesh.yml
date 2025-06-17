@@ -25,7 +25,7 @@ pipeline:
         tags: []
         connection: null
         operation_metadata: null
-        treat_failure_as_warning: null
+        treat_failure_as_warning: true
         configuration: null
     depends_on: []
     condition: null
@@ -51,6 +51,88 @@ pipeline:
         configuration: null
     depends_on:
     - a7738585-b66b-4a3d-989a-33546c2f2b56
+    condition: null
+    name: ''
+  8079f0e2-d28c-4a8b-b24b-7b997db1e84a:
+    tasks:
+      02f63ce8-bcd5-4e76-bc61-39b143e4be6e:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build;
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        condition: null
+        name: dbt build
+        tags: []
+        connection: dbt_snowflake_56978
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - a7738585-b66b-4a3d-989a-33546c2f2b56
+    condition: null
+    name: ''
+  724c1068-f5c5-46b1-86cd-fb22be35dd9f:
+    tasks:
+      7f8b073c-80e1-48ea-9db4-f2cfbb2fc57a:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: 'Execute Task kick_off_task();
+
+            '
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Run Task
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - a7738585-b66b-4a3d-989a-33546c2f2b56
+    condition: null
+    name: ''
+  eb1d74d4-7260-4910-87f7-817d100c3f86:
+    tasks:
+      09ea2e90-55dd-4f53-9c62-dc8c8857e980:
+        integration: HIGHTOUCH
+        integration_job: HIGHTOUCH_SYNC
+        parameters:
+          sync_id: '2023628'
+        depends_on: []
+        condition: null
+        name: Push Data to CRM
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - d77a0956-9928-4c5a-8708-38260f2a995e
+    - 8079f0e2-d28c-4a8b-b24b-7b997db1e84a
+    condition: null
+    name: ''
+  2d7e48ca-e5ea-4665-a96e-79e21ad933da:
+    tasks:
+      c09ff2d7-af6e-4855-9a5f-0cf1e474db05:
+        integration: SIGMA
+        integration_job: SIGMA_DATASET_MATERIALIZATION
+        parameters:
+          dataset_id: 18ee85a9-e35b-4336-8506-96cbe349ff25
+        depends_on: []
+        condition: null
+        name: Materalise Dataset
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - 724c1068-f5c5-46b1-86cd-fb22be35dd9f
     condition: null
     name: ''
 schedule: []
