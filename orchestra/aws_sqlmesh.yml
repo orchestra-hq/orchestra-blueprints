@@ -7,7 +7,7 @@ pipeline:
         integration: AWS_EC2
         integration_job: AWS_EC2_SSM_RUN_SCRIPT
         parameters:
-          instance_id: i-0af8b19b901b3a19a
+          instance_id: i-0e27e289e188fa433
           command: "echo \"Hello world\"\ncat << 'EOF' > random_logger.sh\ngenerate_random_message()\
             \ {\n    echo \"Random Message $((RANDOM % 100 + 1))\"\n}\n\n# Start time\n\
             start_time=$(date +%s)\n\n# Run for 20 seconds\nwhile [ $(($(date +%s)\
