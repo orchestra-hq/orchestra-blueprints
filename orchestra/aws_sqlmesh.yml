@@ -1,35 +1,6 @@
 version: v1
 name: AWS_PLAYON_SPORTS
 pipeline:
-  a7738585-b66b-4a3d-989a-33546c2f2b56:
-    tasks:
-      6bda25ff-bb3f-4c4a-8330-8929955b6946:
-        integration: AWS_EC2
-        integration_job: AWS_EC2_SSM_RUN_SCRIPT
-        parameters:
-          instance_id: i-0e27e289e188fa433
-          command: "echo \"Hello world\"\ncat << 'EOF' > random_logger.sh\ngenerate_random_message()\
-            \ {\n    echo \"Random Message $((RANDOM % 100 + 1))\"\n}\n\n# Start time\n\
-            start_time=$(date +%s)\n\n# Run for 20 seconds\nwhile [ $(($(date +%s)\
-            \ - start_time)) -lt 20 ]; do\n    # Get the current time\n    current_time=$(date\
-            \ '+%Y-%m-%d %H:%M:%S')\n    \n    # Generate a random message\n    random_message=$(generate_random_message)\n\
-            \    \n    # Log the message\n    echo \"$current_time - $random_message\"\
-            \n    \n    # Wait for a random interval between 0.5 and 2 seconds\n \
-            \   sleep_time=$(awk -v min=0.5 -v max=2 'BEGIN{srand(); print min+rand()*(max-min)}')\n\
-            \    sleep $sleep_time\ndone\n\n# Exit the program\nexit 0\nEOF\nsleep\
-            \ 2\nchmod +x random_logger.sh\n./random_logger.sh\necho \"Goodbye\""
-          os_type: linux
-        depends_on: []
-        condition: null
-        name: Data Ingest
-        tags: []
-        connection: null
-        operation_metadata: null
-        treat_failure_as_warning: true
-        configuration: null
-    depends_on: []
-    condition: null
-    name: ''
   d77a0956-9928-4c5a-8708-38260f2a995e:
     tasks:
       b50a2c89-415c-40a7-b7c9-cc7fbefd985b:
@@ -50,7 +21,7 @@ pipeline:
         treat_failure_as_warning: null
         configuration: null
     depends_on:
-    - a7738585-b66b-4a3d-989a-33546c2f2b56
+    - 29593f42-dcc7-49c0-83e9-42e80c67d297
     condition: null
     name: ''
   8079f0e2-d28c-4a8b-b24b-7b997db1e84a:
@@ -71,7 +42,7 @@ pipeline:
         treat_failure_as_warning: null
         configuration: null
     depends_on:
-    - a7738585-b66b-4a3d-989a-33546c2f2b56
+    - 29593f42-dcc7-49c0-83e9-42e80c67d297
     condition: null
     name: ''
   724c1068-f5c5-46b1-86cd-fb22be35dd9f:
@@ -93,7 +64,7 @@ pipeline:
         treat_failure_as_warning: null
         configuration: null
     depends_on:
-    - a7738585-b66b-4a3d-989a-33546c2f2b56
+    - 29593f42-dcc7-49c0-83e9-42e80c67d297
     condition: null
     name: ''
   eb1d74d4-7260-4910-87f7-817d100c3f86:
@@ -135,8 +106,49 @@ pipeline:
     - 724c1068-f5c5-46b1-86cd-fb22be35dd9f
     condition: null
     name: ''
+  29593f42-dcc7-49c0-83e9-42e80c67d297:
+    tasks:
+      0762e8a4-afcc-47e6-8a50-d1949bea99c0:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: 'COPY INTO STAGE stage_name
+
+            files  = ${{ inputs.file_names }}'
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: copy Into
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
 schedule: []
-sensors: {}
+sensors:
+  a8e164bb-3f6d-4ded-8664-d688e4e47dac:
+    name: S3 Sensor
+    cron: 0 8 ? * * *
+    timezone: Europe/London
+    timeout_mins: 1440
+    environments: null
+    checks:
+      Check S3 Bucket:
+        integration: AWS_S3
+        connection: aws_s3_sensor__prod__92531
+        sensor_type: AWS_S3_FILE
+        parameters:
+          bucket_name: bucket
+          prefix: sales_data
+        map_outputs:
+          file_names: ${{ outputs.files }}
+    condition: null
+    exclude: null
+    frequency_secs: null
+    run_inputs: null
 trigger_events: []
 webhook:
   enabled: false
