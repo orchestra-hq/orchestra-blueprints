@@ -1,0 +1,64 @@
+version: v1
+name: AWS_PLAYON_SPORTS
+pipeline:
+  a7738585-b66b-4a3d-989a-33546c2f2b56:
+    tasks:
+      6bda25ff-bb3f-4c4a-8330-8929955b6946:
+        integration: AWS_EC2
+        integration_job: AWS_EC2_SSM_RUN_SCRIPT
+        parameters:
+          instance_id: i-0af8b19b901b3a19a
+          command: "echo \"Hello world\"\ncat << 'EOF' > random_logger.sh\ngenerate_random_message()\
+            \ {\n    echo \"Random Message $((RANDOM % 100 + 1))\"\n}\n\n# Start time\n\
+            start_time=$(date +%s)\n\n# Run for 20 seconds\nwhile [ $(($(date +%s)\
+            \ - start_time)) -lt 20 ]; do\n    # Get the current time\n    current_time=$(date\
+            \ '+%Y-%m-%d %H:%M:%S')\n    \n    # Generate a random message\n    random_message=$(generate_random_message)\n\
+            \    \n    # Log the message\n    echo \"$current_time - $random_message\"\
+            \n    \n    # Wait for a random interval between 0.5 and 2 seconds\n \
+            \   sleep_time=$(awk -v min=0.5 -v max=2 'BEGIN{srand(); print min+rand()*(max-min)}')\n\
+            \    sleep $sleep_time\ndone\n\n# Exit the program\nexit 0\nEOF\nsleep\
+            \ 2\nchmod +x random_logger.sh\n./random_logger.sh\necho \"Goodbye\""
+          os_type: linux
+        depends_on: []
+        condition: null
+        name: Data Ingest
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ''
+  d77a0956-9928-4c5a-8708-38260f2a995e:
+    tasks:
+      b50a2c89-415c-40a7-b7c9-cc7fbefd985b:
+        integration: AWS_ECS
+        integration_job: AWS_ECS_RUN_TASK
+        parameters:
+          cluster: orchestra-ecs-testing
+          task_definition: orchestra-python-task
+          subnet_ids: subnet-0495c2d86518ead96
+          security_group_ids: sg-066e2181b2716909f
+          assign_public_ip: true
+        depends_on: []
+        condition: null
+        name: ECS SQLMesh
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+    - a7738585-b66b-4a3d-989a-33546c2f2b56
+    condition: null
+    name: ''
+schedule: []
+sensors: {}
+trigger_events: []
+webhook:
+  enabled: false
+  operation_metadata: null
+  run_inputs: null
+configuration: null
+inputs: null
