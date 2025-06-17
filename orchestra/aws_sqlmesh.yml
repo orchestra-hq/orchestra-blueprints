@@ -86,7 +86,7 @@ pipeline:
           set_outputs: false
         depends_on: []
         condition: null
-        name: Run Task
+        name: 'Execute Task '
         tags: []
         connection: null
         operation_metadata: null
