@@ -27,4 +27,4 @@ jobs:
           pipeline_id: 492936e8-7a3d-4805-8fb9-b94f674f3eb4
           poll_interval: 20
           environment: ${{ github.event_name == 'pull_request' && 'Staging' || 'Production' }}
-          task_ids: "e65322a4-7a6f-4cdd-b40c-160b97c36c14,64d62730-73ba-4538-9885-802affa163ad,676e8324-f0ec-4da0-9c73-252664b548ec"
+        
