@@ -105,7 +105,7 @@ pipeline:
           sync_id: '2023628'
         depends_on: []
         condition: null
-        name: Push Data to CRM
+        name: Push Data to CRM__
         tags: []
         connection: null
         operation_metadata: null
