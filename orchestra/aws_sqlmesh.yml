@@ -80,7 +80,7 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
-          statement: 'Execute Task kick_off_task();
+          statement: 'Execute Task kick_off_task
 
             '
           set_outputs: false
