@@ -1,0 +1,132 @@
+version: v1
+name: AWS_SNOWFLAKE_SENSORS
+pipeline:
+  d77a0956-9928-4c5a-8708-38260f2a995e:
+    tasks:
+      b50a2c89-415c-40a7-b7c9-cc7fbefd985b:
+        integration: AWS_ECS
+        integration_job: AWS_ECS_RUN_TASK
+        parameters:
+          cluster: orchestra-ecs-testing
+          task_definition: orchestra-python-task
+          subnet_ids: subnet-0495c2d86518ead96
+          security_group_ids: sg-066e2181b2716909f
+          assign_public_ip: true
+        depends_on: []
+        name: ECS SQLMesh
+        tags: []
+    depends_on:
+    - 29593f42-dcc7-49c0-83e9-42e80c67d297
+    name: ''
+  8079f0e2-d28c-4a8b-b24b-7b997db1e84a:
+    tasks:
+      02f63ce8-bcd5-4e76-bc61-39b143e4be6e:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build;
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: dbt build
+        tags: []
+        connection: dbt_snowflake_56978
+    depends_on:
+    - 29593f42-dcc7-49c0-83e9-42e80c67d297
+    name: ''
+  724c1068-f5c5-46b1-86cd-fb22be35dd9f:
+    tasks:
+      7f8b073c-80e1-48ea-9db4-f2cfbb2fc57a:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: 'Execute Task kick_off_task
+
+            '
+          set_outputs: false
+        depends_on: []
+        name: 'Execute Task '
+        tags: []
+    depends_on:
+    - 29593f42-dcc7-49c0-83e9-42e80c67d297
+    name: ''
+  eb1d74d4-7260-4910-87f7-817d100c3f86:
+    tasks:
+      09ea2e90-55dd-4f53-9c62-dc8c8857e980:
+        integration: HIGHTOUCH
+        integration_job: HIGHTOUCH_SYNC
+        parameters:
+          sync_id: '2023628'
+        depends_on: []
+        name: Push Data to CRM__
+        tags: []
+    depends_on:
+    - d77a0956-9928-4c5a-8708-38260f2a995e
+    - 8079f0e2-d28c-4a8b-b24b-7b997db1e84a
+    name: ''
+  2d7e48ca-e5ea-4665-a96e-79e21ad933da:
+    tasks:
+      c09ff2d7-af6e-4855-9a5f-0cf1e474db05:
+        integration: SIGMA
+        integration_job: SIGMA_DATASET_MATERIALIZATION
+        parameters:
+          dataset_id: 18ee85a9-e35b-4336-8506-96cbe349ff25
+        depends_on: []
+        name: Materalise Dataset
+        tags: []
+    depends_on:
+    - 724c1068-f5c5-46b1-86cd-fb22be35dd9f
+    name: ''
+  29593f42-dcc7-49c0-83e9-42e80c67d297:
+    tasks:
+      0762e8a4-afcc-47e6-8a50-d1949bea99c0:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: 'COPY INTO STAGE stage_name
+
+            files  = ${{ inputs.file_names }}'
+          set_outputs: false
+        depends_on: []
+        name: copy Into
+        tags: []
+    depends_on: []
+    name: ''
+schedule: []
+sensors:
+  a8e164bb-3f6d-4ded-8664-d688e4e47dac:
+    name: S3 Sensor
+    cron: 0 8 ? * * *
+    timezone: Europe/London
+    timeout_mins: 1440
+    checks:
+      Check S3 Bucket:
+        integration: AWS_S3
+        connection: aws_s3_sensor__prod__92531
+        sensor_type: AWS_S3_FILE
+        parameters:
+          bucket_name: bucket
+          prefix: sales_data
+        map_outputs:
+          file_names: ${{ outputs.files }}
+  077c26e6-45c2-489e-9005-fbda781ceb83:
+    name: Sensor trigger
+    cron: 0 8 ? * * *
+    timezone: Europe/London
+    timeout_mins: 1440
+    checks:
+      Check Table A:
+        integration: ORCHESTRA
+        sensor_type: ORCHESTRA_WEBHOOK_EVENT
+        parameters:
+          event_type: table_a
+          check_latest_event: false
+      table B:
+        integration: ORCHESTRA
+        sensor_type: ORCHESTRA_WEBHOOK_EVENT
+        parameters:
+          event_type: table_b
+          check_latest_event: false
+trigger_events: []
+webhook:
+  enabled: false
