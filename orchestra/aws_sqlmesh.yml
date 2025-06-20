@@ -1,5 +1,5 @@
 version: v1
-name: AWS_PLAYON_SPORTS
+name: AWS_SNOWFLAKE_SENSORS
 pipeline:
   d77a0956-9928-4c5a-8708-38260f2a995e:
     tasks:
@@ -13,16 +13,10 @@ pipeline:
           security_group_ids: sg-066e2181b2716909f
           assign_public_ip: true
         depends_on: []
-        condition: null
         name: ECS SQLMesh
         tags: []
-        connection: null
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
     depends_on:
     - 29593f42-dcc7-49c0-83e9-42e80c67d297
-    condition: null
     name: ''
   8079f0e2-d28c-4a8b-b24b-7b997db1e84a:
     tasks:
@@ -34,16 +28,11 @@ pipeline:
           package_manager: PIP
           python_version: '3.12'
         depends_on: []
-        condition: null
         name: dbt build
         tags: []
         connection: dbt_snowflake_56978
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
     depends_on:
     - 29593f42-dcc7-49c0-83e9-42e80c67d297
-    condition: null
     name: ''
   724c1068-f5c5-46b1-86cd-fb22be35dd9f:
     tasks:
@@ -56,16 +45,10 @@ pipeline:
             '
           set_outputs: false
         depends_on: []
-        condition: null
         name: 'Execute Task '
         tags: []
-        connection: null
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
     depends_on:
     - 29593f42-dcc7-49c0-83e9-42e80c67d297
-    condition: null
     name: ''
   eb1d74d4-7260-4910-87f7-817d100c3f86:
     tasks:
@@ -75,17 +58,11 @@ pipeline:
         parameters:
           sync_id: '2023628'
         depends_on: []
-        condition: null
         name: Push Data to CRM__
         tags: []
-        connection: null
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
     depends_on:
     - d77a0956-9928-4c5a-8708-38260f2a995e
     - 8079f0e2-d28c-4a8b-b24b-7b997db1e84a
-    condition: null
     name: ''
   2d7e48ca-e5ea-4665-a96e-79e21ad933da:
     tasks:
@@ -95,16 +72,10 @@ pipeline:
         parameters:
           dataset_id: 18ee85a9-e35b-4336-8506-96cbe349ff25
         depends_on: []
-        condition: null
         name: Materalise Dataset
         tags: []
-        connection: null
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
     depends_on:
     - 724c1068-f5c5-46b1-86cd-fb22be35dd9f
-    condition: null
     name: ''
   29593f42-dcc7-49c0-83e9-42e80c67d297:
     tasks:
@@ -117,15 +88,9 @@ pipeline:
             files  = ${{ inputs.file_names }}'
           set_outputs: false
         depends_on: []
-        condition: null
         name: copy Into
         tags: []
-        connection: null
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
     depends_on: []
-    condition: null
     name: ''
 schedule: []
 sensors:
@@ -134,7 +99,6 @@ sensors:
     cron: 0 8 ? * * *
     timezone: Europe/London
     timeout_mins: 1440
-    environments: null
     checks:
       Check S3 Bucket:
         integration: AWS_S3
@@ -145,14 +109,24 @@ sensors:
           prefix: sales_data
         map_outputs:
           file_names: ${{ outputs.files }}
-    condition: null
-    exclude: null
-    frequency_secs: null
-    run_inputs: null
+  077c26e6-45c2-489e-9005-fbda781ceb83:
+    name: Sensor trigger
+    cron: 0 8 ? * * *
+    timezone: Europe/London
+    timeout_mins: 1440
+    checks:
+      Check Table A:
+        integration: ORCHESTRA
+        sensor_type: ORCHESTRA_WEBHOOK_EVENT
+        parameters:
+          event_type: table_a
+          check_latest_event: false
+      table B:
+        integration: ORCHESTRA
+        sensor_type: ORCHESTRA_WEBHOOK_EVENT
+        parameters:
+          event_type: table_b
+          check_latest_event: false
 trigger_events: []
 webhook:
   enabled: false
-  operation_metadata: null
-  run_inputs: null
-configuration: null
-inputs: null
