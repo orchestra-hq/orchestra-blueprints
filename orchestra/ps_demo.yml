@@ -13,6 +13,23 @@ pipeline:
         tags: []
     depends_on: []
     name: ''
+  87919104-8290-4708-9c12-bacf116453a6:
+    tasks:
+      db0ad866-9618-4c7b-9eb1-278db93d859d:
+        integration: AWS_ECS
+        integration_job: AWS_ECS_RUN_TASK
+        parameters:
+          cluster: i-234
+          task_definition: sqlmesh
+          subnet_ids: ids
+          security_group_ids: ids
+          assign_public_ip: true
+        depends_on: []
+        name: Execute SQLMesh on ECS
+        tags: []
+    depends_on:
+    - 4a085c22-d8ae-4f0c-87fa-69e875845430
+    name: ''
 schedule: []
 sensors:
   b74a40b4-b087-48be-ae90-471478eb2cbe:
