@@ -1,0 +1,33 @@
+version: v1
+name: S3 trigger
+pipeline:
+  4a085c22-d8ae-4f0c-87fa-69e875845430:
+    tasks:
+      c7c8bb66-647a-49c0-a6a2-a6825e05f70f:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: execute task load_task;
+        depends_on: []
+        name: Load data from S3 to Snowflake
+        tags: []
+    depends_on: []
+    name: ''
+schedule: []
+sensors:
+  b74a40b4-b087-48be-ae90-471478eb2cbe:
+    name: S3 Sensor
+    cron: 0 8 ? * * *
+    timezone: Europe/London
+    timeout_mins: 1440
+    checks:
+      check bucket A:
+        integration: AWS_S3
+        connection: aws_s3_sensor__prod__92531
+        sensor_type: AWS_S3_FILE
+        parameters:
+          bucket_name: bucket_a
+          prefix: events/
+trigger_events: []
+webhook:
+  enabled: false
