@@ -1,21 +1,6 @@
 version: v1
 name: ADF AWS
 pipeline:
-  4a085c22-d8ae-4f0c-87fa-69e875845430:
-    tasks:
-      c7c8bb66-647a-49c0-a6a2-a6825e05f70f:
-        integration: AZURE_DATA_FACTORY
-        integration_job: ADF_PIPELINE_RUN
-        parameters:
-          resource_group: datafactory-rg454
-          data_factory: orchestra-test-datafactory
-          pipeline_name: copy_wait_loop
-        depends_on: []
-        name: ADF load
-        tags: []
-        connection: adf__08433
-    depends_on: []
-    name: ''
   b2a51692-05b1-4870-a2b3-3139b571603c:
     tasks:
       99635f8c-ded4-4f5e-80ad-e82a6e9c661b:
@@ -37,8 +22,7 @@ pipeline:
         tags: []
         connection: aws_lambda__dev__70069
         treat_failure_as_warning: true
-    depends_on:
-    - 4a085c22-d8ae-4f0c-87fa-69e875845430
+    depends_on: []
     name: ''
   d54304eb-4b4f-4973-b80e-1960fb5d6838:
     tasks:
@@ -53,6 +37,36 @@ pipeline:
         connection: redshift_prod_02183
     depends_on:
     - b2a51692-05b1-4870-a2b3-3139b571603c
+    name: ''
+  58908718-c47b-4e88-b208-1fedc60339d1:
+    tasks:
+      ecfe61a8-fb54-47f0-b397-132a119fb97c:
+        integration: AZURE_DATA_FACTORY
+        integration_job: ADF_PIPELINE_RUN
+        parameters:
+          resource_group: adf
+          data_factory: adf
+          pipeline_name: adf
+        depends_on: []
+        name: adf
+        tags: []
+    depends_on:
+    - 1e7b985f-6def-4d39-add6-0b1be6b572e6
+    name: ''
+  1e7b985f-6def-4d39-add6-0b1be6b572e6:
+    tasks:
+      5d48aa0f-d1ec-45f7-b760-a548e96ea6bc:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_TEST
+        parameters:
+          statement: "select sum(1) from table \nwhere date = current_date() ;"
+          error_threshold_expression: < 100
+          warn_threshold_expression: < 5000
+        depends_on: []
+        name: DQ Test
+        tags: []
+    depends_on:
+    - d54304eb-4b4f-4973-b80e-1960fb5d6838
     name: ''
 schedule: []
 sensors:
