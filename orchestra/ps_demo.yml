@@ -7,7 +7,7 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
-          statement: execute task load_task;
+          statement: execute pipe load_data;
         depends_on: []
         name: Load data from S3 to Snowflake
         tags: []
@@ -27,8 +27,30 @@ pipeline:
         depends_on: []
         name: Execute SQLMesh on ECS
         tags: []
+      1746cd87-94d8-41e9-ab00-d5fdfba72ea9:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: execute task transformations_task;
+          set_outputs: false
+        depends_on: []
+        name: Run Task
+        tags: []
     depends_on:
     - 4a085c22-d8ae-4f0c-87fa-69e875845430
+    name: ''
+  502007ca-f75a-4820-9882-d7fdc1c4f3e9:
+    tasks:
+      4f0dafae-5c12-4661-b87a-ab10b06fa6f8:
+        integration: SIGMA
+        integration_job: SIGMA_DATASET_MATERIALIZATION
+        parameters:
+          dataset_id: some_id
+        depends_on: []
+        name: Materialise a dataset
+        tags: []
+    depends_on:
+    - 87919104-8290-4708-9c12-bacf116453a6
     name: ''
 schedule: []
 sensors:
