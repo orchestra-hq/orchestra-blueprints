@@ -48,7 +48,7 @@ pipeline:
         parameters:
           statement: SELECT * from DEV.PUBLIC."raw" LIMIT 5;
         depends_on: []
-        name: Redshift Task
+        name: Excecute Query
         tags: []
         connection: redshift_prod_02183
     depends_on:
