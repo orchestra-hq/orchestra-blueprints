@@ -13,7 +13,7 @@ pipeline:
         depends_on: []
         name: ADF load
         tags: []
-        connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
+        connection: adf__08433
     depends_on: []
     name: ''
   b2a51692-05b1-4870-a2b3-3139b571603c:
