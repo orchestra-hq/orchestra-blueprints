@@ -22,7 +22,7 @@ pipeline:
           cluster: i-234
           task_definition: sqlmesh
           subnet_ids: ids
-          security_group_ids: ids
+          security_group_ids: ids__
           assign_public_ip: true
         depends_on: []
         name: Execute SQLMesh on ECS
