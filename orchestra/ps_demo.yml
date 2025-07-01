@@ -8,19 +8,15 @@ pipeline:
         integration_job: AWS_GLUE_RUN_JOB
         parameters:
           job_name: Testing
+          arguments: '{
+
+            "bill_name":${{ inputs.bill_name }}
+
+
+            }'
         depends_on: []
         name: Run AWS Glue
         tags: []
-      84f3c37a-b4e7-45b9-955c-3ef389eb4eb6:
-        integration: AWS_LAMBDA
-        integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
-        parameters:
-          function_name: aws_lambda_test
-          set_outputs: false
-        depends_on: []
-        name: AWS Test
-        tags: []
-        connection: aws_lambda__dev__70069
         treat_failure_as_warning: true
     depends_on: []
     name: ''
@@ -70,19 +66,24 @@ pipeline:
     name: ''
 schedule: []
 sensors:
-  b74a40b4-b087-48be-ae90-471478eb2cbe:
-    name: S3 Sensor
-    cron: 0 8 ? * * *
+  35fdbf1d-633a-47bb-bdc3-bc4ed8b31c92:
+    name: Sensor trigger
+    cron: 0 8-12 ? * * *
     timezone: Europe/London
-    timeout_mins: 1440
+    timeout_mins: 60
     checks:
-      check bucket A:
-        integration: AWS_S3
-        connection: aws_s3_sensor__prod__92531
-        sensor_type: AWS_S3_FILE
+      AI Bill Creation:
+        integration: ORCHESTRA
+        sensor_type: ORCHESTRA_WEBHOOK_EVENT
         parameters:
-          bucket_name: bucket_a
-          prefix: events/
+          event_type: AI_BILL_CREATION
+          check_latest_event: false
 trigger_events: []
 webhook:
-  enabled: false
+  enabled: true
+  run_inputs:
+    bill_name: '{{inputs.bill_name}}'
+inputs:
+  bill_name:
+    type: string
+    default: default_bill
