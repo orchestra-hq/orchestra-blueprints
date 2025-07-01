@@ -34,7 +34,7 @@ pipeline:
         depends_on: []
         name: Excecute Query
         tags: []
-        connection: redshift_prod_02183
+        connection: ${{ ENV.REDSHIFT_CONNECTION }}
     depends_on:
     - b2a51692-05b1-4870-a2b3-3139b571603c
     name: ''
