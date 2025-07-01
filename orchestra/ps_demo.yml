@@ -8,9 +8,11 @@ pipeline:
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
           statement: execute task load_task;
+          set_outputs: false
         depends_on: []
         name: Load data from S3 to Snowflake
         tags: []
+        connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
     depends_on: []
     name: ''
 schedule: []
