@@ -13,7 +13,7 @@ pipeline:
           build_command: pip install -r requirements.txt
         depends_on: []
         condition: null
-        name: Run DLT
+        name: Run DLT (changed name)
         tags: []
         connection: orchestra_python_96778
         operation_metadata: null
