@@ -26,6 +26,14 @@ pipeline:
         depends_on: []
         name: Run cleaning + transformation
         tags: []
+      transformation_task_2:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt run
+        depends_on: []
+        name: Run dbt transformation
+        tags: []
     depends_on:
       - ingestion_group
     name: ""
