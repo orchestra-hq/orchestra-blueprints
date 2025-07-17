@@ -1,0 +1,35 @@
+version: v1
+name: cli-example
+pipeline:
+  cecef2c5-4919-48e5-93b1-e9a89f309634:
+    tasks:
+      0da0fabd-51f2-4200-9736-c202daa9d172:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: automatic_ship
+        depends_on: []
+        name: GSheet Ingestion
+        tags: []
+    depends_on: []
+    name: ''
+  6de8ae78-5cf5-4629-9a7b-62a869b3fc94:
+    tasks:
+      0917273b-ed23-4a3b-8048-144578ea7249:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python my_script.py --connector_id automatic_ship
+          package_manager: PIP
+          python_version: '3.12'
+          set_outputs: false
+        depends_on: []
+        name: Run cleaning + transformation
+        tags: []
+    depends_on:
+    - cecef2c5-4919-48e5-93b1-e9a89f309634
+    name: ''
+schedule: []
+sensors: {}
+webhook:
+  enabled: false
