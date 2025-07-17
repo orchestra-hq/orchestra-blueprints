@@ -1,0 +1,85 @@
+version: v1
+name: "Data Pipeline Example"
+pipeline:
+  web_data_fetch:
+    tasks:
+      fetch_web_data:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python ./fetch_web_data.py
+          package_manager: PIP
+          python_version: "3.12"
+          build_command: "pip install -r requirements.txt"
+          set_outputs: true
+        depends_on: []
+        condition: null
+        name: Fetch Web Data
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: "Web Data Fetch"
+
+  snowflake_load:
+    tasks:
+      load_to_snowflake:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: |
+            CREATE TABLE IF NOT EXISTS web_data (
+              id VARCHAR,
+              data VARIANT,
+              loaded_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+            );
+
+            INSERT INTO web_data (id, data)
+            SELECT 
+              ${{ ORCHESTRA.PIPELINE_RUN_TASKS['fetch_web_data'].OUTPUTS['data_id'] }},
+              PARSE_JSON(${{ ORCHESTRA.PIPELINE_RUN_TASKS['fetch_web_data'].OUTPUTS['data'] }});
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Load Data to Snowflake
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: ["web_data_fetch"]
+    condition: null
+    name: "Snowflake Load"
+
+  tableau_refresh:
+    tasks:
+      refresh_tableau:
+        integration: TABLEAU_CLOUD
+        integration_job: TABLEAU_REFRESH_WORKBOOK
+        parameters:
+          project_name: "your_project_name"
+          workbook_name: "your_workbook_name"
+        depends_on: []
+        condition: null
+        name: Refresh Tableau Workbook
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: ["snowflake_load"]
+    condition: null
+    name: "Tableau Refresh"
+
+schedule: []
+sensors: {}
+trigger_events: []
+webhook:
+  enabled: true
+  operation_metadata: null
+  run_inputs: null
+configuration: null
+inputs: null
