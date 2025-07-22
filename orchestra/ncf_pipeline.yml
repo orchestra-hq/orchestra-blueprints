@@ -1,0 +1,138 @@
+version: v1
+name: Test AI
+pipeline:
+  e8d6b743-799e-46fc-9450-d7c14b26a4b9:
+    tasks:
+      767fe2b6-7248-47f3-aca4-b281798d5889:
+        integration: AZURE_VM
+        integration_job: AZURE_VM_RUN_COMMAND
+        parameters:
+          resource_group: orchestra-testing
+          vm_name: test-orchestra-feb-${{format_date(orchestra.current_time, '3')}}
+          vm_architecture: x64
+          os_type: linux
+          script: echo '${{ orchestra.pipeline_run_id }}' && python3 /home/azureuser/run_script.py
+          auto_manage_vm: false
+          location: West Europe
+          timeout: '60'
+          parameters: '[{"name": "a", "value": "b"}]'
+        depends_on: []
+        name: 'x64 Linux with parameters :wave:'
+        tags: []
+        connection: azure_vm_89224
+      d5cca7c0-73c4-4f69-a902-f87573b7dbee:
+        integration: RIVERY
+        integration_job: RIVERY_RUN_RIVER
+        parameters:
+          river_id: '135'
+        depends_on: []
+        name: Rivery
+        tags: []
+        treat_failure_as_warning: true
+    depends_on: []
+    name: ''
+  7fb190c9-bf4e-47f4-83cc-1f3aa109cc16:
+    tasks:
+      3794077c-81b3-48ea-adff-5910aba39bd5:
+        integration: AZURE_DATA_FACTORY
+        integration_job: ADF_PIPELINE_RUN
+        parameters:
+          resource_group: datafactory-rg454
+          data_factory: orchestra-test-datafactory
+          pipeline_name: copy_wait_loop
+          parameters: "{\n    \"parameters\" :\"value\"\n}"
+        depends_on: []
+        name: ADF
+        tags: []
+    depends_on: []
+    name: ''
+  e0fc157b-79d1-4955-9d6b-b92ed3e84211:
+    tasks:
+      1605923b-9844-485a-8fc0-928716e94b1f:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: execute task kick_off_task;
+          set_outputs: false
+        depends_on: []
+        name: Stored proc
+        tags: []
+    depends_on:
+    - e8d6b743-799e-46fc-9450-d7c14b26a4b9
+    - 7fb190c9-bf4e-47f4-83cc-1f3aa109cc16
+    name: ''
+  new_task_group:
+    tasks:
+      new_stored_proc_task:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: execute task kick_off_task;
+          set_outputs: false
+        depends_on: []
+        name: Stored proc duplicate
+        tags: []
+    depends_on:
+    - e0fc157b-79d1-4955-9d6b-b92ed3e84211
+    - 2179a9cd-e55a-434e-b94e-345d56df34af
+    name: ''
+  data_quality_tests:
+    tasks:
+      dq_test_1:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_TEST
+        parameters:
+          statement: "select sum(1) total_rows from hubspot_contacts_raw \nwhere date\
+            \ =current_date() limit 1\n"
+          error_threshold_expression: < 1000
+          warn_threshold_expression: = 0
+          database: prod_clean
+        depends_on: []
+        name: Null Check on table1
+        tags: []
+        connection: snowflake_tables_24182
+      dq_test_2:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_TEST
+        parameters:
+          statement: select * from hubspot_contacts_raw limit 0
+          error_threshold_expression: '> 0'
+          warn_threshold_expression: = 0
+          database: prod_clean
+        depends_on: []
+        name: Negative ID Check on table2
+        tags: []
+        connection: snowflake_tables_24182
+      dq_test_3:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_TEST
+        parameters:
+          statement: select * from hubspot_contacts_raw limit 0
+          error_threshold_expression: '> 0'
+          warn_threshold_expression: = 0
+          database: prod_clean
+        depends_on: []
+        name: Status Value Check on table3
+        tags: []
+        connection: snowflake_tables_24182
+    depends_on:
+    - new_task_group
+    name: ''
+  2179a9cd-e55a-434e-b94e-345d56df34af:
+    tasks:
+      c73dd7a5-1727-477d-9e90-ed3339ac8f12:
+        integration: WINDOWS_SSH
+        integration_job: WINDOWS_SSH_COMMAND
+        parameters:
+          command: tracert google.com
+        depends_on: []
+        name: SQLDB Copy
+        tags: []
+        connection: ssh_windows_06261
+        treat_failure_as_warning: true
+    depends_on: []
+    name: ''
+schedule: []
+sensors: {}
+webhook:
+  enabled: false
