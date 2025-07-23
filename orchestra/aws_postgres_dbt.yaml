@@ -116,3 +116,7 @@ schedule:
 sensors: {}
 webhook:
   enabled: false
+inputs:
+  refresh_type:
+    type: string
+    default: ${{ENV.REFRESH_TYPE}}
