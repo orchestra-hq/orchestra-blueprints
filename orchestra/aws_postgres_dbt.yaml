@@ -7,10 +7,11 @@ pipeline:
         integration: PYTHON
         integration_job: PYTHON_EXECUTE_SCRIPT
         parameters:
-          command: python -m run_dlt_pipelines
+          command: python -m run_dlt_pipelines  ${{ inputs.refresh_type }}
           package_manager: PIP
           python_version: '3.12'
           build_command: pip install -r requirements.txt
+          set_outputs: false
         depends_on: []
         name: Run DLT
         tags: []
