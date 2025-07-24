@@ -90,7 +90,7 @@ pipeline:
         integration: FIVETRAN
         integration_job: FIVETRAN_SYNC_ALL
         parameters:
-          connector_id: manual_carrier
+          connector_id: manual_carrier___
         depends_on: []
         name: Ingest with Fivetran
         tags: []
