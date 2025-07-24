@@ -20,15 +20,10 @@ pipeline:
           shallow_clone_dirs: python/integration_a
           set_outputs: true
         depends_on: []
-        condition: null
         name: Load data from SFTP
         tags: []
-        connection: python__production__blueprints__19239
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
+        connection: ${{ ENV.PYTHON_CREDENTIAL }}
     depends_on: []
-    condition: null
     name: ''
   aa71e5fa-228b-4839-96dd-54bcd2f7c4fb:
     tasks:
@@ -41,24 +36,18 @@ pipeline:
           python_version: '3.12'
           warehouse_identifier: JH88529.UK-SOUTH.AZURE
         depends_on: []
-        condition: null
         name: dbt build
         tags: []
         connection: dbt_snowflake_56978
         operation_metadata:
           b5be6b85-662b-4344-9edb-e1852873bb19:
-            s3_bucket_name: null
-            s3_key_prefix: null
-            dbt_warehouse_identifier: null
             integration: SNOWFLAKE
             connection: snowflake_tables_24182
         treat_failure_as_warning: true
-        configuration: null
     depends_on:
     - b8617bc2-a542-4a6f-acb9-1dbef29d9616
     - b91a2f41-d249-47da-a17b-a42e32b4d64e
     - c2c01b6e-ba7f-4c11-aad8-639ae2c84ada
-    condition: null
     name: ''
   b91a2f41-d249-47da-a17b-a42e32b4d64e:
     tasks:
@@ -80,13 +69,9 @@ pipeline:
             \ 2\nchmod +x random_logger.sh\n./random_logger.sh\necho \"Goodbye\""
           os_type: linux
         depends_on: []
-        condition: null
         name: Run job on EC2
         tags: []
         connection: ec2_test_36880
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
       d559352f-685d-413b-bf71-2d79cdeb1c99:
         integration: AWS_LAMBDA
         integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
@@ -94,15 +79,10 @@ pipeline:
           function_name: aws_lambda_test
           set_outputs: false
         depends_on: []
-        condition: null
         name: Ingest Lambda
         tags: []
         connection: aws_lambda__dev__70069
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
     depends_on: []
-    condition: null
     name: ''
   c2c01b6e-ba7f-4c11-aad8-639ae2c84ada:
     tasks:
@@ -112,15 +92,9 @@ pipeline:
         parameters:
           connector_id: manual_carrier
         depends_on: []
-        condition: null
         name: Ingest with Fivetran
         tags: []
-        connection: null
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
     depends_on: []
-    condition: null
     name: ''
   18341e6a-2689-42ef-97cb-729e4d1211e9:
     tasks:
@@ -131,29 +105,19 @@ pipeline:
           project_name: HL_PROJECT
           datasource_name: HL_DATASET
         depends_on: []
-        condition: null
         name: Refresh Extract
         tags: []
-        connection: null
-        operation_metadata: null
         treat_failure_as_warning: true
-        configuration: null
       8aa59e36-1b68-4444-822b-648cf991b666:
         integration: POWER_BI
         integration_job: POWER_BI_REFRESH_DATASET
         parameters:
           dataset_id: 5e83dd8a-2c30-44ec-8f53-e5e751ae515d
         depends_on: []
-        condition: null
         name: Refresh Dataset
         tags: []
-        connection: null
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
     depends_on:
     - aa71e5fa-228b-4839-96dd-54bcd2f7c4fb
-    condition: null
     name: ''
 schedule: []
 sensors:
@@ -162,40 +126,26 @@ sensors:
     cron: 0 7 ? * * *
     timezone: UTC
     timeout_mins: 1440
-    environments: null
     checks:
       Check First Pipeline:
         integration: ORCHESTRA
-        connection: null
         sensor_type: ORCHESTRA_PIPELINE_STATUS
         parameters:
           pipeline_id: 64fb7f67-172f-4c77-9984-1aa3d133c079
           statuses:
           - SUCCEEDED
           check_latest_run: false
-        map_outputs: null
       Check CRM:
         integration: ORCHESTRA
-        connection: null
         sensor_type: ORCHESTRA_PIPELINE_STATUS
         parameters:
           pipeline_id: 8835c6b0-f98e-4530-adfe-3fef7c94466c
           statuses:
           - SUCCEEDED
           check_latest_run: false
-        map_outputs: null
-    condition: null
-    exclude: null
-    frequency_secs: null
-    run_inputs: null
-trigger_events: []
 webhook:
   enabled: false
-  operation_metadata: null
-  run_inputs: null
-configuration: null
 inputs:
   dbt_models:
     type: string
     default: table_a+ table_b+
-    optional: null
