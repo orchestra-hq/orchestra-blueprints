@@ -31,7 +31,7 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: dbt build;
+          commands: dbt ${{ inputs.dbt_command }};
           package_manager: PIP
           python_version: '3.12'
           warehouse_identifier: JH88529.UK-SOUTH.AZURE
@@ -149,3 +149,6 @@ inputs:
   dbt_models:
     type: string
     default: table_a+ table_b+
+  dbt_command:
+    type: string
+    default: run
