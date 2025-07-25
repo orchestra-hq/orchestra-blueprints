@@ -8,6 +8,8 @@ to keep the pipeline code together.
 
 """
 
+from time import sleep
+
 # import bauplan to get the decorators available
 import bauplan
 
@@ -129,6 +131,8 @@ def normalized_taxi_trips_2(
     # create a new columns with log-transformed trip_miles to better model skewed distribution
     df["log_trip_miles"] = np.log10(df["trip_miles"])
 
+    sleep(20)
+
     # return a Pandas dataframe
     return df
 
@@ -149,5 +153,6 @@ def a(
     ),
 ):
     p0.to_pandas()
+    sleep(10)
     b = p1.to_pandas()
     return b
