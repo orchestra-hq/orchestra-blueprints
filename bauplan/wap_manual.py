@@ -149,4 +149,5 @@ if __name__ == "__main__":
         source_s3_pattern=source_s3_pattern,
         table_name=table_name,
         namespace=namespace,
+        client=client,
     )
