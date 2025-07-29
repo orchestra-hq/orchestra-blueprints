@@ -155,7 +155,6 @@ if __name__ == "__main__":
 
     bauplan_client = bauplan.Client(api_key=os.environ["BAUPLAN_API_KEY"])
 
-    # ghyjkl
     return_object = bauplan_client.run(ref="orchestra.dev_hugo", namespace="bauplan")
     job_list = bauplan_client.get_job_logs(job_id_prefix=return_object.job_id)
     for i in job_list:

@@ -1,5 +1,5 @@
-### IMPORTS
 from datetime import datetime
+import sys
 import bauplan
 import os
 
@@ -12,9 +12,7 @@ def source_to_iceberg_table(
     bauplan_ingestion_branch: str,
 ):
     """
-
     Wrap the table creation and upload process in Bauplan.
-
     """
     if bauplan_client.has_branch(bauplan_ingestion_branch):
         bauplan_client.delete_branch(bauplan_ingestion_branch)
@@ -54,11 +52,9 @@ def run_quality_checks(
     namespace: str,
 ):
     """
-
     We check the data quality by running the checks in-process: we use
     Bauplan SDK to query the data as an Arrow table, and check if the
     target column is not null through vectorized PyArrow operations.
-
     """
     # we retrieve the data and check if the table is column has any nulls
     # make sure the column you're checking is in the table, so change this appropriately
@@ -72,41 +68,16 @@ def run_quality_checks(
         ref=bauplan_ingestion_branch,
         columns=[column_to_check],
     )
-    # print("Read the table successfully!")
-    # assert wap_table[column_to_check].null_count > 0, "Quality check failed"
-    # print("Quality check passed")
-
-    return True
+    print("Read the table successfully!")
+    assert wap_table[column_to_check].null_count > 0, "Quality check failed"
+    print("Quality check passed")
 
 
 def merge_branch(bauplan_client: bauplan.Client, bauplan_ingestion_branch: str):
-    """
-
-    We merge the ingestion branch into the main branch. If this succeed,
-    the transaction itself is considered successful.
-
-    """
     # we merge the branch into the main branch
     return bauplan_client.merge_branch(
         source_ref=bauplan_ingestion_branch, into_branch="main"
     )
-
-
-def delete_branch_if_exists(transaction):
-    """
-
-    If the task fails or the merge succeeded, we delete the branch to avoid clutter!
-
-    """
-    _client = bauplan.Client()
-    ingestion_branch = transaction.get("bauplan_ingestion_branch")
-    if _client.has_branch(ingestion_branch):
-        print(f"Deleting the branch {ingestion_branch}")
-        _client.delete_branch(ingestion_branch)
-    else:
-        print(f"Branch {ingestion_branch} does not exist, nothing to delete.")
-
-    return
 
 
 def wap_with_bauplan(
@@ -114,71 +85,68 @@ def wap_with_bauplan(
     source_s3_pattern: str,
     table_name: str,
     namespace: str,
+    client: bauplan.Client,
 ):
-    """
-    Run the WAP ingestion pipeline using Bauplan in a Prefect flow
-    leveraging the new concept of transactions:
-
-    https://docs-3.prefect.io/3.0rc/develop/transactions#write-your-first-transaction
-    """
     print("Starting WAP at {}!".format(datetime.now()))
-    bauplan_client = bauplan.Client(api_key=os.environ["BAUPLAN_API_KEY"])
+
     ### THIS IS THE WRITE
     # first, ingest data from the s3 source into a table the Bauplan branch
     source_to_iceberg_table(
-        bauplan_client,
+        client,
         table_name,
         namespace,
         source_s3_pattern,
         bauplan_ingestion_branch,
     )
+
     ### THIS IS THE AUDIT
     # we query the table in the branch and check we have no nulls
     run_quality_checks(
-        bauplan_client,
+        client,
         bauplan_ingestion_branch,
         table_name=table_name,
         namespace=namespace,
     )
+
     # THIS IS THE PUBLISH
     # finally, we merge the branch into the main branch if the quality checks passed
-    merge_branch(bauplan_client, bauplan_ingestion_branch)
+    merge_branch(client, bauplan_ingestion_branch)
 
     # say goodbye
     print("All done at {}, see you, space cowboy.".format(datetime.now()))
 
-    return
-
 
 if __name__ == "__main__":
-    # parse the args when the script is run from the command line
-    import argparse
+    if len(sys.argv) != 5:
+        print(
+            "Usage: python wap_manual.py <ingestion_branch> <source_s3_pattern> <table_name> <namespace>"
+        )
+        sys.exit(1)
 
-    parser = argparse.ArgumentParser()
-    # table_name, branch_name and s3_path are the main arguments from
-    # the command line
-    # parser.add_argument('--table_name', type=str)
-    # parser.add_argument('--branch_name', type=str)
-    # parser.add_argument('--s3_path', type=str)
-    ##parser.add_argument('--namespace', type=str, default='bauplan')
-    # args = parser.parse_args()
+    ingestion_branch = sys.argv[1]
+    source_s3_pattern = sys.argv[2]
+    table_name = sys.argv[3]
+    namespace = sys.argv[4]
 
-    # the name of the table we will be ingesting data into
-    # table_name = args.table_name
-    # the name of the data branch in which we will be ingesting data
-    # NOTE: the name should start with your username as a prefix
-    # branch_name = args.branch_name
-    # namespace for the table: note that bauplan is the default
-    # namespace = args.namespace
-    # s3 pattern to the data we want to ingest
-    # NOTE: if you're using Bauplan Alpha environment
-    # this should be a publicly accessible path (list and get should be allowed)
-    # s3_path = args.s3_path
-    # print(f"Starting the WAP flow with the following parameters: {table_name}, {branch_name}, {s3_path}")
-    # start the flow
+    client = bauplan.Client(api_key=os.environ["BAUPLAN_API_KEY"])
+    user = client.info().user
+
+    if not ingestion_branch.startswith(user.username):
+        print(
+            f"Ingestion branch {ingestion_branch} does not start with {user.username}"
+        )
+        sys.exit(2)
+
+    # wap_with_bauplan(
+    #     bauplan_ingestion_branch="orchestra.wap_test_hl_2",
+    #     source_s3_pattern="s3://alpha-hello-bauplan/green-taxi/*.parquet",
+    #     table_name="titanic_orch",
+    #     namespace="orch",
+    # )
+
     wap_with_bauplan(
-        bauplan_ingestion_branch="orchestra.wap_test_hl_2",
-        source_s3_pattern="s3://alpha-hello-bauplan/green-taxi/*.parquet",
-        table_name="titanic_orch",
-        namespace="orch",
+        bauplan_ingestion_branch=ingestion_branch,
+        source_s3_pattern=source_s3_pattern,
+        table_name=table_name,
+        namespace=namespace,
     )
