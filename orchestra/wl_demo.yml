@@ -19,6 +19,24 @@ pipeline:
         connection: dbt_bigquery_24777
     depends_on: []
     name: ''
+  21dc7a03-c6fc-4656-a179-dd8c2bdb1241:
+    tasks:
+      d387c81c-b272-4154-8ead-53815750d11d:
+        integration: GCP_BIG_QUERY
+        integration_job: GCP_BQ_RUN_TEST
+        parameters:
+          query: "select count(*) as null_count \n            from `reference-baton-392114`.`core_clean`.`app_events_clean`\n\
+            \            where account_id is null"
+          enable_drive_scope: false
+          location: europe-west1
+          error_threshold_expression: '> 0'
+          warn_threshold_expression: '> 0'
+        depends_on: []
+        name: '[COPY] test'
+        tags: []
+        connection: dbt_bigquery_24777
+    depends_on: []
+    name: ''
 schedule: []
 sensors: {}
 webhook:
