@@ -1,0 +1,137 @@
+version: v1
+name: Cavenders
+pipeline:
+  6c42b708-c538-48c1-acb3-4f0a1480bc12:
+    tasks:
+      3de806fe-8a0b-4c22-80d4-98c198522f6f:
+        integration: BOOMI
+        integration_job: BOOMI_EXECUTE_PROCESS
+        parameters:
+          atom_id: 5ee441f0-916f-421b-8150-13ea8564535e
+          process_id: 62419d02-837c-48f3-ac73-d6ff437176a8
+        depends_on: []
+        name: Sync App Data
+        tags: []
+        treat_failure_as_warning: true
+      6e3b7283-183a-4673-a843-de0e1c91f94e:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: manual_carrier
+        depends_on: []
+        name: Syncs Google Sheet Data
+        tags: []
+    depends_on: []
+    name: ''
+  ff068929-f5ac-4b89-926d-f1e42a22cf06:
+    tasks:
+      8326f318-4e6b-4a63-8f25-fa297fba5ce4:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: Run transformations
+        tags: []
+        connection: dbt_snowflake_56978
+        operation_metadata:
+          8874d8a0-a61f-4d08-abea-0f0482163837:
+            integration: SNOWFLAKE
+            connection: snowflake_tables_24182
+        treat_failure_as_warning: true
+      1b0b7a2c-b040-4f3e-a2bd-f9b7eda99e16:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: Execute task kick_off_task;
+          set_outputs: false
+        depends_on: []
+        name: Execute Task
+        tags: []
+        connection: snowflake_tables_24182
+    depends_on:
+    - 6c42b708-c538-48c1-acb3-4f0a1480bc12
+    - 4e6f3913-ae7c-4c1b-bcd4-97950901ce4b
+    name: ''
+  a6bbec83-87e1-4610-a4d5-a1f322d34b21:
+    tasks:
+      d2183c48-2410-4426-9826-66bd3429cf47:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python -m sftp
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+
+            "FILE_PATH":"orders.json"
+
+            }'
+          project_dir: python/integration_a
+          set_outputs: false
+        depends_on: []
+        name: Run SFTP
+        tags: []
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: ''
+  9fc9d23a-89f2-483b-a0c9-ad88016f86c7:
+    tasks:
+      8410bb5c-6997-40af-9fcf-e5aa9d546350:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: 5e83dd8a-2c30-44ec-8f53-e5e751ae515d
+        depends_on: []
+        name: Refreshes dashboard
+        tags: []
+        connection: power_bi_39028
+    depends_on:
+    - a6bbec83-87e1-4610-a4d5-a1f322d34b21
+    - ff068929-f5ac-4b89-926d-f1e42a22cf06
+    - 9e46d8f6-5668-46bc-a33d-89347fef9bff
+    name: ''
+  4e6f3913-ae7c-4c1b-bcd4-97950901ce4b:
+    tasks:
+      c0326ab3-2c04-4585-b64c-5c0dc785f6a9:
+        integration: MATILLION
+        integration_job: MATILLION_EXECUTE_PIPELINE
+        parameters:
+          project_id: salesforce_id
+          pipeline_name: salesforce_pipeline
+          environment_name: prod
+        depends_on: []
+        name: Matillion Ingest
+        tags: []
+        treat_failure_as_warning: true
+    depends_on: []
+    name: ''
+  9e46d8f6-5668-46bc-a33d-89347fef9bff:
+    tasks:
+      d5c389fc-2a41-4d8f-b941-4c2eaaa074fa:
+        integration: AZURE_VM
+        integration_job: AZURE_VM_RUN_COMMAND
+        parameters:
+          resource_group: orchestra-testing
+          vm_name: test-orchestra-feb-3
+          vm_architecture: x64
+          os_type: linux
+          script: echo '${{ orchestra.pipeline_run_id }}' && python3 /home/azureuser/run_script.py
+          auto_manage_vm: true
+          location: West Europe
+        depends_on: []
+        name: Runs load script
+        tags: []
+        connection: azure_vm_89224
+    depends_on: []
+    name: ''
+schedule:
+- name: Daily at 8am
+  cron: 0 8 ? * * *
+  timezone: Europe/London
+sensors: {}
+webhook:
+  enabled: false
