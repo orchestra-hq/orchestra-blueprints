@@ -33,7 +33,7 @@ def set_orchestra_output(output_name: str, output_value:str):
     }
 
     url = "https://webhook.getorchestra.io"
-    api_key = os.getenv('ORCHESTRA_API_KEY') ## Set in Orchestra Python Connection
+    api_key = os.getenv('API_KEY') ## Set in Orchestra Python Connection
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {api_key}" 
