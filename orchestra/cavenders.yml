@@ -126,6 +126,29 @@ pipeline:
         name: Runs load script
         tags: []
         connection: azure_vm_89224
+    depends_on:
+    - 8054b215-32b8-451e-bddd-643d4c6af2bf
+    name: ''
+  8054b215-32b8-451e-bddd-643d4c6af2bf:
+    tasks:
+      12ccd50a-f018-4050-959f-5bc6624d9b16:
+        integration: BOOMI
+        integration_job: BOOMI_EXECUTE_PROCESS
+        parameters:
+          atom_id: 5ee441f0-916f-421b-8150-13ea8564535e
+          process_id: 62419d02-837c-48f3-ac73-d6ff437176a8
+        depends_on: []
+        name: '[COPY] Sync App Data'
+        tags: []
+        treat_failure_as_warning: true
+      45bbfcb1-a61c-4ddf-862e-7d68ecdbbbb5:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: manual_carrier
+        depends_on: []
+        name: '[COPY] Syncs Google Sheet Data'
+        tags: []
     depends_on: []
     name: ''
 schedule:
