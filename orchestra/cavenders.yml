@@ -143,7 +143,10 @@ pipeline:
         treat_failure_as_warning: true
     depends_on: []
     name: ''
-schedule: []
+schedule:
+- name: Hourly
+  cron: 0 * ? * * *
+  timezone: Europe/London
 sensors: {}
 webhook:
   enabled: false
