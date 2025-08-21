@@ -1,0 +1,258 @@
+[
+  {
+    "name": "event_id",
+    "type": "STRING"
+  },
+  {
+    "name": "event_date",
+    "type": "DATE"
+  },
+  {
+    "name": "event_timestamp",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "event_name",
+    "type": "STRING"
+  },
+  {
+    "fields": [
+      {
+        "name": "key",
+        "type": "STRING"
+      },
+      {
+        "fields": [
+          {
+            "name": "string_value",
+            "type": "STRING"
+          },
+          {
+            "name": "int_value",
+            "type": "INTEGER"
+          },
+          {
+            "name": "float_value",
+            "type": "FLOAT"
+          },
+          {
+            "name": "double_value",
+            "type": "FLOAT"
+          }
+        ],
+        "name": "value",
+        "type": "RECORD"
+      }
+    ],
+    "mode": "REPEATED",
+    "name": "event_params",
+    "type": "RECORD"
+  },
+  {
+    "name": "event_previous_timestamp",
+    "type": "INTEGER"
+  },
+  {
+    "name": "event_value_in_usd",
+    "type": "FLOAT"
+  },
+  {
+    "name": "event_bundle_sequence_id",
+    "type": "INTEGER"
+  },
+  {
+    "name": "event_server_timestamp_offset",
+    "type": "INTEGER"
+  },
+  {
+    "name": "client_id",
+    "type": "STRING"
+  },
+  {
+    "name": "user_id",
+    "type": "STRING"
+  },
+  {
+    "fields": [
+      {
+        "name": "analytics_storage",
+        "type": "STRING"
+      },
+      {
+        "name": "ads_storage",
+        "type": "STRING"
+      },
+      {
+        "name": "uses_transient_token",
+        "type": "STRING"
+      }
+    ],
+    "name": "privacy_info",
+    "type": "RECORD"
+  },
+  {
+    "fields": [
+      {
+        "name": "key",
+        "type": "STRING"
+      },
+      {
+        "fields": [
+          {
+            "name": "string_value",
+            "type": "STRING"
+          },
+          {
+            "name": "int_value",
+            "type": "INTEGER"
+          },
+          {
+            "name": "float_value",
+            "type": "FLOAT"
+          },
+          {
+            "name": "double_value",
+            "type": "FLOAT"
+          },
+          {
+            "name": "set_timestamp_micros",
+            "type": "INTEGER"
+          }
+        ],
+        "name": "value",
+        "type": "RECORD"
+      }
+    ],
+    "mode": "REPEATED",
+    "name": "user_properties",
+    "type": "RECORD"
+  },
+  {
+    "name": "user_first_touch_timestamp",
+    "type": "INTEGER"
+  },
+  {
+    "fields": [
+      {
+        "name": "revenue",
+        "type": "FLOAT"
+      },
+      {
+        "name": "currency",
+        "type": "STRING"
+      }
+    ],
+    "name": "user_ltv",
+    "type": "RECORD"
+  },
+  {
+    "fields": [
+      {
+        "name": "category",
+        "type": "STRING"
+      },
+      {
+        "name": "mobile_brand_name",
+        "type": "STRING"
+      },
+      {
+        "name": "mobile_model_name",
+        "type": "STRING"
+      },
+      {
+        "name": "mobile_marketing_name",
+        "type": "STRING"
+      },
+      {
+        "name": "mobile_os_hardware_model",
+        "type": "STRING"
+      },
+      {
+        "name": "operating_system",
+        "type": "STRING"
+      },
+      {
+        "name": "operating_system_version",
+        "type": "STRING"
+      },
+      {
+        "name": "vendor_id",
+        "type": "STRING"
+      },
+      {
+        "name": "advertising_id",
+        "type": "STRING"
+      },
+      {
+        "name": "language",
+        "type": "STRING"
+      },
+      {
+        "name": "is_limited_ad_tracking",
+        "type": "STRING"
+      },
+      {
+        "name": "time_zone_offset_seconds",
+        "type": "INTEGER"
+      },
+      {
+        "name": "browser",
+        "type": "STRING"
+      },
+      {
+        "name": "browser_version",
+        "type": "STRING"
+      },
+      {
+        "fields": [
+          {
+            "name": "browser",
+            "type": "STRING"
+          },
+          {
+            "name": "browser_version",
+            "type": "STRING"
+          },
+          {
+            "name": "hostname",
+            "type": "STRING"
+          }
+        ],
+        "name": "web_info",
+        "type": "RECORD"
+      }
+    ],
+    "name": "device",
+    "type": "RECORD"
+  },
+  {
+    "fields": [
+      {
+        "name": "city",
+        "type": "STRING"
+      },
+      {
+        "name": "country",
+        "type": "STRING"
+      },
+      {
+        "name": "continent",
+        "type": "STRING"
+      },
+      {
+        "name": "region",
+        "type": "STRING"
+      },
+      {
+        "name": "sub_continent",
+        "type": "STRING"
+      },
+      {
+        "name": "metro",
+        "type": "STRING"
+      }
+    ],
+    "name": "geo",
+    "type": "RECORD"
+  }
+]

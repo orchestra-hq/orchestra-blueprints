@@ -15,6 +15,9 @@ run_results.json
 partial_parse.msgpack
 graph.gpickle
 dbt_projects/postgres/jaffle_shop_postgres/target/*
+.DS_Store
+profiles.yml
+.user.yml
 
 # terraform ignores
 .terraform
