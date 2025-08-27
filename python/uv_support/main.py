@@ -58,7 +58,7 @@ def get_daily_weather_data():
         # Create a pandas DataFrame
         df = pd.DataFrame(
             {
-                "timestamp": pd.to_datetime(hourly_data["time"]),
+                "timestamp": hourly_data["time"],
                 "temperature_celsius": hourly_data["temperature_2m"],
             }
         )
