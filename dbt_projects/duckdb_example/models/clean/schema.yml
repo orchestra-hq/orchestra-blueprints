@@ -1,0 +1,42 @@
+
+version: 2
+
+models:
+  - name: hubspot_contacts_clean
+    config:
+      tags:
+        - massive_dag
+    description: "A starter dbt model"
+    columns:
+      - name: vid
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
+      - name: canonical_vid
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
+  - name: seed_clean
+    config:
+      tags:
+        - massive_dag
+    description: "A starter dbt model"
+    columns:
+      - name: a
+        description: "The primary key for this table"
+        tests:
+          - not_null
+  - name: store_sales_example
+    config:
+      tags:
+        - massive_dag
+    description: "Example store sales"
+    tests:
+      - average:
+          threshold: 2000
+          average_field: sales
+          date_field: date
+          null_filter: store
+
