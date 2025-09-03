@@ -13,7 +13,7 @@ pipeline:
           build_command: pip install -r requirements.txt
           environment_variables: '{
 
-            "FILE_PATH": "something"
+            "FILE_PATH": "${{MATRIX.things}}"
 
             }'
           project_dir: python/integration_a
@@ -26,7 +26,7 @@ pipeline:
     name: ''
     matrix:
       inputs:
-        files:
+        things:
         - orders.json
         - shipments.json
         - skus.json
