@@ -77,6 +77,29 @@ pipeline:
         dbt_inputs:
         - table_1
         - table_2
+  9182ff94-9660-421d-9878-8d1180e65cb5:
+    tasks:
+      8b9700f7-def9-4c85-8f2d-672c136e29e3:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: 'select a.* from ${{MATRIX.SNOWFLAKE_INPUTS}} a
+
+            left join super_table b
+
+            on a.id = b.id'
+          set_outputs: false
+        depends_on: []
+        name: join condition
+        tags: []
+    depends_on:
+    - bee4f5df-45e6-405d-b5bb-76a92f1bf3a0
+    name: ''
+    matrix:
+      inputs:
+        SNOWFLAKE_INPUTS:
+        - table_1
+        - table_2
 schedule: []
 sensors: {}
 webhook:
