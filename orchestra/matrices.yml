@@ -61,11 +61,8 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: 'dbt run-operation loop_over_list --args "{''my_list'': [''alpha'',
-            ''beta'', ''gamma'']}";
-
-
-            dbt build;'
+          commands: dbt run-operation loop_over_list --args "{'my_list':${{MATRIX.dbt_inputs}}
+            }";
           package_manager: PIP
           python_version: '3.12'
         depends_on: []
@@ -75,6 +72,11 @@ pipeline:
     depends_on:
     - 97f65899-2224-4418-ab88-23a885319daf
     name: ''
+    matrix:
+      inputs:
+        dbt_inputs:
+        - table_1
+        - table_2
 schedule: []
 sensors: {}
 webhook:
