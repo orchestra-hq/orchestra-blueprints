@@ -10,10 +10,18 @@ pipeline:
           command: python -m sftp
           package_manager: PIP
           python_version: '3.12'
-          set_outputs: false
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+
+            "FILE_PATH": "something"
+
+            }'
+          project_dir: python/integration_a
+          set_outputs: true
         depends_on: []
         name: Ingest data to S3
         tags: []
+        connection: bauplan_wap_99686
     depends_on: []
     name: ''
     matrix:
