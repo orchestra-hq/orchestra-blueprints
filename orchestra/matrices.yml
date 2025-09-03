@@ -43,6 +43,7 @@ pipeline:
         name: Load Data from S3 to Snowflake
         tags: []
         connection: snowflake_tables_24182
+        treat_failure_as_warning: true
     depends_on:
     - db82b69c-f8b6-499a-b8d6-8cae0f1b40ac
     name: ''
@@ -53,6 +54,22 @@ pipeline:
         - shipments.json
         - skus.json
         - something.json
+  bee4f5df-45e6-405d-b5bb-76a92f1bf3a0:
+    tasks:
+      9f9371bd-8011-4381-922f-7c0c496dffdd:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: 'dbt run-operation loop_over_list --args "{''my_list'': [''alpha'',
+            ''beta'', ''gamma'']}"'
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: dbt core
+        tags: []
+    depends_on:
+    - 97f65899-2224-4418-ab88-23a885319daf
+    name: ''
 schedule: []
 sensors: {}
 webhook:
