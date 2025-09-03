@@ -31,6 +31,7 @@ pipeline:
         - shipments.json
         - skus.json
         - something.json
+        - something_else.json
   97f65899-2224-4418-ab88-23a885319daf:
     tasks:
       146867af-c5f4-43d8-af9e-3ea78c020bab:
