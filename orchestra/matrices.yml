@@ -61,7 +61,10 @@ pipeline:
         integration_job: DBT_CORE_EXECUTE
         parameters:
           commands: 'dbt run-operation loop_over_list --args "{''my_list'': [''alpha'',
-            ''beta'', ''gamma'']}"'
+            ''beta'', ''gamma'']}";
+
+
+            dbt build;'
           package_manager: PIP
           python_version: '3.12'
         depends_on: []
