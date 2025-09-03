@@ -21,7 +21,7 @@ pipeline:
         depends_on: []
         name: Ingest data to S3
         tags: []
-        connection: bauplan_wap_99686
+        connection: python__production__blueprints__19239
     depends_on: []
     name: ''
     matrix:
