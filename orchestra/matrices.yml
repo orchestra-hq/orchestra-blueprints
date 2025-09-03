@@ -1,0 +1,37 @@
+version: v1
+name: Protege Dynamic
+pipeline:
+  db82b69c-f8b6-499a-b8d6-8cae0f1b40ac:
+    tasks:
+      fc7a7a5e-f4b8-469c-bc24-70d95eb39386:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python -m sftp
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+
+            "FILE_PATH": "${{MATRIX.things}}"
+
+            }'
+          project_dir: python/integration_a
+          set_outputs: true
+        depends_on: []
+        name: Ingest data to S3
+        tags: []
+        connection: bauplan_wap_99686
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        things:
+        - orders.json
+        - shipments.json
+        - skus.json
+        - something.json
+schedule: []
+sensors: {}
+webhook:
+  enabled: false
