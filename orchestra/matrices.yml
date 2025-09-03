@@ -80,3 +80,11 @@ schedule: []
 sensors: {}
 webhook:
   enabled: false
+inputs:
+  somelist:
+    type: list
+    default:
+    - some
+  Int:
+    type: number
+    default: 12
