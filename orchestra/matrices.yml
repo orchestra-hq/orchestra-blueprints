@@ -37,7 +37,7 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
-          statement: execute task kick_off_task --${{ MATRIX.things}};
+          statement: execute task kick_off_task --${{MATRIX.things}};
           set_outputs: true
         depends_on: []
         name: Load Data from S3 to Snowflake
