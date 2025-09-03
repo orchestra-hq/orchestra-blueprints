@@ -127,18 +127,25 @@ def mock_sftp():
             print("Downloading File Complete")
             date__ = str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d'))
             filename = "sftp/"+date__+"/"+date__+os.getenv('FILE_PATH')
-            upload_file_to_s3(os.getenv('FILE_PATH'), "orchestra-databricks", filename)
+            if os.getenv('ENVIRONMENT') != 'local':
+                print("Uploading to S3")
+                upload_file_to_s3(os.getenv('FILE_PATH'), "orchestra-databricks", filename)
             print("File uploaded to S3")
             # Clean up (mocked)
             sftp.close()
             transport.close()
 
             # Output S3-style mock path
-            set_orchestra_output("s3_path", filename)
+            if os.getenv('ENVIRONMENT') != 'local':
+                set_orchestra_output("s3_path", filename)
             
         except Exception as e:
-            set_orchestra_output("error", str(e))
+            if os.getenv('ENVIRONMENT') != 'local':
+                set_orchestra_output("error", str(e))
             print(f"Error: {e}")
 
 if __name__ == "__main__":
+    print("Starting")
+    print(os.getcwd())
+    print("Ending")
     mock_sftp()
