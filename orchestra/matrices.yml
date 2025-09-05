@@ -99,6 +99,37 @@ pipeline:
         - table_1
         - table_2
         - table_3
+  1b360e83-19c7-4879-a677-324c760723c2:
+    tasks:
+      3b819178-fb48-4e69-a77a-65e1dfe87559:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: select*from table
+          set_outputs: true
+        depends_on: []
+        name: Run query
+        tags: []
+    depends_on: []
+    name: ''
+  db6546e8-0e38-40ce-9e29-b0a1f9947591:
+    tasks:
+      e8737159-02aa-4358-8dfa-689fa89f6dc8:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: select ${{ MATRIX.query_results }}
+          set_outputs: false
+        depends_on: []
+        name: Run Matrix SQL
+        tags: []
+    depends_on:
+    - 1b360e83-19c7-4879-a677-324c760723c2
+    name: ''
+    matrix:
+      inputs:
+        query_results: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['3b819178-fb48-4e69-a77a-65e1dfe87559'].OUTPUTS['results']
+          }}
 schedule: []
 sensors: {}
 webhook:
