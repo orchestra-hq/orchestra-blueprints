@@ -27,7 +27,7 @@ pipeline:
     matrix:
       inputs:
         things:
-        - orders.json
+        - orderdfdfs.json
         - shipments.json
         - skus.json
         - something.json
@@ -38,7 +38,7 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
-          statement: execute task kick_off_task --${{MATRIX.things}};
+          statement: execute task ${{MATRIX.sports}}_task;
           set_outputs: true
         depends_on: []
         name: Load Data from S3 to Snowflake
@@ -50,11 +50,9 @@ pipeline:
     name: ''
     matrix:
       inputs:
-        things:
-        - orders.json
-        - shipments.json
-        - skus.json
-        - something.json
+        sports:
+        - tennis
+        - basketball
   bee4f5df-45e6-405d-b5bb-76a92f1bf3a0:
     tasks:
       9f9371bd-8011-4381-922f-7c0c496dffdd:
