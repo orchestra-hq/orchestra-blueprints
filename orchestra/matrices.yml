@@ -1,5 +1,5 @@
 version: v1
-name: Protege Dynamic
+name: MetaEngine
 pipeline:
   db82b69c-f8b6-499a-b8d6-8cae0f1b40ac:
     tasks:
@@ -13,10 +13,10 @@ pipeline:
           build_command: pip install -r requirements.txt
           environment_variables: '{
 
-            "FILE_PATH": "${{MATRIX.things}}"
+            "FILE_PATH": "${{MATRIX.files}}"
 
             }'
-          project_dir: python/integration_a
+          project_dir: python/integrations
           set_outputs: true
         depends_on: []
         name: Ingest data to S3
@@ -26,111 +26,8 @@ pipeline:
     name: ''
     matrix:
       inputs:
-        things:
-        - orderdfdfs.json
-        - shipments.json
-        - skus.json
-        - something.json
-        - something_else.json
-  97f65899-2224-4418-ab88-23a885319daf:
-    tasks:
-      146867af-c5f4-43d8-af9e-3ea78c020bab:
-        integration: SNOWFLAKE
-        integration_job: SNOWFLAKE_RUN_QUERY
-        parameters:
-          statement: execute task ${{MATRIX.sports}}_task;
-          set_outputs: true
-        depends_on: []
-        name: Load Data from S3 to Snowflake
-        tags: []
-        connection: snowflake_tables_24182
-        treat_failure_as_warning: true
-    depends_on:
-    - db82b69c-f8b6-499a-b8d6-8cae0f1b40ac
-    name: ''
-    matrix:
-      inputs:
-        sports:
-        - tennis
-        - basketball
-  bee4f5df-45e6-405d-b5bb-76a92f1bf3a0:
-    tasks:
-      9f9371bd-8011-4381-922f-7c0c496dffdd:
-        integration: DBT_CORE
-        integration_job: DBT_CORE_EXECUTE
-        parameters:
-          commands: dbt run-operation loop_over_list --args "{'my_list':${{MATRIX.dbt_inputs}}
-            }";
-          package_manager: PIP
-          python_version: '3.12'
-        depends_on: []
-        name: dbt core
-        tags: []
-        connection: dbt_snowflake_56978
-    depends_on:
-    - 97f65899-2224-4418-ab88-23a885319daf
-    name: ''
-    matrix:
-      inputs:
-        dbt_inputs:
-        - table_1
-        - table_2
-  9182ff94-9660-421d-9878-8d1180e65cb5:
-    tasks:
-      8b9700f7-def9-4c85-8f2d-672c136e29e3:
-        integration: SNOWFLAKE
-        integration_job: SNOWFLAKE_RUN_QUERY
-        parameters:
-          statement: 'select a.* from ${{MATRIX.SNOWFLAKE_INPUTS}} a
-
-            left join super_table b
-
-            on a.id = b.id'
-          set_outputs: false
-        depends_on: []
-        name: join condition
-        tags: []
-    depends_on:
-    - bee4f5df-45e6-405d-b5bb-76a92f1bf3a0
-    name: ''
-    matrix:
-      inputs:
-        SNOWFLAKE_INPUTS:
-        - table_1
-        - table_2
-        - table_3
-  1b360e83-19c7-4879-a677-324c760723c2:
-    tasks:
-      3b819178-fb48-4e69-a77a-65e1dfe87559:
-        integration: SNOWFLAKE
-        integration_job: SNOWFLAKE_RUN_QUERY
-        parameters:
-          statement: select*from table
-          set_outputs: true
-        depends_on: []
-        name: Run query
-        tags: []
-    depends_on: []
-    name: ''
-  db6546e8-0e38-40ce-9e29-b0a1f9947591:
-    tasks:
-      e8737159-02aa-4358-8dfa-689fa89f6dc8:
-        integration: SNOWFLAKE
-        integration_job: SNOWFLAKE_RUN_QUERY
-        parameters:
-          statement: select ${{ MATRIX.query_results }}
-          set_outputs: false
-        depends_on: []
-        name: Run Matrix SQL
-        tags: []
-    depends_on:
-    - 1b360e83-19c7-4879-a677-324c760723c2
-    name: ''
-    matrix:
-      inputs:
-        query_results: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['3b819178-fb48-4e69-a77a-65e1dfe87559'].OUTPUTS['results']
-          }}
-schedule: []
-sensors: {}
-webhook:
-  enabled: false
+        files:
+        - {"database":"postgres", "file":"shipments.json"}
+        - {"database":"postgres", "file":"skus.json"}
+        - {"database":"postgres", "file":"orders.json"}
+        - {"database":"postgres", "file":"refunds.json"}
