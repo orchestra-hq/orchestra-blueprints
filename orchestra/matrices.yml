@@ -7,7 +7,7 @@ pipeline:
         integration: PYTHON
         integration_job: PYTHON_EXECUTE_SCRIPT
         parameters:
-          command: python -m sftp
+          command: 'python -m sftp '
           package_manager: PIP
           python_version: '3.12'
           build_command: pip install -r requirements.txt
