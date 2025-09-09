@@ -74,6 +74,20 @@ pipeline:
     depends_on:
     - 97f65899-2224-4418-ab88-23a885319daf
     name: ''
+  c3a33e50-e428-496d-aa83-d4fde88148e6:
+    tasks:
+      33b39ce8-5ba6-435a-a578-7a875b8238c0:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_TEST
+        parameters:
+          statement: "select * from \ntable\nwhere column is null"
+          error_threshold_expression: '> 0'
+          warn_threshold_expression: '> 0'
+        depends_on: []
+        name: Not Nulls
+        tags: []
+    depends_on: []
+    name: ''
 schedule: []
 sensors: {}
 webhook:
