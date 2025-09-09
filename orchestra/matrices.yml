@@ -73,6 +73,7 @@ pipeline:
         connection: dbt_snowflake_56978
     depends_on:
     - 97f65899-2224-4418-ab88-23a885319daf
+    - c3a33e50-e428-496d-aa83-d4fde88148e6
     name: ''
   c3a33e50-e428-496d-aa83-d4fde88148e6:
     tasks:
