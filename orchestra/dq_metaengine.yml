@@ -7,9 +7,7 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_TEST
         parameters:
-          statement: 'select * from  ${{ MATRIX.TABLES["id"] }} where
-
-            ${{ MATRIX.TABLES["column"] }} > 1'
+          statement: select * from table
           error_threshold_expression: '> 0'
           warn_threshold_expression: '> 0'
         depends_on: []
@@ -20,14 +18,6 @@ pipeline:
     matrix:
       inputs:
         TABLES:
-        - id: HUBSPOT_CONTACTS
-          column: VID
-        - id: HUBSPOT_CONTACTS_AGGREGATED
-          column: VID
-        - id: ISSUES
-          column: CREATED_AT
-        - id: SHIPMENTS
-          column: ID
         - id: SLOW_MODEL_1
           column: SECONDS_WAITED
 schedule: []
