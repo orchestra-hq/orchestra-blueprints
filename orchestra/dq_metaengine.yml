@@ -7,7 +7,7 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_TEST
         parameters:
-          statement: select * from ${{ MATRIX.TABLES['id'] }};
+          statement: select * from ${{ MATRIX.tables['id'] }};
           error_threshold_expression: '> 0'
           warn_threshold_expression: '> 0'
         depends_on: []
@@ -17,7 +17,7 @@ pipeline:
     name: ''
     matrix:
       inputs:
-        TABLES:
+        tables:
         - id: SLOW_MODEL_1
           column: SECONDS_WAITED
 schedule: []
