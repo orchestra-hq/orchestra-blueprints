@@ -7,7 +7,7 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_TEST
         parameters:
-          statement: 'select * from  ${{MATRIX.TABLES}} '
+          statement: 'select * from  ${{MATRIX.TABLES__}} '
           error_threshold_expression: '> 0'
           warn_threshold_expression: '> 0'
         depends_on: []
@@ -17,7 +17,7 @@ pipeline:
     name: ''
     matrix:
       inputs:
-        TABLES:
+        TABLES__:
         - id: HUBSPOT_CONTACTS
           column: VID
         - id: HUBSPOT_CONTACTS_AGGREGATED
