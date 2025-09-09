@@ -30,6 +30,8 @@ pipeline:
           column: ID
         - id: SLOW_MODEL_1
           column: SECONDS_WAITED
+        - id: SLOW_MODEL_2
+          column: SECONDS_WAITED
 schedule: []
 sensors: {}
 webhook:
