@@ -20,9 +20,16 @@ pipeline:
     matrix:
       inputs:
         TABLES:
-        - orders
-        - shipments
-        - skus
+          - id: HUBSPOT_CONTACTS
+            column: VID
+          - id: HUBSPOT_CONTACTS_AGGREGATED
+            column: VID
+          - id: ISSUES
+            column: CREATED_AT
+          - id: SHIPMENTS
+            column: ID
+          - id: SLOW_MODEL_1
+            column: SECONDS_WAITED
 schedule: []
 sensors: {}
 webhook:
