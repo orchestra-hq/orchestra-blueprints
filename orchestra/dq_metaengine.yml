@@ -1,0 +1,29 @@
+version: v1
+name: 'MetaEngine: DQ Tests'
+pipeline:
+  c57884ea-9f61-4efc-a2a9-917c427959c5:
+    tasks:
+      7c355e80-03a2-484f-a53b-cae5acc42cfe:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_TEST
+        parameters:
+          statement: 'select * from  ${{ MATRIX.TABLES }} where
+
+            pk_count > 1'
+          error_threshold_expression: '> 0'
+          warn_threshold_expression: '> 0'
+        depends_on: []
+        name: Run Matrix Tests
+        tags: []
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        TABLES:
+        - orders
+        - shipments
+        - skus
+schedule: []
+sensors: {}
+webhook:
+  enabled: false
