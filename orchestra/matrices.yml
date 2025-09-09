@@ -80,7 +80,8 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_TEST
         parameters:
-          statement: "select * from \ntable\nwhere column is null"
+          statement: "select * from \n${{ MATRIX.tables_to_test['id'] }}\nwhere ${{\
+            \ MATRIX.tables_to_test['column'] }} is null"
           error_threshold_expression: '> 0'
           warn_threshold_expression: '> 0'
         depends_on: []
@@ -88,6 +89,21 @@ pipeline:
         tags: []
     depends_on: []
     name: ''
+    matrix:
+      inputs:
+        tables_to_test:
+        - id: HUBSPOT_CONTACTS
+          column: VID
+        - id: HUBSPOT_CONTACTS_AGGREGATED
+          column: VID
+        - id: ISSUES
+          column: CREATED_AT
+        - id: SHIPMENTS
+          column: ID
+        - id: SLOW_MODEL_1
+          column: SECONDS_WAITED
+        - id: SLOW_MODEL_2
+          column: SECONDS_WAITED
 schedule: []
 sensors: {}
 webhook:
