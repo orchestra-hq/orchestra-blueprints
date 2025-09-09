@@ -1,5 +1,5 @@
 version: v1
-name: MetaEngine
+name: 'METAENGINE: base'
 pipeline:
   db82b69c-f8b6-499a-b8d6-8cae0f1b40ac:
     tasks:
