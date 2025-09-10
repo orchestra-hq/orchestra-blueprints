@@ -1,0 +1,111 @@
+version: v1
+name: 'METAENGINE: base'
+pipeline:
+  db82b69c-f8b6-499a-b8d6-8cae0f1b40ac:
+    tasks:
+      fc7a7a5e-f4b8-469c-bc24-70d95eb39386:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: 'python -m sftp '
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+
+            "FILE_PATH": "${{MATRIX.files}}"
+
+            }'
+          project_dir: python/integration_a
+          set_outputs: true
+        depends_on: []
+        name: Ingest data to S3
+        tags: []
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        files:
+        - orders.json
+        - shipments.json
+        - skus.json
+        - something.json
+  97f65899-2224-4418-ab88-23a885319daf:
+    tasks:
+      146867af-c5f4-43d8-af9e-3ea78c020bab:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: execute task kick_off_task --${{MATRIX.things}};
+          set_outputs: true
+        depends_on: []
+        name: Load Data from S3 to Snowflake
+        tags: []
+        connection: snowflake_tables_24182
+        treat_failure_as_warning: true
+    depends_on:
+    - db82b69c-f8b6-499a-b8d6-8cae0f1b40ac
+    name: ''
+    matrix:
+      inputs:
+        things:
+        - orders.json
+        - shipments.json
+        - skus.json
+        - something.json
+  bee4f5df-45e6-405d-b5bb-76a92f1bf3a0:
+    tasks:
+      9f9371bd-8011-4381-922f-7c0c496dffdd:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: 'dbt run-operation loop_over_list --args "{''my_list'': [''alpha'',
+            ''beta'', ''gamma'']}";
+
+
+            dbt build;'
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: dbt core
+        tags: []
+        connection: dbt_snowflake_56978
+    depends_on:
+    - 97f65899-2224-4418-ab88-23a885319daf
+    - c3a33e50-e428-496d-aa83-d4fde88148e6
+    name: ''
+  c3a33e50-e428-496d-aa83-d4fde88148e6:
+    tasks:
+      33b39ce8-5ba6-435a-a578-7a875b8238c0:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_TEST
+        parameters:
+          statement: "select * from \n${{ MATRIX.tables_to_test['id'] }}\nwhere ${{\
+            \ MATRIX.tables_to_test['column'] }} is null"
+          error_threshold_expression: '> 0'
+          warn_threshold_expression: '> 0'
+        depends_on: []
+        name: Not Nulls
+        tags: []
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        tables_to_test:
+        - id: HUBSPOT_CONTACTS
+          column: VID
+        - id: HUBSPOT_CONTACTS_AGGREGATED
+          column: VID
+        - id: ISSUES
+          column: CREATED_AT
+        - id: SHIPMENTS
+          column: ID
+        - id: SLOW_MODEL_1
+          column: SECONDS_WAITED
+        - id: SLOW_MODEL_2
+          column: SECONDS_WAITED
+schedule: []
+sensors: {}
+webhook:
+  enabled: false
