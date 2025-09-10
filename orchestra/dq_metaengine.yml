@@ -9,7 +9,7 @@ pipeline:
         parameters:
           statement: 'select sum(1) count__ from  ${{ MATRIX.tables["id"] }} where
 
-            ${{ MATRIX.tables["column"] }} is null'
+            ${{ MATRIX.tables["column"] }} is not null'
           error_threshold_expression: '> 0'
           warn_threshold_expression: '> 0'
         depends_on: []
