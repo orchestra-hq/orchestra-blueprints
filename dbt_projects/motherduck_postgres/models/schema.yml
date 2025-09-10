@@ -56,4 +56,3 @@ models:
     columns:
       - name: run_date
         tests: [not_null]
-
