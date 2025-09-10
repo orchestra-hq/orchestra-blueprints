@@ -6,7 +6,7 @@ sources:
     description: Raw schema in MotherDuck populated from S3 CSVs
     tables:
       - name: events
-        description: Event stream table loaded from S3 (columns: event_name, time, Name, Number)
+        description: "Event stream table loaded from S3 (columns: event_name, time, Name, Number)"
         columns:
           - name: event_name
             tests: [not_null]
