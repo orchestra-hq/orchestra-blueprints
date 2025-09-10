@@ -7,7 +7,7 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_TEST
         parameters:
-          statement: 'select * from  ${{ MATRIX.tables["id"] }} where
+          statement: 'select count(*) from  ${{ MATRIX.tables["id"] }} where
 
             ${{ MATRIX.tables["column"] }} is  null'
           error_threshold_expression: '> 0'
