@@ -1,0 +1,26 @@
+version: 2
+
+sources:
+  - name: md_raw
+    description: Raw snapshots of operational tables mirrored from Postgres into MotherDuck.
+    schema: raw
+    tables:
+      - name: task_runs
+        description: Task run execution records from the operational system.
+      - name: pipeline_runs
+        description: Pipeline run execution records from the operational system.
+
+  - name: md_meta
+    description: Lightweight metadata and statistics extracted during ingestion.
+    schema: meta
+    tables:
+      - name: table_row_counts
+        description: Row counts for mirrored tables at ingestion time.
+      - name: task_run_status_daily
+        description: Daily task run counts by status (computed at extract time).
+      - name: pipeline_run_status_daily
+        description: Daily pipeline run counts by status (computed at extract time).
+      - name: pipeline_run_duration_stats
+        description: Daily duration statistics for pipeline runs (computed at extract time).
+      - name: ingestion_runs
+        description: Audit log for each extraction run.

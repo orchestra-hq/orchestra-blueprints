@@ -1,0 +1,58 @@
+version: 2
+
+models:
+  - name: stg_task_runs
+    description: Cleaned and typed staging table for task runs.
+    columns:
+      - name: task_run_id
+        tests: [not_null]
+      - name: pipeline_run_id
+      - name: status
+      - name: run_date
+        tests: [not_null]
+
+  - name: stg_pipeline_runs
+    description: Cleaned and typed staging table for pipeline runs.
+    columns:
+      - name: pipeline_run_id
+        tests: [not_null]
+      - name: status
+      - name: run_date
+        tests: [not_null]
+
+  - name: fct_daily_task_run_statuses
+    description: Daily counts of task runs by status.
+    columns:
+      - name: run_date
+        tests: [not_null]
+      - name: status
+        tests: [not_null]
+      - name: run_count
+
+  - name: fct_daily_pipeline_kpis
+    description: Daily pipeline run KPIs including counts and duration metrics.
+    columns:
+      - name: run_date
+        tests: [not_null]
+      - name: num_total
+      - name: num_success
+      - name: num_failed
+      - name: success_rate
+      - name: avg_duration_seconds
+      - name: p50_duration_seconds
+      - name: p90_duration_seconds
+
+  - name: fct_daily_table_row_counts
+    description: Daily row counts of mirrored raw tables.
+    columns:
+      - name: run_date
+        tests: [not_null]
+      - name: table_name
+        tests: [not_null]
+      - name: row_count
+
+  - name: kpi_dashboard
+    description: Consolidated daily KPI table for pipelines and tasks.
+    columns:
+      - name: run_date
+        tests: [not_null]
