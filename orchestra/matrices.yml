@@ -105,6 +105,24 @@ pipeline:
           column: SECONDS_WAITED
         - id: SLOW_MODEL_2
           column: SECONDS_WAITED
+  2566ac03-7687-4ee2-8352-ccc2759be168:
+    tasks:
+      bc314dc5-f5dc-4831-9c62-756ee6f8f714:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: ${{ MATRIX.Datasets }}
+        depends_on: []
+        name: Refresh Datasets
+        tags: []
+    depends_on:
+    - bee4f5df-45e6-405d-b5bb-76a92f1bf3a0
+    name: ''
+    matrix:
+      inputs:
+        Datasets:
+        - first_id
+        - second_id
 schedule: []
 sensors: {}
 webhook:
