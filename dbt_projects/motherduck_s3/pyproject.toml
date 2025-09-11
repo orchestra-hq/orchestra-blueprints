@@ -1,0 +1,11 @@
+[project]
+name = "motherduck_s3"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "duckdb",
+  "dbt-duckdb",
+  "dbt-core"
+]
