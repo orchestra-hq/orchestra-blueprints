@@ -28,6 +28,7 @@ pipeline:
         depends_on: []
         name: execute task
         tags: []
+        connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
     depends_on:
     - edb599db-7d69-4bea-a7e1-75dee11c39ff
     - 7fda4185-0111-41be-974a-f40bbb0f07dc
