@@ -1,0 +1,88 @@
+version: v1
+name: dbt, adf, python, databricks, snowflake
+pipeline:
+  9e821a2f-239f-4a65-a694-f8584a32c85a:
+    tasks:
+      ccff7c89-cd91-462a-a670-d813733e5862:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: 'dbt ${{inputs.command}}
+
+            '
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: dbt build
+        tags: []
+        connection: dbt_core_bigquery_prod_38077
+        operation_metadata:
+          1654e1a5-fa66-462e-9f6c-c20016eede00:
+            integration: SNOWFLAKE
+      940df2a9-b666-4ccd-95fc-5d675e01bbf9:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: execute task kick_off_task;
+          set_outputs: false
+        depends_on: []
+        name: execute task
+        tags: []
+    depends_on:
+    - edb599db-7d69-4bea-a7e1-75dee11c39ff
+    - 7fda4185-0111-41be-974a-f40bbb0f07dc
+    name: ''
+  edb599db-7d69-4bea-a7e1-75dee11c39ff:
+    tasks:
+      8a2828d7-0219-42fd-9d64-e09a8fcf2a36:
+        integration: AZURE_DATA_FACTORY
+        integration_job: ADF_PIPELINE_RUN
+        parameters:
+          resource_group: staging-test-resources
+          data_factory: orchestra-test-datafactory
+          pipeline_name: copy_wait_loop
+        depends_on: []
+        name: ADF Run
+        tags: []
+        connection: adf__prod__2__49268
+        treat_failure_as_warning: true
+    depends_on: []
+    name: ''
+  7fda4185-0111-41be-974a-f40bbb0f07dc:
+    tasks:
+      cad21438-4d53-4ea1-a580-6d358134fd09:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python -m run_dlt_pipelines
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          set_outputs: false
+        depends_on: []
+        name: python API CAlls
+        tags: []
+        connection: orchestra_python_96778
+    depends_on: []
+    name: ''
+  dc0bf4d2-9125-439a-ac73-de174fdba852:
+    tasks:
+      4c7edf2d-c640-4d7c-95a2-a24407bdaa7b:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_RUN_WORKFLOW
+        parameters:
+          job_id: '901678036732468'
+        depends_on: []
+        name: Databricks workflow
+        tags: []
+    depends_on:
+    - 9e821a2f-239f-4a65-a694-f8584a32c85a
+    name: ''
+schedule: []
+sensors: {}
+webhook:
+  enabled: false
+inputs:
+  command:
+    type: string
+    default: build
