@@ -71,3 +71,7 @@ webhook:
   enabled: true
   run_inputs:
     json_payload: '{}'
+inputs:
+  json_payload:
+    type: dict
+    default: {}
