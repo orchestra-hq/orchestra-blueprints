@@ -68,4 +68,6 @@ pipeline:
 schedule: []
 sensors: {}
 webhook:
-  enabled: false
+  enabled: true
+  run_inputs:
+    json_payload: '{}'
