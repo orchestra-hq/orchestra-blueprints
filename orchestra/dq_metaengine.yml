@@ -17,6 +17,7 @@ pipeline:
         depends_on: []
         name: nully test
         tags: []
+        connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
     depends_on: []
     name: ''
     matrix:
