@@ -1,39 +1,6 @@
 version: v1
 name: 'MetaEngine: DQ Tests'
 pipeline:
-  c57884ea-9f61-4efc-a2a9-917c427959c5:
-    tasks:
-      7c355e80-03a2-484f-a53b-cae5acc42cfe:
-        integration: SNOWFLAKE
-        integration_job: SNOWFLAKE_RUN_TEST
-        parameters:
-          statement: 'select count(*) from  ${{ MATRIX.tables["id"] }} where
-
-            ${{ MATRIX.tables["column"] }} is  null
-
-            '
-          error_threshold_expression: '> 0'
-          warn_threshold_expression: '> 0'
-        depends_on: []
-        name: nully test
-        tags: []
-    depends_on: []
-    name: ''
-    matrix:
-      inputs:
-        tables:
-        - id: HUBSPOT_CONTACTS
-          column: VID
-        - id: HUBSPOT_CONTACTS_AGGREGATED
-          column: VID
-        - id: ISSUES
-          column: CREATED_AT
-        - id: SHIPMENTS
-          column: ID
-        - id: SLOW_MODEL_1
-          column: SECONDS_WAITED
-        - id: SLOW_MODEL_2
-          column: SECONDS_WAITED
   b97afa18-d649-4b2a-ac96-38eb23ad5ef9:
     tasks:
       e54c957d-5e97-4483-b1c2-6976197f7d6a:
