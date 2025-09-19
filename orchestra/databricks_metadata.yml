@@ -86,6 +86,20 @@ pipeline:
     depends_on:
     - 93781762-26b2-4ca7-8cf0-713b2ecbd6ff
     name: ''
+  763a2c0a-b66c-4913-bcdb-a5e67cee5cba:
+    tasks:
+      64278edf-f4fe-44ea-984e-7398c068a769:
+        integration: DBT
+        integration_job: DBT_RUNJOB
+        parameters:
+          job_id: '132243'
+        depends_on: []
+        name: dbt Cloud
+        tags: []
+        connection: dbt_databricks_78961
+    depends_on:
+    - 93781762-26b2-4ca7-8cf0-713b2ecbd6ff
+    name: ''
 schedule: []
 sensors: {}
 webhook:
