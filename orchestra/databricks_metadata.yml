@@ -79,6 +79,7 @@ pipeline:
           commands: dbt build
           package_manager: PIP
           python_version: '3.12'
+          branch: amy-test
         depends_on: []
         name: dbt build
         tags: []
