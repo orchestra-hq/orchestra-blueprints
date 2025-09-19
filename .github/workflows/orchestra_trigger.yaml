@@ -5,12 +5,12 @@ on:
     branches:
       - main
     paths:
-      - "orchestra/aws_sqlmesh.yml"
+      - "orchestra/dq_metaengine.yml.yml"
   push:
     branches:
       - main
     paths:
-      - "orchestra/aws_sqlmesh.yml"
+      - "orchestra/dq_metaengine.yml.yml"
   workflow_dispatch:
 
 jobs:
@@ -24,7 +24,7 @@ jobs:
         uses: orchestra-hq/run-pipeline@v1
         with:
           api_key: ${{ secrets.ORCHESTRA_API_KEY }}
-          pipeline_id: 492936e8-7a3d-4805-8fb9-b94f674f3eb4
+          pipeline_id: 25d40c66-5c5a-4e7a-b682-362bd6f61dc2
           poll_interval: 20
           environment: ${{ github.event_name == 'pull_request' && 'Staging' || 'Production' }}
         
