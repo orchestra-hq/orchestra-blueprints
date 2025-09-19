@@ -65,30 +65,6 @@ pipeline:
           column: SECONDS_WAITED
         - id: SLOW_MODEL_2
           column: SECONDS_WAITED
-  de98ee7d-c864-409c-960f-ea06a98ff725:
-    tasks:
-      659f29a4-f5d9-4900-a2c0-21e69a36cc90:
-        integration: DATABRICKS
-        integration_job: DATABRICKS_RUN_WORKFLOW
-        parameters:
-          job_id: '12'
-          job_parameters: '{
-
-
-            "s3_path" : "${{ MATRIX.tables }}"
-
-            }'
-        depends_on: []
-        name: d
-        tags: []
-    depends_on: []
-    name: ''
-    matrix:
-      inputs:
-        tables:
-        - shipments
-        - orders
-        - skus
 schedule: []
 sensors: {}
 webhook:
