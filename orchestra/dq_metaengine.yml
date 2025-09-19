@@ -15,8 +15,9 @@ pipeline:
           error_threshold_expression: '> 0'
           warn_threshold_expression: '> 0'
         depends_on: []
-        name: nully test
+        name: null test_
         tags: []
+        connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
     depends_on: []
     name: ''
     matrix:
@@ -33,6 +34,16 @@ pipeline:
         - id: SLOW_MODEL_1
           column: SECONDS_WAITED
         - id: SLOW_MODEL_2
+          column: SECONDS_WAITED
+        - id: SLOW_MODEL_3
+          column: SECONDS_WAITED
+        - id: SLOW_MODEL_4
+          column: SECONDS_WAITED
+        - id: SLOW_MODEL_5
+          column: SECONDS_WAITED
+        - id: SLOW_MODEL_6
+          column: SECONDS_WAITED
+        - id: SLOW_MODEL_7
           column: SECONDS_WAITED
   b97afa18-d649-4b2a-ac96-38eb23ad5ef9:
     tasks:
