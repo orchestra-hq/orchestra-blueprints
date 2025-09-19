@@ -5,12 +5,12 @@ on:
     branches:
       - main
     paths:
-      - "orchestra/dq_metaengine.yml.yml"
+      - "orchestra/dq_metaengine.yml"
   push:
     branches:
       - main
     paths:
-      - "orchestra/dq_metaengine.yml.yml"
+      - "orchestra/dq_metaengine.yml"
   workflow_dispatch:
 
 jobs:
