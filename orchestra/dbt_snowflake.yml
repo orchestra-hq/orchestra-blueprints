@@ -28,11 +28,11 @@ pipeline:
         depends_on: []
         name: dbt snowflake
         tags: []
-        connection: dbt_snowflake_56978
+        connection: ${{ ENV.DBT_CORE_SNOWFLAKE }}
         operation_metadata:
           79b504da-950c-4488-bf21-65462a4efea0:
             integration: SNOWFLAKE
-            connection: snowflake_tables_24182
+            connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
     depends_on:
     - d98e6448-62b3-4884-9339-e1feafd5aebc
     name: ''
