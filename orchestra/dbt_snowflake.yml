@@ -1,0 +1,63 @@
+version: v1
+name: ACS -> dbt -> power BI
+pipeline:
+  d98e6448-62b3-4884-9339-e1feafd5aebc:
+    tasks:
+      247bbaf1-2c9d-4525-99f1-939528af3d5e:
+        integration: AZURE_CONTAINER_APPS
+        integration_job: ACA_RUN_JOB
+        parameters:
+          resource_group_name: staging-test-resources
+          job_name: orcpythontest2
+          image: orcpythontest2.azurecr.io/examples/run-python:latest
+        depends_on: []
+        name: Run Container Job
+        tags: []
+    depends_on: []
+    name: ''
+  396b9050-f1b2-44ae-a5a2-0dd403e07844:
+    tasks:
+      d5eb1a4d-6871-4103-aa0c-2757bcf0f193:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          warehouse_identifier: JH88529.UK-SOUTH.AZURE
+        depends_on: []
+        name: dbt snowflake
+        tags: []
+        connection: dbt_snowflake_56978
+        operation_metadata:
+          79b504da-950c-4488-bf21-65462a4efea0:
+            integration: SNOWFLAKE
+            connection: snowflake_tables_24182
+    depends_on:
+    - d98e6448-62b3-4884-9339-e1feafd5aebc
+    name: ''
+  d84a593c-d54d-4956-b88d-8431a3d30b7e:
+    tasks:
+      3bc76dc0-6899-455e-9fee-c9c43493f8e9:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: 5e83dd8a-2c30-44ec-8f53-e5e751ae515d
+        depends_on: []
+        name: Power BI Dataset Refresh
+        tags: []
+      ac4c0aa8-6676-41bd-9c85-7331c6119068:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATAMART
+        parameters:
+          datamart_id: 5676208d-037e-440b-8539-e160bfb6994c
+        depends_on: []
+        name: Power BI DataMart
+        tags: []
+    depends_on:
+    - 396b9050-f1b2-44ae-a5a2-0dd403e07844
+    name: ''
+schedule: []
+sensors: {}
+webhook:
+  enabled: false
