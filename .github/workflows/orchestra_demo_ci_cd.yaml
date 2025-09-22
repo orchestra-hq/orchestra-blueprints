@@ -5,12 +5,12 @@ on:
     branches:
       - main
     paths:
-      - "orchestra/hl2e.yml"
+      - "orchestra/dbt_snowflake.yml"
   push:
     branches:
       - main
     paths:
-      - "orchestra/hl2e.yml"
+      - "orchestra/dbt_snowflake.yml"
   workflow_dispatch:
 
 jobs:
@@ -24,6 +24,6 @@ jobs:
         uses: orchestra-hq/run-pipeline@v1
         with:
           api_key: ${{ secrets.ORCHESTRA_API_KEY }}
-          pipeline_id: 7251f164-5743-44a8-8524-15f72d363035
+          pipeline_id: fb6e8f8d-519f-4bb8-be99-7298e0750dd2
           poll_interval: 20
           environment: ${{ github.event_name == 'pull_request' && 'Staging' || 'Production' }}
