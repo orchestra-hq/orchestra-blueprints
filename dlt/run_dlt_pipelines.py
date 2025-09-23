@@ -11,8 +11,12 @@ try:
     range_name = os.getenv('RANGE_NAME')
 except:
     range_name = 'dlt_range'
+try:
+    dataset_name = os.getenv('DATASET_NAME')
+except:
+    dataset_name = 'dbt_leads'
 
 
-run_google_sheets_pipeline(sheet_name, range_names=range_name, drop_mode = None)
+run_google_sheets_pipeline(sheet_name, range_names=range_name, drop_mode = None, dataset_name=dataset_name)
 #run_pipeline()
 print("Success")

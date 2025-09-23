@@ -46,7 +46,7 @@ def load_pipeline_with_sheets(spreadsheet_url_or_id: str) -> None:
     print(info)
 
 
-def load_pipeline_with_named_ranges(spreadsheet_url_or_id: str,drop_mode:str=None) -> None:
+def load_pipeline_with_named_ranges(spreadsheet_url_or_id: str,drop_mode:str=None, dataset_name:str=None) -> None:
     """
     Will not load the sheets in the spreadsheet, but it will load all the named ranges in the spreadsheet.
     """
@@ -54,7 +54,7 @@ def load_pipeline_with_named_ranges(spreadsheet_url_or_id: str,drop_mode:str=Non
         pipeline_name="google_sheets_pipeline",
         destination='bigquery',
         dev_mode=False,
-        dataset_name="sample_google_sheet_data",
+        dataset_name=dataset_name,
         refresh = drop_mode
     )
     data = google_spreadsheet(
@@ -127,10 +127,10 @@ def load_with_table_rename_and_multiple_spreadsheets(
     }
 
 
-def run_google_sheets_pipeline(url_or_id:str, range_names:str = None, drop_mode:str = None):
+def run_google_sheets_pipeline(url_or_id:str, range_names:str = None, drop_mode:str = None, dataset_name:str=None):
 
     #load_pipeline_with_ranges(url_or_id, range_names)
     #load_pipeline_with_sheets(url_or_id)
-    load_pipeline_with_named_ranges(url_or_id, drop_mode)
+    load_pipeline_with_named_ranges(url_or_id, drop_mode, dataset_name)
     #load_pipeline_with_sheets_and_ranges(url_or_id)
     #load_with_table_rename_and_multiple_spreadsheets(url_or_id, range_names)
