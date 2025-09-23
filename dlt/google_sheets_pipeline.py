@@ -14,7 +14,7 @@ def load_pipeline_with_named_ranges(spreadsheet_url_or_id: str, range_names:str=
         dev_mode=False,
         
         dataset_name="sample_google_sheet_data",
-        refresh = "drop_sources",
+        refresh = drop_mode,
         
     )
     print(spreadsheet_url_or_id)

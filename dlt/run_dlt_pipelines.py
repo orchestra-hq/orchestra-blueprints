@@ -13,9 +13,9 @@ try:
 except:
     range_name = None
 try:
-    table_name = os.getenv('TABLE_NAME') or "dbt_leads"
+    table_name = os.getenv('TABLE_NAME')
 except:
-    table_name = "test"
+    table_name = None
 try:
     drop_sources = os.getenv('REFRESH_MODE') 
 except:
