@@ -21,6 +21,15 @@ try:
 except:
     drop_sources = None
 
-run_google_sheets_pipeline(sheet_name, range_names=range_name, drop_mode = drop_sources, table_name=table_name)
-#run_pipeline()
+try:
+
+    run_google_sheets_pipeline(sheet_name, range_names=range_name, drop_mode = drop_sources, table_name=table_name)
+except:
+    print("Google Sheets pipeline failed")
+
+try:
+    run_pipeline()
+except:
+    print("Hubspot pipeline failed")
+
 print("Success")
