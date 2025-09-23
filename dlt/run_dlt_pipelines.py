@@ -13,11 +13,14 @@ try:
 except:
     range_name = 'dlt_range'
 try:
-    dataset_name = os.getenv('DATASET_NAME')
+    table_name = os.getenv('TABLE_NAME')
 except:
-    dataset_name = 'sample_google_sheet_data'
+    table_name = 'test'
+try:
+    drop_sources = os.getenv('REFRESH_MODE')
+except:
+    drop_sources = None
 
-print("Sheet name:" + str(sheet_name))
-run_google_sheets_pipeline(sheet_name, range_names=range_name, drop_mode = None, dataset_name="dbt_leads")
+run_google_sheets_pipeline(sheet_name, range_names=range_name, drop_mode = "drop_data", table_name="dbt_leads_v2")
 #run_pipeline()
 print("Success")
