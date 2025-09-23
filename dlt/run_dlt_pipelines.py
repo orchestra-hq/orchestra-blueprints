@@ -24,13 +24,13 @@ except:
 try:
 
     run_google_sheets_pipeline(sheet_name, range_names=range_name, drop_mode = drop_sources, table_name=table_name)
-except error as e:
+except Exception as e:
     print(str(e))
     print("Google Sheets pipeline failed")
 
 try:
     run_pipeline()
-except error as e:
+except Exception as e:
     print(str(e))
     print("Hubspot pipeline failed")
 
