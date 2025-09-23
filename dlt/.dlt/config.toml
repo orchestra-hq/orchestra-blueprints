@@ -1,5 +1,2 @@
 [sources.google_sheets]
-spreadsheet_url_or_id = "1TMNhQFZbmaBsa1vIehQzh3vdyfc05damwJ_PIKDF14A"
 range_names = ["dlt_range"]
-[runtime]
-dlthub_telemetry = true
