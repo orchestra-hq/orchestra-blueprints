@@ -50,6 +50,26 @@ pipeline:
         - some_other_ids
         - third_ids
         - another_Id
+  4c77a781-aa6f-467c-a3c3-32e61e921ce2:
+    tasks:
+      5ddfbd74-e98b-435e-a5d5-236a9a877ab0:
+        integration: TABLEAU_CLOUD
+        integration_job: TABLEAU_REFRESH_EXTRACT
+        parameters:
+          project_name: Tableau_task
+          datasource_name: ${{ MATRIX.extracts }}
+        depends_on: []
+        name: Tableau
+        tags: []
+        connection: tableua_33990
+    depends_on:
+    - cdc2e045-7a52-4969-ac2f-ee0250e147f7
+    name: ''
+    matrix:
+      inputs:
+        extracts:
+        - '1'
+        - '2'
 schedule: []
 sensors: {}
 webhook:
