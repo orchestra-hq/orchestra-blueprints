@@ -37,24 +37,18 @@ pipeline:
         integration: FIVETRAN
         integration_job: FIVETRAN_SYNC_ALL
         parameters:
-          connector_id: some_id
+          connector_id: ${{ MATRIX.all_ids }}
         depends_on: []
         name: Fivetran
         tags: []
     depends_on: []
     name: ''
-  6153b4ee-505e-4a6b-93b7-1352dcb52859:
-    tasks:
-      0dd29df1-3e51-4086-a2d9-95fa5fed0788:
-        integration: FIVETRAN
-        integration_job: FIVETRAN_SYNC_ALL
-        parameters:
-          connector_id: some_id_other_id
-        depends_on: []
-        name: Another one
-        tags: []
-    depends_on: []
-    name: ''
+    matrix:
+      inputs:
+        all_ids:
+        - some_id
+        - some_other_ids
+        - third_ids
 schedule: []
 sensors: {}
 webhook:
