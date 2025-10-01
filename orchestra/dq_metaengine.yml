@@ -31,6 +31,8 @@ pipeline:
           column: SECONDS_WAITED
         - id: SLOW_MODEL_2
           column: SECONDS_WAITED
+        - id: SLOW_MODEL_14
+          column: SECONDS_WAITED
   cdc2e045-7a52-4969-ac2f-ee0250e147f7:
     tasks:
       550288bc-0bf0-446f-9e66-ec778291cac3:
