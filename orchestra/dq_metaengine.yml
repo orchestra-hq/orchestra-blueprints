@@ -49,6 +49,7 @@ pipeline:
         - some_id
         - some_other_ids
         - third_ids
+        - another_Id
 schedule: []
 sensors: {}
 webhook:
