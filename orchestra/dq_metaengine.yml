@@ -68,8 +68,18 @@ pipeline:
     matrix:
       inputs:
         extracts:
-        - '1'
-        - '2'
+        - id: HUBSPOT_CONTACTS
+          column: VID
+        - id: HUBSPOT_CONTACTS_AGGREGATED
+          column: VID
+        - id: ISSUES
+          column: CREATED_AT
+        - extract: ID_1
+          connection: ID
+        - extract: ID_3
+          connection: SECONDS_WAITED
+        - extract: id_4
+          connection: SECONDS_WAITED
 schedule: []
 sensors: {}
 webhook:
