@@ -11,7 +11,7 @@ pipeline:
           tasks: "[{\n\"notebook_task\": {\n        \"base_parameters\": {\n     \
             \     \"age\": \"35\",\n          \"name\": \"John Doe\",\n          \"\
             orchestra_task_run_id\": \"${{ ORCHESTRA.TASK_RUN_ID }}\",\n         \
-            \ \"FILE_PATH\": \"${{ MATRIX.Values }}\"\n        },\n        \"notebook_path\"\
+            \ \"FILE_PATH\": \"${{ MATRIX.Values }}\" \n        },\n        \"notebook_path\"\
             : \"/Workspace/Users/devapps@getorchestra.io/load_sftp_data\"\n      },\n\
             \      \"retry_on_timeout\": false,\n      \"run_if\": \"ALL_SUCCESS\"\
             ,\n      \"timeout_seconds\": 86400,\n      \"task_key\":\"load_sftp_data\"\
