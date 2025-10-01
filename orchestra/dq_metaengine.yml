@@ -1,19 +1,18 @@
 version: v1
 name: 'MetaEngine: DQ Tests'
 pipeline:
-  b97afa18-d649-4b2a-ac96-38eb23ad5ef9:
+  6f413f4c-4b98-49e1-bd6f-9946e05ae790:
     tasks:
-      e54c957d-5e97-4483-b1c2-6976197f7d6a:
-        integration: DATABRICKS
-        integration_job: DATABRICKS_RUN_TEST
+      0de91b83-dc10-4df9-9040-5c157566636e:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_TEST
         parameters:
-          warehouse_id: '1234 '
           statement: select * from ${{ MATRIX.test_values['id'] }}  where ${{ MATRIX.test_values['column']
             }} is not null
           error_threshold_expression: '> 0'
           warn_threshold_expression: '> 0'
         depends_on: []
-        name: Not_Null test
+        name: '[COPY] Not_Null test'
         tags: []
     depends_on: []
     name: ''
