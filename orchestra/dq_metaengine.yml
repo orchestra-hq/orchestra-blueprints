@@ -31,6 +31,30 @@ pipeline:
           column: SECONDS_WAITED
         - id: SLOW_MODEL_2
           column: SECONDS_WAITED
+  cdc2e045-7a52-4969-ac2f-ee0250e147f7:
+    tasks:
+      550288bc-0bf0-446f-9e66-ec778291cac3:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: some_id
+        depends_on: []
+        name: Fivetran
+        tags: []
+    depends_on: []
+    name: ''
+  6153b4ee-505e-4a6b-93b7-1352dcb52859:
+    tasks:
+      0dd29df1-3e51-4086-a2d9-95fa5fed0788:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: some_id_other_id
+        depends_on: []
+        name: Another one
+        tags: []
+    depends_on: []
+    name: ''
 schedule: []
 sensors: {}
 webhook:
