@@ -23,7 +23,7 @@ import bauplan
 # e.g. different functions can run with different packages, different versions of the same packages
 # and/or even different versions of the python interpreter
 @bauplan.python("3.11")
-def trips_and_zones_2(
+def trips_and_zones_raw(
     trips=bauplan.Model(
         "taxi_fhvhv",
         # this function performs an S3 scan directly in Python, so we can specify the columns and the filter pushdown
@@ -62,11 +62,11 @@ def trips_and_zones_2(
 @bauplan.model()
 # this time notice that we specify one dependency, namely Pandas 2.2.0.
 @bauplan.python("3.11", pip={"pandas": "1.5.3", "numpy": "1.23.2"})
-def normalized_taxi_trips(
+def normalized_trips(
     data=bauplan.Model(
         # this function takes the previous one 'trips_and_zones' as an input
         # functions are chained together to form a DAG by naming convention
-        "trips_and_zones_2",
+        "trips_and_zones_raw",
     ),
 ):
     import math
@@ -100,11 +100,11 @@ def normalized_taxi_trips(
 @bauplan.model()
 # this time notice that we specify one dependency, namely Pandas 2.2.0.
 @bauplan.python("3.11", pip={"pandas": "1.5.3", "numpy": "1.23.2"})
-def normalized_taxi_trips_2(
+def trip_data_staging(
     data=bauplan.Model(
         # this function takes the previous one 'trips_and_zones' as an input
         # functions are chained together to form a DAG by naming convention
-        "trips_and_zones_2",
+        "trips_and_zones_raw",
     ),
 ):
     import math
@@ -140,16 +140,79 @@ def normalized_taxi_trips_2(
 @bauplan.model()
 # this time notice that we specify one dependency, namely Pandas 2.2.0.
 @bauplan.python("3.11", pip={"pandas": "1.5.3", "numpy": "1.23.2"})
-def a(
+def trips_aggregated(
     p0=bauplan.Model(
         # this function takes the previous one 'trips_and_zones' as an input
         # functions are chained together to form a DAG by naming convention
-        "trips_and_zones_2",
+        "trips_and_zones_raw",
     ),
     p1=bauplan.Model(
         # this function takes the previous one 'trips_and_zones' as an input
         # functions are chained together to form a DAG by naming convention
-        "normalized_taxi_trips_2",
+        "trip_data_staging",
+    ),
+):
+    p0.to_pandas()
+    sleep(10)
+    b = p1.to_pandas()
+    return b
+
+
+@bauplan.model()
+# this time notice that we specify one dependency, namely Pandas 2.2.0.
+@bauplan.python("3.11", pip={"pandas": "1.5.3", "numpy": "1.23.2"})
+def journeys_aggregated(
+    p0=bauplan.Model(
+        # this function takes the previous one 'trips_and_zones' as an input
+        # functions are chained together to form a DAG by naming convention
+        "trips_and_zones_raw",
+    ),
+    p1=bauplan.Model(
+        # this function takes the previous one 'trips_and_zones' as an input
+        # functions are chained together to form a DAG by naming convention
+        "trip_data_staging",
+    ),
+):
+    p0.to_pandas()
+    sleep(10)
+    b = p1.to_pandas()
+    return b
+
+
+@bauplan.model()
+# this time notice that we specify one dependency, namely Pandas 2.2.0.
+@bauplan.python("3.11", pip={"pandas": "1.5.3", "numpy": "1.23.2"})
+def fares_aggregated(
+    p0=bauplan.Model(
+        # this function takes the previous one 'trips_and_zones' as an input
+        # functions are chained together to form a DAG by naming convention
+        "trips_and_zones_raw",
+    ),
+    p1=bauplan.Model(
+        # this function takes the previous one 'trips_and_zones' as an input
+        # functions are chained together to form a DAG by naming convention
+        "trip_data_staging",
+    ),
+):
+    p0.to_pandas()
+    sleep(10)
+    b = p1.to_pandas()
+    return b
+
+
+@bauplan.model()
+# this time notice that we specify one dependency, namely Pandas 2.2.0.
+@bauplan.python("3.11", pip={"pandas": "1.5.3", "numpy": "1.23.2"})
+def profit_and_loss(
+    p0=bauplan.Model(
+        # this function takes the previous one 'trips_and_zones' as an input
+        # functions are chained together to form a DAG by naming convention
+        "trips_and_zones_raw",
+    ),
+    p1=bauplan.Model(
+        # this function takes the previous one 'trips_and_zones' as an input
+        # functions are chained together to form a DAG by naming convention
+        "trip_data_staging",
     ),
 ):
     p0.to_pandas()
