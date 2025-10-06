@@ -128,7 +128,24 @@ schedule:
 - name: Daily at 8am
   cron: 0 8 ? * * *
   timezone: Europe/London
-sensors: {}
+sensors:
+  c91211dd-775c-4911-bc62-243676abcc3d:
+    name: Sensor trigger
+    cron: 0 8 ? * * *
+    timezone: Europe/London
+    timeout_mins: 60
+    checks:
+      Check Daily:
+        integration: ORCHESTRA
+        sensor_type: ORCHESTRA_WEBHOOK_EVENT
+        parameters:
+          event_type: daily_COMPLETED
+          check_latest_event: false
+      Check hourly pipeline:
+        integration: SNOWFLAKE
+        sensor_type: SNOWFLAKE_QUERY
+        parameters:
+          query: select * from hourly_table where date > current_day()
 webhook:
   enabled: false
 inputs:
