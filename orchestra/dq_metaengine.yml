@@ -24,7 +24,7 @@ pipeline:
         - id: HUBSPOT_CONTACTS_AGGREGATED
           column: VID
         - id: ISSUES
-          column: CREATED_AT
+          column: 'CREATED_AT '
         - id: SHIPMENTS
           column: ID
         - id: SLOW_MODEL_1
