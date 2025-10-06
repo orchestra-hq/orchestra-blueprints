@@ -1,0 +1,108 @@
+version: v1
+name: S3/Matillion -> Snowflake -> dbt -> Tableau
+pipeline:
+  097de434-8fc1-4b1c-b4a5-4bf1e0de49de:
+    tasks:
+      4db64f30-c455-4992-9d2b-6098d23f6a7b:
+        integration: MATILLION
+        integration_job: MATILLION_EXECUTE_PIPELINE
+        parameters:
+          project_id: 27505728-3e7d-4dfd-ad18-f1f6d8c1b27a
+          pipeline_name: test
+          environment_name: My first project-default
+        depends_on: []
+        name: Execute Matillion Load
+        tags: []
+        treat_failure_as_warning: true
+    depends_on: []
+    name: ''
+  8252937c-272e-440b-bb57-cf5a8df54c11:
+    tasks:
+      d3491626-3905-411e-b920-3cc5aee745b9:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: builds analysis models
+        tags: []
+        connection: dbt_snowflake_56978
+    depends_on:
+    - 097de434-8fc1-4b1c-b4a5-4bf1e0de49de
+    - 3459fb19-f081-43ca-8997-f7f2d54d331d
+    name: ''
+  6807e0e3-4441-4d64-932a-2eed6207a71f:
+    tasks:
+      db794a66-2406-49dc-b855-5d321baa806a:
+        integration: TABLEAU_CLOUD
+        integration_job: TABLEAU_REFRESH_EXTRACT
+        parameters:
+          project_name: Aggregated
+          datasource_name: Aggregated
+        depends_on: []
+        name: refreshes analysis dashboard
+        tags: []
+        treat_failure_as_warning: true
+      ee3045dc-dad9-4ab9-825a-2366ab52504c:
+        integration: TABLEAU_CLOUD
+        integration_job: TABLEAU_REFRESH_WORKBOOK
+        parameters:
+          project_name: some_project
+          workbook_name: Some_workbook
+        depends_on: []
+        name: Refresh Workbooks
+        tags: []
+    depends_on:
+    - 8252937c-272e-440b-bb57-cf5a8df54c11
+    name: ''
+  3459fb19-f081-43ca-8997-f7f2d54d331d:
+    tasks:
+      c581252f-2975-4af6-8caf-a42e30527088:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+
+            "SHEET_NAME": "${{ MATRIX.gsheets[''SHEET_NAME''] }}",
+
+
+            "TABLE_NAME":"${{ MATRIX.gsheets[''TABLE_NAME''] }}"
+
+
+            }'
+          set_outputs: true
+          source: GIT
+          command: python -m run_dlt_pipelines
+          project_dir: dlt
+          shallow_clone_dirs: dlt
+        depends_on: []
+        name: Execute parallel dlt
+        tags: []
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        gsheets:
+        - SHEET_NAME: 1H0UnZ1vJ6WSsZgiVkg96zq52p7qaXkhvodlO1Mzoj6s
+          TABLE_NAME: dbt_leads
+        - SHEET_NAME: 1TMNhQFZbmaBsa1vIehQzh3vdyfc05damwJ_PIKDF14A
+          TABLE_NAME: social_leads
+        - SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ
+          TABLE_NAME: unstructured_feedback
+schedule:
+- name: Daily at 8am
+  cron: 0 8 ? * * *
+  timezone: Europe/London
+sensors: {}
+webhook:
+  enabled: false
+inputs:
+  dbt_command:
+    type: string
+    default: dbt run --select models tag:clean
