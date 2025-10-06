@@ -29,6 +29,22 @@ pipeline:
         name: builds analysis models
         tags: []
         connection: dbt_snowflake_56978
+      4acc3bc9-d0f8-4a8e-8c40-90921cafc03d:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: excecute task kick_off_task;
+        depends_on: []
+        name: Run Snowflake Task
+        tags: []
+      510a45b1-06af-4fac-b88c-9aa247ba72a3:
+        integration: AWS_LAMBDA
+        integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
+        parameters:
+          function_name: some-Lambda
+        depends_on: []
+        name: Execute Lambda
+        tags: []
     depends_on:
     - 097de434-8fc1-4b1c-b4a5-4bf1e0de49de
     - 3459fb19-f081-43ca-8997-f7f2d54d331d
@@ -55,7 +71,7 @@ pipeline:
         name: Refresh Workbooks
         tags: []
     depends_on:
-    - 8252937c-272e-440b-bb57-cf5a8df54c11
+    - 806ea3c6-96ee-4bd3-8b5a-5ad8f24eb67f
     name: ''
   3459fb19-f081-43ca-8997-f7f2d54d331d:
     tasks:
@@ -95,6 +111,19 @@ pipeline:
           TABLE_NAME: social_leads
         - SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ
           TABLE_NAME: unstructured_feedback
+  806ea3c6-96ee-4bd3-8b5a-5ad8f24eb67f:
+    tasks:
+      d5be4ac6-ae53-484b-a04e-6cbdcd50a02d:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: write this data
+        depends_on: []
+        name: Writeback
+        tags: []
+    depends_on:
+    - 8252937c-272e-440b-bb57-cf5a8df54c11
+    name: ''
 schedule:
 - name: Daily at 8am
   cron: 0 8 ? * * *
