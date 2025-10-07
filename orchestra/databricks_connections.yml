@@ -1,28 +1,31 @@
 version: v1
 name: Databricks Metadata Framework (advanced - Part 2)
 pipeline:
-  65b60e5a-2eac-487a-b554-677fb4eb971f:
+  retryOperation:
     tasks:
-      54560eea-9121-4adc-b8b8-638ceab1af68:
+      retryTask:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
           commands: dbt build --profile ${{ MATRIX.integrations['profile'] }}
-          package_manager: PIP
           python_version: '3.12'
+          package_manager: PIP
         depends_on: []
-        name: dbt build
+        name: Retry DBT Build
         tags: []
         connection: dbt_databricks_78961
+        configuration:
+          retries: 3
+          retry_delay: 5
     depends_on: []
     name: ''
     matrix:
       inputs:
         integrations:
-        - connection: dbt_databricks_region_2_32378
-          profile: databricks_testing
-        - connection: dbt_databricks_78961
-          profile: databricks_testing_2
+        - profile: databricks_testing_2
+          connection: dbt_databricks_78961
+        - profile: databricks_testing
+          connection: dbt_databricks_region_2_32378
 schedule: []
 sensors: {}
 webhook:
