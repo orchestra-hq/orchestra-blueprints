@@ -82,6 +82,29 @@ pipeline:
           connection: SECONDS_WAITED
         - extract: id_4
           connection: SECONDS_WAITED
+  2ff719f3-51e2-4df8-812c-97a28c3d470c:
+    tasks:
+      fa63df14-dc5f-4b28-9290-f3284e4e1eff:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_RUN_TEST
+        parameters:
+          warehouse_id: some_id
+          statement: select * from ${{ MATRIX.inputs['table'] }} where ${{ MATRIX.inputs['column']
+            }}is null
+          error_threshold_expression: '> 0'
+          warn_threshold_expression: '> 0'
+        depends_on: []
+        name: not nulls
+        tags: []
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        inputs:
+        - table: SOME_TABLE
+          COLUMN: SOME_COLUMN
+        - table: SOME_TABLE2
+          COLUMN: SOME_COLUMN2
 schedule: []
 sensors: {}
 webhook:
