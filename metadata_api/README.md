@@ -1,10 +1,11 @@
-# Metadata API
+# Orchestra Metadata -> dlt -> Warehouse
 
-You can easily extract all the metadata from Orchestra into your warehouse.
+You can easily extract all the metadata from Orchestra into your warehouse. We will be using dlt for this. A [templated pipeline is available to get started](https://app.getorchestra.io/ai-agents/workflows). Ths script supports loading into Snowflake, BigQuery, and MySQL. Other warehouses can be supported by updating the script slightly and following the dlt documentation.
 
-1. Copy the Metadata_API folder to your repo 
-2. Create a [Python integration](https://docs.getorchestra.io/docs/integrations/utility/python/) for your metadata movement, which will execute a dlt script to move data from the Orchestra API to your warehouse
-3. Ensure you have secrets provisioned. They should follow the dlt schema for adding secrets. An example for Snowflake and BigQuery, Snowflake and MySQL is below. Do not forget to add your Orchestra API Token to the secrets.json.
+1. Copy this `metadata_api` folder to your repo. You will need the `.dlt` folder, `requirements.txt`, and `run.py` files.
+2. Create a [Python integration](https://docs.getorchestra.io/docs/integrations/python/) to execute the dlt script. Ensure you have secrets provisioned - they should follow the dlt schema for adding secrets.
+
+An example for Snowflake, BigQuery, and MySQL are below. Do not forget to add your Orchestra API Token to the `secrets.json` section of the credential as well.
 
 ```json
 {
@@ -30,10 +31,3 @@ You can easily extract all the metadata from Orchestra into your warehouse.
     "ORCHESTRA_API_TOKEN" : "your_api_token"
 }
 ```
-
-4. Create an Orchestra Pipeline with a single python taks. You should configure an input `warehouse` equal to the warehouse name. The accepted values are `snowflake`, `bigquery`, and `mysql`.
-5. The command for the python task should be `python run.py ${{inputs.warehouse}}`
-6. Ensure you add the `pip install -r requirements.txt` Build Command
-7. If you require the data updated every [ hour ] then run the pipeline with a cron schedule, [ hourly ]. If you need it in real-time, then have the pipeline be triggered after every other pipeline completes.
-
-

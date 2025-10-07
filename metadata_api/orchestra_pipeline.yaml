@@ -1,9 +1,9 @@
 version: v1
-name: Orchestra Metadata API to Warehouse
+name: Orchestra Metadata -> dlt -> Warehouse
 pipeline:
-  task_group_1:
+  run-dlt:
     tasks:
-      task_1:
+      dlt:
         integration: PYTHON
         integration_job: PYTHON_EXECUTE_SCRIPT
         parameters:
@@ -11,85 +11,51 @@ pipeline:
           package_manager: PIP
           python_version: "3.12"
           build_command: pip install -r requirements.txt
-          environment_variables:
-            "{\n  \"ORCHESTRA_ENV\": \"${{ ENV.url_env }}\"\n\
-            }"
-          project_dir: metadata_api
-          shallow_clone_dirs: metadata_api
           set_outputs: false
         depends_on: []
-        condition: null
-        name: Read from Metadata API
-        tags: []
-        connection: ${{ ENV.metadata_api_cred }}
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
+        name: dlt (Orchestra Metadata)
     depends_on: []
-    condition: null
-    name: ""
-  task_group_2:
+  snowflake:
     tasks:
-      task_2:
+      dq-snowflake:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_TEST
         parameters:
-          statement:
-            "SELECT\n  *\nFROM PIPELINE_RUNS\nWHERE \nRUN_STATUS = 'FAILED'\n\
-            AND\nCREATED_AT >= '${{ format_date(ORCHESTRA.CURRENT_TIME, \"%Y-%m-%d\"\
-            , \"UTC\") }}';"
-          error_threshold_expression: "> 3"
-          warn_threshold_expression: "> 0"
-          schema: ORCHESTRA_METADATA_${{ ENV.url_env }}
+          statement: "SELECT COUNT(*) FROM PIPELINE_RUNS;"
+          error_threshold_expression: "= 0"
+          warn_threshold_expression: "= 0"
+          schema: ORCHESTRA_METADATA_app
         depends_on: []
-        condition: null
-        name: Snowflake DQ
-        tags: []
-        connection: null
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
+        name: Snowflake Test
     depends_on:
-      - task_group_1
-    condition: ${{ task_groups['task_group_1'].all().status
+      - run-dlt
+    condition: ${{ task_groups['run-dlt'].all().status
       == 'SUCCEEDED' and inputs.warehouse == 'snowflake' }}
-    name: ""
-  task_group_3:
+  bigquery:
     tasks:
-      task_3:
+      dq-bigquery:
         integration: GCP_BIG_QUERY
         integration_job: GCP_BQ_RUN_TEST
         parameters:
-          query:
-            "SELECT\n  *\nFROM orchestrametadatastore.orchestra_metadata_${{\
-            \ ENV.url_env }}.pipeline_runs\nWHERE \nRUN_STATUS = 'FAILED'\nAND\nCREATED_AT\
-            \ >= '${{ format_date(ORCHESTRA.CURRENT_TIME, \"%Y-%m-%d\", \"UTC\") }}';"
+          query: "SELECT COUNT(*) FROM orchestrametadatastore.orchestra_metadata_app.pipeline_runs;"
           enable_drive_scope: false
-          error_threshold_expression: "> 3"
-          warn_threshold_expression: "> 0"
+          error_threshold_expression: "= 0"
+          warn_threshold_expression: "= 0"
         depends_on: []
-        condition: null
-        name: BQ DQ
-        tags: []
-        connection: null
-        operation_metadata: null
-        treat_failure_as_warning: null
-        configuration: null
+        name: BigQuery Test
     depends_on:
-      - task_group_1
-    condition: ${{ task_groups['task_group_1'].all().status
+      - run-dlt
+    condition: ${{ task_groups['run-dlt'].all().status
       == 'SUCCEEDED' and inputs.warehouse == 'bigquery' }}
-    name: ""
-schedule: []
+schedule:
+  - name: Daily at 5am (UTC)
+    cron: 0 5 ? * * *
+    timezone: UTC
 sensors: {}
 trigger_events: []
 webhook:
   enabled: false
-  operation_metadata: null
-  run_inputs: null
-configuration: null
 inputs:
   warehouse:
     type: string
-    default: null
-    optional: null
+    default: "snowflake"

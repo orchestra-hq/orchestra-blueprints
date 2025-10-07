@@ -6,7 +6,7 @@ from dlt.sources.helpers.rest_client.paginators import PageNumberPaginator
 orchestra_api_source = rest_api_source(
     {
         "client": {
-            "base_url": f"https://{dlt.config['orchestra_env']}.getorchestra.io/api/engine/public/",
+            "base_url": "https://app.getorchestra.io/api/engine/public/",
             "auth": {
                 "type": "bearer",
                 "token": dlt.secrets["orchestra_api_token"],
@@ -49,13 +49,14 @@ def orchestra_metadata_api_dlt_pipeline(warehouse: str) -> None:
     pipeline = dlt.pipeline(
         pipeline_name="orchestra_metadata",
         destination=warehouse,
-        dataset_name=f"orchestra_metadata_{dlt.config['orchestra_env']}",
+        dataset_name="orchestra_metadata_app",
     )
     load_info = pipeline.run(orchestra_api_source)
     print(load_info)
 
 
 if __name__ == "__main__":
+    # If your warehouse is not listed here, you can add it manually. See the dlt documentation for more information.
     valid_warehouses = ["bigquery", "mssql", "snowflake"]
     if len(sys.argv) != 2:
         print(f"Usage: python {sys.argv[0]} <{'|'.join(valid_warehouses)}>")
