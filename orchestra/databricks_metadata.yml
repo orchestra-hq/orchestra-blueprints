@@ -86,6 +86,22 @@ pipeline:
     depends_on:
     - 93781762-26b2-4ca7-8cf0-713b2ecbd6ff
     name: ''
+  f7d889ee-9787-44ee-910d-0c1a85f33880:
+    tasks:
+      5b94b074-a778-48a1-b302-a93b59b96d13:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build --profile databricks_testing
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: dbt build
+        tags: []
+        connection: dbt_databricks_78961
+    depends_on:
+    - 93781762-26b2-4ca7-8cf0-713b2ecbd6ff
+    name: ''
 schedule: []
 sensors: {}
 webhook:
