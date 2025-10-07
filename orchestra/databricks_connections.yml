@@ -1,0 +1,27 @@
+version: v1
+name: Databricks Metadata Framework (advanced - Part 2)
+pipeline:
+  65b60e5a-2eac-487a-b554-677fb4eb971f:
+    tasks:
+      54560eea-9121-4adc-b8b8-638ceab1af68:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: dbt build
+        tags: []
+        connection: dbt_databricks_78961
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        integrations:
+        - dbt_databricks_region_2_32378
+        - dbt_databricks_78961
+schedule: []
+sensors: {}
+webhook:
+  enabled: false
