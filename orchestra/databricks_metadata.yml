@@ -1,5 +1,5 @@
 version: v1
-name: Databricks Metadata Framework
+name: Databricks Metadata Framework (basic)
 pipeline:
   8d6c8832-0478-4f75-9c1f-a1638656d105:
     tasks:
