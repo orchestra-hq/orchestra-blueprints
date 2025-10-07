@@ -7,20 +7,22 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: dbt build
+          commands: dbt run --profile  ${{ MATRIX.integrations['profile'] }}
           package_manager: PIP
           python_version: '3.12'
         depends_on: []
         name: dbt build
         tags: []
-        connection: ${{ MATRIX.integrations }}
+        connection: dbt_databricks_78961
     depends_on: []
     name: ''
     matrix:
       inputs:
         integrations:
-        - dbt_databricks_region_2_32378
-        - dbt_databricks_78961
+        - connection: dbt_databricks_region_2_32378
+          profile: databricks_testing
+        - connection: dbt_databricks_78961
+          profile: databricks_testing_2
 schedule: []
 sensors: {}
 webhook:
