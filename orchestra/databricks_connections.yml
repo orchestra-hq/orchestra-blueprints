@@ -13,7 +13,7 @@ pipeline:
         depends_on: []
         name: dbt build
         tags: []
-        connection: dbt_databricks_78961
+        connection: ${{MATRIX.integrations}}
     depends_on: []
     name: ''
     matrix:
