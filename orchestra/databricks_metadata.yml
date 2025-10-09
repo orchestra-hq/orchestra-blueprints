@@ -20,6 +20,17 @@ pipeline:
         name: trigger databricks
         tags: []
         connection: databricks__prod__39884
+      fab1fc34-7361-4c5d-ba91-b10fb6514060:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_RUN_TEST
+        parameters:
+          warehouse_id: some_id
+          statement: select * from table where column is null
+          error_threshold_expression: '> 0'
+          warn_threshold_expression: '> 0'
+        depends_on: []
+        name: Check for nulls
+        tags: []
     depends_on:
     - 4930d15c-2ba9-4f1c-a322-290ba578dabc
     name: ''
@@ -80,7 +91,7 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: dbt build
+          commands: dbt build --profile ${{ MATRIX.regions }}
           package_manager: PIP
           python_version: '3.12'
         depends_on: []
@@ -90,6 +101,11 @@ pipeline:
     depends_on:
     - 93781762-26b2-4ca7-8cf0-713b2ecbd6ff
     name: ''
+    matrix:
+      inputs:
+        regions:
+        - region1
+        - region2
 schedule: []
 sensors: {}
 webhook:
