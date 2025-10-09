@@ -55,34 +55,6 @@ pipeline:
         tags: []
     depends_on: []
     name: ''
-  93781762-26b2-4ca7-8cf0-713b2ecbd6ff:
-    tasks:
-      648fec5e-f89e-4581-82fa-f63242e774ca:
-        integration: DATABRICKS
-        integration_job: DATABRICKS_ONE_TIME_RUN
-        parameters:
-          run_name: Notebook
-          tasks: "[{\n\"notebook_task\": {\n        \"base_parameters\": {\n     \
-            \     \"age\": \"35\",\n          \"name\": \"John Doe\",\n          \"\
-            orchestra_task_run_id\": \"${{ ORCHESTRA.TASK_RUN_ID }}\",\n         \
-            \ \"FILE_PATH\": \"${{ MATRIX.tables }}\"\n        },\n        \"notebook_path\"\
-            : \"/Workspace/Users/devapps@getorchestra.io/Write_Shipments\"\n     \
-            \ },\n      \"retry_on_timeout\": false,\n      \"run_if\": \"ALL_SUCCESS\"\
-            ,\n      \"timeout_seconds\": 86400,\n      \"task_key\":\"Write_Shipments\"\
-            \n    }]"
-        depends_on: []
-        name: Load from S3
-        tags: []
-        connection: databricks__prod__39884
-    depends_on:
-    - 8d6c8832-0478-4f75-9c1f-a1638656d105
-    name: ''
-    matrix:
-      inputs:
-        tables:
-        - shipments.json
-        - orders.json
-        - customers.json
   65b60e5a-2eac-487a-b554-677fb4eb971f:
     tasks:
       54560eea-9121-4adc-b8b8-638ceab1af68:
@@ -98,7 +70,7 @@ pipeline:
         tags: []
         connection: ${{ ENV.DBT_CORE_CONNECTION }}
     depends_on:
-    - 93781762-26b2-4ca7-8cf0-713b2ecbd6ff
+    - 8d6c8832-0478-4f75-9c1f-a1638656d105
     name: ''
     matrix:
       inputs:
