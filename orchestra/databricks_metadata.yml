@@ -20,6 +20,17 @@ pipeline:
         name: trigger databricks
         tags: []
         connection: databricks__prod__39884
+      fab1fc34-7361-4c5d-ba91-b10fb6514060:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_RUN_TEST
+        parameters:
+          warehouse_id: some_id
+          statement: select * from table where column is null
+          error_threshold_expression: '> 0'
+          warn_threshold_expression: '> 0'
+        depends_on: []
+        name: Check for nulls
+        tags: []
     depends_on:
     - 4930d15c-2ba9-4f1c-a322-290ba578dabc
     name: ''
@@ -29,9 +40,6 @@ pipeline:
         - shipments.json
         - orders.json
         - customers.json
-        - more.json
-        - stuff.json
-        - notintheui.json
   4930d15c-2ba9-4f1c-a322-290ba578dabc:
     tasks:
       d533ddee-7535-419d-9961-6afdbf3292cf:
@@ -40,6 +48,7 @@ pipeline:
         parameters:
           warehouse_id: 86c2feabe2d36412
           statement: SELECT * FROM orchestra_demo_2.raw.orchestra_metadata
+          set_outputs: true
         depends_on: []
         name: Fetch Data
         tags: []
@@ -79,17 +88,36 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: dbt build
+          commands: dbt build --profile ${{ MATRIX.regions }} ${{ inputs.is_full_refresh
+            }}
           package_manager: PIP
           python_version: '3.12'
         depends_on: []
         name: dbt build
         tags: []
-        connection: dbt_databricks_78961
+        connection: ${{ ENV.DBT_CORE_CONNECTION }}
     depends_on:
     - 93781762-26b2-4ca7-8cf0-713b2ecbd6ff
     name: ''
-schedule: []
+    matrix:
+      inputs:
+        regions:
+        - region1
+        - region2
+schedule:
+- name: Daily at 8am
+  cron: 0 8 ? * SAT *
+  timezone: Europe/London
+  run_inputs:
+    is_full_refresh: --full-refresh
+- name: Daily at 8am
+  cron: 0 8 ? * * *
+  timezone: Europe/London
+  run_inputs:
+    is_full_refresh: ' '
 sensors: {}
 webhook:
   enabled: false
+inputs:
+  is_full_refresh:
+    type: string
