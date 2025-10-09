@@ -26,9 +26,12 @@ pipeline:
     matrix:
       inputs:
         Values:
-        - shipments.json
-        - orders.json
-        - customers.json
+        - file: shipments.json
+          table: shipment
+        - file: orders.json
+          table: orders
+        - file: customers.json
+          table: customers
   4930d15c-2ba9-4f1c-a322-290ba578dabc:
     tasks:
       d533ddee-7535-419d-9961-6afdbf3292cf:
@@ -37,6 +40,7 @@ pipeline:
         parameters:
           warehouse_id: 86c2feabe2d36412
           statement: SELECT * FROM orchestra_demo_2.raw.orchestra_metadata
+          set_outputs: true
         depends_on: []
         name: Fetch Data
         tags: []
