@@ -1,28 +1,45 @@
 version: v1
 name: Databricks Metadata Framework (advanced - Part 2)
 pipeline:
-  retryOperation:
+  extractLoad:
     tasks:
-      retryTask:
+      airbyteExtract:
+        integration: AIRBYTE_CLOUD
+        integration_job: AIRBYTE_CLOUD_JOB
+        parameters:
+          connection_id: your_connection_id
+          job_type: sync
+        depends_on: []
+        name: Airbyte Extract
+        tags: []
+        connection: airbyte__prod__25344
+      fivetranLoad:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: your_connector_id
+        depends_on: []
+        name: Fivetran Load
+        tags: []
+        connection: FIVETRAN_h_94547
+    depends_on: []
+    name: ''
+  transform:
+    tasks:
+      dbtTransform:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: dbt build --profile ${{ MATRIX.integrations['profile'] }}
-          package_manager: PIP
+          commands: dbt run --profiles-dir .
           python_version: '3.12'
+          package_manager: PIP
         depends_on: []
-        name: Retry DBT Build
+        name: DBT Transform
         tags: []
-        connection: dbt_databricks_78961
-    depends_on: []
+        connection: DBT_CORE_dbt_core_bigquery_prod_38077
+    depends_on:
+    - extractLoad
     name: ''
-    matrix:
-      inputs:
-        integrations:
-        - profile: databricks_testing_2
-          connection: dbt_databricks_78961
-        - profile: databricks_testing
-          connection: dbt_databricks_region_2_32378
 schedule: []
 sensors: {}
 webhook:
