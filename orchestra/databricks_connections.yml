@@ -8,15 +8,12 @@ pipeline:
         integration_job: DBT_CORE_EXECUTE
         parameters:
           commands: dbt build --profile ${{ MATRIX.integrations['profile'] }}
-          python_version: '3.12'
           package_manager: PIP
+          python_version: '3.12'
         depends_on: []
         name: Retry DBT Build
         tags: []
         connection: dbt_databricks_78961
-        configuration:
-          retries: 3
-          retry_delay: 5
     depends_on: []
     name: ''
     matrix:
