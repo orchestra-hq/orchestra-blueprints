@@ -1,0 +1,127 @@
+version: v1
+name: Python -dby-Snowflake-PBI
+pipeline:
+  8252937c-272e-440b-bb57-cf5a8df54c11:
+    tasks:
+      d3491626-3905-411e-b920-3cc5aee745b9:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: UV
+          python_version: '3.12'
+          warehouse_identifier: JH88529.UK-SOUTH.AZURE
+        depends_on: []
+        name: builds analysis models
+        tags: []
+        connection: dbt_snowflake_56978
+        operation_metadata:
+          94011289-5f33-4aa9-9405-c7fbf8c14fde:
+            integration: SNOWFLAKE
+            connection: snowflake_tables_24182
+        treat_failure_as_warning: true
+    depends_on:
+    - 3459fb19-f081-43ca-8997-f7f2d54d331d
+    name: ''
+  3459fb19-f081-43ca-8997-f7f2d54d331d:
+    tasks:
+      c581252f-2975-4af6-8caf-a42e30527088:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+
+            "SHEET_NAME": "${{ MATRIX.gsheets[''SHEET_NAME''] }}",
+
+
+            "TABLE_NAME":"${{ MATRIX.gsheets[''TABLE_NAME''] }}"
+
+
+            }'
+          set_outputs: true
+          source: GIT
+          command: python -m run_dlt_pipelines
+          project_dir: dlt
+          shallow_clone_dirs: dlt
+        depends_on: []
+        name: Execute parallel dlt
+        tags: []
+        connection: python__production__blueprints__19239
+        treat_failure_as_warning: true
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        gsheets:
+        - SHEET_NAME: 1H0UnZ1vJ6WSsZgiVkg96zq52p7qaXkhvodlO1Mzoj6s
+          TABLE_NAME: dbt_leads
+        - SHEET_NAME: 1TMNhQFZbmaBsa1vIehQzh3vdyfc05damwJ_PIKDF14A
+          TABLE_NAME: social_leads
+        - SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ
+          TABLE_NAME: unstructured_feedback
+  60bd6c51-22b1-4b73-ac35-7923a6cd78ab:
+    tasks:
+      20bead13-a32f-4564-8132-6c299f096e2a:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: 5e83dd8a-2c30-44ec-8f53-e5e751ae515d
+        depends_on: []
+        name: Refresh Dataset
+        tags: []
+    depends_on:
+    - 8252937c-272e-440b-bb57-cf5a8df54c11
+    - e6858647-0e86-4530-9eb2-78d080941022
+    name: ''
+  e6858647-0e86-4530-9eb2-78d080941022:
+    tasks:
+      08bc69c0-4db0-41cd-8127-9f43fde46cb1:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: Execute task kick_off_task;
+        depends_on: []
+        name: Execute Task
+        tags: []
+    depends_on:
+    - 3459fb19-f081-43ca-8997-f7f2d54d331d
+    - 5a42e2bf-84ad-4e10-a987-b1b832b99639
+    name: ''
+  5a42e2bf-84ad-4e10-a987-b1b832b99639:
+    tasks:
+      ea300064-9d62-4729-922d-60d9ee971408:
+        integration: AWS_LAMBDA
+        integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
+        parameters:
+          function_name: ' aws_lambda_test'
+          enable_polling: true
+          set_outputs: false
+        depends_on: []
+        name: Run Ingest
+        tags: []
+        connection: aws_lambda__dev__70069
+      7a24a1a3-78d7-4725-9b24-f03f6c053eb4:
+        integration: AWS_GLUE
+        integration_job: AWS_GLUE_RUN_JOB
+        parameters:
+          job_name: Testing
+        depends_on: []
+        name: Run AWS Ingest
+        tags: []
+        connection: glue_crawlers_79392
+    depends_on: []
+    name: ''
+schedule:
+- name: Daily at 8am
+  cron: 0 8 ? * * *
+  timezone: Europe/London
+sensors: {}
+webhook:
+  enabled: false
+inputs:
+  dbt_command:
+    type: string
+    default: dbt run --select models tag:clean
