@@ -111,15 +111,6 @@ pipeline:
         name: Run Ingest
         tags: []
         connection: aws_lambda__dev__70069
-      7a24a1a3-78d7-4725-9b24-f03f6c053eb4:
-        integration: AWS_GLUE
-        integration_job: AWS_GLUE_RUN_JOB
-        parameters:
-          job_name: Testing
-        depends_on: []
-        name: Run AWS Ingest
-        tags: []
-        connection: glue_crawlers_79392
     depends_on: []
     name: ''
 schedule:
