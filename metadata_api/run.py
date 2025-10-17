@@ -56,17 +56,8 @@ def orchestra_metadata_api_dlt_pipeline(warehouse: str) -> None:
 
 
 if __name__ == "__main__":
-    # If your warehouse is not listed here, you can add it manually. See the dlt documentation for more information.
-    valid_warehouses = ["bigquery", "mssql", "snowflake"]
     if len(sys.argv) != 2:
-        print(f"Usage: python {sys.argv[0]} <{'|'.join(valid_warehouses)}>")
+        print(f"Usage: python {sys.argv[0]} <warehouse>")
         sys.exit(1)
 
-    warehouse = sys.argv[1].lower()
-    if warehouse not in valid_warehouses:
-        print(
-            f"Invalid warehouse: {warehouse}. Valid options are: {', '.join(valid_warehouses)}"
-        )
-        sys.exit(1)
-
-    orchestra_metadata_api_dlt_pipeline(warehouse)
+    orchestra_metadata_api_dlt_pipeline(sys.argv[1])
