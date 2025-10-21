@@ -8,8 +8,11 @@ pipeline:
         integration_job: DBT_CORE_EXECUTE
         parameters:
           commands: dbt build
-          package_manager: UV
+          package_manager: PIP
           python_version: '3.12'
+          branch: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
           warehouse_identifier: JH88529.UK-SOUTH.AZURE
         depends_on: []
         name: builds analysis models
@@ -124,3 +127,6 @@ inputs:
   dbt_command:
     type: string
     default: dbt run --select models tag:clean
+  dbt_branch:
+    type: string
+    default: main
