@@ -91,7 +91,6 @@ pipeline:
         connection: ecs__prod__38970
     depends_on:
     - 07630a2e-44bc-4919-9df1-84bca7b335f0
-    - 07630a2e-44bc-4919-9df1-84bca7b335f0
     name: ''
   e6858647-0e86-4530-9eb2-78d080941022:
     tasks:
@@ -129,7 +128,7 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_TEST
         parameters:
-          statement: 'select * from customers
+          statement: 'select * from ${{ MATRIX.Tables }}
 
             where something = "is not right"'
           error_threshold_expression: '> 0'
@@ -141,6 +140,11 @@ pipeline:
     - 8252937c-272e-440b-bb57-cf5a8df54c11
     - e6858647-0e86-4530-9eb2-78d080941022
     name: ''
+    matrix:
+      inputs:
+        Tables:
+        - customers
+        - something
 schedule:
 - name: Daily at 8am
   cron: 0 8 ? * * *
