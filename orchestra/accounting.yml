@@ -95,32 +95,19 @@ pipeline:
   5a42e2bf-84ad-4e10-a987-b1b832b99639:
     tasks:
       ea300064-9d62-4729-922d-60d9ee971408:
-        integration: AWS_LAMBDA
-        integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
+        integration: AWS_ECS
+        integration_job: AWS_ECS_RUN_TASK
         parameters:
-          function_name: ' aws_lambda_test'
-          enable_polling: true
-          set_outputs: false
+          cluster: i-345678
+          task_definition: move_data
+          subnet_ids: some_ids
+          security_group_ids: some_ids
+          assign_public_ip: false
         depends_on: []
         name: Run Ingest
         tags: []
-        connection: aws_lambda__dev__70069
+        connection: ecs__prod__38970
     depends_on: []
-    name: ''
-  ef3fae13-2bfd-4c54-9b50-b0b480323594:
-    tasks:
-      3e3b5e65-73d0-4816-929b-379cf2fca437:
-        integration: DBT_CORE
-        integration_job: DBT_CORE_EXECUTE
-        parameters:
-          commands: dbt build
-          package_manager: PIP
-          python_version: '3.12'
-        depends_on: []
-        name: dbt build
-        tags: []
-    depends_on:
-    - 3459fb19-f081-43ca-8997-f7f2d54d331d
     name: ''
 schedule:
 - name: Daily at 8am
