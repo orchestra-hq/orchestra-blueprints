@@ -11,8 +11,8 @@ pipeline:
           package_manager: PIP
           python_version: '3.12'
           branch: ${{ inputs.dbt_branch }}
-          project_dir: dbt_projects/snowflake
-          shallow_clone_dirs: dbt_projects/snowflake
+          project_dir: dbt_projects/${{ MATRIX.tenants }}
+          shallow_clone_dirs: dbt_projects/${{ MATRIX.tenants }}
           warehouse_identifier: JH88529.UK-SOUTH.AZURE
         depends_on: []
         name: builds analysis models
@@ -23,17 +23,14 @@ pipeline:
             integration: SNOWFLAKE
             connection: snowflake_tables_24182
         treat_failure_as_warning: true
-      864b86c1-7d69-4a7e-9f16-2172e9c92f21:
-        integration: DBT
-        integration_job: DBT_RUNJOB
-        parameters:
-          job_id: '452335'
-        depends_on: []
-        name: Execute Silver Transforms
-        tags: []
     depends_on:
     - 3459fb19-f081-43ca-8997-f7f2d54d331d
     name: ''
+    matrix:
+      inputs:
+        tenants:
+        - postgres
+        - snowflake
   3459fb19-f081-43ca-8997-f7f2d54d331d:
     tasks:
       c581252f-2975-4af6-8caf-a42e30527088:
