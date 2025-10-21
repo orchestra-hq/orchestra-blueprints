@@ -11,8 +11,6 @@ pipeline:
           package_manager: PIP
           python_version: '3.12'
           branch: ${{ inputs.dbt_branch }}
-          project_dir: dbt_projects/${{ MATRIX.tenants }}
-          shallow_clone_dirs: dbt_projects/${{ MATRIX.tenants }}
           warehouse_identifier: JH88529.UK-SOUTH.AZURE
         depends_on: []
         name: builds analysis models
@@ -26,11 +24,6 @@ pipeline:
     depends_on:
     - 3459fb19-f081-43ca-8997-f7f2d54d331d
     name: ''
-    matrix:
-      inputs:
-        tenants:
-        - postgres
-        - snowflake
   3459fb19-f081-43ca-8997-f7f2d54d331d:
     tasks:
       c581252f-2975-4af6-8caf-a42e30527088:
