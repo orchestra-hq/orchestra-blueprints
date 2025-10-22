@@ -75,19 +75,6 @@ pipeline:
         tags: []
     depends_on:
     - 8252937c-272e-440b-bb57-cf5a8df54c11
-    - e6858647-0e86-4530-9eb2-78d080941022
-    name: ''
-  e6858647-0e86-4530-9eb2-78d080941022:
-    tasks:
-      08bc69c0-4db0-41cd-8127-9f43fde46cb1:
-        integration: SNOWFLAKE
-        integration_job: SNOWFLAKE_RUN_QUERY
-        parameters:
-          statement: Execute task kick_off_task;
-        depends_on: []
-        name: Execute Task
-        tags: []
-    depends_on:
     - 3459fb19-f081-43ca-8997-f7f2d54d331d
     - 5a42e2bf-84ad-4e10-a987-b1b832b99639
     name: ''
