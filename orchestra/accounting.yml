@@ -94,18 +94,21 @@ pipeline:
   5a42e2bf-84ad-4e10-a987-b1b832b99639:
     tasks:
       ea300064-9d62-4729-922d-60d9ee971408:
-        integration: AWS_LAMBDA
-        integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
         parameters:
-          function_name: ' aws_lambda_test'
-          enable_polling: true
-          set_outputs: false
+          connector_id: ${{ MATRIX.ids }}
         depends_on: []
         name: Run Ingest
         tags: []
-        connection: aws_lambda__dev__70069
+        connection: h_94547
     depends_on: []
     name: ''
+    matrix:
+      inputs:
+        ids:
+        - id1
+        - id
 schedule:
 - name: Daily at 8am
   cron: 0 8 ? * * *
