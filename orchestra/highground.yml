@@ -1,0 +1,68 @@
+version: v1
+name: Enable
+pipeline:
+  32f0dfc5-7f4a-48a4-9c5f-26af9dac96d6:
+    tasks:
+      0d342193-27d4-4ec4-82ea-66a9a82d6e6d:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: dbt build
+        tags: []
+        connection: ${{ ENV.DBT_CORE_CONNECTION }}
+        operation_metadata:
+          3b423177-fee7-4e03-a824-123fae44d436:
+            integration: SNOWFLAKE
+            connection: snowflake_tables_24182
+      7b1271d3-ee2c-4684-9938-cbbe72e38eed:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: execute task kick_off_task;
+        depends_on: []
+        name: Execute Tasks
+        tags: []
+    depends_on:
+    - b174ea10-b326-4b87-b389-787b8b52d4ef
+    name: ''
+  f180d222-41e2-4e9b-9334-1013565a236e:
+    tasks:
+      2a451628-c86d-46e5-897e-638c9ae9cb2f:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_TEST
+        parameters:
+          statement: 'select * from ${{ MATRIX.Tables }}
+
+            where column is null'
+          error_threshold_expression: '> 0'
+          warn_threshold_expression: '> 0'
+        depends_on: []
+        name: Check Nulls
+        tags: []
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        Tables:
+        - table_1
+        - table_2
+  b174ea10-b326-4b87-b389-787b8b52d4ef:
+    tasks:
+      6af77378-c95a-43b8-934c-b0536eb0f809:
+        integration: GCP_CLOUD_RUN
+        integration_job: GCP_CLOUD_RUN_EXECUTE_JOB
+        parameters:
+          job_name: My Function
+        depends_on: []
+        name: Cloud Run Task
+        tags: []
+    depends_on: []
+    name: ''
+schedule: []
+sensors: {}
+webhook:
+  enabled: false
