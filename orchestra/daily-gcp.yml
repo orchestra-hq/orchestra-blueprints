@@ -1,0 +1,177 @@
+version: v1
+name: GCP End to End (CLI DEMO)
+pipeline:
+  f639866f-220f-4c60-967a-51e70c86837b:
+    tasks:
+      cc0e5b84-fbbc-4309-9247-fb30de29c927:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: manual_carrier
+        depends_on: []
+        condition: null
+        name: Fivetran
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      94f70425-d28a-4fcc-baed-643400928b26:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python -m computation
+          package_manager: PIP
+          python_version: "3.12"
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+
+            "object":"customer",
+
+            "source":"salesforce",
+
+            "ORCHESTRA_TASK_RUN_ID": ${{ ORCHESTRA.TASK_RUN_ID }}}'
+          project_dir: python/integration_a
+          set_outputs: false
+        depends_on: []
+        condition: null
+        name: Execute python
+        tags: []
+        connection: python__production__blueprints__19239
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ""
+  02bf20b8-fa07-4180-b8e5-28be9219005e:
+    tasks:
+      6d78ceca-405b-48b8-8a24-e027a993eb99:
+        integration: GCP_CLOUD_RUN
+        integration_job: GCP_CLOUD_RUN_EXECUTE_JOB
+        parameters:
+          job_name: run
+        depends_on: []
+        condition: null
+        name: Move API data
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      cbfd62fe-2c67-44bc-9388-cf440cbc5a9d:
+        integration: GCP_DATAFLOW
+        integration_job: GCP_DATAFLOW_RUN_PIPELINE
+        parameters:
+          pipeline_name: ingest-api-to-bigquery
+        depends_on: []
+        condition: null
+        name: Move heavy API data
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on: []
+    condition: null
+    name: ""
+  72efc92e-9c54-4eb8-8082-a4c258bf1eda:
+    tasks:
+      0f0c8a74-b481-4832-8763-7cd629ac0a21:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt run --${{ inputs.dbt_type }}
+          package_manager: PIP
+          python_version: "3.12"
+          warehouse_identifier: reference-baton-392114
+        depends_on: []
+        condition: null
+        name: dbt build
+        tags: []
+        connection: dbt_core_bigquery_prod_38077
+        operation_metadata:
+          04fb85a3-1bff-4b13-a18a-74bb00a668d0:
+            s3_bucket_name: null
+            s3_key_prefix: null
+            dbt_warehouse_identifier: null
+            integration: GCP_BIG_QUERY
+            connection: bigquery_metadata_79232
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+      - 02bf20b8-fa07-4180-b8e5-28be9219005e
+    condition: null
+    name: ""
+  4c687302-c790-48eb-a092-88b81cd4ae16:
+    tasks:
+      dfe10e10-5ee7-461c-ae3d-80375c03bc91:
+        integration: GCP_BIG_QUERY
+        integration_job: GCP_BQ_RUN_SCHEDULED_QUERY_JOB
+        parameters:
+          resource_name: projects/249301810188/locations/europe-west1/transferConfigs/66e02643-0000-2d9b-b72a-582429cb0ea4
+        depends_on: []
+        condition: null
+        name: Insert
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+      54b7ae6c-6f38-4c24-9349-0d000c709116:
+        integration: GCP_BIG_QUERY
+        integration_job: GCP_BQ_RUN_QUERY_JOB
+        parameters:
+          query: "run stored_proc with param
+
+            date=${{ inputs.loaddate }}"
+          enable_drive_scope: false
+        depends_on: []
+        condition: null
+        name: Run stored proc
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: null
+        configuration: null
+    depends_on:
+      - f639866f-220f-4c60-967a-51e70c86837b
+    condition: null
+    name: ""
+  9a90780f-2e01-4e9a-9784-eed4e12a51fd:
+    tasks:
+      dcbd1514-fa4f-48da-b8f4-f5aa3db3a63f:
+        integration: GCP_LOOKER
+        integration_job: GCP_LOOKER_RUN_SCHEDULED_PLAN
+        parameters:
+          scheduled_plan_id: some_id
+        depends_on: []
+        condition: null
+        name: RUn scheduled plan
+        tags: []
+        connection: null
+        operation_metadata: null
+        treat_failure_as_warning: true
+        configuration: null
+    depends_on:
+      - 4c687302-c790-48eb-a092-88b81cd4ae16
+      - 72efc92e-9c54-4eb8-8082-a4c258bf1eda
+    condition: null
+    name: ""
+schedule: []
+sensors: {}
+trigger_events: []
+webhook:
+  enabled: false
+  operation_metadata: null
+  run_inputs: null
+configuration: null
+inputs:
+  dbt_type:
+    type: string
+    default: " "
+    optional: null
+  loaddate:
+    type: string
+    default: ${{ format_date(ORCHESTRA.CURRENT_TIME, "%Y-%m-%d", "UTC") }
+    optional: null
