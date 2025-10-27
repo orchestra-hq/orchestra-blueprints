@@ -1,0 +1,23 @@
+version: v1
+name: test dbt core git conenc
+pipeline:
+  298fe253-b562-485a-8229-e694dc534ed1:
+    tasks:
+      9c44c5eb-7da4-4628-854c-8f6e3cfef43b:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt run
+          package_manager: PIP
+          python_version: '3.12'
+          project_dir: dbt_projects/motherduck_s3
+        depends_on: []
+        name: runs
+        tags: []
+        connection: orchestra_blueprints_70443
+    depends_on: []
+    name: ''
+schedule: []
+sensors: {}
+webhook:
+  enabled: false
