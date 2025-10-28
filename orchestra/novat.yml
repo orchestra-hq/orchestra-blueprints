@@ -31,6 +31,9 @@ pipeline:
         File_paths:
         - orders.json
         - shipments.json
+        - banks.json
+        - insurers.json
+        - etc.json
   64185886-2397-405e-a3fb-48f79fb04db5:
     tasks:
       2711a9fb-839e-4708-b6ed-0f1ccea29a51:
