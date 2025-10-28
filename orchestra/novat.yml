@@ -1,0 +1,63 @@
+version: v1
+name: 1. SFTP Module
+pipeline:
+  662dddc0-03e6-4e96-a330-0942df882ba5:
+    tasks:
+      62948fdc-6080-431c-aaab-974c6eadd224:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+
+            "FILE_PATH":"${{ MATRIX.File_paths }}"
+
+            }'
+          set_outputs: true
+          source: GIT
+          command: python -m sftp
+          project_dir: python/integration_a
+          shallow_clone_dirs: python/integration_a
+        depends_on: []
+        name: Move SFTP File
+        tags: []
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        File_paths:
+        - orders.json
+        - shipments.json
+  64185886-2397-405e-a3fb-48f79fb04db5:
+    tasks:
+      2711a9fb-839e-4708-b6ed-0f1ccea29a51:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_ONE_TIME_RUN
+        parameters:
+          run_name: DQ Tests
+          tasks: "[\n{\"notebook_task\": {\n        \"base_parameters\": {\n     \
+            \     \"age\": \"35\",\n          \"name\": \"John Doe\",\n          \"\
+            s3_path\": \"${{ ORCHESTRA.PIPELINE_RUN_TASKS['62948fdc-6080-431c-aaab-974c6eadd224'].OUTPUTS['s3_path']\
+            \ }}\",\n          \"orchestra_task_run_id\":\"${{ ORCHESTRA.TASK_RUN_ID\
+            \ }}\",\n          \"orchestra_api_key\": \"Nzg2ODc0MGQtOTIzYy00MmZlLWI3YTUtMzI0YzVhMzIyODlmOjJ0dU9iRFc0ZHBQb0NleXZqdno4dVhlVGNDeUtsajMy\"\
+            \n           },\n        \"notebook_path\": \"/Users/hugo@getorchestra.io/test_boto\"\
+            \n      },\n\"task_key\": \"test_boto\"\n}]"
+          request_body: '{"orchestra_task_run_id":${{ ORCHESTRA.TASK_RUN_ID }},
+
+            "orchestra_api_key": "Nzg2ODc0MGQtOTIzYy00MmZlLWI3YTUtMzI0YzVhMzIyODlmOjJ0dU9iRFc0ZHBQb0NleXZqdno4dVhlVGNDeUtsajMy"
+
+
+            }'
+        depends_on: []
+        name: Run DQ Tests and move to delta
+        tags: []
+    depends_on:
+    - 662dddc0-03e6-4e96-a330-0942df882ba5
+    name: ''
+schedule: []
+sensors: {}
+webhook:
+  enabled: false
