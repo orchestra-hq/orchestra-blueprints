@@ -48,6 +48,7 @@ pipeline:
     depends_on:
     - 097de434-8fc1-4b1c-b4a5-4bf1e0de49de
     - 3459fb19-f081-43ca-8997-f7f2d54d331d
+    - efcff160-6cae-49a5-b4b8-92a251300881
     name: ''
   6807e0e3-4441-4d64-932a-2eed6207a71f:
     tasks:
@@ -124,6 +125,36 @@ pipeline:
     depends_on:
     - 8252937c-272e-440b-bb57-cf5a8df54c11
     name: ''
+  efcff160-6cae-49a5-b4b8-92a251300881:
+    tasks:
+      ef118eae-bd0d-4052-9e8a-65b9319682cf:
+        integration: AWS_ECS
+        integration_job: AWS_ECS_RUN_TASK
+        parameters:
+          cluster: i-6789
+          task_definition: table_elt
+          subnet_ids: '12'
+          security_group_ids: '12'
+          assign_public_ip: false
+          container_overrides:
+          - name: <containerName>
+            environment:
+            - name: ${{ MATRIX.Table_names }}
+              value: <variableValue>
+            command:
+            - <exec>
+            - <arg_1>
+            - <arg_2>
+        depends_on: []
+        name: Table Task
+        tags: []
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        Table_names:
+        - table_1
+        - table_2
 schedule:
 - name: Daily at 8am
   cron: 0 8 ? * * *
