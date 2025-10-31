@@ -22,7 +22,7 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: dbt build
+          commands: dbt ${{ inputs.dbt_command }}
           package_manager: PIP
           python_version: '3.12'
         depends_on: []
@@ -148,13 +148,26 @@ pipeline:
         depends_on: []
         name: Table Task
         tags: []
-    depends_on: []
+    depends_on:
+    - 7071c3e9-c729-45a9-8ced-4c75e3fc228e
     name: ''
     matrix:
       inputs:
-        Table_names:
-        - table_1
-        - table_2
+        Table_names: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['27827741-ed2d-4de5-8e96-327829881f0d'].OUTPUTS['results']
+          }}
+  7071c3e9-c729-45a9-8ced-4c75e3fc228e:
+    tasks:
+      27827741-ed2d-4de5-8e96-327829881f0d:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: select table_name from tables
+          set_outputs: true
+        depends_on: []
+        name: get_tables
+        tags: []
+    depends_on: []
+    name: ''
 schedule:
 - name: Daily at 8am
   cron: 0 8 ? * * *
@@ -182,4 +195,4 @@ webhook:
 inputs:
   dbt_command:
     type: string
-    default: dbt run --select models tag:clean
+    default: run --select models tag:clean
