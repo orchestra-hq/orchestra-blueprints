@@ -1,0 +1,163 @@
+version: v1
+name: Orchestra Iceberg Lakehoues
+pipeline:
+  140ed7f2-4e5a-4781-a72f-0a3b6531c88b:
+    tasks:
+      667649d8-b018-4ad9-842e-5454bb23c620:
+        integration: DATAPROC
+        integration_job: DATAPROC_RUN_JOB
+        parameters:
+          cluster_name: quick-cluster
+          job_args:
+          - '10'
+          optional_flags:
+            jar_file_uris:
+            - file:///usr/lib/spark/examples/jars/spark-examples.jar
+            invalid_thing: hello
+          job_type: spark
+          class_or_jar: org.apache.spark.examples.SparkPi
+        depends_on: []
+        name: Ingest Data using Spark
+        tags: []
+      301b1a29-fde8-4b51-b70f-07c0a0b06fb4:
+        integration: DATAPROC
+        integration_job: DATAPROC_RUN_JOB
+        parameters:
+          cluster_name: quick-cluster
+          job_type: pyspark
+          code_location: gs://dataproc-staging-us-central1-214968202047-s64cbcac/hello.py
+        depends_on: []
+        name: Failed Spark Task
+        tags: []
+        treat_failure_as_warning: true
+    depends_on: []
+    name: ''
+  db5d92c0-9d84-4658-a841-16125ef410fc:
+    tasks:
+      677cbba7-0fd1-4a29-8427-e72626d87197:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build --exclude tag:external_metadata
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: dbt BigQuery
+        tags: []
+        connection: dbt_core_bigquery_prod_38077
+        operation_metadata:
+          65837cb3-e3ab-4ffe-ad53-2df79e49d919:
+            integration: GCP_BIG_QUERY
+            connection: bigquery_metadata_79232
+        treat_failure_as_warning: true
+    depends_on:
+    - 140ed7f2-4e5a-4781-a72f-0a3b6531c88b
+    name: ''
+  9f7538e7-9439-4d60-ba01-b9986ae628d4:
+    tasks:
+      77301c3f-7dac-458e-b3d9-6cb8fee6774f:
+        integration: GCP_CLOUD_RUN
+        integration_job: GCP_CLOUD_RUN_EXECUTE_JOB
+        parameters:
+          job_name: run
+        depends_on: []
+        name: API data
+        tags: []
+      bffbaaf3-c004-4e44-b90e-2e23802369e8:
+        integration: GCP_DATAFLOW
+        integration_job: GCP_DATAFLOW_RUN_PIPELINE
+        parameters:
+          pipeline_name: ingest-api-to-bigquery
+        depends_on: []
+        name: Ingest SFTP
+        tags: []
+    depends_on: []
+    name: ''
+  3bfc92c0-b0d7-459a-998b-9782cc6dfc1b:
+    tasks:
+      16f6dad2-8a14-49d5-852f-8ee96e7f4553:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+
+            "SHEET_NAME": "${{ MATRIX.gsheets[''SHEET_NAME''] }}",
+
+
+            "TABLE_NAME":"${{ MATRIX.gsheets[''TABLE_NAME''] }}"
+
+
+            }'
+          set_outputs: false
+          source: GIT
+          command: python -m run_dlt_pipelines
+          project_dir: dlt
+          shallow_clone_dirs: dlt
+        depends_on: []
+        name: SFTP Data
+        tags: []
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        gsheets:
+        - SHEET_NAME: 1H0UnZ1vJ6WSsZgiVkg96zq52p7qaXkhvodlO1Mzoj6s
+          TABLE_NAME: dbt_leads
+        - SHEET_NAME: 1TMNhQFZbmaBsa1vIehQzh3vdyfc05damwJ_PIKDF14A
+          TABLE_NAME: social_leads
+        - SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ
+          TABLE_NAME: unstructured_feedback
+  42cebbe6-61b1-43f7-9101-1886b4a773f6:
+    tasks:
+      a006e2ef-3a32-4719-b086-8c7fc056a3e7:
+        integration: GCP_LOOKER
+        integration_job: GCP_LOOKER_RUN_SCHEDULED_PLAN
+        parameters:
+          scheduled_plan_id: some_id
+        depends_on: []
+        name: Distribute Dashboards
+        tags: []
+        treat_failure_as_warning: true
+    depends_on:
+    - db5d92c0-9d84-4658-a841-16125ef410fc
+    - 59b47850-b4e7-4b3f-9550-6bbecb79c4af
+    - a64ca2d9-0f87-47a4-933d-72ded475cf6d
+    name: ''
+  a64ca2d9-0f87-47a4-933d-72ded475cf6d:
+    tasks:
+      1215c44a-ec8e-4df1-9072-adf6170912be:
+        integration: BAUPLAN
+        integration_job: BAUPLAN_EXECUTE_PIPELINE
+        parameters:
+          project_dir: bauplan/
+          bauplan_ref: orchestradevs.oliver_test
+          project_branch: test-bauplan
+          namespace: bauplan
+        depends_on: []
+        name: Crunch with Bauplan
+        tags: []
+    depends_on:
+    - 9f7538e7-9439-4d60-ba01-b9986ae628d4
+    name: ''
+  59b47850-b4e7-4b3f-9550-6bbecb79c4af:
+    tasks:
+      f9746b15-accb-48bb-bc2b-d0f691596752:
+        integration: GCP_BIG_QUERY
+        integration_job: GCP_BQ_RUN_SCHEDULED_QUERY_JOB
+        parameters:
+          resource_name: projects/249301810188/locations/europe-west1/transferConfigs/66e02643-0000-2d9b-b72a-582429cb0ea4
+        depends_on: []
+        name: Scheduled Query
+        tags: []
+        connection: bigquery__scheduled_query__prod__64336
+    depends_on:
+    - 3bfc92c0-b0d7-459a-998b-9782cc6dfc1b
+    name: ''
+schedule: []
+sensors: {}
+webhook:
+  enabled: false
