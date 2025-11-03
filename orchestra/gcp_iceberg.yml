@@ -29,6 +29,7 @@ pipeline:
         depends_on: []
         name: Failed Spark Task
         tags: []
+        connection: ${{ ENV.GKE }}
         treat_failure_as_warning: true
     depends_on: []
     name: ''
