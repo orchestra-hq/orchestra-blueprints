@@ -1,5 +1,5 @@
 version: v1
-name: Orchestra Iceberg Lakehoues
+name: '#Iceberg #GCP #bauplan #dbt #metadata'
 pipeline:
   140ed7f2-4e5a-4781-a72f-0a3b6531c88b:
     tasks:
@@ -18,7 +18,6 @@ pipeline:
           class_or_jar: org.apache.spark.examples.SparkPi
         depends_on: []
         name: Ingest Data using Spark
-        tags: []
       301b1a29-fde8-4b51-b70f-07c0a0b06fb4:
         integration: DATAPROC
         integration_job: DATAPROC_RUN_JOB
@@ -28,7 +27,6 @@ pipeline:
           code_location: gs://dataproc-staging-us-central1-214968202047-s64cbcac/hello.py
         depends_on: []
         name: Failed Spark Task
-        tags: []
         connection: ${{ ENV.GKE }}
         treat_failure_as_warning: true
     depends_on: []
@@ -44,7 +42,6 @@ pipeline:
           python_version: '3.12'
         depends_on: []
         name: dbt BigQuery
-        tags: []
         connection: dbt_core_bigquery_prod_38077
         operation_metadata:
           65837cb3-e3ab-4ffe-ad53-2df79e49d919:
@@ -63,7 +60,6 @@ pipeline:
           job_name: run
         depends_on: []
         name: API data
-        tags: []
       bffbaaf3-c004-4e44-b90e-2e23802369e8:
         integration: GCP_DATAFLOW
         integration_job: GCP_DATAFLOW_RUN_PIPELINE
@@ -71,7 +67,6 @@ pipeline:
           pipeline_name: ingest-api-to-bigquery
         depends_on: []
         name: Ingest SFTP
-        tags: []
     depends_on: []
     name: ''
   3bfc92c0-b0d7-459a-998b-9782cc6dfc1b:
@@ -99,7 +94,6 @@ pipeline:
           shallow_clone_dirs: dlt
         depends_on: []
         name: SFTP Data
-        tags: []
         connection: python__production__blueprints__19239
     depends_on:
     - 5218723c-6b9c-4114-8312-fb61801ce150
@@ -117,7 +111,6 @@ pipeline:
           scheduled_plan_id: some_id
         depends_on: []
         name: Distribute Dashboards
-        tags: []
         treat_failure_as_warning: true
     depends_on:
     - db5d92c0-9d84-4658-a841-16125ef410fc
@@ -136,7 +129,6 @@ pipeline:
           namespace: bauplan
         depends_on: []
         name: Crunch with Bauplan
-        tags: []
     depends_on:
     - 9f7538e7-9439-4d60-ba01-b9986ae628d4
     name: ''
@@ -149,7 +141,6 @@ pipeline:
           resource_name: projects/249301810188/locations/europe-west1/transferConfigs/66e02643-0000-2d9b-b72a-582429cb0ea4
         depends_on: []
         name: Scheduled Query
-        tags: []
         connection: bigquery__scheduled_query__prod__64336
     depends_on:
     - 3bfc92c0-b0d7-459a-998b-9782cc6dfc1b
@@ -164,10 +155,7 @@ pipeline:
           set_outputs: true
         depends_on: []
         name: Get Metadata
-        tags: []
     depends_on: []
     name: ''
-schedule: []
-sensors: {}
 webhook:
   enabled: false
