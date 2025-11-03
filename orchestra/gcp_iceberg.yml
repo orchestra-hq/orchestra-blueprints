@@ -100,17 +100,13 @@ pipeline:
         name: SFTP Data
         tags: []
         connection: python__production__blueprints__19239
-    depends_on: []
+    depends_on:
+    - 5218723c-6b9c-4114-8312-fb61801ce150
     name: ''
     matrix:
       inputs:
-        gsheets:
-        - SHEET_NAME: 1H0UnZ1vJ6WSsZgiVkg96zq52p7qaXkhvodlO1Mzoj6s
-          TABLE_NAME: dbt_leads
-        - SHEET_NAME: 1TMNhQFZbmaBsa1vIehQzh3vdyfc05damwJ_PIKDF14A
-          TABLE_NAME: social_leads
-        - SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ
-          TABLE_NAME: unstructured_feedback
+        gsheets: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['02ae7a6c-d302-4ae2-b05e-8d50d59e9753'].OUTPUTS['results']
+          }}
   42cebbe6-61b1-43f7-9101-1886b4a773f6:
     tasks:
       a006e2ef-3a32-4719-b086-8c7fc056a3e7:
@@ -156,6 +152,19 @@ pipeline:
         connection: bigquery__scheduled_query__prod__64336
     depends_on:
     - 3bfc92c0-b0d7-459a-998b-9782cc6dfc1b
+    name: ''
+  5218723c-6b9c-4114-8312-fb61801ce150:
+    tasks:
+      02ae7a6c-d302-4ae2-b05e-8d50d59e9753:
+        integration: POSTGRES
+        integration_job: POSTGRES_RUN_QUERY
+        parameters:
+          statement: select * from config_table
+          set_outputs: true
+        depends_on: []
+        name: Get Metadata
+        tags: []
+    depends_on: []
     name: ''
 schedule: []
 sensors: {}
