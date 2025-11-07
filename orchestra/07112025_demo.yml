@@ -119,6 +119,9 @@ inputs:
   dbt_branch:
     type: string
     default: main
+  backfill_input:
+    type: string
+    optional: true
 meta:
   notes: 'A simple Pipeline used to move data to Snowflake and transform it using
     dbt on a daily schedule.
