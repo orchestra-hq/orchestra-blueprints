@@ -6,12 +6,16 @@ on:
       - main
     paths:
       - "orchestra/07112025_demo.yml"
+      - "dbt_projects/snowflake/models/**"
   push:
     branches:
       - main
     paths:
       - "orchestra/07112025_demo.yml"
+      - "dbt_projects/snowflake/models/**"
   workflow_dispatch:
+
+
 
 jobs:
   test-action:
