@@ -73,7 +73,7 @@ pipeline:
           warehouse_identifier: JH88529.UK-SOUTH.AZURE
         depends_on: []
         name: Data Transformations
-        connection: ${{ ENV.DBT_CORE_SNOWFLAKE }}
+        connection: dbt_snowflake_56978
         operation_metadata:
           14482e86-07e2-4ffb-a811-36dd9f89c524:
             integration: SNOWFLAKE
