@@ -1,0 +1,36 @@
+name: Test orchestra-hq/run-pipeline action
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "orchestra/dq_metaengine.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "orchestra/dq_metaengine.yml"
+  workflow_dispatch:
+
+jobs:
+  test-action:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  
+      - name: Run Custom Action
+        uses: orchestra-hq/run-pipeline@v1
+        with:
+          api_key: ${{ secrets.ORCHESTRA_API_KEY }}
+          pipeline_id: 182b8045-72db-47cc-9cf7-a5276b7cbacc
+          poll_interval: 20
+          environment: ${{ github.event_name == 'pull_request' && 'Staging' || 'Production' }}
+          task_ids: 44bfa9bf-5fc2-4f51-b78f-1c9c14a095d7
+          run_inputs: |
+            {
+              "dbt_command": " build -s state:modified+ --defer --state latest_production --exclude tag:metadata",
+              "dbt_branch": "${{ github.head_ref }}"
+            }
+        
