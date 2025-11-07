@@ -69,7 +69,6 @@ pipeline:
           commands: dbt build;
           package_manager: PIP
           python_version: '3.12'
-          branch: ${{ inputs.dbt_branch}};
           warehouse_identifier: JH88529.UK-SOUTH.AZURE
         depends_on: []
         name: Data Transformations
