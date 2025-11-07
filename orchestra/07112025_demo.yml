@@ -69,6 +69,7 @@ pipeline:
           commands: dbt ${{ inputs.dbt_command }};
           package_manager: PIP
           python_version: '3.12'
+          branch: ${{ inputs.dbt_branch}};
           warehouse_identifier: JH88529.UK-SOUTH.AZURE
         depends_on: []
         name: Data Transformations
@@ -116,6 +117,9 @@ inputs:
   dbt_command:
     type: string
     default: build
+  dbt_branch:
+    type: string
+    default: main
 meta:
   notes: 'A simple Pipeline used to move data to Snowflake and transform it using
     dbt on a daily schedule.
