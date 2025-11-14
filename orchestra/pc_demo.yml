@@ -12,7 +12,6 @@ pipeline:
           environment_name: My first project-default
         depends_on: []
         name: Execute Matillion Load
-        tags: []
         treat_failure_as_warning: true
     depends_on: []
     name: ''
@@ -27,7 +26,6 @@ pipeline:
           python_version: '3.12'
         depends_on: []
         name: builds analysis models
-        tags: []
         connection: dbt_snowflake_56978
       4acc3bc9-d0f8-4a8e-8c40-90921cafc03d:
         integration: SNOWFLAKE
@@ -36,7 +34,6 @@ pipeline:
           statement: excecute task kick_off_task;
         depends_on: []
         name: Run Snowflake Task
-        tags: []
       510a45b1-06af-4fac-b88c-9aa247ba72a3:
         integration: AWS_LAMBDA
         integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
@@ -44,7 +41,6 @@ pipeline:
           function_name: some-Lambda
         depends_on: []
         name: Execute Lambda
-        tags: []
     depends_on:
     - 097de434-8fc1-4b1c-b4a5-4bf1e0de49de
     - 3459fb19-f081-43ca-8997-f7f2d54d331d
@@ -60,7 +56,6 @@ pipeline:
           datasource_name: Aggregated
         depends_on: []
         name: refreshes analysis dashboard
-        tags: []
         treat_failure_as_warning: true
       ee3045dc-dad9-4ab9-825a-2366ab52504c:
         integration: TABLEAU_CLOUD
@@ -70,7 +65,6 @@ pipeline:
           workbook_name: Some_workbook
         depends_on: []
         name: Refresh Workbooks
-        tags: []
     depends_on:
     - 806ea3c6-96ee-4bd3-8b5a-5ad8f24eb67f
     name: ''
@@ -99,7 +93,6 @@ pipeline:
           shallow_clone_dirs: dlt
         depends_on: []
         name: Execute parallel dlt
-        tags: []
         connection: python__production__blueprints__19239
     depends_on: []
     name: ''
@@ -121,7 +114,6 @@ pipeline:
           statement: write this data
         depends_on: []
         name: Writeback
-        tags: []
     depends_on:
     - 8252937c-272e-440b-bb57-cf5a8df54c11
     name: ''
@@ -147,7 +139,6 @@ pipeline:
             - <arg_2>
         depends_on: []
         name: Table Task
-        tags: []
     depends_on:
     - 7071c3e9-c729-45a9-8ced-4c75e3fc228e
     name: ''
@@ -165,7 +156,13 @@ pipeline:
           set_outputs: true
         depends_on: []
         name: get_tables
-        tags: []
+      0f7ac1af-d502-467b-94f1-062c203539fe:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: execute task kick_off_task;
+        depends_on: []
+        name: Execute task
     depends_on: []
     name: ''
 schedule:
