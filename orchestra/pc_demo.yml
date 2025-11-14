@@ -27,6 +27,10 @@ pipeline:
         depends_on: []
         name: builds analysis models
         connection: dbt_snowflake_56978
+        operation_metadata:
+          4c608d41-d60a-467b-b7e4-fdaa2234554d:
+            integration: SNOWFLAKE
+            connection: snowflake_tables_24182
       4acc3bc9-d0f8-4a8e-8c40-90921cafc03d:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
