@@ -1,5 +1,5 @@
 version: v1
-name: Python -dby-Snowflake-PBI
+name: '#python #dlt #rivery #dbt #powerbi #snowflake'
 pipeline:
   8252937c-272e-440b-bb57-cf5a8df54c11:
     tasks:
@@ -7,14 +7,13 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: dbt build --select models tag:bronze
+          commands: dbt build
           package_manager: PIP
           python_version: '3.12'
           branch: ${{ inputs.dbt_branch }}
           warehouse_identifier: JH88529.UK-SOUTH.AZURE
         depends_on: []
         name: builds analysis models
-        tags: []
         connection: dbt_snowflake_56978
         operation_metadata:
           94011289-5f33-4aa9-9405-c7fbf8c14fde:
@@ -49,7 +48,6 @@ pipeline:
           shallow_clone_dirs: dlt
         depends_on: []
         name: Execute parallel dlt
-        tags: []
         connection: python__production__blueprints__19239
         treat_failure_as_warning: true
     depends_on: []
@@ -72,7 +70,6 @@ pipeline:
           dataset_id: 5e83dd8a-2c30-44ec-8f53-e5e751ae515d
         depends_on: []
         name: Refresh Dataset
-        tags: []
     depends_on:
     - 8252937c-272e-440b-bb57-cf5a8df54c11
     - e6858647-0e86-4530-9eb2-78d080941022
@@ -86,10 +83,10 @@ pipeline:
           statement: Execute task kick_off_task;
         depends_on: []
         name: Execute Task
-        tags: []
     depends_on:
     - 3459fb19-f081-43ca-8997-f7f2d54d331d
     - 5a42e2bf-84ad-4e10-a987-b1b832b99639
+    - 29750a04-5ce4-41c5-bce0-04e06dbf0ccf
     name: ''
   5a42e2bf-84ad-4e10-a987-b1b832b99639:
     tasks:
@@ -100,20 +97,25 @@ pipeline:
           connector_id: ${{ MATRIX.ids }}
         depends_on: []
         name: Run Ingest
-        tags: []
         connection: h_94547
     depends_on: []
     name: ''
-    matrix:
-      inputs:
-        ids:
-        - id1
-        - id
+  29750a04-5ce4-41c5-bce0-04e06dbf0ccf:
+    tasks:
+      27db9776-b6f1-403a-9e99-12edd814fdc8:
+        integration: RIVERY
+        integration_job: RIVERY_RUN_RIVER
+        parameters:
+          river_id: 65fdcf8903344dd785b39c14
+        depends_on: []
+        name: Run Salesforce River
+        treat_failure_as_warning: true
+    depends_on: []
+    name: ''
 schedule:
 - name: Daily at 8am
   cron: 0 8 ? * * *
   timezone: Europe/London
-sensors: {}
 webhook:
   enabled: false
 inputs:
