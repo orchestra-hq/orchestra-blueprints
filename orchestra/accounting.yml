@@ -85,20 +85,7 @@ pipeline:
         name: Execute Task
     depends_on:
     - 3459fb19-f081-43ca-8997-f7f2d54d331d
-    - 5a42e2bf-84ad-4e10-a987-b1b832b99639
     - 29750a04-5ce4-41c5-bce0-04e06dbf0ccf
-    name: ''
-  5a42e2bf-84ad-4e10-a987-b1b832b99639:
-    tasks:
-      ea300064-9d62-4729-922d-60d9ee971408:
-        integration: FIVETRAN
-        integration_job: FIVETRAN_SYNC_ALL
-        parameters:
-          connector_id: ${{ MATRIX.ids }}
-        depends_on: []
-        name: Run Ingest
-        connection: h_94547
-    depends_on: []
     name: ''
   29750a04-5ce4-41c5-bce0-04e06dbf0ccf:
     tasks:
@@ -110,6 +97,14 @@ pipeline:
         depends_on: []
         name: Run Salesforce River
         treat_failure_as_warning: true
+      54521c30-a543-4a5d-98c3-1b28a85471cb:
+        integration: RIVERY
+        integration_job: RIVERY_RUN_RIVER
+        parameters:
+          river_id: some_guid
+        depends_on: []
+        name: RiveryID
+        connection: rivery__prod__03844
     depends_on: []
     name: ''
 schedule:
