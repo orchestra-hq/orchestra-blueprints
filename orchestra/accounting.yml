@@ -71,8 +71,8 @@ pipeline:
         depends_on: []
         name: Refresh Dataset
     depends_on:
-    - 8252937c-272e-440b-bb57-cf5a8df54c11
-    - e6858647-0e86-4530-9eb2-78d080941022
+    - b13fa737-4014-493d-98f6-6969c69112a1
+    - b13fa737-4014-493d-98f6-6969c69112a1
     name: ''
   e6858647-0e86-4530-9eb2-78d080941022:
     tasks:
@@ -106,6 +106,19 @@ pipeline:
         name: RiveryID
         connection: rivery__prod__03844
     depends_on: []
+    name: ''
+  b13fa737-4014-493d-98f6-6969c69112a1:
+    tasks:
+      b23a21b2-8867-4894-a36a-6d5417cc823d:
+        integration: DBT
+        integration_job: DBT_RUNJOB
+        parameters:
+          job_id: '34352'
+        depends_on: []
+        name: Trigger second dbt job
+    depends_on:
+    - 8252937c-272e-440b-bb57-cf5a8df54c11
+    - e6858647-0e86-4530-9eb2-78d080941022
     name: ''
 schedule:
 - name: Daily at 8am
