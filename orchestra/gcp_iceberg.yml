@@ -125,19 +125,24 @@ pipeline:
           }}
   42cebbe6-61b1-43f7-9101-1886b4a773f6:
     tasks:
-      a006e2ef-3a32-4719-b086-8c7fc056a3e7:
-        integration: GCP_LOOKER
-        integration_job: GCP_LOOKER_RUN_SCHEDULED_PLAN
+      f34c3045-dea9-4a50-a8b0-ea496db4cd3f:
+        integration: TABLEAU_CLOUD
+        integration_job: TABLEAU_REFRESH_EXTRACT
         parameters:
-          scheduled_plan_id: some_id
+          project_name: southwire
+          datasource_name: ${{ MATRIX.extracts }}
         depends_on: []
-        name: Distribute Dashboards
-        treat_failure_as_warning: true
+        name: Refresh Extracts
     depends_on:
     - db5d92c0-9d84-4658-a841-16125ef410fc
     - 59b47850-b4e7-4b3f-9550-6bbecb79c4af
     - a64ca2d9-0f87-47a4-933d-72ded475cf6d
     name: ''
+    matrix:
+      inputs:
+        extracts:
+        - extract_1
+        - extract_2
   a64ca2d9-0f87-47a4-933d-72ded475cf6d:
     tasks:
       1215c44a-ec8e-4df1-9072-adf6170912be:
