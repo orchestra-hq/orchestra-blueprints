@@ -48,6 +48,16 @@ pipeline:
             integration: GCP_BIG_QUERY
             connection: bigquery_metadata_79232
         treat_failure_as_warning: true
+      7e834a1f-7c9a-4367-8d42-3acd9ccdbe0e:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: dbt build
+        connection: ${{ ENV.DBT_CORE_CONNECTION }}
     depends_on:
     - 140ed7f2-4e5a-4781-a72f-0a3b6531c88b
     name: ''
