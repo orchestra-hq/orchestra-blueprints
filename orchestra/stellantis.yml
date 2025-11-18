@@ -1,7 +1,7 @@
 version: v1
 name: dbt, adf, python, databricks, snowflake
 pipeline:
-  9e821a2f-239f-4a65-a694-f8584a32c85a:
+  parallelGroup1:
     tasks:
       ccff7c89-cd91-462a-a670-d813733e5862:
         integration: DBT_CORE
@@ -14,21 +14,17 @@ pipeline:
           python_version: '3.12'
         depends_on: []
         name: dbt build
-        tags: []
         connection: dbt_core_bigquery_prod_38077
         operation_metadata:
           1654e1a5-fa66-462e-9f6c-c20016eede00:
             integration: SNOWFLAKE
-      940df2a9-b666-4ccd-95fc-5d675e01bbf9:
-        integration: SNOWFLAKE
-        integration_job: SNOWFLAKE_RUN_QUERY
+      4c7edf2d-c640-4d7c-95a2-a24407bdaa7b:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_RUN_WORKFLOW
         parameters:
-          statement: execute task kick_off_task;
-          set_outputs: false
+          job_id: '901678036732468'
         depends_on: []
-        name: execute task
-        tags: []
-        connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
+        name: Databricks workflow
     depends_on:
     - edb599db-7d69-4bea-a7e1-75dee11c39ff
     - 7fda4185-0111-41be-974a-f40bbb0f07dc
@@ -44,7 +40,6 @@ pipeline:
           pipeline_name: copy_wait_loop
         depends_on: []
         name: ADF Run
-        tags: []
         connection: adf__prod__2__49268
         treat_failure_as_warning: true
     depends_on: []
@@ -62,25 +57,9 @@ pipeline:
           set_outputs: false
         depends_on: []
         name: python API CAlls
-        tags: []
         connection: orchestra_python_96778
     depends_on: []
     name: ''
-  dc0bf4d2-9125-439a-ac73-de174fdba852:
-    tasks:
-      4c7edf2d-c640-4d7c-95a2-a24407bdaa7b:
-        integration: DATABRICKS
-        integration_job: DATABRICKS_RUN_WORKFLOW
-        parameters:
-          job_id: '901678036732468'
-        depends_on: []
-        name: Databricks workflow
-        tags: []
-    depends_on:
-    - 9e821a2f-239f-4a65-a694-f8584a32c85a
-    name: ''
-schedule: []
-sensors: {}
 webhook:
   enabled: false
 inputs:
