@@ -14,10 +14,7 @@ pipeline:
           python_version: '3.12'
         depends_on: []
         name: dbt build
-        connection: dbt_core_bigquery_prod_38077
-        operation_metadata:
-          1654e1a5-fa66-462e-9f6c-c20016eede00:
-            integration: SNOWFLAKE
+        connection: dbt_databricks_78961
       4c7edf2d-c640-4d7c-95a2-a24407bdaa7b:
         integration: DATABRICKS
         integration_job: DATABRICKS_RUN_WORKFLOW
