@@ -143,6 +143,7 @@ pipeline:
         extracts:
         - extract_1
         - extract_2
+        - extract_3
   a64ca2d9-0f87-47a4-933d-72ded475cf6d:
     tasks:
       1215c44a-ec8e-4df1-9072-adf6170912be:
