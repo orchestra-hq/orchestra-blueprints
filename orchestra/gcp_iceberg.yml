@@ -58,6 +58,17 @@ pipeline:
         depends_on: []
         name: dbt build
         connection: ${{ ENV.DBT_CORE_CONNECTION }}
+      510100b2-bb19-4563-8aed-ab4e610dcdf8:
+        integration: DBT
+        integration_job: DBT_RUNJOB
+        parameters:
+          job_id: '123456'
+        depends_on: []
+        name: Dbt Cloud
+        operation_metadata:
+          7f011966-eb3a-422d-992e-14d1c9b93c5d:
+            integration: SNOWFLAKE
+            connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
     depends_on:
     - 140ed7f2-4e5a-4781-a72f-0a3b6531c88b
     name: ''
