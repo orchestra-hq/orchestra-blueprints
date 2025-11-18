@@ -72,7 +72,6 @@ pipeline:
         name: Refresh Dataset
     depends_on:
     - b13fa737-4014-493d-98f6-6969c69112a1
-    - b13fa737-4014-493d-98f6-6969c69112a1
     name: ''
   e6858647-0e86-4530-9eb2-78d080941022:
     tasks:
@@ -89,14 +88,6 @@ pipeline:
     name: ''
   29750a04-5ce4-41c5-bce0-04e06dbf0ccf:
     tasks:
-      27db9776-b6f1-403a-9e99-12edd814fdc8:
-        integration: RIVERY
-        integration_job: RIVERY_RUN_RIVER
-        parameters:
-          river_id: 65fdcf8903344dd785b39c14
-        depends_on: []
-        name: Run Salesforce River
-        treat_failure_as_warning: true
       54521c30-a543-4a5d-98c3-1b28a85471cb:
         integration: RIVERY
         integration_job: RIVERY_RUN_RIVER
