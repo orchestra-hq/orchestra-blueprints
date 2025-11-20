@@ -7,7 +7,7 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: dbt build
+          commands: dbt ${{ inputs.dbt_command }}
           package_manager: PIP
           python_version: '3.12'
           branch: ${{ inputs.dbt_branch }}
@@ -72,7 +72,6 @@ pipeline:
         name: Refresh Dataset
     depends_on:
     - b13fa737-4014-493d-98f6-6969c69112a1
-    - b13fa737-4014-493d-98f6-6969c69112a1
     name: ''
   e6858647-0e86-4530-9eb2-78d080941022:
     tasks:
@@ -129,7 +128,7 @@ webhook:
 inputs:
   dbt_command:
     type: string
-    default: dbt run --select models tag:clean
+    default: run --select models tag:clean
   dbt_branch:
     type: string
     default: main
