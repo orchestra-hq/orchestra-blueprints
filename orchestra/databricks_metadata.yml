@@ -75,21 +75,15 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: dbt build --profile ${{ MATRIX.regions }} ${{ inputs.is_full_refresh
-            }}
+          commands: dbt build
           package_manager: PIP
           python_version: '3.12'
         depends_on: []
         name: dbt build
-        connection: ${{ ENV.DBT_CORE_CONNECTION }}
+        connection: dbt_databricks_78961
     depends_on:
     - 93781762-26b2-4ca7-8cf0-713b2ecbd6ff
     name: ''
-    matrix:
-      inputs:
-        regions:
-        - region1
-        - region2
 schedule:
 - name: Daily at 8am
   cron: 0 8 ? * SAT *
