@@ -18,19 +18,7 @@ pipeline:
             \n    }]"
         depends_on: []
         name: trigger databricks
-        tags: []
         connection: databricks__prod__39884
-      fab1fc34-7361-4c5d-ba91-b10fb6514060:
-        integration: DATABRICKS
-        integration_job: DATABRICKS_RUN_TEST
-        parameters:
-          warehouse_id: some_id
-          statement: select * from table where column is null
-          error_threshold_expression: '> 0'
-          warn_threshold_expression: '> 0'
-        depends_on: []
-        name: Check for nulls
-        tags: []
     depends_on:
     - 4930d15c-2ba9-4f1c-a322-290ba578dabc
     name: ''
@@ -52,7 +40,6 @@ pipeline:
           set_outputs: true
         depends_on: []
         name: Fetch Data
-        tags: []
     depends_on: []
     name: ''
   93781762-26b2-4ca7-8cf0-713b2ecbd6ff:
@@ -72,7 +59,6 @@ pipeline:
             \n    }]"
         depends_on: []
         name: Load from S3
-        tags: []
         connection: databricks__prod__39884
     depends_on:
     - 8d6c8832-0478-4f75-9c1f-a1638656d105
@@ -95,7 +81,6 @@ pipeline:
           python_version: '3.12'
         depends_on: []
         name: dbt build
-        tags: []
         connection: ${{ ENV.DBT_CORE_CONNECTION }}
     depends_on:
     - 93781762-26b2-4ca7-8cf0-713b2ecbd6ff
@@ -116,7 +101,6 @@ schedule:
   timezone: Europe/London
   run_inputs:
     is_full_refresh: ' '
-sensors: {}
 webhook:
   enabled: false
 inputs:
