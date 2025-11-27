@@ -1,0 +1,62 @@
+version: v1
+name: Dawn
+pipeline:
+  b821f84c-86f0-4acb-869a-cee39e4580c9:
+    tasks:
+      c69befc9-9118-4726-83da-8ffe81f6aedc:
+        integration: GCP_CLOUD_RUN
+        integration_job: GCP_CLOUD_RUN_EXECUTE_JOB
+        parameters:
+          job_name: ingest_data
+          env_variables: {}
+        depends_on: []
+        name: Cloud Run
+        configuration:
+          retries: 3
+          timeout: 300
+      acc019b5-41b9-4d8d-a2b2-92f3d00e023b:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: 'pip install threading
+
+            pip install -r requirements.txt'
+          environment_variables: '{
+
+            "some_input":"some_value"
+
+
+            }'
+          set_outputs: false
+          source: GIT
+          command: python -m sftp
+          project_dir: python/integration_a
+          shallow_clone_dirs: python/integration_a
+        depends_on: []
+        name: group
+        connection: orchestra_python_96778
+    depends_on: []
+    name: ''
+  fabe1a5b-824d-4108-a673-36b3f6f20fba:
+    tasks:
+      33965d1e-0197-4e55-80f2-a925eabac7f9:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: dbt build
+        connection: dbt_core_bigquery_prod_38077
+    depends_on:
+    - b821f84c-86f0-4acb-869a-cee39e4580c9
+    name: ''
+schedule:
+- name: Daily at 8am
+  cron: 0 8 ? * * *
+  timezone: Europe/London
+webhook:
+  enabled: false
