@@ -1,0 +1,84 @@
+version: v1
+name: '[AI AGENT WORKFLOW] BigQuery Growth Briefing'
+pipeline:
+  stage-1:
+    tasks:
+      execute-bigquery-query:
+        integration: GCP_BIG_QUERY
+        integration_job: GCP_BQ_RUN_QUERY_JOB
+        parameters:
+          query: ${{ inputs.sql_query }}
+          set_outputs: true
+          enable_drive_scope: false
+        depends_on: []
+        name: Fetch metrics from BigQuery
+        tags: []
+        connection: bigquery__scheduled_query__prod__64336
+    depends_on: []
+    name: ''
+  stage-2:
+    tasks:
+      build-slack-message:
+        integration: OPEN_AI
+        integration_job: OPEN_AI_CHAT
+        parameters:
+          prompt: >-
+            You are the growth intelligence analyst for ${{ inputs.audience }}.
+            Craft a concise weekly performance brief that highlights standout
+            wins, emerging risks, and the single most important call-to-action.
+            Use the warehouse data to cite concrete numbers (no invented values)
+            and keep the narrative confident yet grounded in facts.
+          model: gpt-5
+          context: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['execute-bigquery-query'].OUTPUTS['results'] }}
+          instructions: >-
+            Return valid Slack Blocks JSON with four sections: Overview, Key
+            Metrics, Risks, and Next Actions. Limit the total blocks to five,
+            keep bullets short, and bold any KPI names.
+          set_outputs: true
+          return_text: false
+          output_schema: "Valid JSON for Slack webhook message:\n\n```json\n{\n  \"blocks\": []\n}\n```"
+        depends_on: []
+        name: Generate Slack content
+        tags: []
+    depends_on:
+    - stage-1
+    name: ''
+  stage-3:
+    tasks:
+      send-to-slack:
+        integration: HTTP
+        integration_job: HTTP_REQUEST
+        parameters:
+          path: T056XRS1HGW/B09GRM8CTT8/QCAgSeFcD3HgoqGMdXNB2Wq6
+          custom_headers: "{\n  \"Content-Type\": \"application/json\"\n}"
+          set_outputs: false
+          method: POST
+          body: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['build-slack-message'].OUTPUTS['results'] }}
+        depends_on: []
+        name: Send to Slack
+        tags: []
+        connection: slack_webhooks_57288
+    depends_on:
+    - stage-2
+    name: ''
+schedule: []
+sensors: {}
+webhook:
+  enabled: true
+inputs:
+  sql_query:
+    type: string
+    default: |-
+      SELECT
+        DATE(order_date) AS order_date,
+        SUM(revenue) AS total_revenue,
+        SUM(gross_margin) AS gross_margin,
+        SUM(new_customers) AS new_customers
+      FROM analytics.daily_commerce_summary
+      WHERE order_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY)
+      GROUP BY 1
+      ORDER BY 1 DESC
+  audience:
+    type: string
+    default: growth leadership team
+

@@ -1,0 +1,12 @@
+{
+  "afterWrite": [
+    {
+      "pattern": "**/*.yml",
+      "run": "orchestra-cli validate ${file}"
+    },
+    {
+      "pattern": "**/*.yaml",
+      "run": "orchestra-cli validate ${file}"
+    }
+  ]
+}
