@@ -29,6 +29,7 @@ pipeline:
         - orders.json
         - customers.json
         - new_value.json
+        - tables.json
   4930d15c-2ba9-4f1c-a322-290ba578dabc:
     tasks:
       d533ddee-7535-419d-9961-6afdbf3292cf:
