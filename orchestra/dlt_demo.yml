@@ -32,7 +32,7 @@ pipeline:
           project_dir: dbt_projects/motherduck_s3
         depends_on: []
         name: builds analysis models
-        connection: orchestra_blueprints_80275
+        connection: ${{ ENV.DBT_CORE_CONNECTION }}
       eb65c64e-93b3-46f7-8421-23e681d180bd:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
