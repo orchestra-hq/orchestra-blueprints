@@ -92,20 +92,17 @@ pipeline:
         integration: RIVERY
         integration_job: RIVERY_RUN_RIVER
         parameters:
-          river_id: 65fdcf8903344dd785b39c14
+          river_id: ${{ MATRIX.rivers }}
         depends_on: []
         name: Run Salesforce River
         treat_failure_as_warning: true
-      54521c30-a543-4a5d-98c3-1b28a85471cb:
-        integration: RIVERY
-        integration_job: RIVERY_RUN_RIVER
-        parameters:
-          river_id: some_guid
-        depends_on: []
-        name: RiveryID
-        connection: rivery__prod__03844
     depends_on: []
     name: ''
+    matrix:
+      inputs:
+        rivers:
+        - some_id
+        - some_other_id
   b13fa737-4014-493d-98f6-6969c69112a1:
     tasks:
       b23a21b2-8867-4894-a36a-6d5417cc823d:
