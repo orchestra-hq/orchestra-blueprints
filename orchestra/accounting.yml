@@ -61,18 +61,6 @@ pipeline:
           TABLE_NAME: social_leads
         - SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ
           TABLE_NAME: unstructured_feedback
-  60bd6c51-22b1-4b73-ac35-7923a6cd78ab:
-    tasks:
-      20bead13-a32f-4564-8132-6c299f096e2a:
-        integration: POWER_BI
-        integration_job: POWER_BI_REFRESH_DATASET
-        parameters:
-          dataset_id: 5e83dd8a-2c30-44ec-8f53-e5e751ae515d
-        depends_on: []
-        name: Refresh Dataset
-    depends_on:
-    - b13fa737-4014-493d-98f6-6969c69112a1
-    name: ''
   e6858647-0e86-4530-9eb2-78d080941022:
     tasks:
       08bc69c0-4db0-41cd-8127-9f43fde46cb1:
@@ -85,6 +73,7 @@ pipeline:
     depends_on:
     - 3459fb19-f081-43ca-8997-f7f2d54d331d
     - 29750a04-5ce4-41c5-bce0-04e06dbf0ccf
+    - 0c3f2c31-e56b-4d2f-8b5f-11d898dc5cff
     name: ''
   29750a04-5ce4-41c5-bce0-04e06dbf0ccf:
     tasks:
@@ -103,19 +92,28 @@ pipeline:
         rivers:
         - some_id
         - some_other_id
-  b13fa737-4014-493d-98f6-6969c69112a1:
+  0c3f2c31-e56b-4d2f-8b5f-11d898dc5cff:
     tasks:
-      b23a21b2-8867-4894-a36a-6d5417cc823d:
-        integration: DBT
-        integration_job: DBT_RUNJOB
+      01814a06-c548-4269-b4e9-51dd17615ff2:
+        integration: AWS_GLUE
+        integration_job: AWS_GLUE_RUN_JOB
         parameters:
-          job_id: '34352'
+          job_name: name
+          arguments: '{
+
+            "tables" : "${{ MATRIX.tables }}"
+
+
+            }'
         depends_on: []
-        name: Trigger second dbt job
-    depends_on:
-    - 8252937c-272e-440b-bb57-cf5a8df54c11
-    - e6858647-0e86-4530-9eb2-78d080941022
+        name: AWS GLUE JOB
+    depends_on: []
     name: ''
+    matrix:
+      inputs:
+        tables:
+        - table_1
+        - table_2
 schedule:
 - name: Daily at 8am
   cron: 0 8 ? * * *
