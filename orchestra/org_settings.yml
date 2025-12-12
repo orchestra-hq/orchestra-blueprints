@@ -1,0 +1,16 @@
+version: v1
+name: fivetranioo
+pipeline:
+  b1755fcc-1c6c-416f-958a-9a4e3892d2e9:
+    tasks:
+      0413cb86-8837-4c8f-91e3-dedc56f4ce85:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: df
+        depends_on: []
+        name: df
+    depends_on: []
+    name: ''
+webhook:
+  enabled: false
