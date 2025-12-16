@@ -88,6 +88,23 @@ pipeline:
           pipeline_name: ingest-api-to-bigquery
         depends_on: []
         name: Ingest SFTP
+      b8ee52b8-9b12-42b8-ad6f-952d9cf74268:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          set_outputs: false
+          source: GIT
+          command: python -m wap_manual
+          project_dir: bauplan
+          shallow_clone_dirs: bauplan
+        depends_on: []
+        name: Python WAP
+        connection: python__production__blueprints__19239
+        configuration:
+          retries: 3
     depends_on: []
     name: ''
   3bfc92c0-b0d7-459a-998b-9782cc6dfc1b:
