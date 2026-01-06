@@ -25,3 +25,4 @@ profiles.yml
 *.auto.tfvars
 *.tfstate
 *.tfstate.backup
+*.env
