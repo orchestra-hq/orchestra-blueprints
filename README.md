@@ -10,6 +10,7 @@ This repo includes all the code you need to develop a fully-featured data platfo
 1. [Metadata API](#metadata_api)
 1. [Orchestra](#orchestra)
 1. [Python](#python)
+1. [Run multiple pipelines](#run-multiple-pipelines)
 1. [Sensors](#sensors)
 
 ### Orchestra
@@ -49,6 +50,10 @@ Contains python code for data movement.
 Note - Orchestra adopts a highly modular architecture which means parameters are set _in_ Orchestra which should be passed down to the python tasks at runtime. Think of your python scripts as all-purpose workers that know how to fetch data different sources like Salesforce, SAP, Postgres. They also know how to apply specific logical patterns to specific objects like Accounts, Orders, Customers, Shipments and so-on. They just need to be told _which_ sources and objects to ingest.
 
 One invocation of a script per table per run is recommended for optimal concurrency.
+
+### Run multiple pipelines
+
+If you want to run multiple pipelines in a single script, you can use the `run_multiple_pipelines.py` script. This can be useful for programmatically invoking the same pipeline manually for full refreshes or backfilling data across multiple sources.
 
 ### Bauplan
 

@@ -1,0 +1,38 @@
+{
+    "workspaces": {
+        "production": "PROD_API_TOKEN",
+        "staging": "STAGING_API_TOKEN"
+    },
+    "pipelines": [
+        {
+            "workspace": "production",
+            "pipeline": "b52bd0f4-7799-47e2-982e-1e10608f64f0",
+            "branch": "main"
+        },
+        {
+            "workspace": "staging",
+            "pipeline": "b52bd0f4-7799-47e2-982e-1e10608f64f0",
+            "branch": "test-sha"
+        },
+        {
+            "workspace": "production",
+            "pipeline": "2fa147f0-07ed-4d4d-9b83-11091e092c0f"
+        },
+        {
+            "workspace": "staging",
+            "pipeline": "b52bd0f4-7799-47e2-982e-1e10608f64f0",
+            "branch": "test-sha",
+            "run_inputs": {
+                "test": "one"
+            }
+        },
+        {
+            "workspace": "staging",
+            "pipeline": "b52bd0f4-7799-47e2-982e-1e10608f64f0",
+            "branch": "test-sha",
+            "run_inputs": {
+                "test": "two"
+            }
+        }
+    ]
+}
