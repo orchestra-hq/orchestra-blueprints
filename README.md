@@ -4,6 +4,7 @@ This repo includes all the code you need to develop a fully-featured data platfo
 
 ## Codebase Structure
 
+1. [Analytics](#analytics)
 1. [Bauplan](#bauplan)
 1. [dbt Projects](#dbt)
 1. [dlt](#dlt)
@@ -24,6 +25,10 @@ Components that require in-platform configuration are:
 - Role-Based Access Control and User Provisioning
 - Integrations (credentials)
 - Environments
+
+### Analytics
+
+Contains Python scripts to perform analytics on your Orchestra Metadata. Each script in this folder will contain a README with further instructions on usage.
 
 ### dbt
 
