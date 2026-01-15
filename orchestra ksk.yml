@@ -1,0 +1,109 @@
+version: v1
+name: '#dbt #snowflake #adf #databricks #python #powerbi'
+pipeline:
+  2a97fffc-ede5-49c5-ad35-6a08a8a0f9f8:
+    tasks:
+      0510bccb-a56e-44c0-8305-9fea828f0aa3:
+        integration: AZURE_DATA_FACTORY
+        integration_job: ADF_PIPELINE_RUN
+        parameters:
+          resource_group: staging-test-resources
+          data_factory: orchestra-test-datafactory
+          pipeline_name: copy_wait_loop
+          parameters: '{
+
+
+            "tables_to_load":"${{ MATRIX.tables }}"
+
+            }
+
+            '
+          set_outputs: false
+        depends_on: []
+        name: ADF Ingest
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        tables:
+        - table_1
+        - table_2
+  ef92b6c1-86d3-4145-a8c4-c6f5ba6b2a45:
+    tasks:
+      fea7c0ea-0900-4d41-a600-1bdb40f2cfc0:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+
+            "SHEET_NAME": "${{ MATRIX.gsheets[''SHEET_NAME''] }}",
+
+
+            "TABLE_NAME":"${{ MATRIX.gsheets[''TABLE_NAME''] }}"
+
+
+            }'
+          set_outputs: false
+          source: GIT
+          command: python -m run_dlt_pipelines
+          project_dir: dlt
+          shallow_clone_dirs: dlt
+        depends_on: []
+        name: Execute parallel dlt
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        gsheets:
+        - SHEET_NAME: 1H0UnZ1vJ6WSsZgiVkg96zq52p7qaXkhvodlO1Mzoj6s
+          TABLE_NAME: dbt_leads
+        - SHEET_NAME: 1TMNhQFZbmaBsa1vIehQzh3vdyfc05damwJ_PIKDF14A
+          TABLE_NAME: social_leads
+        - SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ
+          TABLE_NAME: unstructured_feedback
+  d8b994fa-c6cf-430e-9606-6c02109e1da8:
+    tasks:
+      2a1919de-e48d-4933-8c0e-6a24325b9404:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: 5e83dd8a-2c30-44ec-8f53-e5e751ae515d
+        depends_on: []
+        name: Refresh Dataset
+    depends_on:
+    - e11aeb30-cb66-4ace-8eee-f91b395c5675
+    name: ''
+  e11aeb30-cb66-4ace-8eee-f91b395c5675:
+    tasks:
+      999ae093-9fa9-4a61-acff-9300820661a2:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+        depends_on: []
+        name: dbt_
+        connection: dbt_snowflake_56978
+        operation_metadata:
+          51750728-23d1-4000-ae6d-b3154ef8f871:
+            integration: SNOWFLAKE
+            connection: snowflake_tables_24182
+      56504d03-8768-4ed3-a39b-781bc7e7ecd7:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: EXECUTE TASK KICK_OFF_TASK;
+        depends_on: []
+        name: EXECUTE TASK
+    depends_on:
+    - ef92b6c1-86d3-4145-a8c4-c6f5ba6b2a45
+    - 2a97fffc-ede5-49c5-ad35-6a08a8a0f9f8
+    name: ''
+webhook:
+  enabled: false
