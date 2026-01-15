@@ -105,5 +105,17 @@ pipeline:
     - ef92b6c1-86d3-4145-a8c4-c6f5ba6b2a45
     - 2a97fffc-ede5-49c5-ad35-6a08a8a0f9f8
     name: ''
+sensors:
+  b2b46b20-0050-4313-a1fa-b5e7ce1d212b:
+    name: Sensor trigger
+    cron: 0 8 ? * * *
+    timezone: Europe/London
+    timeout_mins: 240
+    checks:
+      Snowflake:
+        integration: SNOWFLAKE
+        sensor_type: SNOWFLAKE_QUERY
+        parameters:
+          query: select * from kesko_customer where current_date = today()
 webhook:
   enabled: false
