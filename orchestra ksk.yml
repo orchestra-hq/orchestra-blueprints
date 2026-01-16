@@ -1,5 +1,5 @@
 version: v1
-name: '#dbt #snowflake #adf #databricks #python #powerbi'
+name: '#dbt #snowflake #adf #snowfalke #python #powerbi'
 pipeline:
   2a97fffc-ede5-49c5-ad35-6a08a8a0f9f8:
     tasks:
