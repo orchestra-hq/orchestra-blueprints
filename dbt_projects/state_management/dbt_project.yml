@@ -1,0 +1,13 @@
+name: state_management
+config-version: 2
+profile: default
+models:
+  state_management:
+    +schema: state_management
+    +materialized: view
+  +persist_docs:
+    relation: true
+    columns: true
+seeds:
+  state_management:
+    +schema: state_management

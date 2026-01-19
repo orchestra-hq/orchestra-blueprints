@@ -1,5 +1,6 @@
 __pycache__
 venv
+.venv
 test.py
 **/secrets.toml
 0.5.1
