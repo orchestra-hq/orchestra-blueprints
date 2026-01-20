@@ -9,7 +9,7 @@ pipeline:
         parameters:
           connector_id: automatic_ship
         depends_on: []
-        name: GSheet Ingestion
+        name: GSheet Ingestion1
     depends_on: []
     name: ''
   transformation_group:
