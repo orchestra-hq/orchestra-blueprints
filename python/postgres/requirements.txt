@@ -1,0 +1,4 @@
+pyarrow==10.0.1
+gspread
+snowflake-connector-python
+psycopg2
