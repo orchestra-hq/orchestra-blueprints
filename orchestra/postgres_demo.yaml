@@ -60,5 +60,22 @@ pipeline:
     depends_on:
     - 1fd77be7-d512-466c-a28a-ca020e307c42
     name: ''
+  2cdb1816-44ec-48a7-8dc1-09c41c35667e:
+    tasks:
+      2f6fbb9a-3665-42a6-bd3f-b20b3303b0ca:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: ${{ MATRIX.fivetran_tasks }}
+        depends_on: []
+        name: many tasks on the same schdule
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        fivetran_tasks:
+        - some_id
+        - roast_chicken
+        - third_id
 webhook:
   enabled: false
