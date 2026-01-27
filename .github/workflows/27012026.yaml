@@ -1,0 +1,47 @@
+name: Orchestra Import New Pipelines
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install Orchestra CLI
+        run: |
+          python -m pip install --upgrade pip
+          pip install orchestra-cli
+
+      - name: Get new pipeline files
+        id: added-files
+        shell: bash
+        run: |
+          {
+            echo 'files<<EOF'
+            git diff --name-only --diff-filter=A origin/main^1 origin/main -- orchestra/
+            echo EOF
+          } >> $GITHUB_OUTPUT
+
+      - name: Import Pipeline from YAML
+        if: ${{ steps.added-files.outputs.files != '' }}
+        shell: bash
+        run: |
+          for file in ${{ steps.added-files.outputs.files }}; do  
+            alias=$(basename $file .yml)
+            echo "Importing $file to Orchestra with alias $alias"
+            orchestra import --alias $alias --path $file --working-branch main
+          done
+        env:
+          ORCHESTRA_API_KEY: ${{ secrets.ORCHESTRA_API_KEY }}
