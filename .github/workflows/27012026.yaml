@@ -30,7 +30,7 @@ jobs:
         run: |
           {
             echo 'files<<EOF'
-            git diff --name-only --diff-filter=A origin/main^1 origin/main -- orchestra/
+            git diff --name-only --diff-filter=A origin/main^1 origin/main -- python/postgres/
             echo EOF
           } >> $GITHUB_OUTPUT
 
