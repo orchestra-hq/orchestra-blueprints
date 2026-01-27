@@ -1,0 +1,56 @@
+version: v1
+name: postgres-connector-fivetran-dbt-pipeline
+pipeline:
+  dbt_build_stage:
+    tasks:
+      dbt_build_task:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
+        depends_on: []
+        name: dbt build
+        connection: dbt_snowflake_blueprints_prod_07025
+        operation_metadata:
+          08a1b527-95ac-49ef-ba36-21c5d8cad397:
+            integration: SNOWFLAKE
+            connection: snowflake_tables_24182
+    depends_on:
+    - data_ingestion_stage
+    name: DBT Build Stage
+
+  data_ingestion_stage:
+    tasks:
+      postgres_connector_task:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install psycopg2-binary
+          set_outputs: true
+          source: GIT
+          command: python -m postgres_connector
+          project_dir: python/postgres
+          shallow_clone_dirs: python/postgres
+        depends_on: []
+        name: Run PostgreSQL Connector
+        connection: python__production__blueprints__19239
+      
+      fivetran_ingestion_task:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: memoranda_ing
+        depends_on: []
+        name: Fivetran Memoranda Ingestion
+    
+    depends_on: []
+    name: Data Ingestion Stage
+
+webhook:
+  enabled: false
