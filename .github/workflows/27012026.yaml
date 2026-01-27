@@ -34,6 +34,10 @@ jobs:
             echo EOF
           } >> $GITHUB_OUTPUT
 
+      - name: Log new files
+        shell: bash
+        run: echo ${{ steps.added-files.outputs.files }}
+      
       - name: Import Pipeline from YAML
         if: ${{ steps.added-files.outputs.files != '' }}
         shell: bash
