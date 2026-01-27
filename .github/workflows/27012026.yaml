@@ -46,6 +46,7 @@ jobs:
         run: |
           for file in ${{ steps.added-files.outputs.files }}; do  
             alias=$(basename $file .yml)
+            alias="${alias%.yaml}"
             echo "Importing $file to Orchestra with alias $alias"
             orchestra import --alias $alias --path $file --working-branch main
           done
