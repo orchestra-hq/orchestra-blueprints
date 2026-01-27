@@ -48,5 +48,17 @@ pipeline:
         name: Salesforce
     depends_on: []
     name: ''
+  9a62a0ab-9473-4591-95e0-97f0506bc51e:
+    tasks:
+      cbae49bb-f1cb-416b-80a8-cb331f5b5cd0:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: some_id
+        depends_on: []
+        name: Refresh dataset
+    depends_on:
+    - 1fd77be7-d512-466c-a28a-ca020e307c42
+    name: ''
 webhook:
   enabled: false
