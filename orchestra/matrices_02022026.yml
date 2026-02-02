@@ -1,0 +1,94 @@
+version: v1
+name: reconcile
+pipeline:
+  firstTaskGroup:
+    tasks:
+      firstNode:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: ${{ MATRIX.fivetran_Ids }}
+        depends_on: []
+        name: first node
+        configuration:
+          retries: 3
+          retry_delay: 10
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        fivetran_Ids:
+        - fivetran_id_node_1
+        - second_id_node_1
+  secondTaskGroup:
+    tasks:
+      secondNode:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: ${{ MATRIX.fivetran_Ids }}
+        depends_on: []
+        name: second node
+        configuration:
+          retries: 3
+          retry_delay: 10
+    depends_on:
+    - firstTaskGroup
+    name: ''
+    matrix:
+      inputs:
+        fivetran_Ids:
+        - fivetran_id_node_2
+        - second_id_node_2
+  thirdTaskGroup:
+    tasks:
+      thirdNode:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: ${{ MATRIX.fivetran_Ids }}
+        depends_on: []
+        name: third node
+        configuration:
+          retries: 3
+          retry_delay: 10
+    depends_on:
+    - secondTaskGroup
+    name: ''
+    matrix:
+      inputs:
+        fivetran_Ids:
+        - fivetran_id
+        - second_id
+  453bcad2-f8ba-4ef2-b6fb-2913132d4a75:
+    tasks:
+      e3b610d4-6686-46a2-bc43-40a0a48438ff:
+        integration: COALESCE
+        integration_job: COALESCE_RUNJOB
+        parameters:
+          environment_id: '2'
+          snowflake_auth_type: OAuth
+        depends_on: []
+        name: Coalesce
+    depends_on:
+    - thirdTaskGroup
+    name: ''
+  4e3963e2-32d1-4644-9b61-1f539158d888:
+    tasks:
+      1f611d25-997b-4d0f-8258-763cb7923f90:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: ${{ MATRIX.datasets }}
+        depends_on: []
+        name: Refresh Dataset
+    depends_on:
+    - 453bcad2-f8ba-4ef2-b6fb-2913132d4a75
+    name: ''
+    matrix:
+      inputs:
+        datasets:
+        - some_guid
+        - guid_2
+webhook:
+  enabled: false
