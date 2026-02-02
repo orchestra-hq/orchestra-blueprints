@@ -90,5 +90,7 @@ pipeline:
         datasets:
         - some_guid
         - guid_2
+        - some_other_id
+        - fourth_id
 webhook:
   enabled: false
