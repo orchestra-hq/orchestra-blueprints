@@ -51,5 +51,40 @@ models:
         description: "The shipment date"
         tests:
           - not_null
+  - name: logins_by_customer_week
+    description: "Weekly aggregation of customer login activity. Provides insights into login patterns and engagement by customer and calendar week."
+    columns:
+      - name: customer_id
+        description: "Unique identifier for the customer"
+        tests:
+          - not_null
+      - name: customer_name
+        description: "Customer account name or display name"
+      - name: week_start
+        description: "The start date of the calendar week (Monday)"
+        tests:
+          - not_null
+      - name: year_week
+        description: "ISO year-week identifier (YYYYWW format) for easy filtering and joining"
+        tests:
+          - not_null
+      - name: total_logins
+        description: "Total number of login events during the week"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: numeric
+      - name: unique_login_days
+        description: "Count of distinct days during the week when the customer logged in"
+        tests:
+          - not_null
+      - name: first_login_of_week
+        description: "Timestamp of the customer's first login during the week"
+      - name: last_login_of_week
+        description: "Timestamp of the customer's final login during the week"
+      - name: dbt_created_at
+        description: "Timestamp when the record was created by dbt during model run"
+        tests:
+          - not_null
 
 
