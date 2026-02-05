@@ -69,5 +69,17 @@ pipeline:
           TABLE_NAME: social_leads
         - SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ
           TABLE_NAME: unstructured_feedback
+  23c4a9a2-0e34-407c-b721-6bd6c55d6a4a:
+    tasks:
+      d48ae3f9-3f81-4998-a2f8-3c3cec1e5e1b:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: <SQL here>
+        depends_on: []
+        name: Execute DS Job
+    depends_on:
+    - 1fd77be7-d512-466c-a28a-ca020e307c42
+    name: ''
 webhook:
   enabled: false
