@@ -7,7 +7,7 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: dbt build
+          commands: dbt ${{ inputs.dbt_command }}
           package_manager: PIP
           python_version: '3.12'
         depends_on: []
@@ -62,13 +62,8 @@ pipeline:
     name: ''
     matrix:
       inputs:
-        gsheets:
-        - SHEET_NAME: 1H0UnZ1vJ6WSsZgiVkg96zq52p7qaXkhvodlO1Mzoj6s
-          TABLE_NAME: dbt_leads
-        - SHEET_NAME: 1TMNhQFZbmaBsa1vIehQzh3vdyfc05damwJ_PIKDF14A
-          TABLE_NAME: social_leads
-        - SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ
-          TABLE_NAME: unstructured_feedback
+        gsheets: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['9f3d151a-74ac-46c5-a203-907f35f17b02'].OUTPUTS['results']
+          }}
   23c4a9a2-0e34-407c-b721-6bd6c55d6a4a:
     tasks:
       d48ae3f9-3f81-4998-a2f8-3c3cec1e5e1b:
@@ -83,3 +78,7 @@ pipeline:
     name: ''
 webhook:
   enabled: false
+inputs:
+  dbt_command:
+    type: string
+    default: build
