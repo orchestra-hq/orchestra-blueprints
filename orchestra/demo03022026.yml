@@ -25,7 +25,7 @@ pipeline:
           project_dir: dlt
           shallow_clone_dirs: dlt
         depends_on: []
-        name: Run dlt
+        name: Run dlt__
         connection: python__production__blueprints__19239
     depends_on: []
     name: ''
