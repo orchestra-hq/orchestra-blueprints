@@ -71,8 +71,10 @@ pipeline:
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
           statement: <SQL here>
+          set_outputs: false
         depends_on: []
         name: Execute DS Job
+        connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
     depends_on:
     - 1fd77be7-d512-466c-a28a-ca020e307c42
     name: ''
