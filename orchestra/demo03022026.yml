@@ -63,6 +63,9 @@ pipeline:
         - 3
         - 4
         - 5
+        - 6
+        - 8
+        
   analyticsTasks:
     tasks:
       powerBIReportingTask:
