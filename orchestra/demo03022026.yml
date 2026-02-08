@@ -25,7 +25,7 @@ pipeline:
           project_dir: dlt
           shallow_clone_dirs: dlt
         depends_on: []
-        name: Run dlt__
+        name: Run dlt
         connection: python__production__blueprints__19239
     depends_on: []
     name: ''
@@ -65,7 +65,6 @@ pipeline:
         - 5
         - 6
         - 8
-        
   analyticsTasks:
     tasks:
       powerBIReportingTask:
