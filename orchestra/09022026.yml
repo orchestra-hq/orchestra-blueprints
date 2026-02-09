@@ -98,6 +98,39 @@ pipeline:
     - 8252937c-272e-440b-bb57-cf5a8df54c11
     - e6858647-0e86-4530-9eb2-78d080941022
     name: ''
+  5717ba18-dffe-4688-b925-93220efb214d:
+    tasks:
+      2fb14eb8-b0ae-4f17-988a-95f987e655b0:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+
+            "SCHEMA_NAME":"${{ MATRIX.tables[''SCHEMA_NAME''] }}",
+
+            "TABLE_NAME": "${{ MATRIX.tables[''TABLE_NAME''] }}"
+
+            }'
+          set_outputs: false
+          source: GIT
+          command: python -m pg_replication_pipeline
+          branch: dev_hugo_1000
+          project_dir: dlt
+          shallow_clone_dirs: dlt
+        depends_on: []
+        name: Postgres
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        tables:
+        - SCHEMA_NAME: STAGING
+          TABLE_NAME: customers
+        - SCHEMA_NAME: PRODUCTION
+          TABLE_NAME: orders
 schedule:
 - name: Daily at 8am
   cron: 0 8 ? * * *
