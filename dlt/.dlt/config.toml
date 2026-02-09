@@ -1,2 +1,4 @@
 [sources.google_sheets]
 range_names = ["dlt_range"]
+[runtime]
+dlthub_telemetry = true
