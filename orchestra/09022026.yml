@@ -141,7 +141,7 @@ webhook:
 inputs:
   dbt_command:
     type: string
-    default: run --select models tag:clean
+    default: build
   dbt_branch:
     type: string
     default: main
