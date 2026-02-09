@@ -122,6 +122,7 @@ pipeline:
           shallow_clone_dirs: dlt
         depends_on: []
         name: Postgres
+        connection: python__production__blueprints__19239
     depends_on: []
     name: ''
     matrix:
