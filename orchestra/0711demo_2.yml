@@ -60,6 +60,8 @@ pipeline:
           TABLE_NAME: social_leads
         - SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ
           TABLE_NAME: unstructured_feedback
+        - SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ
+          TABLE_NAME: unstructured_feedback
   d2ebbbec-2d12-4221-978c-5dd5acd8041d:
     tasks:
       44bfa9bf-5fc2-4f51-b78f-1c9c14a095d7:

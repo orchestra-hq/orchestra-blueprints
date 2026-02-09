@@ -9,7 +9,7 @@ from pg_replication import replication_resource
 from pg_replication.helpers import init_replication
 
 schema_name = os.getenv("SCHEMA_NAME", "public")
-table_name = os.getenv("TABLE", "orders")
+table_name = os.getenv("TABLE", "public")
 
 
 PG_CREDS = dlt.secrets.get("sources.pg_replication.credentials", PostgresCredentials)
@@ -347,11 +347,19 @@ def show_destination_table(
         print(table_name, ":", dest_records)
 
 
+start_date =os.environ.get("START_DATE", "2023-01-01")
+end_date = os.environ.get("END_DATE", "2023-01-31")
+
+def get_google_ads_data(start_date, end_date):
+    pass
+
 if __name__ == "__main__":
     replicate_single_table_with_initial_load(
-        schema_name=schema_name, table_names=table_name
+        schema_name="public", table_names="test_table"
+        
     )
     # replicate_single_table_demo()
     # replicate_with_initial_load_demo()
     # replicate_entire_schema_demo()
     # replicate_with_column_selection_demo()
+
