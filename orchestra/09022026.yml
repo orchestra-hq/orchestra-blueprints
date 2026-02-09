@@ -1,0 +1,147 @@
+version: v1
+name: '#pthon #dlt #dbt #state #fivetran #snowflake #hightouch'
+pipeline:
+  8252937c-272e-440b-bb57-cf5a8df54c11:
+    tasks:
+      d3491626-3905-411e-b920-3cc5aee745b9:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt ${{ inputs.dbt_command }}
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: ${{ inputs.dbt_branch }}
+          warehouse_identifier: JH88529.UK-SOUTH.AZURE
+        depends_on: []
+        name: builds analysis models
+        connection: dbt_snowflake_56978
+        operation_metadata:
+          94011289-5f33-4aa9-9405-c7fbf8c14fde:
+            integration: SNOWFLAKE
+            connection: snowflake_tables_24182
+        treat_failure_as_warning: true
+    depends_on:
+    - 3459fb19-f081-43ca-8997-f7f2d54d331d
+    name: ''
+  3459fb19-f081-43ca-8997-f7f2d54d331d:
+    tasks:
+      c581252f-2975-4af6-8caf-a42e30527088:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+
+            "SHEET_NAME": "${{ MATRIX.gsheets[''SHEET_NAME''] }}",
+
+
+            "TABLE_NAME":"${{ MATRIX.gsheets[''TABLE_NAME''] }}"
+
+
+            }'
+          set_outputs: true
+          source: GIT
+          command: python -m run_dlt_pipelines
+          project_dir: dlt
+          shallow_clone_dirs: dlt
+        depends_on: []
+        name: Execute parallel dlt
+        connection: python__production__blueprints__19239
+        treat_failure_as_warning: true
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        gsheets:
+        - SHEET_NAME: 1H0UnZ1vJ6WSsZgiVkg96zq52p7qaXkhvodlO1Mzoj6s
+          TABLE_NAME: dbt_leads
+        - SHEET_NAME: 1TMNhQFZbmaBsa1vIehQzh3vdyfc05damwJ_PIKDF14A
+          TABLE_NAME: social_leads
+        - SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ
+          TABLE_NAME: unstructured_feedback
+  e6858647-0e86-4530-9eb2-78d080941022:
+    tasks:
+      08bc69c0-4db0-41cd-8127-9f43fde46cb1:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: Execute task kick_off_task;
+        depends_on: []
+        name: Execute Task
+    depends_on:
+    - 29aade18-ad5a-4eeb-8aca-18c25a34d549
+    name: ''
+  29aade18-ad5a-4eeb-8aca-18c25a34d549:
+    tasks:
+      b3da68b5-fb01-4617-b1a2-de3fb65ef0c8:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: memoranda_ing
+        depends_on: []
+        name: fivetran_sync
+    depends_on: []
+    name: ''
+  1e47368b-68d2-4123-9e85-ac5e29318fa2:
+    tasks:
+      fd4be19d-e0a2-49b8-8b88-c7b07024feca:
+        integration: HIGHTOUCH
+        integration_job: HIGHTOUCH_SYNC
+        parameters:
+          sync_id: '234567'
+        depends_on: []
+        name: Hightouch sync
+    depends_on:
+    - 8252937c-272e-440b-bb57-cf5a8df54c11
+    - e6858647-0e86-4530-9eb2-78d080941022
+    name: ''
+  5717ba18-dffe-4688-b925-93220efb214d:
+    tasks:
+      2fb14eb8-b0ae-4f17-988a-95f987e655b0:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+
+            "SCHEMA_NAME":"${{ MATRIX.tables[''SCHEMA_NAME''] }}",
+
+            "TABLE_NAME": "${{ MATRIX.tables[''TABLE_NAME''] }}"
+
+            }'
+          set_outputs: false
+          source: GIT
+          command: python -m pg_replication_pipeline
+          branch: postgres_dlt
+          project_dir: dlt
+          shallow_clone_dirs: dlt
+        depends_on: []
+        name: Postgres
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        tables:
+        - SCHEMA_NAME: STAGING
+          TABLE_NAME: customers
+        - SCHEMA_NAME: PRODUCTION
+          TABLE_NAME: orders
+schedule:
+- name: Daily at 8am
+  cron: 0 8 ? * * *
+  timezone: Europe/London
+webhook:
+  enabled: false
+inputs:
+  dbt_command:
+    type: string
+    default: build
+  dbt_branch:
+    type: string
+    default: main
