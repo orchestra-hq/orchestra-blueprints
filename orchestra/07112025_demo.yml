@@ -107,10 +107,6 @@ pipeline:
     - d2ebbbec-2d12-4221-978c-5dd5acd8041d
     - 270869a3-5a06-4c31-9157-8c9c67c99f58
     name: ''
-schedule:
-- name: Every 3 hours
-  cron: 0 */3 ? * * *
-  timezone: Europe/London
 webhook:
   enabled: false
 inputs:
