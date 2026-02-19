@@ -41,6 +41,13 @@ pipeline:
           set_outputs: true
         depends_on: []
         name: Fetch Data
+      8678f5a7-7312-4351-9c7d-40a51178e019:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: manual_carrier
+        depends_on: []
+        name: Trigger
     depends_on: []
     name: ''
   93781762-26b2-4ca7-8cf0-713b2ecbd6ff:
@@ -80,10 +87,22 @@ pipeline:
           package_manager: PIP
           python_version: '3.12'
         depends_on: []
-        name: dbt build
+        name: dbt build_
         connection: dbt_databricks_78961
     depends_on:
     - 93781762-26b2-4ca7-8cf0-713b2ecbd6ff
+    name: ''
+  97d57a2b-5eaf-42ef-b1e2-004e227156c1:
+    tasks:
+      dc4bb6b2-ab3b-4545-b5d5-286954cc0fa7:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: some_id
+        depends_on: []
+        name: Refresh dashboards
+    depends_on:
+    - 65b60e5a-2eac-487a-b554-677fb4eb971f
     name: ''
 schedule:
 - name: Daily at 8am
