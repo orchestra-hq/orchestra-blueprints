@@ -86,6 +86,11 @@ pipeline:
           commands: dbt build
           package_manager: PIP
           python_version: '3.12'
+          environment_variables: '{
+
+            "CORE_PROJECT_BRANCH" : "${{ inputs.is_full_refresh }}"
+
+            }'
         depends_on: []
         name: dbt build_
         connection: dbt_databricks_78961
@@ -120,3 +125,4 @@ webhook:
 inputs:
   is_full_refresh:
     type: string
+    default: 'true'
