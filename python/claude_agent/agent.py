@@ -7,7 +7,7 @@ from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage, Result
 async def main():
     # Agentic loop: streams messages as Claude works
     async for message in query(
-        prompt=sys.argv[1],
+        prompt="Review utils.py for bugs that would cause crashes. Fix any issues you find.",
         options=ClaudeAgentOptions(
             allowed_tools=["Read", "Edit", "Glob"],  # Tools Claude can use
             permission_mode="acceptEdits",  # Auto-approve file edits
