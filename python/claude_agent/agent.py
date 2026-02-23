@@ -11,7 +11,7 @@ async def main(prompt: str, branch_name: str = "claude/auto-fix", pr_title: str 
 
 After making all necessary changes:
 1. Run: git checkout -b {branch_name}
-2. Run: git add -A
+2. Run: git add
 3. Run: git commit -m "fix: automated fixes by Claude"
 4. Run: git push origin {branch_name}
 5. Run: gh pr create --title "{pr_title}" --body "## Changes\n\nAutomated fixes applied by Claude agent.\n\n### Files changed\n$(git diff main...HEAD --name-only)" --base main
