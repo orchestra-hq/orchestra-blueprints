@@ -38,9 +38,13 @@ async def main(prompt: str, branch_name: str = "claude/auto-fix", pr_title: str 
     edited_files = set()
 
     async for message in query(
-        prompt=prompt,
+        prompt=f"""
+{prompt}
+
+Use the Read, Edit, and Glob tools to make the necessary changes to the codebase.
+""",
         options=ClaudeAgentOptions(
-            allowed_tools=["Read", "Edit", "Glob"],  # Removed Bash — git is handled in Python now
+            allowed_tools=["Read", "Edit", "Glob"],
             permission_mode="acceptEdits",
         ),
     ):
@@ -50,7 +54,6 @@ async def main(prompt: str, branch_name: str = "claude/auto-fix", pr_title: str 
                     print(block.text)
                 elif hasattr(block, "name"):
                     print(f"Tool: {block.name}")
-                    # Track files Claude edits via the Edit tool
                     if block.name == "Edit" and hasattr(block, "input"):
                         path = block.input.get("file_path") or block.input.get("path")
                         if path:
