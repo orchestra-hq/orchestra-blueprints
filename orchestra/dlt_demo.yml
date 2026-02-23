@@ -1,5 +1,5 @@
 version: v1
-name: S3 -> Motherduck -> dbt -> hex
+name: '#s3 #motherduck #dbt #hex'
 pipeline:
   097de434-8fc1-4b1c-b4a5-4bf1e0de49de:
     tasks:
