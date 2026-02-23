@@ -1,10 +1,9 @@
+import os
+import subprocess
 import sys
-
 import asyncio
 from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage, ResultMessage
 
-import os
-import subprocess
 
 def setup_git_auth(token: str, repo: str):
     """Configure git and gh CLI auth using a token."""
