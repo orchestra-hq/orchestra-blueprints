@@ -3,8 +3,6 @@ import sys
 import asyncio
 from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage, ResultMessage
 
-prompt = sys.argv[1]
-
 async def main(prompt):
     # Agentic loop: streams messages as Claude works
     async for message in query(
@@ -25,4 +23,7 @@ async def main(prompt):
             print(f"Done: {message.subtype}")  # Final result
 
 
-asyncio.run(main(prompt=prompt))
+if __name__ == "__main__":
+    prompt = sys.argv[1]
+    asyncio.run(main(prompt=prompt))
+ 
