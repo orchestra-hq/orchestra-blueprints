@@ -46,6 +46,7 @@ Use the Read, Edit, and Glob tools to make the necessary changes to the codebase
         options=ClaudeAgentOptions(
             allowed_tools=["Read", "Edit", "Glob"],
             permission_mode="acceptEdits",
+            cwd=os.getcwd()
         ),
     ):
         if isinstance(message, AssistantMessage):
