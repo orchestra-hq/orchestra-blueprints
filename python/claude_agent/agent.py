@@ -3,8 +3,9 @@ import sys
 import asyncio
 from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage, ResultMessage
 
+prompt = sys.argv[1]
 
-async def main():
+async def main(prompt):
     # Agentic loop: streams messages as Claude works
     async for message in query(
         prompt="Review utils.py for bugs that would cause crashes. Fix any issues you find.",
@@ -24,4 +25,4 @@ async def main():
             print(f"Done: {message.subtype}")  # Final result
 
 
-asyncio.run(main())
+asyncio.run(main(prompt=prompt))
