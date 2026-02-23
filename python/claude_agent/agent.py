@@ -41,12 +41,13 @@ async def main(prompt: str, branch_name: str = "claude/auto-fix", pr_title: str 
         prompt=f"""
 {prompt}
 
-Use the Read, Edit, and Glob tools to make the necessary changes to the codebase.
+After making all necessary changes using the Read, Edit, and Glob tools, your work is done.
+Git staging, commits, and PR creation will be handled automatically — do not run any git commands.
 """,
         options=ClaudeAgentOptions(
             allowed_tools=["Read", "Edit", "Glob"],
             permission_mode="acceptEdits",
-            cwd=os.getcwd()
+            cwd=os.getcwd(),
         ),
     ):
         if isinstance(message, AssistantMessage):
