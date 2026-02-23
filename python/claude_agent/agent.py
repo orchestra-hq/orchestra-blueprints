@@ -8,7 +8,8 @@ async def main(prompt):
     async for message in query(
         prompt="Review utils.py for bugs that would cause crashes. Fix any issues you find.",
         options=ClaudeAgentOptions(
-            allowed_tools=["Read", "Edit", "Glob"],  # Tools Claude can use
+            max_turns=1,,
+            allowed_tools=["Read", "Edit", "Glob", "Grep"],  # Tools Claude can use
             permission_mode="acceptEdits",  # Auto-approve file edits
         ),
     ):
