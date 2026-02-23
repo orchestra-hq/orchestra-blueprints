@@ -3,7 +3,29 @@ import sys
 import asyncio
 from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage, ResultMessage
 
+import os
+import subprocess
+
+def setup_git_auth(token: str, repo: str):
+    """Configure git and gh CLI auth using a token."""
+    # Auth gh CLI
+    subprocess.run(
+        ["gh", "auth", "login", "--with-token"],
+        input=token,
+        text=True,
+        check=True
+    )
+    # Set git remote URL to include token for push auth
+    subprocess.run(
+        ["git", "remote", "set-url", "origin", f"https://{token}@github.com/{repo}.git"],
+        check=True
+    )
+
 async def main(prompt: str, branch_name: str = "claude/auto-fix", pr_title: str = "Claude: automated fixes"):
+    token = os.environ["GITHUB_TOKEN"]  # or pass as param
+    repo = os.environ["GITHUB_REPO"]    # e.g. "owner/repo-name"
+    setup_git_auth(token, repo)
+
     # Agentic loop: streams messages as Claude works
     async for message in query(
         prompt=f"""
