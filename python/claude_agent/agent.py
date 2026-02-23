@@ -8,14 +8,10 @@ import subprocess
 
 def setup_git_auth(token: str, repo: str):
     """Configure git and gh CLI auth using a token."""
-    # Auth gh CLI
-    subprocess.run(
-        ["gh", "auth", "login", "--with-token"],
-        input=token,
-        text=True,
-        check=True
-    )
-    # Set git remote URL to include token for push auth
+    # gh CLI picks this up automatically, no subprocess needed
+    os.environ["GH_TOKEN"] = token
+
+    # Only git remote needs subprocess
     subprocess.run(
         ["git", "remote", "set-url", "origin", f"https://{token}@github.com/{repo}.git"],
         check=True
