@@ -46,14 +46,6 @@ pipeline:
         depends_on: []
         name: Power BI Dataset Refresh
         tags: []
-      ac4c0aa8-6676-41bd-9c85-7331c6119068:
-        integration: POWER_BI
-        integration_job: POWER_BI_REFRESH_DATAMART
-        parameters:
-          datamart_id: 5676208d-037e-440b-8539-e160bfb6994c
-        depends_on: []
-        name: Power BI DataMart
-        tags: []
     depends_on:
     - 396b9050-f1b2-44ae-a5a2-0dd403e07844
     name: ''
