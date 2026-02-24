@@ -1,5 +1,5 @@
 version: v1
-name: '#pthon #dlt #dbt #state #fivetran #snowflake #hightouch'
+name: '#python #dlt #dbt #state #fivetran #snowflake #hightouch'
 pipeline:
   8252937c-272e-440b-bb57-cf5a8df54c11:
     tasks:
