@@ -40,5 +40,5 @@ inputs:
     type: string
     default: Read,Edit,Glob,Bash
   use_github:
-    type: boolean
-    default: false
+    type: string
+    default: 'False'
