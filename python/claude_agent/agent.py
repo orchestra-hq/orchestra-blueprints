@@ -48,8 +48,8 @@ Use the Bash tool to run each git/gh command.
 
 
 if __name__ == "__main__":
-    prompt = sys.argv[1]
-    branch = sys.argv[2]
-    tools = sys.argv[3].split(",")
+    prompt = os.getenv("PROMPT")
+    branch = os.getenv("BRANCH")
+    tools = os.getenv("TOOLS").split(",")
     print(tools)
     asyncio.run(main(prompt=prompt, branch_name=branch, tools=tools))
