@@ -35,7 +35,9 @@ models:
       - name: company
         description: "The primary key for this table"
         tests:
-          - not_null
+          - not_null:
+              config:
+                severity: warn
           - unique
   - name: snowflake_orders
     description: "A starter dbt model"

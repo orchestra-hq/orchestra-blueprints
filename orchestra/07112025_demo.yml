@@ -1,5 +1,5 @@
 version: v1
-name: '#dbt #aws #tableau #fivetran'
+name: '#dbt #aws #tableau #fivetran #dlt #glue #powerbi'
 pipeline:
   e2c76632-fad8-429f-9cad-fd4460309461:
     tasks:
@@ -70,14 +70,16 @@ pipeline:
           package_manager: PIP
           python_version: '3.12'
           branch: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
           warehouse_identifier: JH88529.UK-SOUTH.AZURE
         depends_on: []
         name: Data Transformations
-        connection: dbt_snowflake_56978
+        connection: dbt_snowflake_blueprints_prod_07025
         operation_metadata:
           14482e86-07e2-4ffb-a811-36dd9f89c524:
             integration: SNOWFLAKE
-            connection: snowflake_tables_24182
+            connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
     depends_on:
     - 5b15c3c6-7e6a-4e20-bab5-ead456630913
     name: ''
@@ -87,13 +89,17 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
-          statement: execute task kick_off_task;
+          statement: execute task demo_task;
+          database: SNOWFLAKE_WORKING
+          schema: PUBLIC
+          set_outputs: false
           role: ACCOUNTADMIN
           database: BIGQUERY_SAMPLE
           schema: PUBLIC
           set_outputs: false
         depends_on: []
         name: Execute Task
+        connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
     depends_on:
     - 7b344075-c133-47f9-bd1a-7e2573276b46
     - e2c76632-fad8-429f-9cad-fd4460309461
