@@ -1,7 +1,7 @@
 import os
 import subprocess
-import sys
 import asyncio
+
 from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage, ResultMessage
 
 
@@ -13,13 +13,14 @@ def setup_git_auth(token: str, repo: str):
         check=True
     )
 
-async def main(prompt: str, branch_name: str = "claude/auto-fix", tools: list[str] = ["Read", "Edit", "Glob"], pr_title: str = "Claude: automated fixes"):
-    token = os.environ["GITHUB_TOKEN"]
-    repo = os.environ["GITHUB_REPO"]
-    setup_git_auth(token, repo)
+async def main(prompt: str, tools: list[str] = ["Read", "Edit", "Glob"], use_github: bool = false):
+    if use_github:
+        token = os.environ["GITHUB_TOKEN"]
+        repo = os.environ["GITHUB_REPO"]
+        setup_git_auth(token, repo)
 
     async for message in query(
-        prompt=prompt,
+        prompt=f"""{prompt}""",
         options=ClaudeAgentOptions(
             allowed_tools=tools,
             permission_mode="acceptEdits",
@@ -36,7 +37,6 @@ async def main(prompt: str, branch_name: str = "claude/auto-fix", tools: list[st
 
 
 if __name__ == "__main__":
-    prompt = os.getenv("PROMPT")
-    branch = os.getenv("BRANCH")
-    tools = os.getenv("TOOLS").split(",")
-    asyncio.run(main(prompt=prompt, branch_name=branch, tools=tools))
+    prompt = os.environ["PROMPT"]
+    tools = os.environ["TOOLS"].split(",")
+    asyncio.run(main(prompt=prompt, tools=tools))
