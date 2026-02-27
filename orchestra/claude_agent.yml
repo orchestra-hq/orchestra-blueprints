@@ -13,9 +13,10 @@ pipeline:
           set_outputs: false
           source: GIT
           command: python agent.py "${{ inputs.prompt }}" "${{ inputs.branch_name
-            }}"
+            }}" "${{ inputs.tools }}"
           branch: feat/claude-agent
           project_dir: python/claude_agent
+          shallow_clone_dirs: python/claude_agent
         depends_on: []
         name: Run Claude Agent
         connection: claude_agent_32433
