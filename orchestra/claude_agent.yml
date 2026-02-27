@@ -1,0 +1,40 @@
+version: v1
+name: 'Demo: Claude Agent'
+pipeline:
+  3d8b1da7-1ff3-413c-b4ea-6cc26f7f0437:
+    tasks:
+      575ada33-f75c-46cf-83fb-fd5dfd086905:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: UV
+          python_version: '3.12'
+          build_command: uv init && uv add claude-agent-sdk
+          set_outputs: false
+          source: GIT
+          command: python agent.py "${{ inputs.prompt }}" "${{ inputs.branch_name
+            }}"
+          branch: feat/claude-agent
+          project_dir: python/claude_agent
+        depends_on: []
+        name: Run Claude Agent
+        connection: claude_agent_32433
+    depends_on: []
+    name: ''
+webhook:
+  enabled: false
+inputs:
+  prompt:
+    type: string
+    default: Review utils.py for bugs that would cause crashes. Fix any issues you
+      find.
+  branch_name:
+    type: string
+    default: test/claude-agent
+  tools:
+    type: list
+    default:
+    - Read
+    - Edit
+    - Glob
+    - Bash
