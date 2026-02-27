@@ -1,5 +1,5 @@
 version: v1
-name: '#s3 #motherduck #dbt #hex'
+name: '#s3 #motherduck #dbt #lightdash'
 pipeline:
   097de434-8fc1-4b1c-b4a5-4bf1e0de49de:
     tasks:
@@ -32,29 +32,21 @@ pipeline:
           project_dir: dbt_projects/motherduck_s3
         depends_on: []
         name: builds analysis models
-        connection: ${{ ENV.DBT_CORE_CONNECTION }}
+        connection: ${{ ENV.DBT_CORE_MOTHERDUCK }}
       eb65c64e-93b3-46f7-8421-23e681d180bd:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
           statement: execute task kick_off_task;
+          role: PYTHON_CONNECTOR_ROLE
+          database: BIGQUERY_SAMPLE
+          schema: PUBLIC
+          set_outputs: false
         depends_on: []
-        name: SNowflake Task
+        name: Snowflake Task
     depends_on:
     - 097de434-8fc1-4b1c-b4a5-4bf1e0de49de
     - 3459fb19-f081-43ca-8997-f7f2d54d331d
-    name: ''
-  6807e0e3-4441-4d64-932a-2eed6207a71f:
-    tasks:
-      db794a66-2406-49dc-b855-5d321baa806a:
-        integration: HEX
-        integration_job: HEX_RUN_PROJECT
-        parameters:
-          project_id: 65b43e71-b271-4537-a6a1-41bbeef5a300
-        depends_on: []
-        name: refreshes analysis dashboard
-    depends_on:
-    - 8252937c-272e-440b-bb57-cf5a8df54c11
     name: ''
   3459fb19-f081-43ca-8997-f7f2d54d331d:
     tasks:
@@ -93,6 +85,20 @@ pipeline:
           TABLE_NAME: social_leads
         - SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ
           TABLE_NAME: unstructured_feedback
+  8901414e-abc9-4ab4-a0be-b312d5bfccf4:
+    tasks:
+      2648b989-8e98-4b3d-9e69-ad49f79177d6:
+        integration: LIGHTDASH
+        integration_job: LIGHTDASH_REFRESH_DASHBOARD
+        parameters:
+          dashboard_id: 23e12d2e-6b3c-43e7-9cf6-fab399a421ec
+          invalidate_cache: false
+        depends_on: []
+        name: Refresh Lightdash
+        connection: lightdash__prod__23382
+    depends_on:
+    - 8252937c-272e-440b-bb57-cf5a8df54c11
+    name: ''
 schedule:
 - name: Daily at 8am
   cron: 0 8 ? * * *
