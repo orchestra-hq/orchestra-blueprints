@@ -13,7 +13,8 @@ def setup_git_auth(token: str, repo: str):
         check=True
     )
 
-async def main(prompt: str, tools, branch_name: str = "claude/auto-fix", pr_title: str = "Claude: automated fixes"):
+async def main(prompt: str, branch_name: str = "claude/auto-fix", tools: list[str] = ["Read", "Edit", "Glob"], pr_title: str = "Claude: automated fixes"):
+    print(f"Using tools: {tools}")
     token = os.environ["GITHUB_TOKEN"]
     repo = os.environ["GITHUB_REPO"]
     setup_git_auth(token, repo)
