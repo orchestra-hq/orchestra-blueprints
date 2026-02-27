@@ -51,4 +51,5 @@ if __name__ == "__main__":
     prompt = sys.argv[1]
     branch = sys.argv[2]
     tools = sys.argv[3].split(",")
+    print(tools)
     asyncio.run(main(prompt=prompt, branch_name=branch, tools=tools))
