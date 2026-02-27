@@ -83,7 +83,7 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: dbt build
+          commands: dbt build --exclude agg_orders
           package_manager: PIP
           python_version: '3.12'
           environment_variables: '{
@@ -103,9 +103,10 @@ pipeline:
         integration: POWER_BI
         integration_job: POWER_BI_REFRESH_DATASET
         parameters:
-          dataset_id: some_id
+          dataset_id: 5e83dd8a-2c30-44ec-8f53-e5e751ae515d
         depends_on: []
         name: Refresh dashboards
+        connection: ${{ ENV.POWER_BI }}
     depends_on:
     - 65b60e5a-2eac-487a-b554-677fb4eb971f
     name: ''

@@ -74,7 +74,7 @@ pipeline:
           dataset_id: liquidity_metrics
         depends_on: []
         name: Power BI Reporting
-        connection: power_bi_39028
+        connection: ${{ ENV.POWER_BI }}
     depends_on:
     - transformationTasks
     name: ''
