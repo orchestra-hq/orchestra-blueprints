@@ -13,7 +13,7 @@ def setup_git_auth(token: str, repo: str):
         check=True
     )
 
-async def main(prompt: str, branch_name: str = "claude/auto-fix", pr_title: str = "Claude: automated fixes"):
+async def main(prompt: str, tools, branch_name: str = "claude/auto-fix", pr_title: str = "Claude: automated fixes"):
     token = os.environ["GITHUB_TOKEN"]
     repo = os.environ["GITHUB_REPO"]
     setup_git_auth(token, repo)
@@ -32,7 +32,7 @@ After making all necessary changes:
 Use the Bash tool to run each git/gh command.
 """,
         options=ClaudeAgentOptions(
-            allowed_tools=["Read", "Edit", "Glob", "Bash"],
+            allowed_tools=tools,
             permission_mode="acceptEdits",
         ),
     ):
@@ -49,4 +49,5 @@ Use the Bash tool to run each git/gh command.
 if __name__ == "__main__":
     prompt = sys.argv[1]
     branch = sys.argv[2]
-    asyncio.run(main(prompt=prompt, branch_name=branch))
+    tools = sys.argv[3].split(",")
+    asyncio.run(main(prompt=prompt, branch_name=branch, tools=tools))
