@@ -13,7 +13,7 @@ def setup_git_auth(token: str, repo: str):
         check=True
     )
 
-async def main(prompt: str, tools: list[str] = ["Read", "Edit", "Glob"], use_github: bool = false):
+async def main(prompt: str, tools: list[str] = ["Read", "Edit", "Glob"], use_github: bool = False):
     if use_github:
         token = os.environ["GITHUB_TOKEN"]
         repo = os.environ["GITHUB_REPO"]
