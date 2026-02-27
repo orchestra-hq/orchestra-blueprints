@@ -88,6 +88,10 @@ pipeline:
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
           statement: execute task kick_off_task;
+          role: ACCOUNTADMIN
+          database: BIGQUERY_SAMPLE
+          schema: PUBLIC
+          set_outputs: false
         depends_on: []
         name: Execute Task
     depends_on:
