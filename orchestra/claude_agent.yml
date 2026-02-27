@@ -35,8 +35,13 @@ webhook:
 inputs:
   prompt:
     type: string
-    default: Review utils.py for bugs that would cause crashes. Fix any issues you
-      find.
+    default: 'Review utils.py for bugs that would cause crashes. Fix any issues you
+      find. After making all necessary changes: 1. Run: git checkout -b {branch_name}
+      2. Run: git add -u 3. Run: git commit -m "fix: automated fixes by Claude" 4.
+      Run: git push origin {branch_name} 5. Run: gh pr create --title "{pr_title}"
+      --body "## Changes\n\nAutomated fixes applied by Claude agent.\n\n### Files
+      changed\n$(git diff main...HEAD --name-only)" --base main  Use the Bash tool
+      to run each git/gh command.'
   branch_name:
     type: string
     default: test/claude-agent
