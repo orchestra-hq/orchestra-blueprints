@@ -16,7 +16,7 @@ def setup_git_auth(token: str, repo: str):
 async def main(prompt: str, tools: list[str] = ["Read", "Edit", "Glob"], use_github: bool = False):
     if use_github:
         token = os.environ["GITHUB_TOKEN"]
-        repo = os.environ["GITHUB_REPO"]
+        repo = os.getenv("GITHUB_REPO")
         setup_git_auth(token, repo)
 
     async for message in query(
@@ -38,7 +38,6 @@ async def main(prompt: str, tools: list[str] = ["Read", "Edit", "Glob"], use_git
 
 if __name__ == "__main__":
     prompt = os.getenv("PROMPT")
-    print(prompt)
     tools = os.getenv("TOOLS").split(",")
     use_github = os.getenv("USE_GITHUB", "False") == "True"
     asyncio.run(main(prompt=prompt, tools=tools, use_github=use_github))
