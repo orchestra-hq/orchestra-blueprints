@@ -33,9 +33,5 @@ inputs:
     type: string
     default: test/claude-agent
   tools:
-    type: list
-    default:
-    - Read
-    - Edit
-    - Glob
-    - Bash
+    type: string
+    default: Read,Edit,Glob,Bash
