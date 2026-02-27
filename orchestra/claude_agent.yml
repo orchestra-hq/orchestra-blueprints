@@ -12,7 +12,7 @@ pipeline:
           build_command: uv init && uv add claude-agent-sdk
           environment_variables: "{\n  \"PROMPT\": \"${{ inputs.prompt }}\",\n  \"\
             USE_GITHUB\": \"${{ inputs.use_github }}\",\n  \"TOOLS\": \"${{ inputs.tools\
-            \ }}\"\n}"
+            \ }}\",\n  \"GITHUB_REPO\": \"orchestra-hq/orchestra-blueprints\"\n}"
           set_outputs: false
           source: GIT
           command: python agent.py
