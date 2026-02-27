@@ -10,10 +10,18 @@ pipeline:
           package_manager: UV
           python_version: '3.12'
           build_command: uv init && uv add claude-agent-sdk
+          environment_variables: '{
+
+            "PROMPT": "${{ inputs.prompt }}",
+
+            "BRANCH_NAME": "${{ inputs.branch_name }}",
+
+            "TOOLS": "${{ inputs.tools }}"
+
+            }'
           set_outputs: false
           source: GIT
-          command: python agent.py "${{ inputs.prompt }}" "${{ inputs.branch_name
-            }}" "${{ inputs.tools }}"
+          command: python agent.py
           branch: feat/claude-agent
           project_dir: python/claude_agent
           shallow_clone_dirs: python/claude_agent
