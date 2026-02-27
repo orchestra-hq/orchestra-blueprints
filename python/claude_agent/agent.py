@@ -28,7 +28,7 @@ After making all necessary changes:
 2. Run: git add -u
 3. Run: git commit -m "fix: automated fixes by Claude"
 4. Run: git push origin {branch_name}
-5. Run: gh pr create --title "{pr_title}" --body "## Changes\n\nAutomated fixes applied by Claude agent.\n\n### Files changed\n$(git diff main...HEAD --name-only)" --base main
+5. Run: gh pr create --title "{pr_title}" --body "## Changes\n\nAutomated fixes applied by Claude agent.\n\n" --base main
 
 Use the Bash tool to run each git/gh command.
 """,
