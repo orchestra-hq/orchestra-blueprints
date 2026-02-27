@@ -34,7 +34,7 @@ jobs:
           task_ids: 44bfa9bf-5fc2-4f51-b78f-1c9c14a095d7
           run_inputs: |
             {
-              "dbt_command": " build -s state:modified+ --defer --state latest_production --exclude tag:metadata",
+              "dbt_command": " build --exclude tag:metadata",
               "dbt_branch": "${{ github.head_ref }}"
             }
         
