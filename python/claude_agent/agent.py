@@ -39,4 +39,5 @@ async def main(prompt: str, tools: list[str] = ["Read", "Edit", "Glob"], use_git
 if __name__ == "__main__":
     prompt = os.environ["PROMPT"]
     tools = os.environ["TOOLS"].split(",")
-    asyncio.run(main(prompt=prompt, tools=tools))
+    use_github = os.environ["USE_GITHUB"]
+    asyncio.run(main(prompt=prompt, tools=tools, use_github=use_github))
