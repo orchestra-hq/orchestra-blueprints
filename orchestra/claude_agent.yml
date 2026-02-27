@@ -10,15 +10,9 @@ pipeline:
           package_manager: UV
           python_version: '3.12'
           build_command: uv init && uv add claude-agent-sdk
-          environment_variables: '{
-
-            "PROMPT": "${{ inputs.prompt }}",
-
-            "USE_GITHUB": ${{ inputs.use_github }},
-
-            "TOOLS": "${{ inputs.tools }}"
-
-            }'
+          environment_variables: "{\n  \"PROMPT\": \"${{ inputs.prompt }}\",\n  \"\
+            USE_GITHUB\": ${{ inputs.use_github }},\n  \"TOOLS\": \"${{ inputs.tools\
+            \ }}\"\n}"
           set_outputs: false
           source: GIT
           command: python agent.py
