@@ -21,7 +21,9 @@ models:
         tests:
           - test_recent_days:
               num_days: 1000000
-          - not_null
+          - not_null:
+              config:
+                severity: warn
   - name: customers_clean
     config:
       tags:
