@@ -1,0 +1,44 @@
+version: v1
+name: 'Claude Python Agent #python #claude'
+pipeline:
+  7cd939fd-039d-4daf-9156-156d05297320:
+    tasks:
+      af176096-755f-4158-8c6d-26bde6823feb:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: UV
+          python_version: '3.12'
+          build_command: uv init && uv add claude-agent-sdk
+          environment_variables: "{\n  \"PROMPT\": \"${{ inputs.prompt }}\",\n  \"\
+            TOOLS\": \"${{ inputs.tools }}\",\n  \"GITHUB_REPO\": \"${{ inputs.github_repo\
+            \ }}\"\n}"
+          set_outputs: false
+          source: GIT
+          command: python agent.py
+          branch: feat/claude-agent
+          project_dir: python/claude_agent
+          shallow_clone_dirs: python/claude_agent
+        depends_on: []
+        name: Fix Broken Code with Claude Agent
+        connection: ${{ ENV.PYTHON_CREDENTIAL }}
+    depends_on: []
+    name: ''
+webhook:
+  enabled: false
+inputs:
+  prompt:
+    type: string
+    default: 'Review utils.py for bugs that would cause crashes. Fix any issues you       find.        After       making
+      all necessary changes:       1. Run: git checkout -b test/claude-agent       2.       Run:
+      git add -u       3. Run: git commit -m ''''fix: automated fixes by Claude''''       4.       Run:
+      git push origin test/claude-agent       5. Run: gh pr create --title ''''Fix       -
+      Claude fixes for utils.py'''' --body ''''## Changes\n\nAutomated fixes applied       by
+      Claude agent.\n\n### Files       changed\n$(git diff main...HEAD --name-only)''''       --base
+      main       Use the Bash tool to run each git/gh command.'
+  tools:
+    type: string
+    default: Read,Edit,Glob,Bash
+  github_repo:
+    type: string
+    default: orchestra-hq/orchestra-blueprints
