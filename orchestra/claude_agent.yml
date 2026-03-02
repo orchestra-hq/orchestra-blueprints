@@ -39,6 +39,6 @@ inputs:
   tools:
     type: string
     default: Read,Edit,Glob,Bash
-  use_github:
+  github_repo:
     type: string
-    default: 'False'
+    default: orchestra-hq/orchestra-blueprints
