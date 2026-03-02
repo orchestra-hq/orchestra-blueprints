@@ -11,8 +11,8 @@ pipeline:
           python_version: '3.12'
           build_command: uv init && uv add claude-agent-sdk
           environment_variables: "{\n  \"PROMPT\": \"${{ inputs.prompt }}\",\n  \"\
-            USE_GITHUB\": \"${{ inputs.use_github }}\",\n  \"TOOLS\": \"${{ inputs.tools\
-            \ }}\",\n  \"GITHUB_REPO\": \"orchestra-hq/orchestra-blueprints\"\n}"
+            TOOLS\": \"${{ inputs.tools }}\",\n  \"GITHUB_REPO\": \"${{ inputs.github_repo\
+            \ }}\"\n}"
           set_outputs: false
           source: GIT
           command: python agent.py
