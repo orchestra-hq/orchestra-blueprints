@@ -9,7 +9,7 @@ pipeline:
         parameters:
           task: DevLordInc/sheet_store/materialize-google-sheets
         depends_on: []
-        name: Test 1
+        name: Test 2
     depends_on: []
     name: ''
 webhook:
