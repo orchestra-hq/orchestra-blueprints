@@ -9,5 +9,8 @@ def calculate_average(numbers):
 
 def get_user_name(user):
     if user is None:
-        return None
-    return user.get("name", "").upper()
+        return ""
+    name = user.get("name")
+    if name is None:
+        return ""
+    return name.upper()
