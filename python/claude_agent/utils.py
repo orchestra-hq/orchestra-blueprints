@@ -1,6 +1,6 @@
 def calculate_average(numbers):
     if not numbers:
-        raise ValueError("Cannot calculate average of an empty list")
+        return 0
     total = 0
     for num in numbers:
         total += num
@@ -8,9 +8,9 @@ def calculate_average(numbers):
 
 
 def get_user_name(user):
-    if user is None:
-        raise ValueError("user cannot be None")
-    name = user.get("name")
+    if not user:
+        return ""
+    name = user.get("name", "")
     if name is None:
-        raise ValueError("user dict must contain a 'name' key with a non-None value")
+        return ""
     return name.upper()
