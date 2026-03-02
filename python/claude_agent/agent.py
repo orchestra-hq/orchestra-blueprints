@@ -13,11 +13,10 @@ def setup_git_auth(token: str, repo: str):
         check=True
     )
 
-async def main(prompt: str, tools: list[str] = ["Read", "Edit", "Glob"], use_github: bool = False):
-    if use_github:
+async def main(prompt: str, tools: list[str] = ["Read", "Edit", "Glob"], github_repo: str = None):
+    if github_repo:
         token = os.environ["GITHUB_TOKEN"]
-        repo = os.getenv("GITHUB_REPO")
-        setup_git_auth(token, repo)
+        setup_git_auth(token, github_repo)
 
     async for message in query(
         prompt=f"""{prompt}""",
@@ -39,5 +38,5 @@ async def main(prompt: str, tools: list[str] = ["Read", "Edit", "Glob"], use_git
 if __name__ == "__main__":
     prompt = os.getenv("PROMPT")
     tools = os.getenv("TOOLS").split(",")
-    use_github = os.getenv("USE_GITHUB", "False") == "True"
-    asyncio.run(main(prompt=prompt, tools=tools, use_github=use_github))
+    github_repo = os.getenv("GITHUB_REPO")
+    asyncio.run(main(prompt=prompt, tools=tools, github_repo=github_repo))
