@@ -12,6 +12,8 @@ pipeline:
           python_version: '3.12'
           use_state_orchestration: true
           branch: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
           warehouse_identifier: JH88529.UK-SOUTH.AZURE
         depends_on: []
         name: builds analysis models
