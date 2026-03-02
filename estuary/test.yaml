@@ -1,0 +1,16 @@
+version: v1
+name: 'TEST: Estuary'
+pipeline:
+  0078c254-ca29-4742-949f-34e9fdaa581c:
+    tasks:
+      4b10e6fd-6447-4bb8-9938-b11a8bc6ab4c:
+        integration: ESTUARY
+        integration_job: ESTUARY_CHECK_FLOW
+        parameters:
+          task: DevLordInc/sheet_store/materialize-google-sheets
+        depends_on: []
+        name: Test
+    depends_on: []
+    name: ''
+webhook:
+  enabled: false
