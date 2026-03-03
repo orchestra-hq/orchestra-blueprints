@@ -16,9 +16,7 @@ pipeline:
           set_outputs: false
           source: GIT
           command: python agent.py
-          branch: feat/claude-agent
           project_dir: python/claude_agent
-          shallow_clone_dirs: python/claude_agent
         depends_on: []
         name: Fix Broken Code with Claude Agent
         connection: ${{ ENV.PYTHON_CREDENTIAL }}
