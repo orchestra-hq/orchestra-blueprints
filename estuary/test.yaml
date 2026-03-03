@@ -7,10 +7,16 @@ pipeline:
         integration: ESTUARY
         integration_job: ESTUARY_CHECK_FLOW
         parameters:
-          task: DevLordInc/sheet_store/materialize-google-sheets
+          task: ${{ MATRIX.task }}
         depends_on: []
-        name: Test 2
+        name: Check ${{ MATRIX.task }}
+        connection: test_91003
     depends_on: []
     name: ''
+    matrix:
+      inputs:
+        task:
+        - DevLordInc/test_data/source-hello-world
+        - DevLordInc/slack_test/source-slack
 webhook:
   enabled: false
