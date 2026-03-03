@@ -18,6 +18,7 @@ pipeline:
         task:
         - DevLordInc/something/source-hello-world
         - DevLordInc/sheety/materialize-google-sheets
+        - DevLordInc/something/events
 schedule:
 - name: Daily at 8am
   cron: 0 8 ? * * *
