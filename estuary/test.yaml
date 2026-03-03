@@ -8,7 +8,6 @@ pipeline:
         integration_job: ESTUARY_CHECK_FLOW
         parameters:
           task: ${{ MATRIX.task }}
-          monitoring_window_seconds: 60
         depends_on: []
         name: Check task
         connection: test_91003
