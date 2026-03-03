@@ -16,7 +16,9 @@ pipeline:
           set_outputs: false
           source: GIT
           command: python agent.py
+          branch: ${{ inputs.github_branch }}
           project_dir: python/claude_agent
+          shallow_clone_dirs: python/claude_agent
         depends_on: []
         name: Fix Broken Code with Claude Agent
         connection: ${{ ENV.PYTHON_CREDENTIAL }}
@@ -40,3 +42,6 @@ inputs:
   github_repo:
     type: string
     default: orchestra-hq/orchestra-blueprints
+  github_branch:
+    type: string
+    default: main
