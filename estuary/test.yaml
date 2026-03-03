@@ -18,5 +18,6 @@ pipeline:
         task:
         - DevLordInc/test_data/source-hello-world
         - DevLordInc/slack_test/source-slack
+        - DevLordInc/sheet_store/materialize-google-sheets
 webhook:
   enabled: false
