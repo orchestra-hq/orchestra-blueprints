@@ -17,8 +17,11 @@ pipeline:
     matrix:
       inputs:
         task:
-        - DevLordInc/test_data/source-hello-world
-        - DevLordInc/slack_test/source-slack
-        - DevLordInc/sheet_store/materialize-google-sheets
+        - DevLordInc/something/source-hello-world
+        - DevLordInc/sheety/materialize-google-sheets
+schedule:
+- name: Daily at 8am
+  cron: 0 8 ? * * *
+  timezone: Europe/London
 webhook:
   enabled: false
