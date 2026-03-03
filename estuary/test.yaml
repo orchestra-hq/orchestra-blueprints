@@ -9,7 +9,7 @@ pipeline:
         parameters:
           task: ${{ MATRIX.task }}
         depends_on: []
-        name: Check ${{ MATRIX.task }}
+        name: Check task
         connection: test_91003
     depends_on: []
     name: ''
