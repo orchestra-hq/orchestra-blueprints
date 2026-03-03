@@ -1,4 +1,6 @@
 def calculate_average(numbers):
+    if not numbers:
+        return 0
     total = 0
     for num in numbers:
         total += num
@@ -6,4 +8,9 @@ def calculate_average(numbers):
 
 
 def get_user_name(user):
-    return user["name"].upper()
+    if user is None:
+        return None
+    name = user.get("name")
+    if name is None:
+        return None
+    return name.upper()
