@@ -130,8 +130,8 @@ pipeline:
         - SCHEMA_NAME: PRODUCTION
           TABLE_NAME: orders
 schedule:
-- name: Daily at 8.30am
-  cron: 30 8 ? * * *
+- name: Daily at 8am
+  cron: 0 8 ? * * *
   timezone: Europe/London
 webhook:
   enabled: false
