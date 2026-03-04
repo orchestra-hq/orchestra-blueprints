@@ -19,6 +19,7 @@ pipeline:
         task:
         - DevLordInc/something/source-hello-world
         - DevLordInc/slacky/source-slack
+        - DevLordInc/webhook_test/source-http-ingest
 schedule:
 - name: Daily at 8am
   cron: 0 8 ? * * *
