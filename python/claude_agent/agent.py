@@ -39,8 +39,8 @@ if __name__ == "__main__":
     
     prompt = os.getenv("CLAUDE_PROMPT", "Add docstrings to all functions in utils.py. Create a branch and a PR to add them into the main branch")
     github_repo = os.getenv("GITHUB_REPO", "orchestra-hq/orchestra-blueprints")
-    print("Prompt:", prompt)
-    print("GitHub Repo:", github_repo)
+    print("The Prompt is:", prompt)
+    print("GitHub Repo is:", github_repo)
     try:
         tools = os.getenv("TOOLS").split(",") 
     except:
