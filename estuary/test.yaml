@@ -8,6 +8,9 @@ pipeline:
         integration_job: ESTUARY_CHECK_FLOW
         parameters:
           task: ${{ MATRIX.task }}
+          error_threshold: 1
+          warn_threshold: 1
+          latency_threshold: 3
         depends_on: []
         name: Check task
         connection: test_91003
