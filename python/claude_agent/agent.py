@@ -22,7 +22,7 @@ async def main(prompt: str, tools: list[str] = ["Read", "Edit", "Glob"], github_
         prompt=f"""{prompt}""",
         options=ClaudeAgentOptions(
             allowed_tools=tools,
-            permission_mode="acceptEdits",
+            permission_mode="bypassPermissions",
         ),
     ):
         if isinstance(message, AssistantMessage):
@@ -36,7 +36,14 @@ async def main(prompt: str, tools: list[str] = ["Read", "Edit", "Glob"], github_
 
 
 if __name__ == "__main__":
-    prompt = os.getenv("PROMPT")
-    tools = os.getenv("TOOLS").split(",")
-    github_repo = os.getenv("GITHUB_REPO")
+    
+    prompt = os.getenv("CLAUDE_PROMPT", "Add docstrings to all functions in utils.py. Create a branch and a PR to add them into the main branch")
+    github_repo = os.getenv("GITHUB_REPO", "orchestra-hq/orchestra-blueprints")
+    print("Prompt:", prompt)
+    print("GitHub Repo:", github_repo)
+    try:
+        tools = os.getenv("TOOLS").split(",") 
+    except:
+        tools = "Read,Edit,Glob,Bash"
+        
     asyncio.run(main(prompt=prompt, tools=tools, github_repo=github_repo))
