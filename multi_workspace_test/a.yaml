@@ -15,5 +15,9 @@ pipeline:
         name: sdfsdfsdf
     depends_on: []
     name: ''
+schedule:
+- name: Daily at 8am
+  cron: 0 8 ? * * *
+  timezone: Europe/London
 webhook:
   enabled: false
