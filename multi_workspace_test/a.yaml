@@ -1,0 +1,19 @@
+version: v1
+name: Test A
+pipeline:
+  27a40d3f-71a5-4e20-8e06-668237d49973:
+    tasks:
+      e3b15735-4df6-467b-bcf6-a8caeb78a262:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          source: INLINE
+          code: print('hello')
+        depends_on: []
+        name: sdfsdfsdf
+    depends_on: []
+    name: ''
+webhook:
+  enabled: false
