@@ -1,7 +1,6 @@
 import os
 import subprocess
 import asyncio
-import requests
 
 from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage, ResultMessage
 
