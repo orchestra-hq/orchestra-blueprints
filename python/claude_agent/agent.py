@@ -4,6 +4,20 @@ import asyncio
 
 from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage, ResultMessage
 
+def run_lightdash_cli(command: str) -> str:
+    """Run a Lightdash CLI command."""
+    
+    result = subprocess.run(
+        command,
+        shell=True,
+        capture_output=True,
+        text=True
+    )
+
+    if result.returncode != 0:
+        return f"Error: {result.stderr}"
+
+    return result.stdout
 
 def setup_git_auth(token: str, repo: str):
     """Configure git and gh CLI auth using a token."""
@@ -37,7 +51,8 @@ async def main(prompt: str, tools: list[str] = ["Read", "Edit", "Glob"], github_
 
 if __name__ == "__main__":
     
-    prompt = os.getenv("CLAUDE_PROMPT", "Add docstrings to all functions in utils.py. Create a branch and a PR to add them into the main branch")
+    prompt = os.getenv("CLAUDE_PROMPT", "Lightdash API key in env vars. Using this, " \
+    "return a list of Lightdash cahrts with less than 30 views. Delete all the charts with less than 30 views. For each one, make sure you print and say what you're doing.")
     github_repo = os.getenv("GITHUB_REPO", "orchestra-hq/orchestra-blueprints")
     print("The Prompt is:", prompt)
     print("GitHub Repo is:", github_repo)
