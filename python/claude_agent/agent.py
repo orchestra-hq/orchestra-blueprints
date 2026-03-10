@@ -37,9 +37,9 @@ async def main(prompt: str, tools: list[str] = ["Read", "Edit", "Glob"], github_
 
     async for message in query(
         prompt=f"""{prompt}""",
-        system_prompt="""You are an autonomous agent. Always look for missing info in environment variables. If you lack enough context after this, raise an error. Do not use the AskUserQuestion tool""",
         options=ClaudeAgentOptions(
             allowed_tools=tools,
+            system_prompt="""You are an autonomous agent. Always look for missing info in environment variables. If you lack enough context after this, raise an error. Do not use the AskUserQuestion tool""",
             permission_mode="bypassPermissions",
         ),
     ):
