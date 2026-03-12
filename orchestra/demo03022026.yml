@@ -96,6 +96,15 @@ sensors:
         parameters:
           bucket_name: internal
           prefix: supplier
+    alerts:
+    - name: Tell me if there is no file
+      statuses:
+      - FAILED
+      destinations:
+      - integration: MICROSOFT_TEAMS
+        connection_id: migrated_teams_45124
+      - integration: EMAIL
+        destination: hugo@getorchestra.io
 webhook:
   enabled: false
 inputs:
