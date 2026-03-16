@@ -14,11 +14,15 @@ def calculate_average(numbers):
     if not numbers:
         return 0.0
     total = 0
+    count = 0
     for num in numbers:
         if not isinstance(num, (int, float)):
             continue
         total += num
-    return total / len(numbers)
+        count += 1
+    if count == 0:
+        return 0.0
+    return total / count
 
 
 def get_user_name(user):
