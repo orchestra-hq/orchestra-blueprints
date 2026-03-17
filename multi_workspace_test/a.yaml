@@ -21,3 +21,11 @@ schedule:
   timezone: Europe/London
 webhook:
   enabled: false
+alerts:
+  - name: test
+    statuses:
+      - ANY_COMPLETED
+    destinations:
+      - integration: EMAIL
+        destination: amy@getorchestra.io
+    custom_message: custom
