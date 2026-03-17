@@ -16,7 +16,7 @@ pipeline:
     depends_on: []
     name: ''
 schedule:
-- name: Daily at 8am
+- name: Daily at 8am 1
   cron: 0 8 ? * * *
   timezone: Europe/London
 webhook:
