@@ -41,3 +41,20 @@ sources:
             #  - recent_julian_days:
             #      num_days: 1
 
+  - name: fivetran
+    database: FIVETRAN 
+    schema: GOOGLE_SHEETS  
+    tables:
+      - name: oil_data
+        description: "Snowflake sample customer dataset"
+
+        freshness:
+          warn_after: {count: 10, period: minute}
+          error_after: {count: 30, period: minute}
+        loaded_at_field:  _fivetran_synced
+        columns:
+          - name: timestamp
+            description: "The timestamp for this table"
+            tests:
+              - not_null
+
