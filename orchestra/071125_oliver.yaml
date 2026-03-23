@@ -1,0 +1,19 @@
+version: v1
+name: Test Test 2
+pipeline:
+  019aad1f-5858-44cb-9dc2-74fee9454f2d:
+    tasks:
+      1b359d44-4d57-48bf-8d8f-b5c3ae9ec9cd:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          source: INLINE
+          code: test test
+        depends_on: []
+        name: test test
+    depends_on: []
+    name: ''
+webhook:
+  enabled: false

@@ -1,0 +1,52 @@
+version: v1
+name: snowflake-dbt-fivetran
+pipeline:
+  1fd77be7-d512-466c-a28a-ca020e307c42:
+    tasks:
+      7eebd732-7b25-4a7b-a204-24559d9a6ad6:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
+        depends_on: []
+        name: dbt build
+        connection: dbt_snowflake_blueprints_prod_07025
+        operation_metadata:
+          08a1b527-95ac-49ef-ba36-21c5d8cad397:
+            integration: SNOWFLAKE
+            connection: snowflake_tables_24182
+    depends_on:
+    - 2e95d4c2-4bd8-404e-b758-8d956ee9d4d1
+    name: ''
+  2e95d4c2-4bd8-404e-b758-8d956ee9d4d1:
+    tasks:
+      3941051c-9de8-454c-ac24-85e1c9174619:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          set_outputs: false
+          source: GIT
+          command: python -m postgres_connector
+          project_dir: python/postgres
+          shallow_clone_dirs: python/postgres
+        depends_on: []
+        name: Run postgres connector
+        connection: python__production__blueprints__19239
+      0904fb82-dcc0-4be0-a7ba-5711ece79b83:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: manual_carrier
+        depends_on: []
+        name: Salesforce
+    depends_on: []
+    name: ''
+webhook:
+  enabled: false

@@ -1,0 +1,19 @@
+version: v1
+name: Studio A
+pipeline:
+  6a1723fa-35e9-4d13-bc33-bc4a269dc414:
+    tasks:
+      c1538365-e192-4e26-8479-9e8320b87461:
+        integration: ORCHESTRA
+        integration_job: APPROVAL
+        parameters: {}
+        depends_on: []
+        name: something
+    depends_on: []
+    name: ''
+webhook:
+  enabled: false
+inputs:
+  branch:
+    type: string
+    default: sage

@@ -1,0 +1,49 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    tables:
+      - name: src_orders
+        config:
+          freshness:
+            warn_after: { count: 24, period: hour }
+          loaded_at_field: order_date
+      - name: src_customers
+
+models:
+  - name: stg_orders
+    description: Staging model for orders
+    columns:
+      - name: order_id
+        description: "Hello World!"
+        tests:
+          - not_null
+  - name: stg_customers
+    description: Staging model for customers
+    config:
+      freshness:
+        build_after:
+          count: 2
+          period: hour
+  - name: dim_orders
+    description: Dimension table for orders
+    config:
+      freshness:
+        build_after:
+          count: 2
+          period: hour
+          updates_on: all
+  - name: final_model
+    description: Final model for the project
+    columns:
+      - name: order_id
+        description: "Foobar"
+        tests:
+          - not_null
+          - unique
+    config:
+      freshness:
+        build_after:
+          count: 1
+          period: hour

@@ -1,0 +1,117 @@
+version: v1
+name: '#ec2 #lamdas #snowflake #looker'
+pipeline:
+  ca402a2d-3f71-42be-9f57-bcd111cae6ee:
+    tasks:
+      0fa835cf-03ab-4875-a5c8-549fea0aff48:
+        integration: AWS_EC2
+        integration_job: AWS_EC2_SSM_RUN_SCRIPT
+        parameters:
+          instance_id: i-06473b5f943a57a7c
+          command: ipconfig
+          os_type: windows
+        depends_on: []
+        name: ec2_ingestion
+        connection: ec2_test_36880
+      d21d6049-fbb5-4670-a0f9-5feb36bb3a47:
+        integration: AWS_LAMBDA
+        integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
+        parameters:
+          function_name: aws_lambda_test
+          payload: '{}'
+          enable_polling: true
+          set_outputs: false
+        depends_on: []
+        name: lamdas_ingestion
+        connection: aws_lambda__dev__70069
+      ef5b9c35-9df7-4c03-918c-81edb5bdf8d4:
+        integration: AWS_GLUE
+        integration_job: AWS_GLUE_RUN_JOB
+        parameters:
+          job_name: Testing
+        depends_on: []
+        name: ' Glue ingest'
+    depends_on: []
+    name: ''
+  ffb830f1-dcd3-4c36-bc1e-282a2f74789a:
+    tasks:
+      1b0c5573-747e-4b91-aacc-1a71e00eb7b3:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: execute task kick_off_task;
+        depends_on: []
+        name: snowflake_transformation
+        connection: snowflake_tables_24182
+      76b39995-60a4-4f45-853c-cbd9b1da13a8:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_TEST
+        parameters:
+          statement: select * from hubspot_contacts_raw limit 0
+          error_threshold_expression: '> 0'
+          warn_threshold_expression: '> 0'
+        depends_on: []
+        name: dbt_run_on_snowflake
+        connection: snowflake_tables_24182
+    depends_on:
+    - ca402a2d-3f71-42be-9f57-bcd111cae6ee
+    name: ''
+  9026e9a5-83e9-45cb-b5ce-f2e57972d0ab:
+    tasks:
+      839f8b2f-9fb3-43fc-965e-5c5b6c3108b6:
+        integration: GCP_LOOKER
+        integration_job: GCP_LOOKER_RUN_SCHEDULED_PLAN
+        parameters:
+          scheduled_plan_id: '28'
+        depends_on: []
+        name: looker_dashboard
+        connection: looker_49624
+    depends_on:
+    - ffb830f1-dcd3-4c36-bc1e-282a2f74789a
+    - 9a4d4b2f-d645-472e-afde-f28dd28cb47e
+    name: ''
+  9a4d4b2f-d645-472e-afde-f28dd28cb47e:
+    tasks:
+      7b7b86ef-aa71-4fed-ba54-cb447578997c:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: 'dbt '
+        connection: dbt_snowflake_56978
+        operation_metadata:
+          319e9549-9607-4a96-bb65-51a80ef9780c:
+            integration: SNOWFLAKE
+            connection: snowflake_tables_24182
+    depends_on:
+    - ca402a2d-3f71-42be-9f57-bcd111cae6ee
+    name: ''
+  5112574f-4731-4048-aab3-18a549f278c5:
+    tasks:
+      fe618eaf-4a6d-457c-9251-2d2aef9ffeb0:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: COPY INTO somethingsomething
+        depends_on: []
+        name: Copy Into
+    depends_on: []
+    name: ''
+sensors:
+  401299ea-435e-4be4-919a-e7b1874ffb5f:
+    name: Sensor trigger
+    cron: 0 8 ? * * *
+    timezone: Europe/London
+    timeout_mins: 60
+    checks:
+      Check File Landed S3:
+        integration: AWS_S3
+        sensor_type: AWS_S3_FILE
+        parameters:
+          bucket_name: bucket
+          prefix: previx
+webhook:
+  enabled: false

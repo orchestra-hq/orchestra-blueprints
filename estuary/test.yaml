@@ -1,0 +1,46 @@
+version: v1
+name: 'TEST: Estuary'
+pipeline:
+  0078c254-ca29-4742-949f-34e9fdaa581c:
+    tasks:
+      4b10e6fd-6447-4bb8-9938-b11a8bc6ab4c:
+        integration: ESTUARY
+        integration_job: ESTUARY_CHECK_FLOW
+        parameters:
+          task: ${{ MATRIX.task }}
+          error_threshold: 1
+          warn_threshold: 1
+          latency_threshold: 3
+        depends_on: []
+        name: Check task
+        connection: test_91003
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        task:
+        - DevLordInc/something/source-hello-world
+        - DevLordInc/slacky/source-slack
+        - DevLordInc/webhook_test/source-http-ingest
+        - DevLordInc/webhook_in_gs/materialize-google-sheets
+  38c6e1bb-b900-40e6-8c23-4b720736747d:
+    tasks:
+      3ca8743b-4037-48c9-908f-2c0ba014ca70:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+        depends_on: []
+        name: excute dbt core
+    depends_on:
+    - 0078c254-ca29-4742-949f-34e9fdaa581c
+    name: ''
+schedule:
+- name: Daily at 8am
+  cron: 0 8 ? * * *
+  timezone: Europe/London
+webhook:
+  enabled: false

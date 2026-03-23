@@ -1,0 +1,67 @@
+version: v1
+name: '[AI AGENT WORKFLOW] Personalised Slack reporting'
+pipeline:
+  stage-1:
+    tasks:
+      execute-snowflake-query:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: ${{ inputs.sql_query }}
+          set_outputs: true
+        depends_on: []
+        name: Fetch data from warehouse
+        tags: []
+    depends_on: []
+    name: ''
+  stage-2:
+    tasks:
+      build-slack-message:
+        integration: OPEN_AI
+        integration_job: OPEN_AI_CHAT
+        parameters:
+          prompt: ${{ inputs.prompt }}
+          model: gpt-5
+          context: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['execute-snowflake-query'].OUTPUTS['results']
+            }}
+          instructions: You must generate a JSON payload for Slack. It will be in
+            the Slack Blocks format. Keep the number of blocks and content concise.
+            Use nice formatting tricks where possible.
+          set_outputs: true
+          return_text: false
+          output_schema: "Valid JSON for Slack webhook message:\n\n```json\n{\n  \"\
+            blocks\": []\n}\n```"
+        depends_on: []
+        name: Generate Slack content
+        tags: []
+    depends_on:
+    - stage-1
+    name: ''
+  stage-3:
+    tasks:
+      send-to-slack:
+        integration: HTTP
+        integration_job: HTTP_REQUEST
+        parameters:
+          path: T056XRS1HGW/B09GRM8CTT8/QCAgSeFcD3HgoqGMdXNB2Wq6
+          custom_headers: "{\n  \"Content-Type\": \"application/json\"\n}"
+          set_outputs: false
+          method: POST
+          body: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['build-slack-message'].OUTPUTS['results']
+            }}
+        depends_on: []
+        name: Send to Slack
+        tags: []
+        connection: slack_webhooks_57288
+    depends_on:
+    - stage-2
+    name: ''
+schedule: []
+sensors: {}
+webhook:
+  enabled: true
+inputs:
+  sql_query:
+    type: string
+  prompt:
+    type: string

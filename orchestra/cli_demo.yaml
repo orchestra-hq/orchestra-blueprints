@@ -10,26 +10,23 @@ pipeline:
           connector_id: automatic_ship
         depends_on: []
         name: GSheet Ingestion
-        tags: []
     depends_on: []
-    name: ""
+    name: ''
   transformation_group:
     tasks:
       transformation_task_1:
         integration: PYTHON
         integration_job: PYTHON_EXECUTE_SCRIPT
         parameters:
-          command: python my_script.py
           package_manager: PIP
-          python_version: "3.12"
+          python_version: '3.12'
           set_outputs: false
+          source: GIT
+          command: python script.py
         depends_on: []
         name: Run cleaning + transformation
-        tags: []
     depends_on:
-      - ingestion_group
-    name: ""
-schedule: []
-sensors: {}
+    - ingestion_group
+    name: ''
 webhook:
   enabled: false

@@ -1,0 +1,51 @@
+version: v1
+name: Tasman
+pipeline:
+  airbyteSyncGroup:
+    tasks:
+      airbyteSyncTask:
+        integration: AIRBYTE_CLOUD
+        integration_job: AIRBYTE_CLOUD_JOB
+        parameters:
+          connection_id: your_connection_id
+          job_type: sync
+        depends_on: []
+        name: Airbyte Sync Task
+        connection: airbyte__prod__25344
+    depends_on: []
+    name: ''
+  dbtOrchestrationGroup:
+    tasks:
+      dbtOrchestrationTask:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+        depends_on: []
+        name: DBT Orchestration Task
+        connection: ${{ ENV.DBT_CORE_SNOWFLAKE }}
+        operation_metadata:
+          8ef732fd-263b-467e-a826-a642044d8d2a:
+            integration: SNOWFLAKE
+            connection: snowflake_tables_24182
+    depends_on:
+    - airbyteSyncGroup
+    name: ''
+  tableauRefreshGroup:
+    tasks:
+      tableauRefreshTask:
+        integration: TABLEAU_CLOUD
+        integration_job: TABLEAU_REFRESH_EXTRACT
+        parameters:
+          project_name: your_project_name
+          datasource_name: your_datasource_name
+        depends_on: []
+        name: Tableau Refresh Task
+    depends_on:
+    - dbtOrchestrationGroup
+    name: ''
+webhook:
+  enabled: false
