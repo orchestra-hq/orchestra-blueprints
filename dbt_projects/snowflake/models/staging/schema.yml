@@ -46,5 +46,20 @@ models:
         tests:
           - not_null
           - unique
-
+  - name: oil_area_staging
+    description: "Aggregated Oil Field at Area level"
+    columns:
+      - name: _pk
+        description: "The primary key for this table"
+        tests:
+          - not_null
+          - unique
+  - name: oil_production_staging
+    description: "staging Oil Production Data"
+    columns:
+      - name: _pk
+        description: "The primary key for this table"
+        tests:
+          - not_null
+          - unique
 

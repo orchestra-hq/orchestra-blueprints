@@ -53,5 +53,13 @@ models:
         description: "The shipment date"
         tests:
           - not_null
+  - name: oil_data_aggregated
+    description: "Aggregated Oil Field Production Data"
+    columns:
+      - name: _pk
+        description: "The primary key for this table"
+        tests:
+          - not_null
+          - unique
 
 

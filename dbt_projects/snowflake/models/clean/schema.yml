@@ -39,4 +39,15 @@ models:
           average_field: sales
           date_field: date
           null_filter: store
+  - name: oil_data_clean
+    config:
+      tags:
+        - massive_dag
+    description: "Example store sales"
+    columns:
+      - name: _pk
+        description: "The primary key for this table"
+        tests:
+          - not_null
+          - unique
 
