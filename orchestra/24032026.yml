@@ -1,5 +1,5 @@
 version: v1
-name: Fivetran dbt STate
+name: Fivetran todbt state-aware orchestration
 pipeline:
   308a17c9-1fd6-4179-bdae-f36f0b146c57:
     tasks:
