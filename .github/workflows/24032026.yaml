@@ -28,10 +28,10 @@ jobs:
         uses: orchestra-hq/run-pipeline@v1
         with:
           api_key: ${{ secrets.ORCHESTRA_API_KEY }}
-          pipeline_id: 182b8045-72db-47cc-9cf7-a5276b7cbacc
+          pipeline_id: 56198c16-de65-4b08-a566-7d69cff12501
           poll_interval: 20
           environment: ${{ github.event_name == 'pull_request' && 'Staging' || 'Production' }}
-          task_ids: 44bfa9bf-5fc2-4f51-b78f-1c9c14a095d7
+          task_ids: 21ce3ced-4acc-4380-b122-24806e6c4243
           run_inputs: |
             {
               "dbt_command": " build -s state:modified+ --defer --state latest_production --exclude tag:metadata",
