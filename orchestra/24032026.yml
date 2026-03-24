@@ -1,0 +1,63 @@
+version: v1
+name: Fivetran dbt STate
+pipeline:
+  308a17c9-1fd6-4179-bdae-f36f0b146c57:
+    tasks:
+      f91f11bf-fb37-463d-8180-22febecc633d:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: faithfulness_coal
+        depends_on: []
+        name: Sync Oil Data
+      a0d80e94-ec72-4b2a-abe9-a3a41d04b2d4:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: manual_carrier
+        depends_on: []
+        name: Sync CRM Data
+    depends_on: []
+    name: ''
+  d48629ca-679b-4095-942d-89f8f79d7e95:
+    tasks:
+      21ce3ced-4acc-4380-b122-24806e6c4243:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: main
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
+        depends_on: []
+        name: Run Transformations
+        connection: dbt_snowflake_blueprints_prod_07025
+    depends_on:
+    - 308a17c9-1fd6-4179-bdae-f36f0b146c57
+    name: ''
+  eb302e05-5d30-4698-98e4-3649adf07a0f:
+    tasks:
+      c9943b13-9f48-4f1b-bbc3-46771695deeb:
+        integration: SIGMA
+        integration_job: SIGMA_DATAMODEL_MATERIALIZATION
+        parameters:
+          datamodel_id: b62cca11-fc6f-4561-9d60-6e0b3093d28d
+          sheet_ids: []
+        depends_on: []
+        name: Some ID
+      c2352f05-c77b-411d-bfc4-301336f8a085:
+        integration: SIGMA
+        integration_job: SIGMA_WORKBOOK_MATERIALIZATION
+        parameters:
+          workbook_id: 8f231425-2b98-47a3-8766-375fea961f8c
+          sheet_ids: []
+        depends_on: []
+        name: Trigger Workbook
+    depends_on:
+    - d48629ca-679b-4095-942d-89f8f79d7e95
+    name: ''
+webhook:
+  enabled: false
