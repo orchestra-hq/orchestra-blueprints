@@ -25,16 +25,20 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: dbt build
+          commands: dbt  ${{ inputs.dbt_command }}
           package_manager: PIP
           python_version: '3.12'
           use_state_orchestration: true
-          branch: main
+          branch: ${{ inputs.dbt_branch }}
           project_dir: dbt_projects/snowflake
           shallow_clone_dirs: dbt_projects/snowflake
         depends_on: []
         name: Run Transformations
         connection: dbt_snowflake_blueprints_prod_07025
+        operation_metadata:
+          73f8ea9d-05bb-48eb-910b-e54076ba8c8a:
+            integration: SNOWFLAKE
+            connection: snowflake__prod__80122
     depends_on:
     - 308a17c9-1fd6-4179-bdae-f36f0b146c57
     name: ''
@@ -61,3 +65,10 @@ pipeline:
     name: ''
 webhook:
   enabled: false
+inputs:
+  dbt_command:
+    type: string
+    default: build
+  dbt_branch:
+    type: string
+    default: main
