@@ -44,5 +44,6 @@ select
     to_timestamp(timestamp) timestamp,
     measurement,
     _additional_column__,
+    broken_column__,
     _pk
 from {{ref('oil_data_clean')}}
