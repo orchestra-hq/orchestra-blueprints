@@ -33,7 +33,7 @@ jobs:
           environment: ${{ github.event_name == 'pull_request' && 'Staging' || 'Production' }}
           run_inputs: |
                 {
-                  "dbt_branch": "${{ github.head_ref || github.ref_name }}",
+                  "branch": "${{ github.head_ref || github.ref_name }}",
                   "repo": "${{ github.repository }}",
                   "pr_number": "${{ github.event.pull_request.number || '' }}"
                 }
