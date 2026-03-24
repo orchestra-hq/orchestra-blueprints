@@ -24,7 +24,20 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4  
-      - name: Run Custom Action
+      - name: Run impact analysis
+        uses: orchestra-hq/run-pipeline@v1
+        with:
+          api_key: ${{ secrets.ORCHESTRA_API_KEY }}
+          pipeline_id: dcf31335-c158-41a2-8626-6c901841bc3e
+          poll_interval: 20
+          environment: ${{ github.event_name == 'pull_request' && 'Staging' || 'Production' }}
+          run_inputs: |
+                {
+                  "dbt_branch": "${{ github.head_ref || github.ref_name }}",
+                  "repo": "${{ github.repository }}",
+                  "pr_number": "${{ github.event.pull_request.number || '' }}"
+                }
+      - name: Run dbt in stage
         uses: orchestra-hq/run-pipeline@v1
         with:
           api_key: ${{ secrets.ORCHESTRA_API_KEY }}
