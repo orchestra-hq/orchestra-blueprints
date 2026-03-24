@@ -60,13 +60,6 @@ pipeline:
           sheet_ids: []
         depends_on: []
         name: Trigger Workbook
-      a3740ed5-f152-4fca-b961-fe78d11120a2:
-        integration: POWER_BI
-        integration_job: POWER_BI_REFRESH_DATASET
-        parameters:
-          dataset_id: 3c0d0d73-53eb-45b4-addd-7fc7a3ec6a51
-        depends_on: []
-        name: Refresh the usage dataset
     depends_on:
     - d48629ca-679b-4095-942d-89f8f79d7e95
     name: ''
