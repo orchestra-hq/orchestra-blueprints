@@ -56,7 +56,7 @@ def orchestra_metadata_api_dlt_pipeline(warehouse: str) -> None:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 3:
         print(f"Usage: python {sys.argv[0]} <warehouse> <destination_schema>")
         sys.exit(1)
 
