@@ -49,7 +49,7 @@ def orchestra_metadata_api_dlt_pipeline(warehouse: str) -> None:
     pipeline = dlt.pipeline(
         pipeline_name="orchestra_metadata",
         destination=warehouse,
-        dataset_name=sys.argv[1],
+        dataset_name=f"{sys.argv[1]}",
     )
     load_info = pipeline.run(orchestra_api_source)
     print(load_info)
