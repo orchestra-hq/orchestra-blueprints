@@ -49,7 +49,7 @@ def orchestra_metadata_api_dlt_pipeline(warehouse: str) -> None:
     pipeline = dlt.pipeline(
         pipeline_name="orchestra_metadata",
         destination=warehouse,
-        dataset_name="orchestra_metadata_app",
+        dataset_name=sys.argv[1],
     )
     load_info = pipeline.run(orchestra_api_source)
     print(load_info)
@@ -57,7 +57,7 @@ def orchestra_metadata_api_dlt_pipeline(warehouse: str) -> None:
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print(f"Usage: python {sys.argv[0]} <warehouse>")
+        print(f"Usage: python {sys.argv[0]} <warehouse> <destination_schema>")
         sys.exit(1)
 
     orchestra_metadata_api_dlt_pipeline(sys.argv[1])
