@@ -79,3 +79,9 @@ alerts:
   destinations:
   - integration: EMAIL
     destination: hugolu87@gmail.com
+- name: Teams alerts
+  statuses:
+  - ANY_COMPLETED
+  destinations:
+  - integration: MICROSOFT_TEAMS
+    connection_id: migrated_teams_66347
