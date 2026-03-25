@@ -34,7 +34,7 @@ pipeline:
           shallow_clone_dirs: dbt_projects/snowflake
         depends_on: []
         name: Run Transformations
-        connection: dbt_snowflake_blueprints_prod_07025
+        connection: ${{ ENV.DBT_CORE_CONNECTION }}
         operation_metadata:
           73f8ea9d-05bb-48eb-910b-e54076ba8c8a:
             integration: SNOWFLAKE
