@@ -1,0 +1,52 @@
+version: v1
+name: ETL Pipeline with Fivetran, dbt Core, and Power BI
+pipeline:
+  dbtTaskGroup:
+    tasks:
+      dbtTask:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt run
+          package_manager: UV
+          python_version: '3.12'
+          project_dir: dbt_projects/motherduck_s3
+          shallow_clone_dirs: dbt_projects/motherduck_s3
+        depends_on: []
+        name: dbt Run
+        connection: dbt_motherduck__prod__39243
+    depends_on:
+    - f9683aab-3a2e-4972-94d4-e2ddb06870ed
+    name: ''
+  f9683aab-3a2e-4972-94d4-e2ddb06870ed:
+    tasks:
+      54bcc69f-08ae-4901-b336-484c1a4e2f14:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: memoranda_ing
+        depends_on: []
+        name: Hubspot sync
+        connection: h_94547
+    depends_on: []
+    name: ''
+  1eaa852c-da2f-4b52-985c-2f58edc72920:
+    tasks:
+      d910f361-42f8-49e5-8f6c-6709c74fef2f:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: 5e83dd8a-2c30-44ec-8f53-e5e751ae515d
+        depends_on: []
+        name: Refresh Power BI Dataset
+        connection: ${{ ENV.POWER_BI }}
+    depends_on:
+    - dbtTaskGroup
+    name: ''
+schedule:
+- name: CRON trigger
+  cron: 0 8 ? * * *
+  timezone: UTC
+  environment: 2789285b-7f8b-4889-9d67-f7f111eb27a8
+webhook:
+  enabled: false
