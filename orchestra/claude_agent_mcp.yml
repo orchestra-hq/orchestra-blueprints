@@ -9,11 +9,12 @@ pipeline:
         parameters:
           package_manager: UV
           python_version: '3.12'
-          build_command: uv init && uv add claude-agent-sdk orchestra-sdk && npm install -g npx
-          environment_variables: "{\n  \"CLAUDE_PROMPT\": \"${{ inputs.prompt }}\",\n\
-            \  \"TOOLS\": \"${{ inputs.tools }}\",\n  \"ORCHESTRA_API_KEY\": \"${{ ENV.ORCHESTRA_API_KEY\
-            \ }}\"\n}"
-          set_outputs: false
+          build_command: uv init && uv add claude-agent-sdk orchestra-sdk && npm install
+            -g npx
+          environment_variables: "{\n  \"CLAUDE_PROMPT\": \"${{ inputs.prompt }}\"\
+            ,\n  \"TOOLS\": \"${{ inputs.tools }}\",\n  \"ORCHESTRA_API_KEY\": \"\
+            ${{ ENV.ORCHESTRA_API_KEY }}\"\n}"
+          set_outputs: true
           source: GIT
           command: python agent.py
           branch: ${{ inputs.github_branch }}
@@ -29,7 +30,10 @@ pipeline:
       e3f1b2a9-6d5c-4e78-8f0a-2c9b1d534678:
         integration: ORCHESTRA
         integration_job: APPROVAL
-        parameters: {}
+        parameters:
+          message_integration: SLACK
+          message_connection_id: default_00000
+          message_destination: '#test-data-alerts'
         depends_on: []
         name: Approve Agent Output
     depends_on:
@@ -40,15 +44,15 @@ webhook:
 inputs:
   prompt:
     type: string
-    default: "Use the Orchestra MCP to list all pipelines in the workspace. For each\
-      \ pipeline, retrieve its details including run history, status, and metadata.\
-      \ Identify pipelines that are candidates for deletion based on any of the following\
-      \ criteria: (1) never been run, (2) currently in draft status, (3) appear incomplete\
-      \ or unpolished (e.g. missing descriptions, placeholder names, no tasks configured,\
-      \ or obviously unfinished structure). Generate a report with a numbered list\
-      \ of pipelines recommended for deletion, including for each: the pipeline name,\
-      \ the reason it is a candidate for deletion, and a direct link to the pipeline\
-      \ in the Orchestra UI."
+    default: 'Use the Orchestra MCP to list all pipelines in the workspace. For each
+      pipeline, retrieve its details including run history, status, and metadata.
+      Identify pipelines that are candidates for deletion based on any of the following
+      criteria: (1) never been run, (2) currently in draft status, (3) appear incomplete
+      or unpolished (e.g. missing descriptions, placeholder names, no tasks configured,
+      or obviously unfinished structure). Generate a report with a numbered list of
+      pipelines recommended for deletion, including for each: the pipeline name, the
+      reason it is a candidate for deletion, and a direct link to the pipeline in
+      the Orchestra UI.'
   tools:
     type: string
     default: Read,Glob,Bash
