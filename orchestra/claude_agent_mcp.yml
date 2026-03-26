@@ -1,0 +1,50 @@
+version: v1
+name: 'Claude Python Agent with Orchestra MCP + Approval #python #claude #mcp'
+pipeline:
+  a1f3c2d8-4e7b-4c91-b6a5-3d8e2f109abc:
+    tasks:
+      b9e4a5d1-7c3f-4812-a0b2-6e5f8c203def:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: UV
+          python_version: '3.12'
+          build_command: uv init && uv add claude-agent-sdk orchestra-sdk && npm install -g npx
+          environment_variables: "{\n  \"CLAUDE_PROMPT\": \"${{ inputs.prompt }}\",\n\
+            \  \"TOOLS\": \"${{ inputs.tools }}\",\n  \"ORCHESTRA_API_KEY\": \"${{ ENV.ORCHESTRA_API_KEY\
+            \ }}\"\n}"
+          set_outputs: false
+          source: GIT
+          command: python agent.py
+          branch: ${{ inputs.github_branch }}
+          project_dir: python/claude_agent_mcp
+          shallow_clone_dirs: python/claude_agent_mcp
+        depends_on: []
+        name: Run Claude Agent with Orchestra MCP
+        connection: ${{ ENV.PYTHON_CREDENTIAL }}
+    depends_on: []
+    name: Agent Run
+  c7d2e8f0-1a4b-4d63-9c8e-5b7a6f412345:
+    tasks:
+      e3f1b2a9-6d5c-4e78-8f0a-2c9b1d534678:
+        integration: ORCHESTRA
+        integration_job: APPROVAL
+        parameters: {}
+        depends_on: []
+        name: Approve Agent Output
+    depends_on:
+    - a1f3c2d8-4e7b-4c91-b6a5-3d8e2f109abc
+    name: Human Approval
+webhook:
+  enabled: false
+inputs:
+  prompt:
+    type: string
+    default: 'Use the Orchestra MCP to list all pipelines in the workspace and summarise
+      their recent run statuses.'
+  tools:
+    type: string
+    default: Read,Glob,Bash
+  github_branch:
+    type: string
+    default: main
