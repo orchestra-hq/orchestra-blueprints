@@ -63,6 +63,11 @@ pipeline:
     depends_on:
     - d48629ca-679b-4095-942d-89f8f79d7e95
     name: ''
+schedule:
+- name: Staging trigger
+  cron: 0 8 ? * * *
+  timezone: Europe/London
+  environment: dbfb4825-b265-40ac-8d36-18aded5c9487
 webhook:
   enabled: false
 inputs:
