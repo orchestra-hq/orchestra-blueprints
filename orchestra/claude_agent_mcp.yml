@@ -40,8 +40,15 @@ webhook:
 inputs:
   prompt:
     type: string
-    default: 'Use the Orchestra MCP to list all pipelines in the workspace and summarise
-      their recent run statuses.'
+    default: "Use the Orchestra MCP to list all pipelines in the workspace. For each\
+      \ pipeline, retrieve its details including run history, status, and metadata.\
+      \ Identify pipelines that are candidates for deletion based on any of the following\
+      \ criteria: (1) never been run, (2) currently in draft status, (3) appear incomplete\
+      \ or unpolished (e.g. missing descriptions, placeholder names, no tasks configured,\
+      \ or obviously unfinished structure). Generate a report with a numbered list\
+      \ of pipelines recommended for deletion, including for each: the pipeline name,\
+      \ the reason it is a candidate for deletion, and a direct link to the pipeline\
+      \ in the Orchestra UI."
   tools:
     type: string
     default: Read,Glob,Bash
