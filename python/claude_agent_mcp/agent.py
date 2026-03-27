@@ -3,7 +3,6 @@ import asyncio
 
 from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage, ResultMessage
 
-from orchestra_sdk.enum import TaskRunStatus
 from orchestra_sdk.orchestra import OrchestraSDK
 
 
@@ -53,5 +52,6 @@ if __name__ == "__main__":
 
     asyncio.run(main(prompt=prompt, tools=tools, orchestra_api_key=orchestra_api_key))
 
-    orchestra = OrchestraSDK(api_key=orchestra_api_key)
-    orchestra.update_task(status=TaskRunStatus.SUCCESS)
+    client = OrchestraSDK(api_key=orchestra_api_key)
+    pipeline_ids = os.getenv("PIPELINE_IDS")
+    client.set_output("result", pipeline_ids if pipeline_ids else [])

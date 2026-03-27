@@ -49,7 +49,9 @@ inputs:
       or obviously unfinished structure). Generate a report with a numbered list of
       pipelines recommended for deletion, including for each: the pipeline name, the
       reason it is a candidate for deletion, and a direct link to the pipeline in
-      the Orchestra UI.'
+      the Orchestra UI. Finally, collect the IDs of all pipelines recommended for
+      deletion and write them to an environment variable as a JSON array by running:
+      export PIPELINE_IDS=''["id1","id2","id3"]'''
   tools:
     type: string
     default: Read,Glob,Bash
