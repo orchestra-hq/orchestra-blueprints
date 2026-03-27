@@ -42,7 +42,7 @@ pipeline:
     name: Human Approval
     matrix:
       inputs:
-        pipeline_id: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['b9e4a5d1-7c3f-4812-a0b2-6e5f8c203def'].OUTPUTS['result']['PIPELINE_IDS']
+        pipeline_id: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['b9e4a5d1-7c3f-4812-a0b2-6e5f8c203def'].OUTPUTS['result']
           }}
 webhook:
   enabled: false
