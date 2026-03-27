@@ -18,7 +18,6 @@ pipeline:
           command: python agent.py
           branch: ${{ inputs.github_branch }}
           project_dir: python/claude_agent_mcp/
-          shallow_clone_dirs: python/claude_agent_mcp/
         depends_on: []
         name: Run Claude Agent with Orchestra MCP
         connection: ${{ ENV.PYTHON_CREDENTIAL }}
