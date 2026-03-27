@@ -17,6 +17,7 @@ pipeline:
           command: python agent.py
           branch: ${{ inputs.github_branch }}
           project_dir: python/claude_agent_mcp/
+          shallow_clone_dirs: python/claude_agent_mcp/
         depends_on: []
         name: Run Claude Agent with Orchestra MCP
         connection: ${{ ENV.PYTHON_CREDENTIAL }}
@@ -28,6 +29,9 @@ pipeline:
         integration: ORCHESTRA
         integration_job: APPROVAL
         parameters:
+          message: 'Would you like to delete this pipeline?
+
+            https://app.getorchestra.io/pipelines/${{ MATRIX.pipeline_id }}'
           message_integration: SLACK
           message_connection_id: default_00000
           message_destination: '#test-data-alerts'
@@ -36,6 +40,10 @@ pipeline:
     depends_on:
     - a1f3c2d8-4e7b-4c91-b6a5-3d8e2f109abc
     name: Human Approval
+    matrix:
+      inputs:
+        pipeline_id: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['b9e4a5d1-7c3f-4812-a0b2-6e5f8c203def'].OUTPUTS['result']['PIPELINE_IDS']
+          }}
 webhook:
   enabled: false
 inputs:
