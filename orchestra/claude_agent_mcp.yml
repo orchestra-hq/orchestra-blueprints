@@ -12,8 +12,7 @@ pipeline:
           build_command: uv init && uv add claude-agent-sdk orchestra-sdk && npm install
             -g npx
           environment_variables: "{\n  \"CLAUDE_PROMPT\": \"${{ inputs.prompt }}\"\
-            ,\n  \"TOOLS\": \"${{ inputs.tools }}\",\n  \"ORCHESTRA_API_KEY\": \"\
-            ${{ ENV.ORCHESTRA_API_KEY }}\"\n}"
+            ,\n  \"TOOLS\": \"${{ inputs.tools }}\"\n}"
           set_outputs: true
           source: GIT
           command: python agent.py
