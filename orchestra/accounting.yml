@@ -12,9 +12,15 @@ pipeline:
           python_version: '3.12'
           branch: ${{ inputs.dbt_branch }}
           warehouse_identifier: JH88529.UK-SOUTH.AZURE
+          environment_variables: '{
+
+            "DBT_WH":"DBT_WH"
+
+
+            }'
         depends_on: []
         name: builds analysis models
-        connection: dbt_snowflake_56978
+        connection: dbt_snowflake_blueprints_prod_07025
         operation_metadata:
           94011289-5f33-4aa9-9405-c7fbf8c14fde:
             integration: SNOWFLAKE
@@ -127,3 +133,10 @@ inputs:
   dbt_branch:
     type: string
     default: main
+alerts:
+- name: Failures
+  statuses:
+  - FAILED
+  destinations:
+  - integration: SLACK
+    destination: alert-testing
