@@ -10,6 +10,14 @@ pipeline:
           connector_id: faithfulness_coal
         depends_on: []
         name: Sync Oil Data
+        alerts:
+        - name: Salck complete test
+          statuses:
+          - ANY_COMPLETED
+          destinations:
+          - integration: SLACK
+            destination: alert-testing
+            connection_id: default_00000
       a0d80e94-ec72-4b2a-abe9-a3a41d04b2d4:
         integration: FIVETRAN
         integration_job: FIVETRAN_SYNC_ALL
