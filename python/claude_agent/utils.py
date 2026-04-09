@@ -1,3 +1,6 @@
+"""Utility functions for data processing and transformation."""
+
+
 def calculate_average(numbers):
     """Calculate the average of a list of numbers.
 

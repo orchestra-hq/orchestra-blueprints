@@ -1,3 +1,4 @@
+"""Orchestrates autonomous Claude agent execution with GitHub integration for task automation."""
 import ast
 import os
 import subprocess
