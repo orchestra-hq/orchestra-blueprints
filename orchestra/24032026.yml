@@ -18,6 +18,14 @@ pipeline:
           - integration: SLACK
             destination: ${{ ENV.SLACK_ALERT }}
             connection_id: default_00000
+        - name: Datadog test
+          statuses:
+          - SKIPPED
+          destinations:
+          - integration: DATADOG
+            connection_id: datadog__prod__94010
+            parameters:
+              priority: 5
       a0d80e94-ec72-4b2a-abe9-a3a41d04b2d4:
         integration: FIVETRAN
         integration_job: FIVETRAN_SYNC_ALL
