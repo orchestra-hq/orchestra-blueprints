@@ -66,9 +66,9 @@ if __name__ == "__main__":
         tools = "Read,Edit,Glob,Bash"
         
     asyncio.run(main(prompt=prompt, tools=tools, github_repo=github_repo))
-    LIGHTDASH_CHART_IDS = os.getenv("LIGHTDASH_CHART_IDS", "No charts found or Lightdash API key not set.")
+    CLAUDE_OUTPUT = os.getenv("CLAUDE_OUTPUT", "No output found")
     orchestra = OrchestraSDK(api_key=os.getenv("ORCHESTRA_API_KEY"))
-    if not LIGHTDASH_CHART_IDS:
+    if not CLAUDE_OUTPUT:
         orchestra.update_task(status=TaskRunStatus.WARNING)
     else:
-        orchestra.set_output(name='LIGHTDASH_CHART_IDS', value=LIGHTDASH_CHART_IDS)
+        orchestra.set_output(name='CLAUDE_OUTPUT', value=CLAUDE_OUTPUT)
