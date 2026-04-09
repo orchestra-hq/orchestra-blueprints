@@ -1,3 +1,4 @@
+import ast
 import os
 import subprocess
 import asyncio
@@ -74,6 +75,10 @@ if __name__ == "__main__":
         tools = ["Read", "Edit", "Glob", "Bash"]
         
     CLAUDE_OUTPUT = asyncio.run(main(prompt=prompt, tools=tools, github_repo=github_repo))
+    try:
+        CLAUDE_OUTPUT = ast.literal_eval(CLAUDE_OUTPUT)
+    except:
+        pass
     print(CLAUDE_OUTPUT)
     print(type(CLAUDE_OUTPUT))
     # CLAUDE_OUTPUT = os.getenv("CLAUDE_OUTPUT", "No output found")
