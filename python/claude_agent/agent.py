@@ -68,7 +68,7 @@ if __name__ == "__main__":
     try:
         tools = os.getenv("TOOLS").split(",") 
     except:
-        tools = "Read,Edit,Glob,Bash"
+        tools = ["Read", "Edit", "Glob", "Bash"]
         
     asyncio.run(main(prompt=prompt, tools=tools, github_repo=github_repo))
     CLAUDE_OUTPUT = os.getenv("CLAUDE_OUTPUT", "No output found")
