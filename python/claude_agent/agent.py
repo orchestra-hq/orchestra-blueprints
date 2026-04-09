@@ -35,6 +35,7 @@ async def main(prompt: str, tools: list[str] = ["Read", "Edit", "Glob"], github_
         token = os.environ["GITHUB_TOKEN"]
         setup_git_auth(token, github_repo)
 
+    final_text = None
     async for message in query(
         prompt=f"""{prompt}""",
         options=ClaudeAgentOptions(
@@ -56,6 +57,8 @@ async def main(prompt: str, tools: list[str] = ["Read", "Edit", "Glob"], github_
                     print(f"Tool: {block.name}")
         elif isinstance(message, ResultMessage):
             print(f"Done: {message.subtype}")
+            final_text = message.content
+    return final_text
 
 
 if __name__ == "__main__":
@@ -70,8 +73,8 @@ if __name__ == "__main__":
     except:
         tools = ["Read", "Edit", "Glob", "Bash"]
         
-    asyncio.run(main(prompt=prompt, tools=tools, github_repo=github_repo))
-    CLAUDE_OUTPUT = os.getenv("CLAUDE_OUTPUT", "No output found")
+    CLAUDE_OUTPUT = asyncio.run(main(prompt=prompt, tools=tools, github_repo=github_repo))
+    # CLAUDE_OUTPUT = os.getenv("CLAUDE_OUTPUT", "No output found")
     orchestra = OrchestraSDK(api_key=os.getenv("ORCHESTRA_API_KEY"))
     if not CLAUDE_OUTPUT:
         orchestra.update_task(status=TaskRunStatus.WARNING)
