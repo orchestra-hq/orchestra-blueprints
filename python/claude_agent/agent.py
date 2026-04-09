@@ -41,7 +41,8 @@ async def main(prompt: str, tools: list[str] = ["Read", "Edit", "Glob"], github_
             allowed_tools=tools,
             system_prompt="""You are an autonomous agent. Always look for missing info in environment variables. If you lack enough context after this, raise an error. Do not use the AskUserQuestion tool""",
             permission_mode="bypassPermissions",
-            env={"CLAUDE_CODE_MAX_OUTPUT_TOKENS": "2048"}
+            env={"CLAUDE_CODE_MAX_OUTPUT_TOKENS": "2048"},
+            max_turns=5
         ),
     ):
         if isinstance(message, AssistantMessage):
