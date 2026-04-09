@@ -57,7 +57,7 @@ async def main(prompt: str, tools: list[str] = ["Read", "Edit", "Glob"], github_
                     print(f"Tool: {block.name}")
         elif isinstance(message, ResultMessage):
             print(f"Done: {message.subtype}")
-            final_text = message.content
+            final_text = message.result
     return final_text
 
 
@@ -74,6 +74,8 @@ if __name__ == "__main__":
         tools = ["Read", "Edit", "Glob", "Bash"]
         
     CLAUDE_OUTPUT = asyncio.run(main(prompt=prompt, tools=tools, github_repo=github_repo))
+    print(CLAUDE_OUTPUT)
+    print(type(CLAUDE_OUTPUT))
     # CLAUDE_OUTPUT = os.getenv("CLAUDE_OUTPUT", "No output found")
     orchestra = OrchestraSDK(api_key=os.getenv("ORCHESTRA_API_KEY"))
     if not CLAUDE_OUTPUT:
