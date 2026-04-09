@@ -1,0 +1,15 @@
+version: v1
+name: test git pipeline
+pipeline:
+  6cf390c7-5741-4a09-b77c-006dabeb5d05:
+    tasks:
+      a37fedbb-db7c-4d1a-8702-0c6d91e138db:
+        integration: ORCHESTRA
+        integration_job: APPROVAL
+        parameters: {}
+        depends_on: []
+        name: ddfdf
+    depends_on: []
+    name: group
+webhook:
+  enabled: false
