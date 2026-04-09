@@ -38,14 +38,17 @@ async def main(prompt: str, tools: list[str] = ["Read", "Edit", "Glob"], github_
     async for message in query(
         prompt=f"""{prompt}""",
         options=ClaudeAgentOptions(
+            model="claude-haiku-4-5",
             allowed_tools=tools,
             system_prompt="""You are an autonomous agent. Always look for missing info in environment variables. If you lack enough context after this, raise an error. Do not use the AskUserQuestion tool""",
             permission_mode="bypassPermissions",
             env={"CLAUDE_CODE_MAX_OUTPUT_TOKENS": "2048"},
-            max_turns=5
+            max_turns=5,
+            setting_sources=[]
         ),
     ):
         if isinstance(message, AssistantMessage):
+            print("Usage: ", message.usage)
             for block in message.content:
                 if hasattr(block, "text"):
                     print(block.text)
