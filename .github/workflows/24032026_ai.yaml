@@ -23,18 +23,17 @@ jobs:
     environment: production
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4 
-      - name: Run dbt in stage
+        uses: actions/checkout@v4  
+      - name: Run impact analysis
         uses: orchestra-hq/run-pipeline@v1
         with:
           api_key: ${{ secrets.ORCHESTRA_API_KEY }}
-          pipeline_id: 56198c16-de65-4b08-a566-7d69cff12501
+          pipeline_id: dcf31335-c158-41a2-8626-6c901841bc3e
           poll_interval: 20
           environment: ${{ github.event_name == 'pull_request' && 'Staging' || 'Production' }}
-          task_ids: 21ce3ced-4acc-4380-b122-24806e6c4243
           run_inputs: |
-            {
-              "dbt_command": " build -s state:modified+ --defer --state latest_production --exclude tag:metadata",
-              "dbt_branch": "${{ github.head_ref }}"
-            }
-        
+                {
+                  "branch": "${{ github.head_ref || github.ref_name }}",
+                  "repo": "${{ github.repository }}",
+                  "pr_number": "${{ github.event.pull_request.number || '' }}"
+                }
