@@ -12,7 +12,7 @@ def load_pipeline_with_named_ranges(spreadsheet_url_or_id: str, range_names:str=
         pipeline_name="snowflake_dlt_demo_pipeline",
         destination='snowflake',
         dev_mode=False,
-    
+        dataset_name="PUBLIC",
         refresh = drop_mode,
         
     )
