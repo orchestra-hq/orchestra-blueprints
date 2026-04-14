@@ -11,7 +11,7 @@ pipeline:
         depends_on: []
         name: Sync Oil Data
         alerts:
-        - name: Salck complete test
+        - name: Slack complete test
           statuses:
           - ANY_COMPLETED
           destinations:
