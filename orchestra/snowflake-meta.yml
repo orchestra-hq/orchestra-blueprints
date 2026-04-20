@@ -46,6 +46,15 @@ pipeline:
         name: Check data
         connection: snowflake__prod__80122
         treat_failure_as_warning: true
+      2eb82923-5892-4c14-921d-a8a85afde545:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: execute task ${{ MATRIX.gsheets['TABLE_NAME'] }}_TASK;
+          set_outputs: false
+        depends_on:
+        - 00a86786-65c4-48df-8074-a2dfdd4e7dbb
+        name: Insert Data
     depends_on: []
     name: ''
     matrix:
@@ -66,8 +75,12 @@ pipeline:
           commands: dbt build
           package_manager: PIP
           python_version: '3.12'
+          use_state_orchestration: true
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
         depends_on: []
         name: run dbt
+        connection: dbt_snowflake_blueprints_prod_07025
     depends_on:
     - 3459fb19-f081-43ca-8997-f7f2d54d331d
     name: group
