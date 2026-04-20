@@ -79,7 +79,6 @@ pipeline:
           use_state_orchestration: true
           project_dir: dbt_projects/snowflake
           shallow_clone_dirs: dbt_projects/snowflake
-          environment_variables: '{"DBT_SCHEMA": "${{ ENV.DBT_SCHEMA }}"}'
         depends_on: []
         name: run dbt
         connection: dbt_snowflake_blueprints_prod_07025
