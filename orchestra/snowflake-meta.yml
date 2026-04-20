@@ -55,6 +55,7 @@ pipeline:
         depends_on:
         - 00a86786-65c4-48df-8074-a2dfdd4e7dbb
         name: Insert Data
+        treat_failure_as_warning: true
     depends_on: []
     name: ''
     matrix:
