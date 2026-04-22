@@ -59,5 +59,6 @@ vars:
   snowplow_unified:
     snowplow__license_accepted: true
     snowplow__atomic_schema: PUBLIC
+    snowplow__database: "{{ env_var('DBT_SNOWPLOW_DB', 'SNOWFLAKE_WORKING') }}"
     snowplow__enable_web: true
     snowplow__enable_mobile: false
