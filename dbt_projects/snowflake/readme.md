@@ -3,8 +3,15 @@ Welcome to your new dbt project!
 ### Using the starter project
 
 Try running the following commands:
-- dbt run
-- dbt test
+- dbt deps
+- dbt parse --profiles-dir .
+- dbt run --profiles-dir .
+
+To run against your Snowflake account, set:
+- `SNOWFLAKE_ACCOUNT`
+- `SNOWFLAKE_USER`
+- `SNOWFLAKE_PASSWORD`
+- optional: `SNOWFLAKE_ROLE`, `SNOWFLAKE_DATABASE`, `SNOWFLAKE_WAREHOUSE`, `SNOWFLAKE_SCHEMA`
 
 
 ### Resources:

@@ -9,6 +9,10 @@ config-version: 2
 # This setting configures which "profile" dbt uses for this project.
 profile: 'snowflake_airflow_dbt'
 
+dispatch:
+  - macro_namespace: dbt
+    search_order: ['snowplow_utils', 'dbt']
+
 # These configurations specify where dbt should look for different types of files.
 # The `model-paths` config, for example, states that models in this project can be
 # found in the "models/" directory. You probably won't need to change these!
@@ -50,3 +54,11 @@ models:
     production:
       +materialized: table
       schema: prod
+
+vars:
+  snowplow_unified:
+    snowplow__license_accepted: true
+    snowplow__atomic_schema: PUBLIC
+    snowplow__database: SNOWFLAKE_WORKING
+    snowplow__enable_web: true
+    snowplow__enable_mobile: false
