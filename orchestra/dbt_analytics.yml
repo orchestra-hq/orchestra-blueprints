@@ -1,0 +1,222 @@
+version: v1
+name: 'Internal: end-to-end pipeline'
+pipeline:
+  ingestion:
+    tasks:
+      fivetran_ingestion:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: ${{ MATRIX.fivetran_ids }}
+        depends_on: []
+        name: Ingest
+        connection: fivetran_prod_09433
+      dlt_ingestion:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          set_outputs: false
+          source: GIT
+          command: python run.py
+          project_dir: python/dlt/attio
+        depends_on: []
+        name: Attio DLT
+        connection: python_dlt_42318
+        alerts:
+        - name: Analytics Ingestion Failed
+          statuses:
+          - FAILED
+          destinations:
+          - integration: SLACK
+            destination: ${{ ENV.ALERT_SLACK_CHANNEL }}
+            connection_id: slack_22009
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        fivetran_ids:
+        - towering_bethought
+        - memoranda_ing
+  dbt_core:
+    tasks:
+      run_dbt:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt ${{ inputs.dbt_command }} --target ${{ ENV.DBT_TARGET }}
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: ${{ inputs.dbt_branch }}
+        depends_on: []
+        name: execute dbt
+        connection: dbt_core_bigquery_production_04081
+        operation_metadata:
+          ecafca47-f0f3-4825-975c-4e1f695c1186:
+            integration: GCP_BIG_QUERY
+            connection: bigquery_production_88096
+        alerts:
+        - name: dbt Failed
+          statuses:
+          - FAILED
+          destinations:
+          - integration: SLACK
+            destination: ${{ ENV.ALERT_SLACK_CHANNEL }}
+            connection_id: slack_22009
+    depends_on:
+    - dbt_core_snapshot
+    name: ''
+  bi_refresh:
+    tasks:
+      refresh_lightdash:
+        integration: LIGHTDASH
+        integration_job: LIGHTDASH_REFRESH_DASHBOARD
+        parameters:
+          dashboard_id: 23e12d2e-6b3c-43e7-9cf6-fab399a421ec
+        depends_on: []
+        name: Refresh Lightdash
+        connection: production___orchestra_58515
+    depends_on:
+    - dbt_core
+    name: ''
+  dbt_core_snapshot:
+    tasks:
+      run_dbt_snapshot:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt snapshot --target ${{ ENV.DBT_TARGET }}
+          package_manager: PIP
+          python_version: '3.12'
+          branch: ${{ inputs.dbt_branch }}
+        depends_on: []
+        name: dbt Snapshot
+        connection: dbt_core_bigquery_production_04081
+        operation_metadata:
+          b0540026-4935-4714-b264-5de4d60d80af:
+            integration: GCP_BIG_QUERY
+            connection: bigquery_production_88096
+        treat_failure_as_warning: true
+    depends_on:
+    - ingestion
+    name: ''
+  parse_outputs:
+    tasks:
+      parse_dbt_manifest:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install orchestra-sdk requests
+          set_outputs: true
+          source: INLINE
+          code: "import json\nimport os\nimport sys\n\nimport requests\nfrom orchestra_sdk.orchestra\
+            \ import OrchestraSDK\n\nDOWNLOAD_URL = (\n    \"https://app.getorchestra.io/api/engine/public/pipeline_runs/{}/task_runs/{}/artifacts/download\"\
+            \n)\napi_key = os.environ[\"ORCHESTRA_API_KEY\"]\norchestra = OrchestraSDK(api_key=api_key)\n\
+            \n\ndef download_file(url: str, filename: str) -> dict:\n    try:\n  \
+            \      response = requests.get(url, headers={\"Authorization\": f\"Bearer\
+            \ {api_key}\"})\n        response.raise_for_status()\n        return response.json()\n\
+            \    except requests.RequestException as e:\n        print(f\"Error downloading\
+            \ {filename}: {e}\", file=sys.stderr)\n        raise\n    except json.JSONDecodeError\
+            \ as e:\n        print(f\"Error parsing JSON from {filename}: {e}\", file=sys.stderr)\n\
+            \        raise\n\n\ndef main(pipeline_run_id: str, task_run_id: str):\n\
+            \    #\_Note: will not work with multiple command dbt Core runs.\n   \
+            \ manifest_url = f\"{DOWNLOAD_URL.format(pipeline_run_id, task_run_id)}?filename=manifest.json\"\
+            \n    run_results_url = (\n        f\"{DOWNLOAD_URL.format(pipeline_run_id,\
+            \ task_run_id)}?filename=run_results_1.json\"\n    )\n\n    try:\n   \
+            \     print(f\"Downloading manifest.json from: {manifest_url}\")\n   \
+            \     manifest_data = download_file(manifest_url, \"manifest.json\")\n\
+            \        manifest_data.pop(\"metadata\")\n        manifest_data.pop(\"\
+            macros\")\n        print(f\"Downloading run_results.json from: {run_results_url}\"\
+            )\n        run_results_data = download_file(run_results_url, \"run_results_1.json\"\
+            )\n        print(\"Successfully downloaded both files\")\n        orchestra.set_output(\n\
+            \            name=\"manifest\",\n            value=manifest_data,\n  \
+            \      )\n        orchestra.set_output(\n            name=\"run_results\"\
+            ,\n            value=run_results_data,\n        )\n        print(\"Successfully\
+            \ stored outputs in Orchestra\")\n    except Exception as e:\n       \
+            \ print(f\"Script failed: {e}\", file=sys.stderr)\n        sys.exit(1)\n\
+            \n\nif __name__ == \"__main__\":\n    pipeline_run_id = \"${{ ORCHESTRA.PIPELINE_RUN_ID\
+            \ }}\"\n    task_run_id = \"${{ ORCHESTRA.PIPELINE_RUN_TASKS['run_dbt'].task_run_id\
+            \ }}\"\n    main(pipeline_run_id, task_run_id)\n"
+        depends_on: []
+        name: Get manifest and run results
+    depends_on:
+    - dbt_core
+    condition: ${{ task_groups['dbt_core'].any().status == 'FAILED' }}
+    name: ''
+  dbt_core_evaluator:
+    tasks:
+      run_dbt_project_evaluator:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt run --select package:dbt_project_evaluator --target ${{ ENV.DBT_TARGET
+            }}
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: Run Project Evaluator
+        connection: dbt_core_bigquery_production_04081
+    depends_on:
+    - dbt_core
+    name: ''
+  open_ai:
+    tasks:
+      5f6497e8-9fbb-436d-bb2c-04a3fccbafd0:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: UV
+          python_version: '3.12'
+          build_command: uv init && uv add claude-agent-sdk==0.1.48
+          environment_variables: '{
+
+            "CLAUDE_PROMPT": "You are provide a dbt run results and manifest file,
+            you also have the entire dbt Github repo, fix any issues found in the
+            dbt results, errors only not warnings, and open a pull request with the
+            changes. After making all necessary changes: 1. Run: git checkout -b test/claude-agent
+            2. Run: git add -u 3. Run: git commit -m ''''''''fix: automated fixes
+            by Claude'''''''' 4. Run: git push origin test/claude-agent 5. Run: gh
+            pr create --title ''''''''Fix - Claude fixes for dbt'''''''' --body ''''''''##
+            Changes\n\nAutomated fixes applied by Claude agent.\n\n### Files changed\n$(git
+            diff main...HEAD --name-only)'''''''' --base main       Use the Bash tool
+            to run each git/gh command.",
+
+            "TOOLS": "Read,Edit,Glob,Bash",
+
+            "GITHUB_REPO": "orchestra-hq/data-dbt-bigquery"
+
+            }'
+          set_outputs: false
+          source: GIT
+          command: python agent.py
+          project_dir: python
+        depends_on: []
+        name: Fix with Claude
+        connection: claude_agent_32433
+    depends_on:
+    - parse_outputs
+    name: ''
+schedule:
+- name: Daily at 5am (UTC)
+  cron: 0 5 ? * * *
+  timezone: UTC
+- name: Hourly Through the Day
+  cron: 0 8-19 ? * 2-6 *
+  timezone: UTC
+  environment: 170dcbbe-76b3-47aa-ab9e-8e6c8e3e108b
+webhook:
+  enabled: false
+configuration:
+  retries: 2
+inputs:
+  dbt_branch:
+    type: string
+    default: main
+  dbt_command:
+    type: string
+    default: build --select models tag:daily
