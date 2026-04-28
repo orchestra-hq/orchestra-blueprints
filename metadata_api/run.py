@@ -45,6 +45,7 @@ orchestra_api_source = rest_api_source(
                 "endpoint": {
                     "paginator": PageNumberPaginator(base_page=1),
                 },
+                "primary_key": "assetId",
             },
         ],
     }
