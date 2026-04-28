@@ -57,7 +57,10 @@ def orchestra_metadata_api_dlt_pipeline(warehouse: str) -> None:
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print(f"Usage: python {sys.argv[0]} <warehouse>")
+        print(
+            f"Usage: python {sys.argv[0]} <warehouse> "
+            "(e.g. snowflake, bigquery, mssql, motherduck)"
+        )
         sys.exit(1)
 
     orchestra_metadata_api_dlt_pipeline(sys.argv[1])
