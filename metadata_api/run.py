@@ -40,6 +40,12 @@ orchestra_api_source = rest_api_source(
                     "paginator": PageNumberPaginator(base_page=1),
                 },
             },
+            {
+                "name": "assets",
+                "endpoint": {
+                    "paginator": PageNumberPaginator(base_page=1),
+                },
+            },
         ],
     }
 )
