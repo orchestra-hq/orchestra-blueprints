@@ -5,7 +5,7 @@ You can easily extract all the metadata from Orchestra into your warehouse. We w
 1. Copy this `metadata_api` folder to your repo. You will need the `.dlt` folder, `requirements.txt`, and `run.py` files.
 2. Create a [Python integration](https://docs.getorchestra.io/docs/integrations/python/) to execute the dlt script. Ensure you have secrets provisioned - they should follow the dlt schema for adding secrets.
 
-An example for Snowflake, BigQuery, and MySQL are below. Do not forget to add your Orchestra API Token to the `secrets.json` section of the credential as well.
+Examples for Snowflake, BigQuery, MySQL, and MotherDuck are below. Do not forget to add your Orchestra API Token to the `secrets.json` section of the credential as well.
 
 Snowflake:
 
@@ -46,6 +46,17 @@ BigQuery:
     "DESTINATION__BIGQUERY__CREDENTIALS__PROJECT_ID": "orchestrametadatastore",
     "DESTINATION__BIGQUERY__CREDENTIALS__PRIVATE_KEY": "-----BEGIN PRIVATE KEY-----\nALONGSTRING\n-----END PRIVATE KEY-----\n",
     "DESTINATION__BIGQUERY__CREDENTIALS__CLIENT_EMAIL": "someuser@someaccount.iam.gserviceaccount.com",
+    "ORCHESTRA_API_TOKEN" : "your_api_token"
+}
+```
+
+MotherDuck:
+
+Use `motherduck` as the warehouse argument when running `run.py`.
+
+```json
+{
+    "DESTINATION__MOTHERDUCK__CREDENTIALS": "md:///orchestra_metadata_app?motherduck_token=YOUR_MOTHERDUCK_TOKEN",
     "ORCHESTRA_API_TOKEN" : "your_api_token"
 }
 ```

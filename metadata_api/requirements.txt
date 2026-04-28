@@ -1,4 +1,5 @@
 dlt
 dlt[bigquery]
 dlt[mssql]
+dlt[motherduck]
 dlt[snowflake]
