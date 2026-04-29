@@ -21,6 +21,7 @@ Example using remote HTTP/SSE MCP servers (per Claude Agent SDK docs):
 ```bash
 export LIGHTDASH_TOKEN="ld_pat_xxx"
 export GITHUB_TOKEN="ghp_xxx"
+export ORCHESTRA_API_KEY="orch_xxx"
 
 export MCP_SERVERS_JSON='{
   "lightdash": {
@@ -35,6 +36,14 @@ export MCP_SERVERS_JSON='{
     "url": "https://your-github-mcp.example.com/sse",
     "headers": {
       "Authorization": "Bearer ${GITHUB_TOKEN}"
+    }
+  },
+  "orchestra": {
+    "type": "stdio",
+    "command": "python",
+    "args": ["-m", "orchestramcp.server"],
+    "env": {
+      "ORCHESTRA_API_KEY": "${ORCHESTRA_API_KEY}"
     }
   },
   "my_custom_server": {
