@@ -36,7 +36,7 @@ async def main(
             print(f"Done: {message.subtype}")
 
     orchestra = OrchestraSDK(api_key=orchestra_api_key)
-    orchestra.update_task(status=TaskRunStatus.SUCCESS)
+    orchestra.update_task(status=TaskRunStatus.SUCCEEDED)
 
 
 if __name__ == "__main__":
