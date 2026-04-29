@@ -1,32 +1,10 @@
 import asyncio
 import json
 import os
-import re
 
 from claude_agent_sdk import AssistantMessage, ClaudeAgentOptions, ResultMessage, query
 from orchestra_sdk.enum import TaskRunStatus
 from orchestra_sdk.orchestra import OrchestraSDK
-
-
-def _interpolate_env_vars(value: object) -> object:
-    if isinstance(value, dict):
-        return {k: _interpolate_env_vars(v) for k, v in value.items()}
-    if isinstance(value, list):
-        return [_interpolate_env_vars(item) for item in value]
-    if isinstance(value, str):
-        pattern = re.compile(r"\$\{([A-Z0-9_]+)\}")
-
-        def replace(match: re.Match[str]) -> str:
-            env_name = match.group(1)
-            env_value = os.getenv(env_name)
-            if env_value is None:
-                raise RuntimeError(
-                    f"MCP_SERVERS_JSON references unset environment variable: {env_name}"
-                )
-            return env_value
-
-        return pattern.sub(replace, value)
-    return value
 
 
 async def main(
@@ -72,18 +50,9 @@ if __name__ == "__main__":
 
     mcp_servers_json = os.getenv("MCP_SERVERS_JSON")
     if mcp_servers_json:
-        try:
-            parsed_mcp_servers = json.loads(mcp_servers_json)
-        except json.JSONDecodeError as error:
-            raise RuntimeError(
-                f"MCP_SERVERS_JSON must be valid JSON: {error.msg}"
-            ) from error
-        if not isinstance(parsed_mcp_servers, dict) or not parsed_mcp_servers:
-            raise RuntimeError("MCP_SERVERS_JSON must be a non-empty JSON object")
-        interpolated_mcp_servers = _interpolate_env_vars(parsed_mcp_servers)
-        if not isinstance(interpolated_mcp_servers, dict):
-            raise RuntimeError("MCP_SERVERS_JSON must decode into an object")
-        mcp_servers: dict[str, dict[str, object]] = interpolated_mcp_servers
+        mcp_servers = json.loads(mcp_servers_json)
+        if not isinstance(mcp_servers, dict):
+            raise RuntimeError("MCP_SERVERS_JSON must parse to an object")
     else:
         lightdash_api_key = os.getenv("LIGHTDASH_API_KEY")
         if not lightdash_api_key:
