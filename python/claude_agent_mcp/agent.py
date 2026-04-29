@@ -49,59 +49,12 @@ if __name__ == "__main__":
         raise RuntimeError("Missing required environment variable: ORCHESTRA_API_KEY")
 
     mcp_servers_json = os.getenv("MCP_SERVERS_JSON")
-    if mcp_servers_json:
-        mcp_servers = json.loads(mcp_servers_json)
-        if not isinstance(mcp_servers, dict):
-            raise RuntimeError("MCP_SERVERS_JSON must parse to an object")
-    else:
-        lightdash_api_key = os.getenv("LIGHTDASH_API_KEY")
-        if not lightdash_api_key:
-            raise RuntimeError("Missing required environment variable: LIGHTDASH_API_KEY")
+    if not mcp_servers_json:
+        raise RuntimeError("Missing required environment variable: MCP_SERVERS_JSON")
 
-        lightdash_api_url = os.getenv("LIGHTDASH_API_URL")
-        if not lightdash_api_url:
-            raise RuntimeError("Missing required environment variable: LIGHTDASH_API_URL")
-
-        github_token = os.getenv("GITHUB_TOKEN")
-        if not github_token:
-            raise RuntimeError("Missing required environment variable: GITHUB_TOKEN")
-
-        lightdash_command = os.getenv("LIGHTDASH_MCP_COMMAND", "npx")
-        lightdash_args = [
-            item.strip()
-            for item in os.getenv(
-                "LIGHTDASH_MCP_ARGS", "-y,lightdash-mcp-server"
-            ).split(",")
-            if item.strip()
-        ]
-        github_command = os.getenv("GITHUB_MCP_COMMAND", "npx")
-        github_args = [
-            item.strip()
-            for item in os.getenv(
-                "GITHUB_MCP_ARGS", "-y,@modelcontextprotocol/server-github"
-            ).split(",")
-            if item.strip()
-        ]
-
-        mcp_servers = {
-            "lightdash": {
-                "type": "stdio",
-                "command": lightdash_command,
-                "args": lightdash_args,
-                "env": {
-                    "LIGHTDASH_API_KEY": lightdash_api_key,
-                    "LIGHTDASH_API_URL": lightdash_api_url,
-                },
-            },
-            "github": {
-                "type": "stdio",
-                "command": github_command,
-                "args": github_args,
-                "env": {
-                    "GITHUB_TOKEN": github_token,
-                },
-            },
-        }
+    mcp_servers = json.loads(mcp_servers_json)
+    if not isinstance(mcp_servers, dict) or not mcp_servers:
+        raise RuntimeError("MCP_SERVERS_JSON must parse to a non-empty object")
 
     tools = [item.strip() for item in os.getenv("TOOLS", "").split(",") if item.strip()]
     if not tools:

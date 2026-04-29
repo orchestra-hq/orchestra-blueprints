@@ -8,8 +8,7 @@ The entrypoint is `python/claude_agent_mcp/agent.py`.
 
 You can configure MCP servers in two ways:
 
-1. `MCP_SERVERS_JSON` (recommended): pass a JSON object of servers.
-2. Built-in fallback: if `MCP_SERVERS_JSON` is not set, the script builds default `lightdash` + `github` servers from env vars.
+1. `MCP_SERVERS_JSON`: pass a JSON object of servers.
 
 `ORCHESTRA_API_KEY` is always required for task status updates.
 
@@ -49,7 +48,7 @@ export MCP_SERVERS_JSON='{
 ```
 
 For non-streaming remote servers, use `"type": "http"`. For streaming endpoints, use `"type": "sse"`.
-The agent resolves `${ENV_VAR}` placeholders in `MCP_SERVERS_JSON` at runtime, so credentials can come from your pipeline secret environment.
+Set credentials in your pipeline environment and inject them into the `MCP_SERVERS_JSON` string before execution.
 
 ## Tool allowlist behavior
 
@@ -65,25 +64,13 @@ This means new MCPs are available automatically when added to `MCP_SERVERS_JSON`
 Always required:
 
 - `ORCHESTRA_API_KEY`
-
-Required only when not using `MCP_SERVERS_JSON`:
-
-- `LIGHTDASH_API_KEY`
-- `LIGHTDASH_API_URL`
-- `GITHUB_TOKEN`
+- `MCP_SERVERS_JSON`
 
 ## Optional env vars
 
 - `CLAUDE_PROMPT`: task prompt passed to Claude.
 - `TOOLS`: comma-separated allowed tools.
 - `CLAUDE_MODEL`: if set, exported to `ANTHROPIC_MODEL`.
-
-Fallback-mode only (when `MCP_SERVERS_JSON` is not provided):
-
-- `LIGHTDASH_MCP_COMMAND` (default: `npx`)
-- `LIGHTDASH_MCP_ARGS` (default: `-y,lightdash-mcp-server`)
-- `GITHUB_MCP_COMMAND` (default: `npx`)
-- `GITHUB_MCP_ARGS` (default: `-y,@modelcontextprotocol/server-github`)
 
 ## Notes for pipeline usage
 
