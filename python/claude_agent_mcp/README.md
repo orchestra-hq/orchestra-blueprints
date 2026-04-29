@@ -17,44 +17,46 @@ You can configure MCP servers in two ways:
 
 Use `MCP_SERVERS_JSON` and add a new top-level server key.
 
-Example:
+Example using remote HTTP/SSE MCP servers (per Claude Agent SDK docs):
 
 ```bash
+export LIGHTDASH_TOKEN="ld_pat_xxx"
+export GITHUB_TOKEN="ghp_xxx"
+
 export MCP_SERVERS_JSON='{
   "lightdash": {
-    "type": "stdio",
-    "command": "npx",
-    "args": ["-y", "lightdash-mcp-server"],
-    "env": {
-      "LIGHTDASH_API_KEY": "your-lightdash-key",
-      "LIGHTDASH_API_URL": "https://your-lightdash-instance/api/v1"
+    "type": "http",
+    "url": "https://your-lightdash-mcp.example.com/mcp",
+    "headers": {
+      "Authorization": "Bearer ${LIGHTDASH_TOKEN}"
     }
   },
   "github": {
-    "type": "stdio",
-    "command": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-github"],
-    "env": {
-      "GITHUB_TOKEN": "your-github-token"
+    "type": "sse",
+    "url": "https://your-github-mcp.example.com/sse",
+    "headers": {
+      "Authorization": "Bearer ${GITHUB_TOKEN}"
     }
   },
   "my_custom_server": {
-    "type": "stdio",
-    "command": "npx",
-    "args": ["-y", "my-mcp-server-package"],
-    "env": {
-      "MY_API_KEY": "your-api-key"
+    "type": "http",
+    "url": "https://my-custom-mcp.example.com/mcp",
+    "headers": {
+      "Authorization": "Bearer ${MY_CUSTOM_TOKEN}"
     }
   }
 }'
 ```
 
+For non-streaming remote servers, use `"type": "http"`. For streaming endpoints, use `"type": "sse"`.
+The agent resolves `${ENV_VAR}` placeholders in `MCP_SERVERS_JSON` at runtime, so credentials can come from your pipeline secret environment.
+
 ## Tool allowlist behavior
 
 - If `TOOLS` is set, it is used as-is (comma-separated list).
 - If `TOOLS` is not set, the script auto-enables one tool namespace per configured MCP server:
-  - server `lightdash` -> tool prefix `mcp__lightdash`
-  - server `my_custom_server` -> tool prefix `mcp__my_custom_server`
+  - server `lightdash` -> `mcp__lightdash__*`
+  - server `my_custom_server` -> `mcp__my_custom_server__*`
 
 This means new MCPs are available automatically when added to `MCP_SERVERS_JSON`.
 

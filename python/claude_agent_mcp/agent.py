@@ -1,10 +1,32 @@
 import asyncio
 import json
 import os
+import re
 
 from claude_agent_sdk import AssistantMessage, ClaudeAgentOptions, ResultMessage, query
 from orchestra_sdk.enum import TaskRunStatus
 from orchestra_sdk.orchestra import OrchestraSDK
+
+
+def _interpolate_env_vars(value: object) -> object:
+    if isinstance(value, dict):
+        return {k: _interpolate_env_vars(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_interpolate_env_vars(item) for item in value]
+    if isinstance(value, str):
+        pattern = re.compile(r"\$\{([A-Z0-9_]+)\}")
+
+        def replace(match: re.Match[str]) -> str:
+            env_name = match.group(1)
+            env_value = os.getenv(env_name)
+            if env_value is None:
+                raise RuntimeError(
+                    f"MCP_SERVERS_JSON references unset environment variable: {env_name}"
+                )
+            return env_value
+
+        return pattern.sub(replace, value)
+    return value
 
 
 async def main(
@@ -58,7 +80,10 @@ if __name__ == "__main__":
             ) from error
         if not isinstance(parsed_mcp_servers, dict) or not parsed_mcp_servers:
             raise RuntimeError("MCP_SERVERS_JSON must be a non-empty JSON object")
-        mcp_servers: dict[str, dict[str, object]] = parsed_mcp_servers
+        interpolated_mcp_servers = _interpolate_env_vars(parsed_mcp_servers)
+        if not isinstance(interpolated_mcp_servers, dict):
+            raise RuntimeError("MCP_SERVERS_JSON must decode into an object")
+        mcp_servers: dict[str, dict[str, object]] = interpolated_mcp_servers
     else:
         lightdash_api_key = os.getenv("LIGHTDASH_API_KEY")
         if not lightdash_api_key:
@@ -112,7 +137,7 @@ if __name__ == "__main__":
     tools = [item.strip() for item in os.getenv("TOOLS", "").split(",") if item.strip()]
     if not tools:
         # Keep this MCP-only by default for deterministic automation.
-        tools = [f"mcp__{server_name}" for server_name in mcp_servers.keys()]
+        tools = [f"mcp__{server_name}__*" for server_name in mcp_servers.keys()]
 
     claude_model = os.getenv("CLAUDE_MODEL")
 
