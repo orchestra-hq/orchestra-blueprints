@@ -114,13 +114,14 @@ Notes:
 Always required:
 
 - `ORCHESTRA_API_KEY`
-- `MCP_SERVERS_JSON`
 
 ## Optional env vars
 
 - `CLAUDE_PROMPT`: task prompt passed to Claude.
 - `TOOLS`: comma-separated allowed tools.
 - `CLAUDE_MODEL`: if set, exported to `ANTHROPIC_MODEL`.
+- `MCP_SERVERS_JSON`: optional JSON object of MCP servers.
+- `AGENTS_JSON`: optional JSON object of subagent definitions (`AgentDefinition` per key).
 
 ## Notes for pipeline usage
 

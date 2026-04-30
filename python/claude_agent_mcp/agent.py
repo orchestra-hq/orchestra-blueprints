@@ -17,7 +17,7 @@ async def main(
     prompt: str,
     tools: list[str],
     orchestra_api_key: str,
-    mcp_servers: dict[str, dict[str, object]],
+    mcp_servers: dict[str, dict[str, object]] | None = None,
     agents: dict[str, AgentDefinition] | None = None,
 ) -> None:
     options = ClaudeAgentOptions(
@@ -29,7 +29,7 @@ async def main(
             "If critical data is missing, fail with a clear error."
         ),
         permission_mode="bypassPermissions",
-        mcp_servers=mcp_servers,
+        mcp_servers=mcp_servers or {},
         agents=agents,
     )
 
@@ -50,19 +50,19 @@ async def main(
 if __name__ == "__main__":
     prompt = os.getenv(
         "CLAUDE_PROMPT",
-        "Use configured MCP servers to complete the task and return concise machine-readable output.",
+        "Use configured tools to complete the task and return concise machine-readable output.",
     )
     orchestra_api_key = os.getenv("ORCHESTRA_API_KEY")
     if not orchestra_api_key:
         raise RuntimeError("Missing required environment variable: ORCHESTRA_API_KEY")
 
-    mcp_servers_json = os.getenv("MCP_SERVERS_JSON")
-    if not mcp_servers_json:
-        raise RuntimeError("Missing required environment variable: MCP_SERVERS_JSON")
-
-    mcp_servers = json.loads(mcp_servers_json)
-    if not isinstance(mcp_servers, dict) or not mcp_servers:
-        raise RuntimeError("MCP_SERVERS_JSON must parse to a non-empty object")
+    mcp_servers_json = os.getenv("MCP_SERVERS_JSON", "").strip()
+    mcp_servers: dict[str, dict[str, object]] = {}
+    if mcp_servers_json:
+        parsed_mcp_servers = json.loads(mcp_servers_json)
+        if not isinstance(parsed_mcp_servers, dict):
+            raise RuntimeError("MCP_SERVERS_JSON must parse to an object")
+        mcp_servers = parsed_mcp_servers
 
     agents_json = os.getenv("AGENTS_JSON", "").strip()
     agents: dict[str, AgentDefinition] | None = None
@@ -91,11 +91,17 @@ if __name__ == "__main__":
                     f"AGENTS_JSON['{agent_name}'].prompt must be a non-empty string"
                 )
 
-            agents[agent_name] = AgentDefinition(**agent_config)
+            try:
+                agents[agent_name] = AgentDefinition(**agent_config)
+            except Exception as exc:
+                raise RuntimeError(
+                    f"Invalid AGENTS_JSON['{agent_name}'] AgentDefinition: {exc}. "
+                    "Use SDK field names (camelCase), e.g. disallowedTools, mcpServers, maxTurns, permissionMode."
+                ) from exc
 
     tools = [item.strip() for item in os.getenv("TOOLS", "").split(",") if item.strip()]
     if not tools:
-        # Keep this MCP-only by default for deterministic automation.
+        # If MCP servers are configured, default to MCP namespaces.
         tools = [f"mcp__{server_name}__*" for server_name in mcp_servers.keys()]
     if agents and "Agent" not in tools:
         tools.append("Agent")
