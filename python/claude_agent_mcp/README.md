@@ -68,6 +68,47 @@ Set credentials in your pipeline environment and inject them into the `MCP_SERVE
 
 This means new MCPs are available automatically when added to `MCP_SERVERS_JSON`.
 
+## Configure subagents with `AGENTS_JSON`
+
+You can define Claude SDK subagents as a JSON object and pass it via `AGENTS_JSON`.
+Each top-level key is the subagent name, and each value is an `AgentDefinition` object.
+
+Example:
+
+```bash
+export ORCHESTRA_API_KEY="orch_xxx"
+export MCP_SERVERS_JSON='{
+  "orchestra": {
+    "type": "stdio",
+    "command": "python",
+    "args": ["-m", "orchestramcp.server"],
+    "env": {
+      "ORCHESTRA_API_KEY": "${ORCHESTRA_API_KEY}"
+    }
+  }
+}'
+
+export AGENTS_JSON='{
+  "code-reviewer": {
+    "description": "Expert code review specialist for quality and security checks.",
+    "prompt": "Review code for correctness, security issues, and maintainability risks. Return concise findings.",
+    "tools": ["Read", "Grep", "Glob"],
+    "model": "sonnet"
+  },
+  "test-runner": {
+    "description": "Runs test commands and summarizes failures.",
+    "prompt": "Run test commands, analyze output, and suggest likely fixes for failing tests.",
+    "tools": ["Bash", "Read", "Grep"]
+  }
+}'
+```
+
+Notes:
+
+- `AGENTS_JSON` is optional. If unset, no custom subagents are configured.
+- If `AGENTS_JSON` is set, the script automatically adds the `Agent` tool to the allowlist if it is missing.
+- At minimum, each subagent must include non-empty `description` and `prompt` fields.
+
 ## Required env vars
 
 Always required:
