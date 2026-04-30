@@ -1,7 +1,6 @@
 import asyncio
 import json
 import os
-import re
 
 from claude_agent_sdk import (
     AgentDefinition,
@@ -12,54 +11,11 @@ from claude_agent_sdk import (
 )
 from orchestra_sdk.enum import TaskRunStatus
 from orchestra_sdk.orchestra import OrchestraSDK
-
-SET_OUTPUT_TOOL_NAME = "orchestra_set_outputs"
-SET_OUTPUT_TOOL_PATTERN = re.compile(
-    r"TOOL_CALL\s+orchestra_set_outputs\s+(\{.*?\})", re.DOTALL
+from custom_tools import (
+    LOCAL_TOOL_SERVER_NAME,
+    SET_OUTPUT_TOOL_NAME,
+    build_orchestra_output_server,
 )
-
-
-def is_set_output_requested(prompt: str) -> bool:
-    """Return True only when the prompt explicitly includes the tool name."""
-    return SET_OUTPUT_TOOL_NAME in prompt
-
-
-def try_run_set_output_tool(
-    orchestra: OrchestraSDK, text: str, is_enabled: bool
-) -> int:
-    """
-    Parse and execute inline TOOL_CALL invocations from assistant text.
-
-    Expected format:
-    TOOL_CALL orchestra_set_outputs {"name":"KEY","value":"VALUE"}
-    """
-    match_count = 0
-    for match in SET_OUTPUT_TOOL_PATTERN.finditer(text):
-        payload = match.group(1)
-        if not is_enabled:
-            print(f"Tool: {SET_OUTPUT_TOOL_NAME} skipped (not requested in prompt)")
-            continue
-
-        try:
-            params = json.loads(payload)
-        except json.JSONDecodeError:
-            continue
-
-        name = params.get("name")
-        value = params.get("value")
-        if not isinstance(name, str) or not name.strip():
-            continue
-
-        if isinstance(value, (dict, list)):
-            serialized_value = json.dumps(value)
-        else:
-            serialized_value = "" if value is None else str(value)
-
-        orchestra.set_output(name=name, value=serialized_value)
-        print(f"Tool: {SET_OUTPUT_TOOL_NAME} (set '{name}')")
-        match_count += 1
-
-    return match_count
 
 
 async def main(
@@ -70,7 +26,13 @@ async def main(
     agents: dict[str, AgentDefinition] | None = None,
 ) -> None:
     orchestra = OrchestraSDK(api_key=orchestra_api_key)
-    set_output_enabled = is_set_output_requested(prompt)
+    set_output_enabled = SET_OUTPUT_TOOL_NAME in prompt
+    effective_mcp_servers = dict(mcp_servers or {})
+    effective_mcp_servers[LOCAL_TOOL_SERVER_NAME] = build_orchestra_output_server(
+        orchestra=orchestra,
+        set_output_enabled=set_output_enabled,
+    )
+
     options = ClaudeAgentOptions(
         allowed_tools=tools,
         system_prompt=(
@@ -80,13 +42,12 @@ async def main(
             "If critical data is missing, fail with a clear error.\n\n"
             "Custom tool available:\n"
             f"- {SET_OUTPUT_TOOL_NAME}(name: str, value: str|number|bool|object|array)\n"
-            "To call this tool, emit one line exactly in this format:\n"
-            'TOOL_CALL orchestra_set_outputs {"name":"OUTPUT_NAME","value":"OUTPUT_VALUE"}\n'
+            f"- Use tool name: mcp__{LOCAL_TOOL_SERVER_NAME}__{SET_OUTPUT_TOOL_NAME}\n"
             "Only call this when the user's prompt explicitly contains the text "
-            "'orchestra_set_outputs'. If it does not, do not call this tool."
+            "'orchestra_set_outputs'."
         ),
         permission_mode="bypassPermissions",
-        mcp_servers=mcp_servers or {},
+        mcp_servers=effective_mcp_servers,
         agents=agents,
     )
 
@@ -95,11 +56,6 @@ async def main(
             for block in message.content:
                 if hasattr(block, "text"):
                     print(block.text)
-                    try_run_set_output_tool(
-                        orchestra=orchestra,
-                        text=block.text,
-                        is_enabled=set_output_enabled,
-                    )
                 elif hasattr(block, "name"):
                     print(f"Tool: {block.name}")
         elif isinstance(message, ResultMessage):
@@ -164,6 +120,8 @@ if __name__ == "__main__":
     if not tools:
         # If MCP servers are configured, default to MCP namespaces.
         tools = [f"mcp__{server_name}__*" for server_name in mcp_servers.keys()]
+    if SET_OUTPUT_TOOL_NAME in prompt:
+        tools.append(f"mcp__{LOCAL_TOOL_SERVER_NAME}__{SET_OUTPUT_TOOL_NAME}")
     if agents and "Agent" not in tools:
         tools.append("Agent")
 

@@ -70,13 +70,14 @@ This means new MCPs are available automatically when added to `MCP_SERVERS_JSON`
 
 ## Built-in custom output tool
 
-`python/claude_agent_mcp/agent.py` includes a custom tool shim named `orchestra_set_outputs`
-that writes task outputs with the Orchestra Python SDK (`OrchestraSDK.set_output`).
+`python/claude_agent_mcp/custom_tools.py` defines a proper Agent SDK custom tool named
+`orchestra_set_outputs` using `@tool(...)`. `agent.py` imports it and registers it
+with an in-process MCP server via `create_sdk_mcp_server(...)`.
 
-Invocation format (from Claude output text):
+Fully-qualified tool name:
 
 ```text
-TOOL_CALL orchestra_set_outputs {"name":"OUTPUT_NAME","value":"OUTPUT_VALUE"}
+mcp__orchestra_local__orchestra_set_outputs
 ```
 
 Notes:
@@ -84,8 +85,7 @@ Notes:
 - `name` must be a non-empty string.
 - `value` accepts string/number/bool/object/array.
 - Objects/arrays are JSON-serialized before being saved as the task output value.
-- The tool call is parsed during assistant streaming output, so outputs are set immediately.
-- The tool is only enabled when the incoming `CLAUDE_PROMPT` contains the exact text `orchestra_set_outputs`.
+- The tool is only allowlisted when the incoming `CLAUDE_PROMPT` contains the exact text `orchestra_set_outputs`.
 
 ## Configure subagents with `AGENTS_JSON`
 
