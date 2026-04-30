@@ -68,6 +68,25 @@ Set credentials in your pipeline environment and inject them into the `MCP_SERVE
 
 This means new MCPs are available automatically when added to `MCP_SERVERS_JSON`.
 
+## Built-in custom output tool
+
+`python/claude_agent_mcp/agent.py` includes a custom tool shim named `orchestra_set_outputs`
+that writes task outputs with the Orchestra Python SDK (`OrchestraSDK.set_output`).
+
+Invocation format (from Claude output text):
+
+```text
+TOOL_CALL orchestra_set_outputs {"name":"OUTPUT_NAME","value":"OUTPUT_VALUE"}
+```
+
+Notes:
+
+- `name` must be a non-empty string.
+- `value` accepts string/number/bool/object/array.
+- Objects/arrays are JSON-serialized before being saved as the task output value.
+- The tool call is parsed during assistant streaming output, so outputs are set immediately.
+- The tool is only enabled when the incoming `CLAUDE_PROMPT` contains the exact text `orchestra_set_outputs`.
+
 ## Configure subagents with `AGENTS_JSON`
 
 You can define Claude SDK subagents as a JSON object and pass it via `AGENTS_JSON`.
