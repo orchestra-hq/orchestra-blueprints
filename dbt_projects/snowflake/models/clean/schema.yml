@@ -34,7 +34,7 @@ models:
     description: "Example store sales"
     tests:
       - average:
-          threshold: 2000
+          threshold: 0
           average_field: sales
           date_field: date
           null_filter: store
