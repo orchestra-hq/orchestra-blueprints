@@ -1,0 +1,432 @@
+version: v1
+name: '[Agentic Analytics Demo] Daily ELT Pipeline'
+pipeline:
+  dltTaskGroup:
+    tasks:
+      61d69e95-1cda-4f87-aa43-1d2d88ce6a2a:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          set_outputs: false
+          source: GIT
+          command: python run.py motherduck
+          project_dir: metadata_api
+          shallow_clone_dirs: metadata_api
+        depends_on: []
+        name: Run DLT
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: DLT Task Group
+  dbtCoreTaskGroup:
+    tasks:
+      dbtCoreTask:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: 'dbt build --vars ''{"orchestra_source_schema": "orchestra_metadata_app"}'''
+          package_manager: UV
+          python_version: '3.12'
+          use_state_orchestration: true
+        depends_on: []
+        name: dbt Core
+        connection: dbt_core_metadata_motherduck_22791
+    depends_on:
+    - dltTaskGroup
+    name: dbt Core Task Group
+  lightdashTaskGroup:
+    tasks:
+      lightdashTask:
+        integration: LIGHTDASH
+        integration_job: LIGHTDASH_REFRESH_DASHBOARD
+        parameters:
+          dashboard_id: e61e7779-2f75-44c7-b425-22ee1fadb0e5
+          invalidate_cache: false
+        depends_on: []
+        name: Lightdash Refresh
+        connection: lightdash__metadata___motherduck__82302
+    depends_on:
+    - dbtCoreTaskGroup
+    condition: ${{ task_groups['dbtCoreTaskGroup'].all().status == 'COMPLETED' }}
+    name: Lightdash Task Group
+  group:
+    tasks:
+      a20a8cde-2fb2-4d57-85c0-7ac798ab627f:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: UV
+          python_version: '3.12'
+          build_command: ' uv init && uv add claude-agent-sdk'
+          environment_variables: "{\n  \"TOOLS\": \"Read,Write,Edit,Glob,Bash,WebSearch,WebFetch\"\
+            ,\n  \"GITHUB_REPO\": \"gthesheep-orchestra/dbt-orchestra-metadata\",\n\
+            \  \"CLAUDE_PROMPT\": \"This dbt project has failed in this run, implement\
+            \ a code fix via Pull Request in the gthesheep-orchestra/dbt-orchestra-metadata\
+            \ Github repository, mark these pull requests as 'Failed dbt run fix'\
+            \ followed by a description of the fix. The issue to fix is: ${{ MATRIX.issue_to_fix['text']\
+            \ }}. Set the pull request link as the task output under key 'pull_request',\
+            \ and the pull request number as 'pull_request_number', using the orchestra_set_outputs\
+            \ tool.\",\n  \"MCP_SERVERS_JSON\": \"{\\\"github\\\":{\\\"type\\\":\\\
+            \"http\\\",\\\"url\\\":\\\"https://api.githubcopilot.com/mcp\\\",\\\"\
+            headers\\\":{\\\"Authorization\\\":\\\"Bearer ${GITHUB_TOKEN}\\\"}}}\"\
+            \n}"
+          set_outputs: true
+          source: GIT
+          command: python agent.py
+          project_dir: python/claude_agent_mcp
+          shallow_clone_dirs: python/claude_agent_mcp
+        depends_on: []
+        name: Data Eng Team
+        connection: python__production__blueprints__19239
+      0a1d6853-22b9-4c30-9409-01d6472ff3c2:
+        integration: ORCHESTRA
+        integration_job: APPROVAL
+        parameters:
+          message: 'Would you like to merge this pull request?
+
+
+            ${{ ORCHESTRA.PIPELINE_RUN_TASKS[''a20a8cde-2fb2-4d57-85c0-7ac798ab627f''].OUTPUTS[''pull_request'']
+            }}'
+          approvers:
+          - gary+prod@getorchestra.io
+          message_integration: SLACK
+          message_connection_id: default_00000
+          message_destination: '#alert-demos'
+        depends_on:
+        - a20a8cde-2fb2-4d57-85c0-7ac798ab627f
+        name: Merge Pull Request?
+    depends_on:
+    - 7260ed4e-047a-49fe-b41e-343e5e6f356b
+    condition: ${{ task_groups['7260ed4e-047a-49fe-b41e-343e5e6f356b'].all().status
+      == 'COMPLETED' }}
+    name: group
+    matrix:
+      inputs:
+        issue_to_fix: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['76839da0-4a7a-4b5e-a7a7-474b41c924a7'].OUTPUTS['results']['results']
+          }}
+  downloadArtifactsTaskGroup:
+    tasks:
+      a3f6524f-9887-4e9e-a747-348b6c81997a:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install requests
+          set_outputs: true
+          source: INLINE
+          code: "import json\nimport os\nimport sys\n\nimport requests\nfrom orchestra_sdk.orchestra\
+            \ import OrchestraSDK\n\nDOWNLOAD_URL = (\n \"https://app.getorchestra.io/api/engine/public/pipeline_runs/{}/task_runs/{}/logs/download?filename=1%2Fdebug_task\"\
+            \n)\napi_key = os.environ[\"ORCHESTRA_API_KEY\"]\norchestra = OrchestraSDK(api_key=api_key)\n\
+            \ndef download_file(url: str, filename: str) -> str:\n    try:\n     \
+            \   response = requests.get(url, headers={\"Authorization\": f\"Bearer\
+            \ {api_key}\"})\n        response.raise_for_status()\n        return response.text\n\
+            \    except requests.RequestException as e:\n        print(f\"Error downloading\
+            \ {filename}: {e}\", file=sys.stderr)\n        raise\n\ndef main(pipeline_run_id:\
+            \ str, task_run_id: str):\n    #\_Note: will not work with multiple command\
+            \ dbt Core runs.\n    logs_url = f\"{DOWNLOAD_URL.format(pipeline_run_id,\
+            \ task_run_id)}\"\n    try:\n        print(f\"Downloading logs from: {logs_url}\"\
+            )\n        logs = download_file(logs_url, \"logs.txt\")\n        print(\"\
+            Successfully downloaded logs\")\n        orchestra.set_output(\n     \
+            \       name=\"logs\",\n            value=json.dumps(logs),\n        )\n\
+            \        print(\"Successfully stored outputs in Orchestra\")\n    except\
+            \ Exception as e:\n        print(f\"Script failed: {e}\", file=sys.stderr)\n\
+            \        sys.exit(1)\n\n\nif __name__ == \"__main__\":\n    pipeline_run_id\
+            \ = \"${{ ORCHESTRA.PIPELINE_RUN_ID }}\"\n    task_run_id = \"${{ ORCHESTRA.PIPELINE_RUN_TASKS['dbtCoreTask'].TASK_RUN_ID\
+            \ }}\"\n    main(pipeline_run_id, task_run_id)"
+        depends_on: []
+        name: Download dbt Logs
+    depends_on:
+    - dbtCoreTaskGroup
+    condition: ${{ task_groups['dbtCoreTaskGroup'].any().status == 'FAILED' }}
+    name: Download Artifacts Task Group
+  7260ed4e-047a-49fe-b41e-343e5e6f356b:
+    tasks:
+      76839da0-4a7a-4b5e-a7a7-474b41c924a7:
+        integration: OPEN_AI
+        integration_job: OPEN_AI_CHAT
+        parameters:
+          prompt: 'Provide a list of issues for this dbt project based on the log
+            output of a failed run so that they can be fixed.
+
+
+            * Identify the failing tests and their relevant models.
+
+            * Inspect the model and relevant surrounding models that may provide context.
+
+            * Understand the issue and ideate potential fixes.
+
+            * If necessary, validate these fixes with potential context of similar
+            issues found online.
+
+            * Create a list of fixes to be applied to the codebase with full context
+            of where and how to make these adjustments, including any additional dbt
+            tests to add to confirm the new behaviour.
+
+
+            Important:
+
+            * We solely care about the test failures from this run, do not worry about
+            deprecations, or anything at the top of the logs, just the failure output
+            at the bottom from dbt.'
+          model: gpt-5
+          context: 'Logs: ${{ ORCHESTRA.PIPELINE_RUN_TASKS[''a3f6524f-9887-4e9e-a747-348b6c81997a''].OUTPUTS[''logs'']
+            }}'
+          instructions: 'Only return fixes for issues related to this dbt test failure.
+
+            Ensure all fix strings do not contain any double quotes.
+
+            Ensure all of the response is encoded in a way to be accepted as a single
+            line string environment variable.
+
+            Produce 1 fix per error, not per test failure, but use semantics to understand
+            if the fixes address the same issue and just suggest the most likely fix
+            or the one that best matches the style of the dbt project.'
+          set_outputs: true
+          return_text: false
+          output_schema: "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"\
+            results\": {\n      \"type\": \"array\",\n      \"items\": {\n       \
+            \ \"type\": \"object\",\n        \"properties\": {\n          \"id\":\
+            \ { \"type\": \"integer\" },\n          \"text\": { \"type\": \"string\"\
+            \ }\n        },\n        \"required\": [\"id\", \"text\"],\n        \"\
+            additionalProperties\": false\n      }\n    }\n  },\n  \"required\": [\"\
+            results\"],\n  \"additionalProperties\": false\n}"
+        depends_on: []
+        name: Diagnose dbt Error
+        connection: openai__prod__72452
+    depends_on:
+    - downloadArtifactsTaskGroup
+    name: group
+  b47d8767-f0f1-4b93-b768-231f510986b2:
+    tasks:
+      7367b1a2-49c0-4251-8e86-9d457397a2d9:
+        integration: OPEN_AI
+        integration_job: OPEN_AI_CHAT
+        parameters:
+          prompt: 'Provide a list of issues for this Lightdash project based on the
+            log output of a failed refresh so that they can be fixed.
+
+
+            * Identify the failing charts, dashboards, or their dbt models.
+
+            * Understand the issue and ideate potential fixes.
+
+            * If necessary, validate these fixes with potential context of similar
+            issues found online.
+
+            * Create a list of fixes to be applied to the codebase with full context
+            of where and how to make these adjustments.
+
+
+            Important:
+
+            * We solely care about the failures from this refresh'
+          model: gpt-5
+          context: 'Logs: ${{ ORCHESTRA.PIPELINE_RUN_TASKS[''72736033-306b-49ba-8f04-93959bb88462''].OUTPUTS[''logs'']
+            }}'
+          instructions: 'Only return fixes for issues related to this Lightdash refresh
+            failure.
+
+            Ensure all fix strings do not contain any double quotes.
+
+            Ensure all of the response is encoded in a way to be accepted as a single
+            line string environment variable.
+
+            Produce 1 fix per error, not per test failure, but use semantics to understand
+            if the fixes address the same issue and just suggest the most likely fix
+            or the one that best matches the style of the Lightdash project.'
+          set_outputs: true
+          return_text: false
+          output_schema: "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"\
+            results\": {\n      \"type\": \"array\",\n      \"items\": {\n       \
+            \ \"type\": \"object\",\n        \"properties\": {\n          \"id\":\
+            \ { \"type\": \"integer\" },\n          \"text\": { \"type\": \"string\"\
+            \ }\n        },\n        \"required\": [\"id\", \"text\"],\n        \"\
+            additionalProperties\": false\n      }\n    }\n  },\n  \"required\": [\"\
+            results\"],\n  \"additionalProperties\": false\n}"
+        depends_on: []
+        name: Diagnose Lightdash Error
+        connection: openai__prod__72452
+    depends_on:
+    - 11cde315-2d30-4a46-9c12-565252cf621b
+    name: group
+  9338e86c-0a5f-4a0b-a2d9-7c595774e452:
+    tasks:
+      cc8d7a34-87a9-47e6-9cc7-d8b2cbc24d99:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: UV
+          python_version: '3.12'
+          build_command: ' uv init && uv add claude-agent-sdk'
+          environment_variables: "{\n  \"TOOLS\": \"Read,Write,Edit,Glob,Bash,WebSearch,WebFetch\"\
+            ,\n  \"GITHUB_REPO\": \"gthesheep-orchestra/dbt-orchestra-metadata\",\n\
+            \  \"CLAUDE_PROMPT\": \"This Lightdash project has failed to refresh,\
+            \ implement a code fix via Pull Request in the gthesheep-orchestra/dbt-orchestra-metadata\
+            \ Github repository, mark these pull requests as 'Lightdash fix'. The\
+            \ issue to fix is: ${{ MATRIX.issue_to_fix['text'] }}\",\n  \"MCP_SERVERS_JSON\"\
+            : \"{\\\"lightdash\\\":{\\\"type\\\":\\\"http\\\",\\\"url\\\":\\\"https://app.lightdash.cloud/api/v1/mcp\\\
+            \",\\\"headers\\\":{\\\"Authorization\\\":\\\"Bearer ${LIGHTDASH_API_TOKEN}\\\
+            \"}}}\"\n}"
+          set_outputs: true
+          source: GIT
+          command: python agent.py
+          project_dir: python/claude_agent_mcp
+          shallow_clone_dirs: python/claude_agent_mcp
+        depends_on: []
+        name: Data Analyst Team
+        connection: python__production__blueprints__19239
+    depends_on:
+    - b47d8767-f0f1-4b93-b768-231f510986b2
+    name: '[COPY] group'
+    matrix:
+      inputs:
+        issue_to_fix: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['7367b1a2-49c0-4251-8e86-9d457397a2d9'].OUTPUTS['results']['results']
+          }}
+  11cde315-2d30-4a46-9c12-565252cf621b:
+    tasks:
+      72736033-306b-49ba-8f04-93959bb88462:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install requests
+          set_outputs: true
+          source: INLINE
+          code: "import json\nimport os\nimport sys\n\nimport requests\nfrom orchestra_sdk.orchestra\
+            \ import OrchestraSDK\n\nDOWNLOAD_URL = (\n \"https://app.getorchestra.io/api/engine/public/pipeline_runs/{}/task_runs/{}/logs/download?filename=1%2Fdebug_task\"\
+            \n)\napi_key = os.environ[\"ORCHESTRA_API_KEY\"]\norchestra = OrchestraSDK(api_key=api_key)\n\
+            \ndef download_file(url: str, filename: str) -> str:\n    try:\n     \
+            \   response = requests.get(url, headers={\"Authorization\": f\"Bearer\
+            \ {api_key}\"})\n        response.raise_for_status()\n        return response.text\n\
+            \    except requests.RequestException as e:\n        print(f\"Error downloading\
+            \ {filename}: {e}\", file=sys.stderr)\n        raise\n\ndef main(pipeline_run_id:\
+            \ str, task_run_id: str):\n    #\_Note: will not work with multiple command\
+            \ dbt Core runs.\n    logs_url = f\"{DOWNLOAD_URL.format(pipeline_run_id,\
+            \ task_run_id)}\"\n    try:\n        print(f\"Downloading logs from: {logs_url}\"\
+            )\n        logs = download_file(logs_url, \"logs.txt\")\n        print(\"\
+            Successfully downloaded logs\")\n        orchestra.set_output(\n     \
+            \       name=\"logs\",\n            value=logs,\n        )\n        print(\"\
+            Successfully stored outputs in Orchestra\")\n    except Exception as e:\n\
+            \        print(f\"Script failed: {e}\", file=sys.stderr)\n        sys.exit(1)\n\
+            \n\nif __name__ == \"__main__\":\n    pipeline_run_id = \"${{ ORCHESTRA.PIPELINE_RUN_ID\
+            \ }}\"\n    task_run_id = \"${{ ORCHESTRA.PIPELINE_RUN_TASKS['lightdashTask'].TASK_RUN_ID\
+            \ }}\"\n    main(pipeline_run_id, task_run_id)"
+        depends_on: []
+        name: Download Lightdash Logs
+    depends_on:
+    - lightdashTaskGroup
+    condition: ${{ task_groups['lightdashTaskGroup'].any().status == 'FAILED' }}
+    name: '[COPY] Download Artifacts Task Group'
+  4e05a0bc-5976-444d-b300-1dba8c33314b:
+    tasks:
+      42a43741-2c1a-401a-8fd8-5a0343a31898:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: 'dbt build --vars ''{"run_dbt_project_evaluator": true}'' --select
+            dbt_project_evaluator'
+          package_manager: UV
+          python_version: '3.12'
+          use_state_orchestration: true
+        depends_on: []
+        name: Run dbt Project Evaluator
+        connection: dbt_core_metadata_motherduck_22791
+    depends_on:
+    - dbtCoreTaskGroup
+    condition: ${{ task_groups['dbtCoreTaskGroup'].all().status == 'SUCCEEDED' }}
+    name: '[COPY] dbt Core Task Group'
+  84b87e0d-15ae-4465-9f1d-3b61f6cb3fbb:
+    tasks:
+      1bcc8f09-1e66-434b-b9bf-1d46548a51bc:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install requests
+          set_outputs: true
+          source: INLINE
+          code: "import json\nimport os\nimport sys\n\nimport requests\nfrom orchestra_sdk.orchestra\
+            \ import OrchestraSDK\n\nDOWNLOAD_URL = (\n \"https://app.getorchestra.io/api/engine/public/pipeline_runs/{}/task_runs/{}/logs/download?filename=1%2Fdebug_task\"\
+            \n)\napi_key = os.environ[\"ORCHESTRA_API_KEY\"]\norchestra = OrchestraSDK(api_key=api_key)\n\
+            \ndef download_file(url: str, filename: str) -> str:\n    try:\n     \
+            \   response = requests.get(url, headers={\"Authorization\": f\"Bearer\
+            \ {api_key}\"})\n        response.raise_for_status()\n        return response.text\n\
+            \    except requests.RequestException as e:\n        print(f\"Error downloading\
+            \ {filename}: {e}\", file=sys.stderr)\n        raise\n\ndef main(pipeline_run_id:\
+            \ str, task_run_id: str):\n    #\_Note: will not work with multiple command\
+            \ dbt Core runs.\n    logs_url = f\"{DOWNLOAD_URL.format(pipeline_run_id,\
+            \ task_run_id)}\"\n    try:\n        print(f\"Downloading logs from: {logs_url}\"\
+            )\n        logs = download_file(logs_url, \"logs.txt\")\n        print(\"\
+            Successfully downloaded logs\")\n        orchestra.set_output(\n     \
+            \       name=\"logs\",\n            value=logs,\n        )\n        print(\"\
+            Successfully stored outputs in Orchestra\")\n    except Exception as e:\n\
+            \        print(f\"Script failed: {e}\", file=sys.stderr)\n        sys.exit(1)\n\
+            \n\nif __name__ == \"__main__\":\n    pipeline_run_id = \"${{ ORCHESTRA.PIPELINE_RUN_ID\
+            \ }}\"\n    task_run_id = \"${{ ORCHESTRA.PIPELINE_RUN_TASKS['42a43741-2c1a-401a-8fd8-5a0343a31898'].TASK_RUN_ID\
+            \ }}\"\n    main(pipeline_run_id, task_run_id)"
+        depends_on: []
+        name: Download dbt Project Evaluator Logs
+    depends_on:
+    - 4e05a0bc-5976-444d-b300-1dba8c33314b
+    name: '[COPY] Download Artifacts Task Group'
+  ac4766ce-2ca5-4e35-9709-fcc794cb3178:
+    tasks:
+      b1622182-7293-4070-afac-5e8f6f07cdc1:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: UV
+          python_version: '3.12'
+          build_command: ' uv init && uv add claude-agent-sdk'
+          environment_variables: "{\n  \"TOOLS\": \"Read,Write,Edit,Glob,Bash,WebSearch,WebFetch\"\
+            ,\n  \"GITHUB_REPO\": \"gthesheep-orchestra/dbt-orchestra-metadata\",\n\
+            \  \"CLAUDE_PROMPT\": \"This dbt project has suggested improvements from\
+            \ the dbt project evaluator, full docs here: https://dbt-labs.github.io/dbt-project-evaluator/latest/.\
+            \ We aim to address them and open Pull Requests for the changes in gthesheep-orchestra/dbt-orchestra-metadata,\
+            \ mark these pull requests as 'Project Evaluator Enhancement'. Set the\
+            \ list of Pull Request Links as the output on this Orchestra task under\
+            \ key 'pull_request_links' using the orchestra_set_outputs tool.\",\n\
+            \  \"MCP_SERVERS_JSON\": \"{\\\"github\\\":{\\\"type\\\":\\\"http\\\"\
+            ,\\\"url\\\":\\\"https://api.githubcopilot.com/mcp\\\",\\\"headers\\\"\
+            :{\\\"Authorization\\\":\\\"Bearer ${GITHUB_TOKEN}\\\"}}}\",\n  \"AGENTS_JSON\"\
+            : \"{\\\"architect\\\":{\\\"description\\\":\\\"Expert dbt project designer\
+            \ and developer. You are responsible for turning suggestions from the\
+            \ dbt project into executable code enhancements for the developers.\\\"\
+            ,\\\"prompt\\\":\\\"Review the logs from the dbt project evaluator in\
+            \ the context of this dbt project and return actionable code changes to\
+            \ improvde the project.\\\",\\\"tools\\\":[\\\"Read\\\",\\\"Grep\\\",\\\
+            \"Glob\\\",\\\"WebSearch\\\",\\\"WebFetch\\\"]},\\\"developer\\\":{\\\"\
+            description\\\":\\\"Expert dbt project developer. You are responsible\
+            \ for turning the code changes from the architect into executable code\
+            \ for the dbt project.\\\",\\\"prompt\\\":\\\"Understand the code change\
+            \ suggestions from the architect in the context of this dbt project and\
+            \ action the code changes to improve the project. Opening a new branch\
+            \ and committing the changes to the branch, then when done open a Pull\
+            \ Request, in gthesheep-orchestra/dbt-orchestra-metadata repository.\\\
+            \",\\\"tools\\\":[\\\"Read\\\",\\\"Write\\\",\\\"Edit\\\",\\\"Glob\\\"\
+            ,\\\"Bash\\\",\\\"WebSearch\\\",\\\"WebFetch\\\"]},\\\"reviewer\\\":{\\\
+            \"description\\\":\\\"Expert dbt project reviewer. You are responsible\
+            \ for reviewing the code changes from the developer and returning a review\
+            \ of the changes, commenting them on the Pull Request.\\\",\\\"prompt\\\
+            \":\\\"Review the code changes from the developer in the context of this\
+            \ dbt project and return a review of the changes on the corresponding\
+            \ pull request.\\\",\\\"tools\\\":[\\\"Read\\\",\\\"Grep\\\",\\\"Glob\\\
+            \",\\\"WebSearch\\\",\\\"WebFetch\\\"]}}\"\n}"
+          set_outputs: true
+          source: GIT
+          command: python agent.py
+          project_dir: python/claude_agent_mcp
+          shallow_clone_dirs: python/claude_agent_mcp
+        depends_on: []
+        name: Bored AE Team
+        connection: python__production__blueprints__19239
+    depends_on:
+    - 84b87e0d-15ae-4465-9f1d-3b61f6cb3fbb
+    name: '[COPY] group'
+webhook:
+  enabled: false
