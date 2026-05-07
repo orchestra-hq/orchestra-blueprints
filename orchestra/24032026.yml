@@ -93,6 +93,9 @@ inputs:
   dbt_branch:
     type: string
     default: main
+  SLACK_ALERT:
+    type: string
+    default: alert-testing
 alerts:
 - name: Failures
   statuses:
