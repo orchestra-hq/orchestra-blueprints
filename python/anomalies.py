@@ -63,7 +63,7 @@ def analyse_pipeline(pipeline_id:str, threshold:int, cadence:int)->list:
         current_page += 1
 
     total_results = len(running_results) + len(completed_results)
-    if total_results == 0:
+    if len(completed_results) == 0:
         return []
     print("The total number of pipeline runs is: " + str(total_results))
     average_time = sum([(datetime.fromisoformat(x['completedAt']) - datetime.fromisoformat(x['createdAt'])).total_seconds() for x in completed_results])/len(completed_results)
