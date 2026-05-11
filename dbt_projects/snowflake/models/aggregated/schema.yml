@@ -6,6 +6,12 @@ models:
     config:
       tags:
         - massive_dag 
+      freshness:
+        build_after:
+          count: 1
+          period: hour
+          updates_on: all
+
     description: "A staging model for orders"
     columns:
       - name: vid

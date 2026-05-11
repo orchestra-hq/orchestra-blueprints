@@ -81,6 +81,7 @@ def analyse_pipeline(pipeline_id:str, threshold:int, cadence:int)->list:
                     'status': run.get('runStatus'),
                     'duration': time_running,
                     'average_duration': average_time,
+                    'reason': "Run is taking too long",
                 })
 
     else:
@@ -103,6 +104,7 @@ def analyse_pipeline(pipeline_id:str, threshold:int, cadence:int)->list:
                     'status': run.get('runStatus'),
                     'duration': time_running,
                     'average_duration': average_time,
+                    'reason': "Run completed significantly faster than average",
                 })
 
     else:
@@ -132,7 +134,7 @@ def format_pipeline_runs_as_slack_blocks(runs: List[Dict]) -> List[Dict]:
             "type": "header",
             "text": {
                 "type": "plain_text",
-                "text": "Pipeline Run Summary",
+                "text": "Pipeline Anomalies Summary",
             },
         },
         {"type": "divider"},
@@ -168,6 +170,10 @@ def format_pipeline_runs_as_slack_blocks(runs: List[Dict]) -> List[Dict]:
                         "type": "mrkdwn",
                         "text": f"*Run ID:*\n`{run['run_id']}`",
                     },
+                    {
+                        "type": "mrkdwn",
+                        "text": f"*Reason:*\n{run['reason']}",
+                    }
                 ],
             }
         )
