@@ -154,7 +154,7 @@ _Policy note: for `orchestra/*.yml|yaml`, missing top-of-file showcase header co
 - [ ] pipelines dbt_projects/:1 — No Orchestra pipeline YAML files under dbt_projects/**/*.yml|yaml for validator run — No validate action required in this subtree
 
 ### `cleanup/pipelines/metadata-api` — `metadata_api/**/*.yml`
-- [ ] pipelines metadata_api/orchestra_pipeline.yaml:1 — Pipeline YAML lacks top-of-file showcase header comment, alerts, and configuration.retries — Add header comment, alerts block, and retry policy
+- [x] pipelines metadata_api/orchestra_pipeline.yaml:1 — Pipeline YAML lacks top-of-file showcase header comment, alerts, and configuration.retries — Add header comment, alerts block, and retry policy
 
 ### `cleanup/pipelines/patterns` — `patterns/**/*.yml`
 - [ ] pipelines patterns/:1 — No pipeline YAML files found under patterns/**/*.yml|yaml — No validate action required in this subtree
