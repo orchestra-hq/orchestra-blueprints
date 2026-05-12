@@ -1,4 +1,3 @@
-# Showcase pipeline: ingest Orchestra metadata with dlt and validate warehouse loads.
 version: v1
 name: Orchestra Metadata -> dlt -> Warehouse
 pipeline:
