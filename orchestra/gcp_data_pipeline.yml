@@ -129,3 +129,10 @@ inputs:
     type: string
     default: ${{ format_date(ORCHESTRA.CURRENT_TIME, "%Y-%m-%d", "UTC") }}
 
+alerts:
+- name: Failures
+  statuses:
+  - FAILED
+  destinations:
+  - integration: EMAIL
+    destination: alerts@getorchestra.io
