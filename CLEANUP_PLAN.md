@@ -102,11 +102,11 @@ _Policy note: for `orchestra/*.yml|yaml`, missing top-of-file showcase header co
 
 ### `cleanup/pipelines/orchestra-core` — `orchestra/**/*.yml`
 - [x] pipelines orchestra/:1 — orchestra validate passed for all 52 YAML files; no schema validation failures — Keep validator enforced in CI
-- [ ] pipelines orchestra/07112025_demo.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/071125_oliver.yaml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/0711demo_2.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/25033036.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/2711_demo.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/07112025_demo.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/071125_oliver.yaml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/0711demo_2.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/25033036.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/2711_demo.yml:1 — Missing alerts — add alerts block for failure notification
 - [x] pipelines orchestra/agentic_analytics_demo.yml:1 — Missing alerts — add alerts block for failure notification
 - [x] pipelines orchestra/ai_agent_bigquery.yml:1 — Missing alerts — add alerts block for failure notification
 - [x] pipelines orchestra/aws_postgres_dbt.yaml:1 — Missing alerts — add alerts block for failure notification
@@ -117,7 +117,7 @@ _Policy note: for `orchestra/*.yml|yaml`, missing top-of-file showcase header co
 - [x] pipelines orchestra/databricks_metadata.yml:1 — Missing alerts — add alerts block for failure notification
 - [x] pipelines orchestra/dbt_snowflake.yml:1 — Missing alerts — add alerts block for failure notification
 - [x] pipelines orchestra/demo.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/demo03022026.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/demo03022026.yml:1 — Missing alerts — add alerts block for failure notification
 - [x] pipelines orchestra/dlt_demo.yml:1 — Missing alerts — add alerts block for failure notification
 - [x] pipelines orchestra/dq_metaengine.yml:1 — Missing alerts — add alerts block for failure notification
 - [x] pipelines orchestra/end_to_end.yml:1 — Missing alerts — add alerts block for failure notification
@@ -136,7 +136,7 @@ _Policy note: for `orchestra/*.yml|yaml`, missing top-of-file showcase header co
 - [x] pipelines orchestra/pc_demo.yml:1 — Missing alerts — add alerts block for failure notification
 - [x] pipelines orchestra/pmc.yml:1 — Missing alerts — add alerts block for failure notification
 - [x] pipelines orchestra/postgres_demo.yaml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/postgres_demo_25012026.yaml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/postgres_demo_25012026.yaml:1 — Missing alerts — add alerts block for failure notification
 - [x] pipelines orchestra/postgres_demo_27012026.yaml:1 — Missing alerts — add alerts block for failure notification
 - [x] pipelines orchestra/postgres_fivetran_dbt.yaml:1 — Missing alerts — add alerts block for failure notification
 - [x] pipelines orchestra/postgres_pipeline.yaml:1 — Missing alerts — add alerts block for failure notification
@@ -146,7 +146,7 @@ _Policy note: for `orchestra/*.yml|yaml`, missing top-of-file showcase header co
 - [x] pipelines orchestra/sg.yml:1 — Missing alerts — add alerts block for failure notification
 - [x] pipelines orchestra/stellantis.yml:1 — Missing alerts — add alerts block for failure notification
 - [x] pipelines orchestra/studio_a.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/test_git_pipeline.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/test_git_pipeline.yml:1 — Missing alerts — add alerts block for failure notification
 - [x] pipelines orchestra/tm.yml:1 — Missing alerts — add alerts block for failure notification
 - [x] pipelines orchestra/townhall.yml:1 — Missing alerts — add alerts block for failure notification
 - [x] pipelines orchestra/wl_demo.yml:1 — Missing alerts — add alerts block for failure notification
