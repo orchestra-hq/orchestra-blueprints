@@ -78,21 +78,18 @@ out of scope (see top of file)._
 _Directory layout, naming conventions, redundant nesting, stale paths._
 
 ### High
-- [ ] structure README.md:5 — Top-level dirs missing from root README index: azure, estuary, hybrid_deploy, multi_workspace_test — Add sections and links in Codebase Structure
-- [ ] structure README.md:29 — README section 'Analytics' has no matching top-level directory — Add analytics directory docs or remove the section
-- [ ] structure README.md:67 — README section 'Sensors' has no matching top-level directory — Add sensors directory docs or remove the section
-- [ ] structure README.md:43 — README calls out flattening dbt nesting, but nested layout remains (e.g. dbt_projects/postgres/jaffle_shop_postgres) — Align folder structure or update README guidance
+- [ ] _No in-scope high items on `cleanup/structure` (root README.md is reserved on this branch; deferred under Cross-cutting follow-ups)._
 
 ### Medium
-- [ ] structure orchestra/test git .pipeline.yml:1 — Filename breaks sibling naming convention (contains spaces) — Rename to snake_case without spaces
-- [ ] structure orchestra/postgres_demo_25012026__.yaml:1 — Filename contains double underscore unlike siblings — Normalize to single-underscore snake_case
-- [ ] structure dbt_projects/snowflake/readme.md:1 — README filename casing differs from sibling convention — Normalize to README.md
-- [ ] structure dbt_projects/motherduck_s3/readme.md:1 — README filename casing differs from sibling convention — Normalize to README.md
-- [ ] structure dbt_projects/duckdb_example/readme.md:1 — README filename casing differs from sibling convention — Normalize to README.md
-- [ ] structure dbt_projects/motherduck_postgres/readme.md:1 — README filename casing differs from sibling convention — Normalize to README.md
+- [x] structure orchestra/test_git_pipeline.yml:1 — Filename breaks sibling naming convention (contains spaces) — Rename to snake_case without spaces
+- [x] structure orchestra/postgres_demo_25012026.yaml:1 — Filename contains double underscore unlike siblings — Normalize to single-underscore snake_case
+- [x] structure dbt_projects/snowflake/README.md:1 — README filename casing differs from sibling convention — Normalize to README.md
+- [x] structure dbt_projects/motherduck_s3/README.md:1 — README filename casing differs from sibling convention — Normalize to README.md
+- [x] structure dbt_projects/duckdb_example/README.md:1 — README filename casing differs from sibling convention — Normalize to README.md
+- [x] structure dbt_projects/motherduck_postgres/README.md:1 — README filename casing differs from sibling convention — Normalize to README.md
 
 ### Low
-- [ ] structure dbt_projects/README.md:1 — dbt_projects root lacks a local README for naming/layout convention — Add dbt_projects/README.md with expected structure
+- [x] structure dbt_projects/README.md:1 — dbt_projects root lacks a local README for naming/layout convention — Add dbt_projects/README.md with expected structure
 
 ---
 
@@ -139,7 +136,7 @@ _Policy note: for `orchestra/*.yml|yaml`, missing top-of-file showcase header co
 - [ ] pipelines orchestra/pc_demo.yml:1 — Missing alerts — add alerts block for failure notification
 - [ ] pipelines orchestra/pmc.yml:1 — Missing alerts — add alerts block for failure notification
 - [ ] pipelines orchestra/postgres_demo.yaml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/postgres_demo_25012026__.yaml:1 — Missing alerts — add alerts block for failure notification
+- [ ] pipelines orchestra/postgres_demo_25012026.yaml:1 — Missing alerts — add alerts block for failure notification
 - [ ] pipelines orchestra/postgres_demo_27012026.yaml:1 — Missing alerts — add alerts block for failure notification
 - [ ] pipelines orchestra/postgres_fivetran_dbt.yaml:1 — Missing alerts — add alerts block for failure notification
 - [ ] pipelines orchestra/postgres_pipeline.yaml:1 — Missing alerts — add alerts block for failure notification
@@ -149,7 +146,7 @@ _Policy note: for `orchestra/*.yml|yaml`, missing top-of-file showcase header co
 - [ ] pipelines orchestra/sg.yml:1 — Missing alerts — add alerts block for failure notification
 - [ ] pipelines orchestra/stellantis.yml:1 — Missing alerts — add alerts block for failure notification
 - [ ] pipelines orchestra/studio_a.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/test git .pipeline.yml:1 — Missing alerts — add alerts block for failure notification
+- [ ] pipelines orchestra/test_git_pipeline.yml:1 — Missing alerts — add alerts block for failure notification
 - [ ] pipelines orchestra/tm.yml:1 — Missing alerts — add alerts block for failure notification
 - [ ] pipelines orchestra/townhall.yml:1 — Missing alerts — add alerts block for failure notification
 - [ ] pipelines orchestra/wl_demo.yml:1 — Missing alerts — add alerts block for failure notification
@@ -279,6 +276,11 @@ working in someone else's territory. Owner agent picks these up after their
 main PRs land._
 
 - [ ] ci Makefile:7 — make validate/lint/audit targets exist but are not enforced by any workflow end-to-end — Add shared CI workflow gating PRs on validate + lint + security + dependency audit
+- [ ] pipelines orchestra/:1 — `make validate lint` currently fails on baseline yamllint violations across many existing orchestra YAML files (indentation/line-length/document-start), blocking clean gate runs for unrelated branches — Triage and remediate in scoped pipelines cleanup branches
+- [ ] docs README.md:5 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): root README index missing azure, estuary, hybrid_deploy, multi_workspace_test — Handle on cleanup/docs
+- [ ] docs README.md:29 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): README 'Analytics' section has no matching top-level directory — Handle on cleanup/docs
+- [ ] docs README.md:67 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): README 'Sensors' section has no matching top-level directory — Handle on cleanup/docs
+- [ ] docs README.md:43 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): dbt nesting guidance mismatches current layout — Handle on cleanup/docs
 
 ---
 
