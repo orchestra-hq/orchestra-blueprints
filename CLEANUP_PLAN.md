@@ -279,6 +279,7 @@ working in someone else's territory. Owner agent picks these up after their
 main PRs land._
 
 - [ ] ci Makefile:7 — make validate/lint/audit targets exist but are not enforced by any workflow end-to-end — Add shared CI workflow gating PRs on validate + lint + security + dependency audit
+- [ ] pipelines orchestra/:1 — `make validate lint` fails on baseline yamllint errors across many existing pipeline YAMLs (indentation/line-length/document-start), blocking clean-gate runs for unrelated branches — Triage and remediate in scoped pipelines cleanup branches
 
 ---
 
