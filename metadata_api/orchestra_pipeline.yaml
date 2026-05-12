@@ -12,8 +12,6 @@ pipeline:
           python_version: "3.12"
           build_command: pip install -r requirements.txt
           set_outputs: false
-        configuration:
-          retries: 3
         depends_on: []
         name: dlt (Orchestra Metadata)
     depends_on: []
@@ -27,8 +25,6 @@ pipeline:
           error_threshold_expression: "= 0"
           warn_threshold_expression: "= 0"
           schema: ORCHESTRA_METADATA_APP
-        configuration:
-          retries: 3
         depends_on: []
         name: Snowflake Test
     depends_on:
@@ -45,8 +41,6 @@ pipeline:
           enable_drive_scope: false
           error_threshold_expression: "= 0"
           warn_threshold_expression: "= 0"
-        configuration:
-          retries: 3
         depends_on: []
         name: BigQuery Test
     depends_on:
