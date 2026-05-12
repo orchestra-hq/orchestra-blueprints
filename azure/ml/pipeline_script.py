@@ -1,8 +1,7 @@
 from azureml.core import Workspace, Experiment, Environment, ScriptRunConfig
-from azureml.data import OutputFileDatasetConfig
 from azureml.pipeline.core import Pipeline, PipelineData
 from azureml.pipeline.steps import PythonScriptStep
-from azureml.core.compute import ComputeTarget, AmlCompute
+from azureml.core.compute import ComputeTarget
 
 # 1. Connect to the Azure ML workspace
 ws = Workspace.from_config()
@@ -26,7 +25,7 @@ prep_step = PythonScriptStep(
     compute_target=compute_target,
     source_directory="./scripts",  # Folder where your script is
     runconfig=ScriptRunConfig(source_directory="./scripts", environment=env).run_config,
-    allow_reuse=True
+    allow_reuse=True,
 )
 
 # 6. Define training step
@@ -38,7 +37,7 @@ train_step = PythonScriptStep(
     compute_target=compute_target,
     source_directory="./scripts",
     runconfig=ScriptRunConfig(source_directory="./scripts", environment=env).run_config,
-    allow_reuse=True
+    allow_reuse=True,
 )
 
 # 7. Create pipeline and experiment

@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import time
 import random
 import datetime
+from typing import Any
 
 
 class LogStyle:
@@ -11,31 +14,31 @@ class LogStyle:
     RESET = "\033[0m"
 
 
-def log(msg, level=LogStyle.INFO):
+def log(msg: str, level: str = LogStyle.INFO) -> None:
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"{level} {timestamp} - {msg}")
 
 
 class MockAzureMLWorkspace:
-    def __init__(self, name, subscription_id, resource_group):
+    def __init__(self, name: str, subscription_id: str, resource_group: str) -> None:
         self.name = name
         self.subscription_id = subscription_id
         self.resource_group = resource_group
         log(f"Connected to Azure ML Workspace: {self.name}")
 
-    def register_model(self, model_name, model_path):
+    def register_model(self, model_name: str, model_path: str) -> str:
         log(f"Registering model '{model_name}' from path '{model_path}'")
         model_id = f"{model_name}:{random.randint(1, 100)}"
         log(f"Model registered with ID: {model_id}", LogStyle.SUCCESS)
         return model_id
 
-    def submit_experiment(self, experiment_name, script):
+    def submit_experiment(self, experiment_name: str, script: str) -> str:
         log(f"Submitting experiment '{experiment_name}' using script '{script}'")
         run_id = f"run_{random.randint(1000, 9999)}"
         log(f"Experiment submitted. Run ID: {run_id}", LogStyle.SUCCESS)
         return run_id
 
-    def monitor_run(self, run_id):
+    def monitor_run(self, run_id: str) -> None:
         log(f"Monitoring run: {run_id}")
         for epoch in range(1, 6):
             time.sleep(1)
@@ -44,7 +47,7 @@ class MockAzureMLWorkspace:
             log(f"[Epoch {epoch}/5] Loss: {loss} | Accuracy: {acc}")
         log("Run completed successfully ✅", LogStyle.SUCCESS)
 
-    def deploy_model(self, model_id, service_name):
+    def deploy_model(self, model_id: str, service_name: str) -> str:
         log(f"Deploying model '{model_id}' as web service '{service_name}'")
         endpoint = f"https://{service_name}.azurewebsites.net/score"
         time.sleep(1)
@@ -55,7 +58,7 @@ class MockAzureMLWorkspace:
         log(f"Model deployed to endpoint: {endpoint}", LogStyle.SUCCESS)
         return endpoint
 
-    def run_inference(self, endpoint, input_data):
+    def run_inference(self, endpoint: str, input_data: dict[str, Any]) -> dict[str, Any]:
         log(f"Calling model endpoint: {endpoint}")
         log(f"Input: {input_data}")
         simulated_output = {
