@@ -16,3 +16,4 @@
 - Your first action is to create your assigned branch from main and switch to
   it in your worktree. Use the exact branch name from CLEANUP_PLAN.md's
   "Proposed branch plan" table. Do not commit to main.
+- For `orchestra/**/*.yml` and `orchestra/**/*.yaml`, do not flag missing top-of-file showcase header comments or missing `configuration.retries`; these checks are intentionally out of scope for cleanup findings.
