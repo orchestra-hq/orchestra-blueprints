@@ -42,3 +42,11 @@ webhook:
   enabled: false
   operation_metadata: null
 configuration: null
+
+alerts:
+- name: Failures
+  statuses:
+  - FAILED
+  destinations:
+  - integration: EMAIL
+    destination: alerts@getorchestra.io
