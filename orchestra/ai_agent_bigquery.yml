@@ -83,9 +83,9 @@ inputs:
     default: growth leadership team
 
 alerts:
-- name: Failures
-  statuses:
-  - FAILED
-  destinations:
-  - integration: EMAIL
-    destination: alerts@getorchestra.io
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: EMAIL
+        destination: alerts@getorchestra.io

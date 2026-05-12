@@ -114,9 +114,9 @@ inputs:
     default: main
 
 alerts:
-- name: Failures
-  statuses:
-  - FAILED
-  destinations:
-  - integration: EMAIL
-    destination: alerts@getorchestra.io
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: EMAIL
+        destination: alerts@getorchestra.io
