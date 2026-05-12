@@ -7,3 +7,8 @@
 5. Run `terraform apply` to apply the changes.
 
 To remove the resources, run `terraform destroy`.
+
+## Scope note
+
+`hybrid_deploy/` is intentionally infrastructure-only for this blueprint and
+contains Terraform configuration rather than Python modules.
