@@ -61,7 +61,7 @@ alerts:
       - FAILED
     destinations:
       - integration: SLACK
-        destination: alert-testing
+        destination: alert-demos
 inputs:
   warehouse:
     type: string
