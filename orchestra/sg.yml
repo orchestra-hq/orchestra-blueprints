@@ -210,3 +210,11 @@ webhook:
   run_inputs: null
 configuration: null
 inputs: null
+
+alerts:
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: alert-testing

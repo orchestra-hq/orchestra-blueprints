@@ -49,3 +49,11 @@ pipeline:
     name: ''
 webhook:
   enabled: false
+
+alerts:
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: alert-testing

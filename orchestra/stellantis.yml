@@ -63,3 +63,11 @@ inputs:
   command:
     type: string
     default: build
+
+alerts:
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: alert-testing

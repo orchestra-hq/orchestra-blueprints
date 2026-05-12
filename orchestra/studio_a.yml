@@ -17,3 +17,11 @@ inputs:
   branch:
     type: string
     default: sage
+
+alerts:
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: alert-testing
