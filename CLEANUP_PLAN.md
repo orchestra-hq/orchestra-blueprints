@@ -4,8 +4,8 @@
 > and only act on items tagged for their branch. Check items off as PRs land.
 
 **Status:** 🟢 audit complete — awaiting review
-**Auditor commit:** c135413
-**Last updated:** 2026-05-11 12:35 UTC
+**Auditor commit:** 61e6143
+**Last updated:** 2026-05-12 10:41 UTC
 
 ---
 
@@ -151,7 +151,6 @@ _Policy note: for `orchestra/*.yml|yaml`, missing top-of-file showcase header co
 - [ ] pipelines orchestra/tm.yml:1 — Missing alerts — add alerts block for failure notification
 - [ ] pipelines orchestra/townhall.yml:1 — Missing alerts — add alerts block for failure notification
 - [ ] pipelines orchestra/wl_demo.yml:1 — Missing alerts — add alerts block for failure notification
-
 ### `cleanup/pipelines/dbt-blueprints` — `dbt_projects/**/*.yml`
 - [ ] pipelines dbt_projects/:1 — No Orchestra pipeline YAML files under dbt_projects/**/*.yml|yaml for validator run — No validate action required in this subtree
 
