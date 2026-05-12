@@ -67,13 +67,13 @@ def run_quality_checks(
     # NOTE if you don't want to use any SQL, you can interact with the lakehouse in pure Python
     # and still back an Arrow table (in this one column) through a performant scan.
     print("Perform a S3 columnar scan on the column {}".format(column_to_check))
-    wap_table = bauplan_client.scan(
+    bauplan_client.scan(
         table=namespace + "." + table_name,
         ref=bauplan_ingestion_branch,
         columns=[column_to_check],
     )
     # print("Read the table successfully!")
-    # assert wap_table[column_to_check].null_count > 0, "Quality check failed"
+    # assert scanned_table[column_to_check].null_count > 0, "Quality check failed"
     # print("Quality check passed")
 
     return True
@@ -90,23 +90,6 @@ def merge_branch(bauplan_client: bauplan.Client, bauplan_ingestion_branch: str):
     return bauplan_client.merge_branch(
         source_ref=bauplan_ingestion_branch, into_branch="main"
     )
-
-
-def delete_branch_if_exists(transaction):
-    """
-
-    If the task fails or the merge succeeded, we delete the branch to avoid clutter!
-
-    """
-    _client = bauplan.Client()
-    ingestion_branch = transaction.get("bauplan_ingestion_branch")
-    if _client.has_branch(ingestion_branch):
-        print(f"Deleting the branch {ingestion_branch}")
-        _client.delete_branch(ingestion_branch)
-    else:
-        print(f"Branch {ingestion_branch} does not exist, nothing to delete.")
-
-    return
 
 
 def wap_with_bauplan(
