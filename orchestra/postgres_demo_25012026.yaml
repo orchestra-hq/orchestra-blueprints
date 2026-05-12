@@ -55,5 +55,5 @@ alerts:
     statuses:
       - FAILED
     destinations:
-      - integration: EMAIL
-        destination: alerts@getorchestra.io
+      - integration: SLACK
+        destination: alert-demos
