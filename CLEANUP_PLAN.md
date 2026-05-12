@@ -23,7 +23,8 @@ agent: do not rewrite them. They are opaque references, not credentials.
 This cleanup pass does NOT include: adding new blueprints, changing pipeline
 runtime behaviour, migrating between Orchestra schema versions, refactoring
 dbt models, or touching connection IDs. Findings in those categories go to
-"Cross-cutting follow-ups" for later work.
+"Cross-cutting follow-ups" for later work unless explicitly moved into the
+"Pipeline lifecycle cleanup" section below.
 
 ---
 
@@ -35,7 +36,8 @@ Each finding is one checkbox line:
 
 Tags: `structure | pipelines | python | dbt | security | docs | ci | deps`
 Branches: `cleanup/security`, `cleanup/structure`, `cleanup/pipelines/*`,
-`cleanup/python/*`, `cleanup/ci`, `cleanup/docs`
+`cleanup/python/*`, `cleanup/ci`, `cleanup/docs`,
+`cleanup/pipelines/lifecycle`
 
 Impact ranking inside each section: high → medium → low.
 
@@ -280,6 +282,31 @@ main PRs land._
 
 ---
 
+## 8. Pipeline lifecycle cleanup  → `cleanup/pipelines/lifecycle`
+
+_Optional scope expansion. Use Orchestra runtime metadata (via MCP/API) to
+decide which pipelines should be fixed, deleted, or retained. This stream is
+allowed when explicitly requested and remains separate from hygiene-only edits._
+
+### Decision criteria
+
+Apply these checks before deleting any pipeline:
+
+- [ ] pipelines <pipeline-id> — Confirm pipeline is inactive/deprecated OR has no successful runs within agreed retention window (default: 90 days) — Retrieve status and run history from Orchestra MCP/API
+- [ ] pipelines <pipeline-id> — Confirm no downstream pipeline/task dependencies remain — Verify dependency graph from Orchestra MCP/API before delete
+- [ ] pipelines <pipeline-id> — Confirm pipeline is not referenced by active CI workflows, docs, or example guides — Search `.github/workflows/**`, README files, and docs before delete
+- [ ] pipelines <pipeline-id> — Capture owner sign-off (or explicit approval source) for delete/fix decision — Record decision rationale in PR description
+
+### Execution workflow
+
+- [ ] pipelines CLEANUP_PLAN.md:1 — Build inventory of candidate pipelines using Orchestra MCP/API (state, last run, dependency edges, owner) — Classify each as `keep`, `fix`, or `delete` with rationale
+- [ ] pipelines orchestra/<pipeline>.yml:1 — For `fix` candidates, apply only scoped corrective edits and keep schema valid — Run `orchestra validate <file>` after each change
+- [ ] pipelines orchestra/<pipeline>.yml:1 — For `delete` candidates, remove pipeline YAML and all direct references — Update workflows/docs/examples that mention removed pipelines
+- [ ] pipelines <code-path>:1 — Remove subsequent now-unused code/scripts/tests introduced only for deleted pipelines — Confirm with lint/dead-code checks before merge
+- [ ] pipelines repo:1 — Validate safety gates before merge (`make validate`, relevant lint/tests) — Block merge if dependency or reference checks fail
+
+---
+
 ## Proposed branch plan
 
 _Auditor lists the leaf branches it recommends spawning, with rough item
@@ -299,6 +326,7 @@ counts so you can decide whether to split further or merge sub-branches._
 | cleanup/python/azure-hybrid | 4 | 1 | azure/ml typing/lint plus scope sanity. |
 | cleanup/ci | 8 | 1 | Add make validate, ruff, gitleaks, pip-audit checks. |
 | cleanup/docs | 15 | 1 | Docs stays one final merge branch (per instruction). |
+| cleanup/pipelines/lifecycle | TBD after MCP inventory | 1-2 | Uses Orchestra runtime metadata to decide keep/fix/delete and remove subsequent unused code. |
 
 ---
 
