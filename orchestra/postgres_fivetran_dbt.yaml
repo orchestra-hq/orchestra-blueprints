@@ -54,3 +54,11 @@ pipeline:
 
 webhook:
   enabled: false
+
+alerts:
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: alert-demos

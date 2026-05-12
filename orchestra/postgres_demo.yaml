@@ -91,3 +91,11 @@ sensors:
           query: select *from table where date = current_date()
 webhook:
   enabled: false
+
+alerts:
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: alert-demos

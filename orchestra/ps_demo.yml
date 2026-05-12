@@ -87,3 +87,11 @@ inputs:
   bill_name:
     type: string
     default: default_bill
+
+alerts:
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: alert-demos
