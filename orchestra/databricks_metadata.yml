@@ -127,3 +127,11 @@ inputs:
   is_full_refresh:
     type: string
     default: 'true'
+
+alerts:
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: alert-demos

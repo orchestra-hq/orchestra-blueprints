@@ -82,3 +82,10 @@ inputs:
     type: string
     default: growth leadership team
 
+alerts:
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: alert-demos

@@ -115,3 +115,11 @@ inputs:
   json_payload:
     type: dict
     default: {}
+
+alerts:
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: alert-demos

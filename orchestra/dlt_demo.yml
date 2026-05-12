@@ -112,3 +112,11 @@ inputs:
   branch:
     type: string
     default: main
+
+alerts:
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: alert-demos
