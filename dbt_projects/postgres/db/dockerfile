@@ -6,4 +6,9 @@ WORKDIR /app
 
 RUN pip install -r ./requirements.txt
 
+RUN useradd --create-home --uid 10001 --shell /usr/sbin/nologin appuser \
+    && chown -R appuser:appuser /app
+
+USER appuser
+
 CMD python3 scripts/create_db_insert_data.py
