@@ -60,10 +60,7 @@ def build_orchestra_output_server(
         if not isinstance(name, str) or not name.strip():
             return {
                 "content": [
-                    {
-                        "type": "text",
-                        "text": "Invalid 'name': must be a non-empty string.",
-                    }
+                    {"type": "text", "text": "Invalid 'name': must be a non-empty string."}
                 ],
                 "is_error": True,
             }
