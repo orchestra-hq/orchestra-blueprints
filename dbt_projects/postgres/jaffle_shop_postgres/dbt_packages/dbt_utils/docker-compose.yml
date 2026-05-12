@@ -5,6 +5,9 @@ services:
     image: circleci/python:3.6.3-stretch
     depends_on:
       - ${TARGET}
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
     env_file: "./integration_tests/.env/${TARGET}.env"
     entrypoint: "/repo/run_test.sh ${TARGET} ${MODELS} ${SEEDS}"
     working_dir: /repo
@@ -13,20 +16,35 @@ services:
 
   postgres:
     image: circleci/postgres:9.6.5-alpine-ram
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /var/lib/postgresql/data
+      - /var/run/postgresql
     ports:
       - "5432:5432"
 
   # dummy container, since snowflake is a managed service
   snowflake:
     image: circleci/python:3.6.3-stretch
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
     entrypoint: "/bin/true"
   
   # dummy container, since bigquery is a managed service
   bigquery:
     image: circleci/python:3.6.3-stretch
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
     entrypoint: "/bin/true"
 
   # dummy container, since redshift is a managed service
   redshift:
     image: circleci/python:3.6.3-stretch
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
     entrypoint: "/bin/true"

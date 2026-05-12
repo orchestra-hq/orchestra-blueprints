@@ -1,4 +1,5 @@
 import os
+import shlex
 import subprocess
 import asyncio
 
@@ -9,12 +10,16 @@ from orchestra_sdk.orchestra import OrchestraSDK
 
 def run_lightdash_cli(command: str) -> str:
     """Run a Lightdash CLI command."""
-    
+    try:
+        command_args = shlex.split(command)
+    except ValueError as exc:
+        return f"Error: invalid command arguments ({exc})"
+
     result = subprocess.run(
-        command,
-        shell=True,
+        command_args,
         capture_output=True,
-        text=True
+        text=True,
+        check=False,
     )
 
     if result.returncode != 0:
