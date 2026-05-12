@@ -180,15 +180,15 @@ _Ruff/format, type hints, dedup, parameter handling. Split by subtree below._
 - [ ] python metadata_api/requirements.txt:1 — pip-audit blocked because dependencies are not pinned — Pin all dependencies with exact versions
 
 ### `cleanup/python/bauplan-estuary-dlt` — `bauplan/**`, `estuary/**`, `dlt/**`
-- [ ] python dlt/hubspot/__init__.py:40 — Ruff reports unused imports (5x F401) — Remove unused imports or export intentionally via __all__
-- [ ] python dlt/run_dlt_pipelines.py:8 — Bare except blocks (E722) mask failures — Catch specific exceptions and handle/report explicitly
-- [ ] python dlt/run_dlt_pipelines_snowflake.py:8 — Bare except blocks (E722) mask failures — Catch specific exceptions and handle/report explicitly
-- [ ] python patterns/run_multiple_pipelines/run_multiple_pipelines.py:1 — Module exceeds 300 lines (428) — Split into smaller focused modules
-- [ ] python patterns/warehouse_savings/graph.py:1 — Module exceeds 300 lines (504) — Split plotting/data prep/CLI responsibilities
-- [ ] python dlt/google_sheets/helpers/data_processing.py:1 — Module exceeds 300 lines (349) — Decompose helper into smaller units
-- [ ] python bauplan/models.py:20 — vulture flagged multiple unused functions — Remove dead code or wire functions into execution flow
-- [ ] python bauplan/scan.py:95 — vulture flagged unused helper delete_branch_if_exists — Remove helper or integrate it where needed
-- [ ] python bauplan/:1 — Duplicate helper scan found no cross-folder identical helper bodies — Keep shared helpers centralized as code evolves
+- [x] python dlt/hubspot/__init__.py:40 — Ruff reports unused imports (5x F401) — Remove unused imports or export intentionally via __all__
+- [x] python dlt/run_dlt_pipelines.py:8 — Bare except blocks (E722) mask failures — Catch specific exceptions and handle/report explicitly
+- [x] python dlt/run_dlt_pipelines_snowflake.py:8 — Bare except blocks (E722) mask failures — Catch specific exceptions and handle/report explicitly
+- [x] python patterns/run_multiple_pipelines/run_multiple_pipelines.py:1 — Module exceeds 300 lines (428) — Split into smaller focused modules
+- [x] python patterns/warehouse_savings/graph.py:1 — Module exceeds 300 lines (504) — Split plotting/data prep/CLI responsibilities
+- [x] python dlt/google_sheets/helpers/data_processing.py:1 — Module exceeds 300 lines (349) — Decompose helper into smaller units
+- [x] python bauplan/models.py:20 — vulture flagged multiple unused functions — Remove dead code or wire functions into execution flow
+- [x] python bauplan/scan.py:95 — vulture flagged unused helper delete_branch_if_exists — Remove helper or integrate it where needed
+- [x] python bauplan/:1 — Duplicate helper scan found no cross-folder identical helper bodies — Keep shared helpers centralized as code evolves
 
 ### `cleanup/python/azure-hybrid` — `azure/ml/**`, `hybrid_deploy/**`, `multi_workspace_test/**`
 - [x] python azure/ml/pipeline_script.py:2 — Unused imports reported by ruff — Remove dead imports
@@ -248,16 +248,16 @@ README.md and PIPELINES.md — only this agent edits them. Merges last._
 _Unpinned, unused, vulnerable. Each Python sub-agent handles deps for its
 own subtree._
 
-- [ ] deps bauplan/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement bauplan is not pinned: bauplan (from RequirementLine(line_number=1, line='bauplan', filename=PosixPath('bauplan/requirements.txt')))) — Pin all dependencies to exact versions before auditing
+- [x] deps bauplan/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement bauplan is not pinned: bauplan (from RequirementLine(line_number=1, line='bauplan', filename=PosixPath('bauplan/requirements.txt')))) — Pin all dependencies to exact versions before auditing
 - [ ] deps dbt_projects/azure_fabric/requirements.txt:1 — Version pinning state: fully pinned; pip-audit result: 0 known vulnerabilities — Keep pins fresh and run in CI
 - [ ] deps dbt_projects/databricks/requirements.txt:1 — Version pinning state: fully pinned; pip-audit result: 0 known vulnerabilities — Keep pins fresh and run in CI
 - [ ] deps dbt_projects/postgres/db/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement pandas is not pinned: pandas (from RequirementLine(line_number=1, line='pandas', filename=PosixPath('dbt_projects/postgres/db/requirements.txt')))) — Pin all dependencies to exact versions before auditing
 - [ ] deps dbt_projects/postgres/jaffle_shop_postgres/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement dbt-core is not pinned: dbt-core (from RequirementLine(line_number=1, line='dbt-core', filename=PosixPath('dbt_projects/postgres/jaffle_shop_postgres/requirements.txt')))) — Pin all dependencies to exact versions before auditing
 - [ ] deps dbt_projects/snowflake/requirements.txt:1 — Version pinning state: fully pinned; pip-audit result: 0 known vulnerabilities — Keep pins fresh and run in CI
-- [ ] deps dlt/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement orchestra-sdk is not pinned: orchestra-sdk (from RequirementLine(line_number=1, line='orchestra-sdk', filename=PosixPath('dlt/requirements.txt')))) — Pin all dependencies to exact versions before auditing
+- [x] deps dlt/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement orchestra-sdk is not pinned: orchestra-sdk (from RequirementLine(line_number=1, line='orchestra-sdk', filename=PosixPath('dlt/requirements.txt')))) — Pin all dependencies to exact versions before auditing
 - [ ] deps metadata_api/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement dlt is not pinned: dlt (from RequirementLine(line_number=1, line='dlt', filename=PosixPath('metadata_api/requirements.txt')))) — Pin all dependencies to exact versions before auditing
-- [ ] deps patterns/run_multiple_pipelines/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement dotenv is not pinned: dotenv (from RequirementLine(line_number=1, line='dotenv', filename=PosixPath('patterns/run_multiple_pipelines/requirements.txt')))) — Pin all dependencies to exact versions before auditing
-- [ ] deps patterns/warehouse_savings/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement matplotlib is not pinned: matplotlib (from RequirementLine(line_number=1, line='matplotlib', filename=PosixPath('patterns/warehouse_savings/requirements.txt')))) — Pin all dependencies to exact versions before auditing
+- [x] deps patterns/run_multiple_pipelines/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement dotenv is not pinned: dotenv (from RequirementLine(line_number=1, line='dotenv', filename=PosixPath('patterns/run_multiple_pipelines/requirements.txt')))) — Pin all dependencies to exact versions before auditing
+- [x] deps patterns/warehouse_savings/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement matplotlib is not pinned: matplotlib (from RequirementLine(line_number=1, line='matplotlib', filename=PosixPath('patterns/warehouse_savings/requirements.txt')))) — Pin all dependencies to exact versions before auditing
 - [x] deps python/integration_a/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement orchestra-sdk is not pinned: orchestra-sdk (from RequirementLine(line_number=1, line='orchestra-sdk', filename=PosixPath('python/integration_a/requirements.txt')))) — Pin all dependencies to exact versions before auditing
 - [x] deps python/postgres/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement gspread is not pinned: gspread (from RequirementLine(line_number=1, line='gspread', filename=PosixPath('python/postgres/requirements.txt')))) — Pin all dependencies to exact versions before auditing
 - [x] deps python/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement gspread is not pinned: gspread (from RequirementLine(line_number=2, line='gspread', filename=PosixPath('python/requirements.txt')))) — Pin all dependencies to exact versions before auditing
