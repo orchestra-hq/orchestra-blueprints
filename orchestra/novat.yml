@@ -45,12 +45,12 @@ pipeline:
             \     \"age\": \"35\",\n          \"name\": \"John Doe\",\n          \"\
             s3_path\": \"${{ ORCHESTRA.PIPELINE_RUN_TASKS['62948fdc-6080-431c-aaab-974c6eadd224'].OUTPUTS['s3_path']\
             \ }}\",\n          \"orchestra_task_run_id\":\"${{ ORCHESTRA.TASK_RUN_ID\
-            \ }}\",\n          \"orchestra_api_key\": \"Nzg2ODc0MGQtOTIzYy00MmZlLWI3YTUtMzI0YzVhMzIyODlmOjJ0dU9iRFc0ZHBQb0NleXZqdno4dVhlVGNDeUtsajMy\"\
+            \ }}\",\n          \"orchestra_api_key\": \"ORCHESTRA_API_KEY_PLACEHOLDER\"\
             \n           },\n        \"notebook_path\": \"/Users/hugo@getorchestra.io/test_boto\"\
             \n      },\n\"task_key\": \"test_boto\"\n}]"
           request_body: '{"orchestra_task_run_id":${{ ORCHESTRA.TASK_RUN_ID }},
 
-            "orchestra_api_key": "Nzg2ODc0MGQtOTIzYy00MmZlLWI3YTUtMzI0YzVhMzIyODlmOjJ0dU9iRFc0ZHBQb0NleXZqdno4dVhlVGNDeUtsajMy"
+            "orchestra_api_key": "ORCHESTRA_API_KEY_PLACEHOLDER"
 
 
             }'
