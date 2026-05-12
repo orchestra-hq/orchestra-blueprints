@@ -50,3 +50,10 @@ pipeline:
     name: ''
 webhook:
   enabled: false
+alerts:
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: EMAIL
+        destination: alerts@getorchestra.io

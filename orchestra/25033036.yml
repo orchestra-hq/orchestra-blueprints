@@ -50,3 +50,10 @@ schedule:
   environment: 2789285b-7f8b-4889-9d67-f7f111eb27a8
 webhook:
   enabled: false
+alerts:
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: EMAIL
+        destination: alerts@getorchestra.io
