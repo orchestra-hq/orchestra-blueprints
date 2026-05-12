@@ -9,7 +9,7 @@ pipeline:
         parameters:
           connector_id: manual_carrier
         depends_on: []
-        name: CRM Data
+        name: CRM Data 1
     depends_on: []
     name: ''
   5b15c3c6-7e6a-4e20-bab5-ead456630913:
@@ -90,13 +90,10 @@ pipeline:
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
           statement: execute task demo_task;
-          database: SNOWFLAKE_WORKING
-          schema: PUBLIC
-          set_outputs: false
-          role: ACCOUNTADMIN
           database: BIGQUERY_SAMPLE
           schema: PUBLIC
           set_outputs: false
+          role: ACCOUNTADMIN
         depends_on: []
         name: Execute Task
         connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
