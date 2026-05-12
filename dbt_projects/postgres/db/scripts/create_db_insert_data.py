@@ -3,6 +3,8 @@ import pandas as pd
 import logging
 import os
 from pathlib import Path
+from psycopg2 import sql
+from psycopg2.extras import execute_values
 
 logging.basicConfig(
     level=logging.INFO,
@@ -59,13 +61,10 @@ if __name__ == "__main__":
             logger.info(
                 "Uploading {} records to the table {}...".format(len(data), tablename)
             )
-            args_str = b",".join(
-                cur.mogrify("(" + "%s," * (len(data.columns) - 1) + "%s)", x)
-                for x in tuple(map(tuple, data.values))
-            )
-            cur.execute(
-                "INSERT INTO {} VALUES ".format(tablename) + args_str.decode("utf-8")
-            )
+            rows = tuple(map(tuple, data.values))
+            table_identifier = sql.Identifier(*tablename.split("."))
+            insert_query = sql.SQL("INSERT INTO {} VALUES %s").format(table_identifier)
+            execute_values(cur, insert_query, rows)
             conn.commit()
 
             logger.info("{} uploaded to the Database".format(tablename))
