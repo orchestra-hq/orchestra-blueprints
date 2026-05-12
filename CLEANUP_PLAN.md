@@ -101,60 +101,60 @@ comments. Connection IDs are out of scope. Split by subtree below._
 _Policy note: for `orchestra/*.yml|yaml`, missing top-of-file showcase header comments and missing `configuration.retries` are intentionally ignored._
 
 ### `cleanup/pipelines/orchestra-core` — `orchestra/**/*.yml`
-- [ ] pipelines orchestra/:1 — orchestra validate passed for all 52 YAML files; no schema validation failures — Keep validator enforced in CI
+- [x] pipelines orchestra/:1 — orchestra validate passed for all 52 YAML files; no schema validation failures — Keep validator enforced in CI
 - [ ] pipelines orchestra/07112025_demo.yml:1 — Missing alerts — add alerts block for failure notification
 - [ ] pipelines orchestra/071125_oliver.yaml:1 — Missing alerts — add alerts block for failure notification
 - [ ] pipelines orchestra/0711demo_2.yml:1 — Missing alerts — add alerts block for failure notification
 - [ ] pipelines orchestra/25033036.yml:1 — Missing alerts — add alerts block for failure notification
 - [ ] pipelines orchestra/2711_demo.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/agentic_analytics_demo.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/ai_agent_bigquery.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/aws_postgres_dbt.yaml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/claude_agent.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/claude_agent_mcp.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/cli_demo.yaml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/databricks_connections.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/databricks_metadata.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/dbt_snowflake.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/demo.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/agentic_analytics_demo.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/ai_agent_bigquery.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/aws_postgres_dbt.yaml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/claude_agent.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/claude_agent_mcp.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/cli_demo.yaml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/databricks_connections.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/databricks_metadata.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/dbt_snowflake.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/demo.yml:1 — Missing alerts — add alerts block for failure notification
 - [ ] pipelines orchestra/demo03022026.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/dlt_demo.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/dq_metaengine.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/end_to_end.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/fivetran_elt.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/gcp.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/gcp_data_pipeline.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/gcp_iceberg.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/gcp_on_variant.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/grc_test.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/hl2e.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/hl2e_file1.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/lmr_test.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/matrices.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/novat.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/org_settings.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/pc_demo.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/pmc.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/postgres_demo.yaml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/dlt_demo.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/dq_metaengine.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/end_to_end.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/fivetran_elt.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/gcp.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/gcp_data_pipeline.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/gcp_iceberg.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/gcp_on_variant.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/grc_test.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/hl2e.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/hl2e_file1.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/lmr_test.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/matrices.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/novat.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/org_settings.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/pc_demo.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/pmc.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/postgres_demo.yaml:1 — Missing alerts — add alerts block for failure notification
 - [ ] pipelines orchestra/postgres_demo_25012026.yaml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/postgres_demo_27012026.yaml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/postgres_fivetran_dbt.yaml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/postgres_pipeline.yaml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/ps_demo.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/river.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/river_copy.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/sg.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/stellantis.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/studio_a.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/postgres_demo_27012026.yaml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/postgres_fivetran_dbt.yaml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/postgres_pipeline.yaml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/ps_demo.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/river.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/river_copy.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/sg.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/stellantis.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/studio_a.yml:1 — Missing alerts — add alerts block for failure notification
 - [ ] pipelines orchestra/test_git_pipeline.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/tm.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/townhall.yml:1 — Missing alerts — add alerts block for failure notification
-- [ ] pipelines orchestra/wl_demo.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/tm.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/townhall.yml:1 — Missing alerts — add alerts block for failure notification
+- [x] pipelines orchestra/wl_demo.yml:1 — Missing alerts — add alerts block for failure notification
 ### `cleanup/pipelines/dbt-blueprints` — `dbt_projects/**/*.yml`
 - [ ] pipelines dbt_projects/:1 — No Orchestra pipeline YAML files under dbt_projects/**/*.yml|yaml for validator run — No validate action required in this subtree
 
 ### `cleanup/pipelines/metadata-api` — `metadata_api/**/*.yml`
-- [ ] pipelines metadata_api/orchestra_pipeline.yaml:1 — Pipeline YAML lacks top-of-file showcase header comment, alerts, and configuration.retries — Add header comment, alerts block, and retry policy
+- [x] pipelines metadata_api/orchestra_pipeline.yaml:1 — Pipeline YAML lacks top-of-file showcase header comment, alerts, and configuration.retries — Add header comment, alerts block, and retry policy
 
 ### `cleanup/pipelines/patterns` — `patterns/**/*.yml`
 - [ ] pipelines patterns/:1 — No pipeline YAML files found under patterns/**/*.yml|yaml — No validate action required in this subtree
@@ -191,10 +191,10 @@ _Ruff/format, type hints, dedup, parameter handling. Split by subtree below._
 - [ ] python bauplan/:1 — Duplicate helper scan found no cross-folder identical helper bodies — Keep shared helpers centralized as code evolves
 
 ### `cleanup/python/azure-hybrid` — `azure/ml/**`, `hybrid_deploy/**`, `multi_workspace_test/**`
-- [ ] python azure/ml/pipeline_script.py:2 — Unused imports reported by ruff — Remove dead imports
-- [ ] python azure/ml/scripts/prep_data.py:14 — Public functions missing type hints — Add parameter/return annotations
-- [ ] python azure/ml/scripts/train.py:14 — Public functions missing type hints — Add parameter/return annotations
-- [ ] python hybrid_deploy/README.md:1 — hybrid_deploy included in Python scope but has no .py files — Confirm intended scope or add code/docs clarifying purpose
+- [x] python azure/ml/pipeline_script.py:2 — Unused imports reported by ruff — Remove dead imports
+- [x] python azure/ml/scripts/prep_data.py:14 — Public functions missing type hints — Add parameter/return annotations
+- [x] python azure/ml/scripts/train.py:14 — Public functions missing type hints — Add parameter/return annotations
+- [x] python hybrid_deploy/README.md:1 — hybrid_deploy included in Python scope but has no .py files — Confirm intended scope or add code/docs clarifying purpose
 
 ---
 
@@ -277,6 +277,7 @@ main PRs land._
 
 - [ ] ci Makefile:7 — make validate/lint/audit targets exist but are not enforced by any workflow end-to-end — Add shared CI workflow gating PRs on validate + lint + security + dependency audit
 - [ ] pipelines orchestra/:1 — `make validate lint` currently fails on baseline yamllint violations across many existing orchestra YAML files (indentation/line-length/document-start), blocking clean gate runs for unrelated branches — Triage and remediate in scoped pipelines cleanup branches
+- [ ] python repo:1 — `make lint` currently fails on baseline out-of-scope Ruff violations (for example: bauplan/scan.py F841, dlt/hubspot/__init__.py F401, python/reverse_etl.py F811, python/claude_agent/agent.py E722), blocking clean gate runs for unrelated branches — Triage and remediate in scoped cleanup/python branches
 - [ ] docs README.md:5 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): root README index missing azure, estuary, hybrid_deploy, multi_workspace_test — Handle on cleanup/docs
 - [ ] docs README.md:29 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): README 'Analytics' section has no matching top-level directory — Handle on cleanup/docs
 - [ ] docs README.md:67 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): README 'Sensors' section has no matching top-level directory — Handle on cleanup/docs
