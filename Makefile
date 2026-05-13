@@ -14,15 +14,7 @@ validate-pipelines:
 	else \
 		for f in $(PIPELINE_FILES); do \
 			echo "→ orchestra validate $$f"; \
-			ok=0; \
-			for attempt in 1 2 3; do \
-				orchestra validate "$$f" && ok=1 && break; \
-				echo "validate failed for $$f (attempt $$attempt), retrying..."; \
-				sleep 2; \
-			done; \
-			if [ "$$ok" -ne 1 ]; then \
-				fail=1; \
-			fi; \
+			orchestra validate "$$f" || fail=1; \
 		done; \
 	fi; \
 	exit $$fail
