@@ -14,12 +14,33 @@ on:
   workflow_dispatch:
 
 jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install validation, lint, and audit tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install orchestra-cli yamllint ruff pip-audit
+      - name: Run repository validation gate
+        run: make validate
+      - name: Run Ruff lint gate
+        run: ruff check . --exclude worktrees
+      - name: Run dependency vulnerability audit
+        run: pip-audit -r python/requirements.txt
+
   test-action:
+    needs: quality-gates
     runs-on: ubuntu-latest
     environment: production
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4  
+        uses: actions/checkout@v4
       - name: Run Custom Action
         uses: orchestra-hq/run-pipeline@v1
         with:
@@ -27,4 +48,3 @@ jobs:
           pipeline_id: 25d40c66-5c5a-4e7a-b682-362bd6f61dc2
           poll_interval: 20
           environment: ${{ github.event_name == 'pull_request' && 'Staging' || 'Production' }}
-        
