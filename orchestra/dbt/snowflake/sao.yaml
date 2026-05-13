@@ -1,0 +1,30 @@
+version: v1
+name: '#dbt #state #snowflake'
+pipeline:
+  ee9a6ec1-492a-4b34-ba4b-7ebfdb5e162d:
+    tasks:
+      4cf0ea63-548d-41f1-8f0a-a4a29a29b2c6:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
+        depends_on: []
+        name: 'dbt build '
+        connection: dbt_snowflake_blueprints_prod_07025
+        alerts:
+        - name: dbt Build Failure
+          statuses:
+          - FAILED
+          destinations:
+          - integration: SLACK
+            destination: alert-demos
+            connection_id: default_00000
+    depends_on: []
+    name: ''
+webhook:
+  enabled: false
