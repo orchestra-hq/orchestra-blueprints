@@ -5,13 +5,13 @@ on:
     branches:
       - main
     paths:
-      - "orchestra/07112025_demo.yml"
+      - "orchestra/aws_glue_fivetran_dbt_lakehouse_demo.yml"
       - "dbt_projects/snowflake/models/**"
   push:
     branches:
       - main
     paths:
-      - "orchestra/07112025_demo.yml"
+      - "orchestra/aws_glue_fivetran_dbt_lakehouse_demo.yml"
       - "dbt_projects/snowflake/models/**"
   workflow_dispatch:
 

@@ -1,5 +1,5 @@
 version: v1
-name: '[Agentic Analytics Demo] Daily ELT Pipeline'
+name: 'Agentic AI insights over dbt marts #dbt #lightdash #openai #orchestra #python #slack #metaengine'
 pipeline:
   dltTaskGroup:
     tasks:

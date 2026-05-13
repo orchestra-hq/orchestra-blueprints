@@ -5,12 +5,12 @@ on:
     branches:
       - main
     paths:
-      - "orchestra/gcp_iceberg.yml"
+      - "orchestra/gcp_iceberg_bauplan_lakehouse.yml"
   push:
     branches:
       - main
     paths:
-      - "orchestra/gcp_iceberg.yml"
+      - "orchestra/gcp_iceberg_bauplan_lakehouse.yml"
   workflow_dispatch:
 
 jobs:

@@ -1,5 +1,5 @@
 version: v1
-name: ETL Pipeline with Fivetran, dbt Core, and Power BI
+name: 'Fivetran dbt into Power BI #dbt #fivetran #powerbi #slack'
 pipeline:
   dbtTaskGroup:
     tasks:

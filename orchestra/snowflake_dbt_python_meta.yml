@@ -1,5 +1,5 @@
 version: v1
-name: '#snowflake #dlt #matrix'
+name: 'Snowflake dbt with Python profiling #dbt #python #slack #snowflake #metaengine'
 pipeline:
   3459fb19-f081-43ca-8997-f7f2d54d331d:
     tasks:

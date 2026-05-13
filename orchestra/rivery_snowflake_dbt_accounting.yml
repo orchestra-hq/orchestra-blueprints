@@ -1,5 +1,5 @@
 version: v1
-name: '#python #dlt #rivery #dbt #powerbi #snowflake'
+name: 'Rivery ingestion to Snowflake dbt #dbt #glue #python #rivery #slack #snowflake #metaengine'
 pipeline:
   8252937c-272e-440b-bb57-cf5a8df54c11:
     tasks:

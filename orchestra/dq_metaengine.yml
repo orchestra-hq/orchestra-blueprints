@@ -1,5 +1,5 @@
 version: v1
-name: 'MetaEngine: DQ Tests'
+name: 'Cross-warehouse DQ #metaengine #databricks #fivetran #slack #snowflake #tableau'
 pipeline:
   6f413f4c-4b98-49e1-bd6f-9946e05ae790:
     tasks:
