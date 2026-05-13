@@ -52,7 +52,7 @@ models:
         tests:
           - not_null:
               config:
-                severity: warn
+                # severity: warn
                 # warn_if: ">= 1"
                 error_if: "= 0"
           - unique
