@@ -1,5 +1,5 @@
 version: v1
-name: '#dlt #ecs #powerbi'
+name: 'DLT on ECS to Power BI #ecs #email #powerbi #python #s3 #slack #teams'
 pipeline:
   ingestionTasks:
     tasks:
