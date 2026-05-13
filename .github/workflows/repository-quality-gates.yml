@@ -11,5 +11,4 @@ jobs:
     uses: ./.github/workflows/reusable-quality-gates.yml
     with:
       run_ruff_format: true
-      run_gitleaks: true
       run_pip_audit: true

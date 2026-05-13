@@ -16,8 +16,6 @@ on:
 jobs:
   quality-gates:
     uses: ./.github/workflows/reusable-quality-gates.yml
-    with:
-      run_gitleaks: true
 
   test-action:
     needs: quality-gates

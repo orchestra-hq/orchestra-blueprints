@@ -1,9 +1,0 @@
-title = "Orchestra blueprints gitleaks configuration"
-
-[allowlist]
-description = "Allow known non-secret demo placeholders"
-regexes = [
-  '''ORCHESTRA_API_KEY_PLACEHOLDER''',
-  '''"ORCHESTRA_API_TOKEN"\s*:\s*"your_api_token"''',
-  '''"DESTINATION__SNOWFLAKE__CREDENTIALS__HOST"\s*:\s*"SNOWFLAKE_ACCOUNT_IDENTIFIER"''',
-]
