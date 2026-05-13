@@ -1,4 +1,4 @@
-pyarrow==10.0.1
+pyarrow==24.0.0
 gspread==6.2.1
 snowflake-connector-python==4.5.0
 psycopg2==2.9.12
