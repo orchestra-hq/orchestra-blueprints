@@ -1,5 +1,5 @@
 version: v1
-name: cl_mcp_aprv
+name: 'Claude agent with approvals #orchestra #python #slack'
 pipeline:
   a1f3c2d8-4e7b-4c91-b6a5-3d8e2f109abc:
     tasks:

@@ -1,5 +1,5 @@
 version: v1
-name: aws_sf_lkr
+name: 'AWS pipelines to Snowflake and Looker #dbt #ec2 #glue #lambda #looker #s3 #slack #snowflake'
 pipeline:
   ca402a2d-3f71-42be-9f57-bcd111cae6ee:
     tasks:

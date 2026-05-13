@@ -1,5 +1,5 @@
 version: v1
-name: ft_db_ht_sf
+name: 'Fivetran dbt state sync and Hightouch #dbt #fivetran #hightouch #python #slack #snowflake'
 pipeline:
   8252937c-272e-440b-bb57-cf5a8df54c11:
     tasks:

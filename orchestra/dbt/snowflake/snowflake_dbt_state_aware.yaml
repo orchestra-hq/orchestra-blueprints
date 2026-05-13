@@ -1,5 +1,5 @@
 version: v1
-name: sf_dbt_st
+name: 'Snowflake dbt state-aware build #dbt #slack #snowflake'
 pipeline:
   ee9a6ec1-492a-4b34-ba4b-7ebfdb5e162d:
     tasks:

@@ -1,5 +1,5 @@
 version: v1
-name: ag_dbt_pipe
+name: 'Agentic AI insights over dbt marts #dbt #lightdash #openai #orchestra #python #slack'
 pipeline:
   dltTaskGroup:
     tasks:
