@@ -15,24 +15,9 @@ on:
 
 jobs:
   quality-gates:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install validation, lint, and audit tools
-        run: |
-          python -m pip install --upgrade pip
-          pip install orchestra-cli yamllint ruff pip-audit
-      - name: Run repository validation gate
-        run: make validate
-      - name: Run Ruff lint gate
-        run: ruff check . --exclude worktrees
-      - name: Run dependency vulnerability audit
-        run: pip-audit -r python/requirements.txt
+    uses: ./.github/workflows/reusable-quality-gates.yml
+    with:
+      run_pip_audit: true
 
   test-action:
     needs: quality-gates
