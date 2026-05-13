@@ -223,23 +223,23 @@ _Root README, per-dir READMEs, generated PIPELINES.md. Reserved files:
 README.md and PIPELINES.md — only this agent edits them. Merges last._
 
 ### High
-- [ ] docs README.md:5 — Root README omits top-level dirs: azure, estuary, hybrid_deploy, multi_workspace_test — Add sections and links for each
-- [ ] docs README.md:29 — README 'Analytics' section has no matching top-level directory — Add directory or remove stale section
-- [ ] docs README.md:67 — README 'Sensors' section has no matching top-level directory — Add directory or remove stale section
-- [ ] docs metadata_api/orchestra_pipeline.yaml:1 — Pipeline YAML has no description key/header — Add description key or top header comment
+- [x] docs README.md:5 — Root README omits top-level dirs: azure, estuary, hybrid_deploy, multi_workspace_test — Add sections and links for each
+- [x] docs README.md:29 — README 'Analytics' section has no matching top-level directory — Add directory or remove stale section
+- [x] docs README.md:67 — README 'Sensors' section has no matching top-level directory — Add directory or remove stale section
+- [x] docs metadata_api/orchestra_pipeline.yaml:1 — Pipeline YAML has no description key/header — Add description key or top header comment
 
 ### Medium
-- [ ] docs azure/:1 — Top-level documentation coverage: has README=no, mentioned in root README=no — add top-level README, add root README mention
-- [ ] docs bauplan/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
-- [ ] docs dbt_projects/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
-- [ ] docs dlt/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
-- [ ] docs estuary/:1 — Top-level documentation coverage: has README=no, mentioned in root README=no — add top-level README, add root README mention
-- [ ] docs hybrid_deploy/:1 — Top-level documentation coverage: has README=yes, mentioned in root README=no — add root README mention
+- [x] docs azure/:1 — Top-level documentation coverage: has README=no, mentioned in root README=no — add top-level README, add root README mention
+- [x] docs bauplan/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
+- [x] docs dbt_projects/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
+- [x] docs dlt/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
+- [x] docs estuary/:1 — Top-level documentation coverage: has README=no, mentioned in root README=no — add top-level README, add root README mention
+- [x] docs hybrid_deploy/:1 — Top-level documentation coverage: has README=yes, mentioned in root README=no — add root README mention
 - [ ] docs metadata_api/:1 — Top-level documentation coverage: has README=yes, mentioned in root README=yes — No change required
-- [ ] docs multi_workspace_test/:1 — Top-level documentation coverage: has README=no, mentioned in root README=no — add top-level README, add root README mention
-- [ ] docs orchestra/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
-- [ ] docs patterns/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
-- [ ] docs python/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
+- [x] docs multi_workspace_test/:1 — Top-level documentation coverage: has README=no, mentioned in root README=no — add top-level README, add root README mention
+- [x] docs orchestra/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
+- [x] docs patterns/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
+- [x] docs python/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
 
 ---
 
