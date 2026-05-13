@@ -1,0 +1,207 @@
+version: v1
+name: 'Matrices Output Usage #python #metaengine'
+pipeline:
+  48097157-22f6-465b-8595-4bf998f1e10d:
+    tasks:
+      703acc86-e9e6-4f77-b292-76e359f295af:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          set_outputs: true
+          source: INLINE
+          code: 'import os
+
+            from orchestra_sdk.orchestra import OrchestraSDK
+
+
+            client = OrchestraSDK(api_key=f"{os.environ.get("ORCHESTRA_API_KEY")}")
+
+
+            print("Input: {input}".format(input="${{ MATRIX.parallel_input }}"))
+
+
+            # Set outputs for downstream tasks
+
+            client.set_output("output_val", "output_{input}".format(input="${{ MATRIX.parallel_input
+            }}"))'
+        depends_on: []
+        name: Run Tasks Parallel
+    depends_on:
+    - c1d104d8-d0fe-44d1-a994-952a40d6380f
+    name: group
+    matrix:
+      inputs:
+        parallel_input: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['13b21b67-f08d-467a-9c8c-8a3e4a0478bf'].OUTPUTS['parallel_input']
+          }}
+  a702e669-5ee3-4f70-9eb3-ef72420b7390:
+    tasks:
+      652b3365-34f0-4582-94ca-2a1039313d0a:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          set_outputs: true
+          source: INLINE
+          code: 'import os
+
+            from orchestra_sdk.orchestra import OrchestraSDK
+
+
+            client = OrchestraSDK(api_key=f"{os.environ.get("ORCHESTRA_API_KEY")}")
+
+
+            print("Input: {input}".format(input="${{ MATRIX.sequential_input }}"))
+
+
+            # Set outputs for downstream tasks
+
+            client.set_output("output_val", "output_{input}".format(input="${{ MATRIX.sequential_input
+            }}"))'
+        depends_on: []
+        name: Run Tasks Sequential
+    depends_on:
+    - c1d104d8-d0fe-44d1-a994-952a40d6380f
+    name: group
+    matrix:
+      inputs:
+        sequential_input: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['13b21b67-f08d-467a-9c8c-8a3e4a0478bf'].OUTPUTS['sequential_input']
+          }}
+      sequential: true
+  283d15b5-caf2-4123-8073-ce5bea769013:
+    tasks:
+      1481229e-66c0-436a-b94d-12d9a083133b:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          set_outputs: false
+          source: INLINE
+          code: "outputs = ${{ ORCHESTRA.PIPELINE_RUN_TASKS['703acc86-e9e6-4f77-b292-76e359f295af'].OUTPUTS\
+            \ }}\n\nfor input_val in ${{ ORCHESTRA.PIPELINE_RUN_TASKS['13b21b67-f08d-467a-9c8c-8a3e4a0478bf'].OUTPUTS['parallel_input']\
+            \ }}:\n    print(outputs[input_val])"
+        depends_on: []
+        name: Use Parallel Outputs - Grouped
+    depends_on:
+    - 48097157-22f6-465b-8595-4bf998f1e10d
+    name: group
+  a0c302f2-b115-45a1-ae3a-885d2285a7e2:
+    tasks:
+      edb24dbc-8472-48b4-bdb6-585ddf3a8273:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          set_outputs: false
+          source: INLINE
+          code: "outputs = ${{ ORCHESTRA.PIPELINE_RUN_TASKS['652b3365-34f0-4582-94ca-2a1039313d0a'].OUTPUTS\
+            \ }}\n\nfor input_val in ${{ ORCHESTRA.PIPELINE_RUN_TASKS['13b21b67-f08d-467a-9c8c-8a3e4a0478bf'].OUTPUTS['sequential_input']\
+            \ }}:\n    print(outputs[str(input_val)])"
+        depends_on: []
+        name: Use Sequential Outputs
+    depends_on:
+    - a702e669-5ee3-4f70-9eb3-ef72420b7390
+    name: group
+  c1d104d8-d0fe-44d1-a994-952a40d6380f:
+    tasks:
+      13b21b67-f08d-467a-9c8c-8a3e4a0478bf:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          set_outputs: true
+          source: INLINE
+          code: 'import os
+
+            from orchestra_sdk.orchestra import OrchestraSDK
+
+
+            # Initialize Orchestra client
+
+            client = OrchestraSDK(api_key=f"{os.environ.get("ORCHESTRA_API_KEY")}")
+
+
+            # Set outputs for downstream tasks
+
+            client.set_output("parallel_input", ["a", "b"])
+
+            client.set_output("sequential_input", [1, 2])
+
+            client.set_output("p_and_s_input", ["x", "y"])
+
+            client.set_output("singular_sequential_input", 1)'
+        depends_on: []
+        name: Set Example Matrices
+    depends_on: []
+    name: group
+  0de5e03d-5b35-4286-920d-2604b85bf545:
+    tasks:
+      755f4a61-cdd9-4ae4-aba9-1af5b5dfd224:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          set_outputs: true
+          source: INLINE
+          code: 'import os
+
+            from orchestra_sdk.orchestra import OrchestraSDK
+
+
+            client = OrchestraSDK(api_key=f"{os.environ.get("ORCHESTRA_API_KEY")}")
+
+
+            print("Input: {input}".format(input="${{ MATRIX.p_and_s_input }}"))
+
+
+            # Set outputs for downstream tasks
+
+            client.set_output("output_val", "output_{input}".format(input="${{ MATRIX.p_and_s_input
+            }}"))'
+        depends_on: []
+        name: Parallel with Sequential Tasks 1
+      c737ac64-eeeb-40f0-8322-e9b909aa5912:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          set_outputs: true
+          source: INLINE
+          code: 'import os
+
+            from orchestra_sdk.orchestra import OrchestraSDK
+
+
+            client = OrchestraSDK(api_key=f"{os.environ.get("ORCHESTRA_API_KEY")}")
+
+
+            print("Input: {input}".format(input="${{ ORCHESTRA.PIPELINE_RUN_TASKS[''755f4a61-cdd9-4ae4-aba9-1af5b5dfd224''].OUTPUTS[''output_val'']
+            }}"))
+
+
+            # Set outputs for downstream tasks
+
+            client.set_output("output_val", "output_{input}".format(input="${{ ORCHESTRA.PIPELINE_RUN_TASKS[''755f4a61-cdd9-4ae4-aba9-1af5b5dfd224''].OUTPUTS[''output_val'']
+            }}"))'
+        depends_on:
+        - 755f4a61-cdd9-4ae4-aba9-1af5b5dfd224
+        name: Parallel with Sequential Tasks 2
+    depends_on:
+    - c1d104d8-d0fe-44d1-a994-952a40d6380f
+    name: group
+    matrix:
+      inputs:
+        p_and_s_input: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['13b21b67-f08d-467a-9c8c-8a3e4a0478bf'].OUTPUTS['p_and_s_input']
+          }}
+webhook:
+  enabled: false
+configuration:
+  concurrency:
+    max_active: 3
