@@ -275,7 +275,7 @@ _Findings that don't fit a single branch, or that one agent surfaces while
 working in someone else's territory. Owner agent picks these up after their
 main PRs land._
 
-- [ ] ci Makefile:7 — make validate/lint/audit targets exist but are not enforced by any workflow end-to-end — Add shared CI workflow gating PRs on validate + lint + security + dependency audit
+- [x] ci Makefile:7 — make validate/lint/audit targets exist but are not enforced by any workflow end-to-end — Add shared CI workflow gating PRs on validate + lint + security + dependency audit
 - [ ] pipelines orchestra/:1 — `make validate lint` currently fails on baseline yamllint violations across many existing orchestra YAML files (indentation/line-length/document-start), blocking clean gate runs for unrelated branches — Triage and remediate in scoped pipelines cleanup branches
 - [x] python repo:1 — `make lint` currently fails on baseline out-of-scope Ruff violations (for example: bauplan/scan.py F841, dlt/hubspot/__init__.py F401, python/reverse_etl.py F811, python/claude_agent/agent.py E722), blocking clean gate runs for unrelated branches — Triage and remediate in scoped cleanup/python branches
 - [x] docs README.md:5 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): root README index missing azure, estuary, hybrid_deploy, multi_workspace_test — Handle on cleanup/docs
