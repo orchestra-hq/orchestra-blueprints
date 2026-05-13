@@ -1,0 +1,51 @@
+version: v1
+name: '#Coalesce #fivetran #powerbi'
+pipeline:
+  4a406291-dfd5-4e34-9f8a-1347d7933893:
+    tasks:
+      a08eac68-09eb-4fb1-8dd3-2df2dc98b374:
+        integration: COALESCE
+        integration_job: COALESCE_RUNJOB
+        parameters:
+          environment_id: '8'
+          snowflake_auth_type: KeyPair
+          force_ignore_workspace_status: false
+        depends_on: []
+        name: Trigger transformations
+        operation_metadata:
+          3dabcbc8-870e-4696-a2d6-9553df02549e:
+            integration: SNOWFLAKE
+            connection: snowflake__prod__80122
+        treat_failure_as_warning: true
+    depends_on:
+    - 67d14675-08c3-4d5f-bd75-2ccfd9a39ee1
+    name: ''
+  67d14675-08c3-4d5f-bd75-2ccfd9a39ee1:
+    tasks:
+      6257cc82-74cf-4da5-8b35-7ee5e55139d1:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: manual_carrier
+        depends_on: []
+        name: Ingest data from CRM
+    depends_on: []
+    name: ''
+  36ecb195-7fce-43ea-b230-5a4a5134bbfa:
+    tasks:
+      1a6c847c-369f-4243-8dc1-2b36474ac56a:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: 5e83dd8a-2c30-44ec-8f53-e5e751ae515d
+        depends_on: []
+        name: Refresh dashboards
+    depends_on:
+    - 4a406291-dfd5-4e34-9f8a-1347d7933893
+    name: ''
+schedule:
+- name: Weekly at 8am
+  cron: 0 8 ? * MON *
+  timezone: Europe/London
+webhook:
+  enabled: false
