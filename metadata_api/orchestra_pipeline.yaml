@@ -1,4 +1,3 @@
-# Example pipeline for ingesting Orchestra metadata into a warehouse via dlt.
 version: v1
 name: Orchestra Metadata -> dlt -> Warehouse
 pipeline:
