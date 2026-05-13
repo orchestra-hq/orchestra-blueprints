@@ -1,0 +1,161 @@
+version: v1
+name: 'Alteryx, dbt, and Snowflake to Teams Summary #snowflake #sensor #alteryx #teams
+  #dbt #openai'
+pipeline:
+  alteryxTaskGroup:
+    tasks:
+      alteryxTask:
+        integration: ALTERYX_SERVER
+        integration_job: ALTERYX_SERVER_TRIGGER_WORKFLOW
+        parameters:
+          workflow_id: 69457539bd1647f6c13dd977
+          priority: Medium
+        depends_on: []
+        name: Alteryx Task
+        connection: alteryx__jtc__11958
+    depends_on: []
+    name: Alteryx Task Group
+  dbtTaskGroup:
+    tasks:
+      ff142dfb-7b42-49a6-8bac-da5b37b8b668:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt parse
+          package_manager: PIP
+          python_version: '3.12'
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
+        depends_on: []
+        name: dbt Core Run
+        connection: dbt_snowflake_blueprints_prod_07025
+      c867169f-c7a0-4f63-805e-7b01e0836107:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: execute task demo_task;
+          set_outputs: false
+        depends_on: []
+        name: Execute Snowflake Task
+        connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
+    depends_on:
+    - alteryxTaskGroup
+    name: DBT Task Group
+  7b052710-5b3b-4ba9-98b0-fbd4a4cd1a08:
+    tasks:
+      1f9b3756-b994-4f68-bab9-6f15728c423b:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: "SELECT column1 AS id, column2 AS name, column3 AS score\nFROM\
+            \ VALUES\n  (1, 'Alice', 92.5),\n  (2, 'Bob', 87.3),\n  (3, 'Charlie',\
+            \ 95.1),\n  (4, 'Diana', 78.9)\nORDER BY score DESC;"
+          set_outputs: true
+        depends_on: []
+        name: Run Snowflake Query
+        connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
+    depends_on:
+    - dbtTaskGroup
+    condition: ${{ task_groups['dbtTaskGroup'].all().status == 'SUCCEEDED' }}
+    name: group
+  1013fa5f-9228-4648-b55d-823a98b10e6a:
+    tasks:
+      078d4cea-af5b-47eb-8412-ead5ad7be3ff:
+        integration: OPEN_AI
+        integration_job: OPEN_AI_CHAT
+        parameters:
+          prompt: Summarise this data
+          model: gpt-5
+          context: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['1f9b3756-b994-4f68-bab9-6f15728c423b'].OUTPUTS['results']
+            }}
+          set_outputs: true
+          return_text: true
+        depends_on: []
+        name: Summarise Data
+        connection: openai__prod__72452
+    depends_on:
+    - 7b052710-5b3b-4ba9-98b0-fbd4a4cd1a08
+    name: group
+  9d0a7fae-9f15-4b11-a2ed-3d4b60a764e7:
+    tasks:
+      e232759a-b140-4244-8fc4-ec4383450d1d:
+        integration: MICROSOFT_TEAMS
+        integration_job: SEND_MICROSOFT_TEAMS_MESSAGE
+        parameters:
+          content:
+            $schema: http://adaptivecards.io/schemas/adaptive-card.json
+            type: AdaptiveCard
+            version: '1.0'
+            body:
+            - type: TextBlock
+              text: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['078d4cea-af5b-47eb-8412-ead5ad7be3ff'].OUTPUTS['results']
+                }}
+              wrap: true
+              horizontalAlignment: left
+        depends_on: []
+        name: Send Teams Summary
+        connection: migrated_teams_66347
+    depends_on:
+    - 1013fa5f-9228-4648-b55d-823a98b10e6a
+    name: group
+  98c91e81-3bb6-4731-b318-5247d3a74891:
+    tasks:
+      83828d86-2bba-4c29-b93a-7bc93d41d85e:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          source: INLINE
+          code: import os
+        depends_on: []
+        name: Run Python
+    depends_on:
+    - alteryxTaskGroup
+    name: group
+sensors:
+  snowflakeSensor:
+    name: Snowflake Sensor Trigger
+    cron: 0 0 * * ? *
+    timezone: UTC
+    timeout_mins: 10
+    environments:
+    - Production
+    checks:
+      Snowflake Check:
+        integration: SNOWFLAKE
+        connection: snowflake__prod__80122
+        sensor_type: SNOWFLAKE_QUERY
+        parameters:
+          query: SELECT COUNT(*) FROM my_table WHERE condition = 'value';
+  582cee84-5b1b-4a1b-a577-c2cdd9692608:
+    name: Sensor trigger
+    cron: 0 8 ? * * *
+    timezone: Europe/London
+    timeout_mins: 60
+    checks:
+      Wait for UI Path:
+        integration: ORCHESTRA
+        sensor_type: ORCHESTRA_WEBHOOK_EVENT
+        parameters:
+          event_type: uipath_job_1
+          check_latest_event: false
+    alerts:
+    - name: Did UI Path finish?
+      statuses:
+      - FAILED
+      destinations:
+      - integration: MICROSOFT_TEAMS
+        connection_id: migrated_teams_66347
+      custom_message: UI path did not finish
+webhook:
+  enabled: true
+alerts:
+- name: Pipeline Alert
+  statuses:
+  - FAILED
+  destinations:
+  - integration: MICROSOFT_TEAMS
+    connection_id: migrated_teams_66347
+  custom_message: Pipeline failed, see run [here](https://app.getorchestra.io/pipeline-runs/${{
+    ORCHESTRA.PIPELINE_RUN_ID }}/lineage)
