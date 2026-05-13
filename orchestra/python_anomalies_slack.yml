@@ -1,0 +1,44 @@
+version: v1
+name: 'Python Anomaly Detection to Slack #python #slack'
+pipeline:
+  0e6829a0-4a72-4a80-849c-e2d78ea68b2c:
+    tasks:
+      49c05eed-955e-4281-921c-607d4b659588:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install requests
+          environment_variables: '{"ANOMALY_THRESHOLD":"2",
+
+            "ENVIRONMENT":"PROD",
+
+            "ANALYSIS_CADENCE":"30"}'
+          set_outputs: true
+          source: GIT
+          command: python -m anomalies
+          branch: main
+          project_dir: python
+          shallow_clone_dirs: python
+        depends_on: []
+        name: Run anomalies
+    depends_on: []
+    name: group
+  739efc1b-4b69-4722-8690-553c3b78e385:
+    tasks:
+      0227553c-e2fc-491a-8589-d7c605d9296c:
+        integration: SLACK
+        integration_job: SEND_SLACK_MESSAGE
+        parameters:
+          channel_name: alert-testing
+          text: 'Here are the alerts:'
+          blocks: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['49c05eed-955e-4281-921c-607d4b659588'].OUTPUTS['result']
+            }}
+        depends_on: []
+        name: Send message
+    depends_on:
+    - 0e6829a0-4a72-4a80-849c-e2d78ea68b2c
+    name: group
+webhook:
+  enabled: false
