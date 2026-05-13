@@ -43,7 +43,7 @@ models:
       tags:
         - massive_dag
       meta:
-        owner: "@U09RF9PCWR0"
+        owner: "<@U09RF9PCWR0>"
         channel: "#alert-demos"
     description: "Example store sales"
     columns:
