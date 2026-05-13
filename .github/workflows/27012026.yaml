@@ -6,8 +6,13 @@ on:
       - main
 
 jobs:
-  
+  quality-gates:
+    uses: ./.github/workflows/reusable-quality-gates.yml
+    with:
+      run_ruff_format: true
+
   import:
+    needs: quality-gates
     environment: production
     runs-on: ubuntu-latest
     steps:
@@ -39,12 +44,12 @@ jobs:
       - name: Log new files
         shell: bash
         run: echo ${{ steps.added-files.outputs.files }}
-      
+
       - name: Import Pipeline from YAML
         if: ${{ steps.added-files.outputs.files != '' }}
         shell: bash
         run: |
-          for file in ${{ steps.added-files.outputs.files }}; do  
+          for file in ${{ steps.added-files.outputs.files }}; do
             alias=$(basename $file .yml)
             alias="${alias%.yaml}"
             echo "Importing $file to Orchestra with alias $alias"

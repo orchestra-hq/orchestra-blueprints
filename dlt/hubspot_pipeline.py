@@ -5,9 +5,9 @@ from hubspot import hubspot, hubspot_events_for_objects, THubspotObjectType
 from setup_logger import build_logger
 
 
-
-
 logger = build_logger("debug.log")
+
+
 def run_pipeline() -> None:
     """
     This function loads all resources from HubSpot CRM
@@ -21,11 +21,13 @@ def run_pipeline() -> None:
     p = dlt.pipeline(
         pipeline_name="hubspot",
         dataset_name="dlt_hubspot",
-        destination='bigquery',
+        destination="bigquery",
     )
 
     data = hubspot()
-    data.companies.bind(props=['hs_time_in_opportunity', 'hs_analytics_first_visit_timestamp'])
+    data.companies.bind(
+        props=["hs_time_in_opportunity", "hs_analytics_first_visit_timestamp"]
+    )
 
     # Run the pipeline with the HubSpot source connector
     info = p.run(data)
@@ -49,7 +51,7 @@ def load_crm_data_with_history() -> None:
     p = dlt.pipeline(
         pipeline_name="hubspot",
         dataset_name="hubspot_dataset",
-        destination='bigquery',
+        destination="bigquery",
     )
 
     # Configure the source with `include_history` to enable property history load, history is disabled by default
@@ -74,7 +76,7 @@ def load_crm_objects_with_custom_properties() -> None:
     p = dlt.pipeline(
         pipeline_name="hubspot",
         dataset_name="hubspot_dataset",
-        destination='bigquery',
+        destination="bigquery",
     )
 
     source = hubspot()
@@ -109,7 +111,7 @@ def load_web_analytics_events(
     p = dlt.pipeline(
         pipeline_name="hubspot",
         dataset_name="hubspot_dataset",
-        destination='bigquery',
+        destination="bigquery",
         dev_mode=False,
     )
 
@@ -120,4 +122,3 @@ def load_web_analytics_events(
 
     # Print information about the pipeline run
     print(info)
-

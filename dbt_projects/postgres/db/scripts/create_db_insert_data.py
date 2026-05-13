@@ -3,6 +3,8 @@ import pandas as pd
 import logging
 import os
 from pathlib import Path
+from psycopg2 import sql
+from psycopg2.extras import execute_values
 
 logging.basicConfig(
     level=logging.INFO,
@@ -16,11 +18,11 @@ logger = logging.getLogger(__name__)
 def get_conn():
     logger.info("Creating Database Connection...")
     conn = psycopg2.connect(
-        database=os.getenv('POSTGRES_DB'),
-        user=os.getenv('POSTGRES_USER'),
-        password=os.getenv('POSTGRES_PASSWORD'),
-        host=os.getenv('POSTGRES_HOST'),
-        port=os.getenv('POSTGRES_PORT'),
+        database=os.getenv("POSTGRES_DB"),
+        user=os.getenv("POSTGRES_USER"),
+        password=os.getenv("POSTGRES_PASSWORD"),
+        host=os.getenv("POSTGRES_HOST"),
+        port=os.getenv("POSTGRES_PORT"),
     )
 
     cur = conn.cursor()
@@ -53,19 +55,18 @@ if __name__ == "__main__":
 
     for file in files.keys():
         tablename = files[file]
-        data = pd.read_csv(Path(__file__).resolve().parent.parent / "data/{}".format(file))
+        data = pd.read_csv(
+            Path(__file__).resolve().parent.parent / "data/{}".format(file)
+        )
 
         try:
             logger.info(
                 "Uploading {} records to the table {}...".format(len(data), tablename)
             )
-            args_str = b",".join(
-                cur.mogrify("(" + "%s," * (len(data.columns) - 1) + "%s)", x)
-                for x in tuple(map(tuple, data.values))
-            )
-            cur.execute(
-                "INSERT INTO {} VALUES ".format(tablename) + args_str.decode("utf-8")
-            )
+            rows = tuple(map(tuple, data.values))
+            table_identifier = sql.Identifier(*tablename.split("."))
+            insert_query = sql.SQL("INSERT INTO {} VALUES %s").format(table_identifier)
+            execute_values(cur, insert_query, rows)
             conn.commit()
 
             logger.info("{} uploaded to the Database".format(tablename))

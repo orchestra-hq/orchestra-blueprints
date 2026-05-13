@@ -1,5 +1,1 @@
-dlt
-dlt[bigquery]
-dlt[mssql]
-dlt[motherduck]
-dlt[snowflake]
+dlt[bigquery,mssql,motherduck,snowflake]==1.26.0

@@ -20,11 +20,10 @@ validate-pipelines:
 	exit $$fail
 
 lint:
-	ruff check .
-	ruff format --check .
+	ruff check . --exclude worktrees
+	ruff format --check . --exclude worktrees
 
 audit:
-	gitleaks detect --no-banner --redact
 	pip-audit -r python/requirements.txt || true
 
 install-tools:

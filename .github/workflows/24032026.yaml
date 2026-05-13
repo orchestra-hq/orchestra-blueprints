@@ -15,15 +15,17 @@ on:
       - "dbt_projects/snowflake/models/**"
   workflow_dispatch:
 
-
-
 jobs:
+  quality-gates:
+    uses: ./.github/workflows/reusable-quality-gates.yml
+
   test-action:
+    needs: quality-gates
     runs-on: ubuntu-latest
     environment: production
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4  
+        uses: actions/checkout@v4
       - name: Run impact analysis
         uses: orchestra-hq/run-pipeline@v1
         with:
@@ -50,4 +52,3 @@ jobs:
               "dbt_command": " build -s state:modified+ --defer --state latest_production --exclude tag:metadata",
               "dbt_branch": "${{ github.head_ref }}"
             }
-        

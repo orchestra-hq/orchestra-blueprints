@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-  "pandas",
-  "requests",
-  "orchestra-sdk"
+  "pandas==3.0.3",
+  "requests==2.34.0",
+  "orchestra-sdk==0.1.2"
 ]

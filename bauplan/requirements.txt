@@ -1,1 +1,1 @@
-bauplan
+bauplan==0.1.0

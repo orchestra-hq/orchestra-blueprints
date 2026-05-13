@@ -1,0 +1,14 @@
+name: Repository Quality Gates
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  quality-gates:
+    uses: ./.github/workflows/reusable-quality-gates.yml
+    with:
+      run_ruff_format: true
+      run_pip_audit: true

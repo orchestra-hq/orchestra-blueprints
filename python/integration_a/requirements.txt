@@ -1,9 +1,9 @@
-orchestra-sdk
-numpy
+orchestra-sdk==0.1.2
+numpy==2.4.4
 dlt==1.4.0
 openpyxl==3.1.5
-dlt[bigquery]
+dlt[bigquery]==1.4.0
 hubspot-api-client==10.0.0
-requests
-paramiko==3.5.1 
+requests==2.34.0
+paramiko==3.5.1
 boto3==1.37.31
