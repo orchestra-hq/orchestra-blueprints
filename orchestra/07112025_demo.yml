@@ -90,9 +90,6 @@ pipeline:
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
           statement: execute task demo_task;
-          database: SNOWFLAKE_WORKING
-          schema: PUBLIC
-          set_outputs: false
           role: ACCOUNTADMIN
           database: BIGQUERY_SAMPLE
           schema: PUBLIC

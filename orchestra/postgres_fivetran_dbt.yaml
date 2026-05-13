@@ -40,7 +40,7 @@ pipeline:
         depends_on: []
         name: Run PostgreSQL Connector
         connection: python__production__blueprints__19239
-      
+
       fivetran_ingestion_task:
         integration: FIVETRAN
         integration_job: FIVETRAN_SYNC_ALL
@@ -48,7 +48,7 @@ pipeline:
           connector_id: memoranda_ing
         depends_on: []
         name: Fivetran Memoranda Ingestion
-    
+
     depends_on: []
     name: Data Ingestion Stage
 
