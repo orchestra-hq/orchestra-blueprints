@@ -49,27 +49,27 @@ _Leaked secrets, credential hygiene, `.gitignore` gaps. Connection IDs are
 out of scope (see top of file)._
 
 ### High
-- [ ] security orchestra/novat.yml:50 — gitleaks flagged secret-shaped string (generic-api-key: orchestra_api_key": "REDACTED") — Replace token-like literal with non-sensitive placeholder and rotate if real
-- [ ] security metadata_api/README.md:14 — gitleaks flagged secret-shaped string (generic-api-key: DESTINATION__SNOWFLAKE__CREDENTIALS__HOST": "REDACTED") — Replace token-like literal with non-sensitive placeholder and rotate if real
-- [ ] security dbt_projects/postgres/db/scripts/create_db_insert_data.py:66 — semgrep python.sqlalchemy.security.sqlalchemy-execute-raw-query.sqlalchemy-execute-raw-query — Refactor to safe subprocess usage / parameterized SQL
-- [ ] security python/claude_agent/agent.py:15 — semgrep python.lang.security.audit.subprocess-shell-true.subprocess-shell-true — Refactor to safe subprocess usage / parameterized SQL
+- [x] security orchestra/novat.yml:50 — gitleaks flagged secret-shaped string (generic-api-key: orchestra_api_key": "REDACTED") — Replace token-like literal with non-sensitive placeholder and rotate if real
+- [x] security metadata_api/README.md:14 — gitleaks flagged secret-shaped string (generic-api-key: DESTINATION__SNOWFLAKE__CREDENTIALS__HOST": "REDACTED") — Replace token-like literal with non-sensitive placeholder and rotate if real
+- [x] security dbt_projects/postgres/db/scripts/create_db_insert_data.py:66 — semgrep python.sqlalchemy.security.sqlalchemy-execute-raw-query.sqlalchemy-execute-raw-query — Refactor to safe subprocess usage / parameterized SQL
+- [x] security python/claude_agent/agent.py:15 — semgrep python.lang.security.audit.subprocess-shell-true.subprocess-shell-true — Refactor to safe subprocess usage / parameterized SQL
 
 ### Medium
-- [ ] security dbt_projects/postgres/db/dockerfile:9 — semgrep dockerfile.security.missing-user.missing-user container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [ ] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:4 — semgrep yaml.docker-compose.security.no-new-privileges.no-new-privileges container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [ ] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:4 — semgrep yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [ ] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:14 — semgrep yaml.docker-compose.security.no-new-privileges.no-new-privileges container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [ ] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:14 — semgrep yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [ ] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:20 — semgrep yaml.docker-compose.security.no-new-privileges.no-new-privileges container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [ ] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:20 — semgrep yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [ ] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:25 — semgrep yaml.docker-compose.security.no-new-privileges.no-new-privileges container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [ ] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:25 — semgrep yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [ ] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:30 — semgrep yaml.docker-compose.security.no-new-privileges.no-new-privileges container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [ ] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:30 — semgrep yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [ ] security patterns/run_multiple_pipelines/.env.example:1 — Committed .env-style file detected — Keep example values non-sensitive and document secret sourcing
+- [x] security dbt_projects/postgres/db/dockerfile:9 — semgrep dockerfile.security.missing-user.missing-user container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
+- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:4 — semgrep yaml.docker-compose.security.no-new-privileges.no-new-privileges container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
+- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:4 — semgrep yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
+- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:14 — semgrep yaml.docker-compose.security.no-new-privileges.no-new-privileges container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
+- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:14 — semgrep yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
+- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:20 — semgrep yaml.docker-compose.security.no-new-privileges.no-new-privileges container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
+- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:20 — semgrep yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
+- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:25 — semgrep yaml.docker-compose.security.no-new-privileges.no-new-privileges container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
+- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:25 — semgrep yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
+- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:30 — semgrep yaml.docker-compose.security.no-new-privileges.no-new-privileges container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
+- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:30 — semgrep yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
+- [x] security patterns/run_multiple_pipelines/.env.example:1 — Committed .env-style file detected — Keep example values non-sensitive and document secret sourcing
 
 ### Low
-- [ ] security azure/ml/config.json:1 — semgrep reported syntax parse error for this file — Fix file format so static scanners can parse it
+- [x] security azure/ml/config.json:1 — semgrep reported syntax parse error for this file — Fix file format so static scanners can parse it
 
 ---
 
@@ -78,7 +78,7 @@ out of scope (see top of file)._
 _Directory layout, naming conventions, redundant nesting, stale paths._
 
 ### High
-- [ ] _No in-scope high items on `cleanup/structure` (root README.md is reserved on this branch; deferred under Cross-cutting follow-ups)._
+- [x] _No in-scope high items on `cleanup/structure` (root README.md is reserved on this branch; deferred under Cross-cutting follow-ups)._
 
 ### Medium
 - [x] structure orchestra/test_git_pipeline.yml:1 — Filename breaks sibling naming convention (contains spaces) — Rename to snake_case without spaces
@@ -151,13 +151,13 @@ _Policy note: for `orchestra/*.yml|yaml`, missing top-of-file showcase header co
 - [x] pipelines orchestra/townhall.yml:1 — Missing alerts — add alerts block for failure notification
 - [x] pipelines orchestra/wl_demo.yml:1 — Missing alerts — add alerts block for failure notification
 ### `cleanup/pipelines/dbt-blueprints` — `dbt_projects/**/*.yml`
-- [ ] pipelines dbt_projects/:1 — No Orchestra pipeline YAML files under dbt_projects/**/*.yml|yaml for validator run — No validate action required in this subtree
+- [x] pipelines dbt_projects/:1 — No Orchestra pipeline YAML files under dbt_projects/**/*.yml|yaml for validator run — No validate action required in this subtree
 
 ### `cleanup/pipelines/metadata-api` — `metadata_api/**/*.yml`
 - [x] pipelines metadata_api/orchestra_pipeline.yaml:1 — Pipeline YAML lacks top-of-file showcase header comment, alerts, and configuration.retries — Add header comment, alerts block, and retry policy
 
 ### `cleanup/pipelines/patterns` — `patterns/**/*.yml`
-- [ ] pipelines patterns/:1 — No pipeline YAML files found under patterns/**/*.yml|yaml — No validate action required in this subtree
+- [x] pipelines patterns/:1 — No pipeline YAML files found under patterns/**/*.yml|yaml — No validate action required in this subtree
 
 ---
 
@@ -167,7 +167,7 @@ _Ruff/format, type hints, dedup, parameter handling. Split by subtree below._
 
 ### `cleanup/python/workers` — `python/**/*.py`
 - [x] python python/:1 — ruff check reported 31 issues (F401=15, E722=9, F811=3, F841=2, E402=1, F821=1); ruff format --check would reformat 22 files — Run ruff fix + format pass across scoped Python trees
-- [ ] python python/:1 — Top offenders by file (descending): dlt/hubspot/__init__.py(5), dlt/run_dlt_pipelines_snowflake.py(5), dlt/run_dlt_pipelines.py(4), python/integration_a/example_entrypoint.py(4), python/anomalies.py(3), python/reverse_etl.py(3), azure/ml/pipeline_script.py(2), bauplan/scan.py(1), dlt/google_sheets_pipeline.py(1), dlt/snowflake_pipeline.py(1), python/claude_agent/agent.py(1), python/postgres/postgres_connector.py(1) — Prioritize cleanup by this order
+- [x] python python/:1 — Top offenders by file (descending): dlt/hubspot/__init__.py(5), dlt/run_dlt_pipelines_snowflake.py(5), dlt/run_dlt_pipelines.py(4), python/integration_a/example_entrypoint.py(4), python/anomalies.py(3), python/reverse_etl.py(3), azure/ml/pipeline_script.py(2), bauplan/scan.py(1), dlt/google_sheets_pipeline.py(1), dlt/snowflake_pipeline.py(1), python/claude_agent/agent.py(1), python/postgres/postgres_connector.py(1) — Prioritize cleanup by this order
 - [x] python python/postgres/postgres_connector.py:1 — Public functions missing type hints (10) — Add parameter and return annotations for public APIs
 - [x] python python/integration_a/sftp.py:1 — Public functions missing type hints (7) — Add parameter and return annotations for public APIs
 - [x] python python/integration_a/sftp_snowflake.py:1 — Public functions missing type hints (7) — Add parameter and return annotations for public APIs
@@ -176,8 +176,8 @@ _Ruff/format, type hints, dedup, parameter handling. Split by subtree below._
 - [x] python python/integration_a/example_entrypoint.py:22 — Ad-hoc os.getenv parameter wiring used for runtime inputs — Replace scattered env access with structured runtime inputs
 
 ### `cleanup/python/metadata-api` — `metadata_api/**/*.py`
-- [ ] python metadata_api/run.py:1 — Scoped lint/dead-code scans found no direct violations, but dependency hygiene is unpinned — Add version pins and enable lint gate for metadata_api subtree
-- [ ] python metadata_api/requirements.txt:1 — pip-audit blocked because dependencies are not pinned — Pin all dependencies with exact versions
+- [x] python metadata_api/run.py:1 — Scoped lint/dead-code scans found no direct violations, but dependency hygiene is unpinned — Add version pins and enable lint gate for metadata_api subtree
+- [x] python metadata_api/requirements.txt:1 — pip-audit blocked because dependencies are not pinned — Pin all dependencies with exact versions
 
 ### `cleanup/python/bauplan-estuary-dlt` — `bauplan/**`, `estuary/**`, `dlt/**`
 - [x] python dlt/hubspot/__init__.py:40 — Ruff reports unused imports (5x F401) — Remove unused imports or export intentionally via __all__
@@ -235,7 +235,7 @@ README.md and PIPELINES.md — only this agent edits them. Merges last._
 - [x] docs dlt/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
 - [x] docs estuary/:1 — Top-level documentation coverage: has README=no, mentioned in root README=no — add top-level README, add root README mention
 - [x] docs hybrid_deploy/:1 — Top-level documentation coverage: has README=yes, mentioned in root README=no — add root README mention
-- [ ] docs metadata_api/:1 — Top-level documentation coverage: has README=yes, mentioned in root README=yes — No change required
+- [x] docs metadata_api/:1 — Top-level documentation coverage: has README=yes, mentioned in root README=yes — No change required
 - [x] docs multi_workspace_test/:1 — Top-level documentation coverage: has README=no, mentioned in root README=no — add top-level README, add root README mention
 - [x] docs orchestra/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
 - [x] docs patterns/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
@@ -249,22 +249,22 @@ _Unpinned, unused, vulnerable. Each Python sub-agent handles deps for its
 own subtree._
 
 - [x] deps bauplan/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement bauplan is not pinned: bauplan (from RequirementLine(line_number=1, line='bauplan', filename=PosixPath('bauplan/requirements.txt')))) — Pin all dependencies to exact versions before auditing
-- [ ] deps dbt_projects/azure_fabric/requirements.txt:1 — Version pinning state: fully pinned; pip-audit result: 0 known vulnerabilities — Keep pins fresh and run in CI
-- [ ] deps dbt_projects/databricks/requirements.txt:1 — Version pinning state: fully pinned; pip-audit result: 0 known vulnerabilities — Keep pins fresh and run in CI
-- [ ] deps dbt_projects/postgres/db/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement pandas is not pinned: pandas (from RequirementLine(line_number=1, line='pandas', filename=PosixPath('dbt_projects/postgres/db/requirements.txt')))) — Pin all dependencies to exact versions before auditing
-- [ ] deps dbt_projects/postgres/jaffle_shop_postgres/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement dbt-core is not pinned: dbt-core (from RequirementLine(line_number=1, line='dbt-core', filename=PosixPath('dbt_projects/postgres/jaffle_shop_postgres/requirements.txt')))) — Pin all dependencies to exact versions before auditing
-- [ ] deps dbt_projects/snowflake/requirements.txt:1 — Version pinning state: fully pinned; pip-audit result: 0 known vulnerabilities — Keep pins fresh and run in CI
+- [x] deps dbt_projects/azure_fabric/requirements.txt:1 — Version pinning state: fully pinned; pip-audit result: 0 known vulnerabilities — Keep pins fresh and run in CI
+- [x] deps dbt_projects/databricks/requirements.txt:1 — Version pinning state: fully pinned; pip-audit result: 0 known vulnerabilities — Keep pins fresh and run in CI
+- [x] deps dbt_projects/postgres/db/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement pandas is not pinned: pandas (from RequirementLine(line_number=1, line='pandas', filename=PosixPath('dbt_projects/postgres/db/requirements.txt')))) — Pin all dependencies to exact versions before auditing
+- [x] deps dbt_projects/postgres/jaffle_shop_postgres/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement dbt-core is not pinned: dbt-core (from RequirementLine(line_number=1, line='dbt-core', filename=PosixPath('dbt_projects/postgres/jaffle_shop_postgres/requirements.txt')))) — Pin all dependencies to exact versions before auditing
+- [x] deps dbt_projects/snowflake/requirements.txt:1 — Version pinning state: fully pinned; pip-audit result: 0 known vulnerabilities — Keep pins fresh and run in CI
 - [x] deps dlt/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement orchestra-sdk is not pinned: orchestra-sdk (from RequirementLine(line_number=1, line='orchestra-sdk', filename=PosixPath('dlt/requirements.txt')))) — Pin all dependencies to exact versions before auditing
-- [ ] deps metadata_api/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement dlt is not pinned: dlt (from RequirementLine(line_number=1, line='dlt', filename=PosixPath('metadata_api/requirements.txt')))) — Pin all dependencies to exact versions before auditing
+- [x] deps metadata_api/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement dlt is not pinned: dlt (from RequirementLine(line_number=1, line='dlt', filename=PosixPath('metadata_api/requirements.txt')))) — Pin all dependencies to exact versions before auditing
 - [x] deps patterns/run_multiple_pipelines/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement dotenv is not pinned: dotenv (from RequirementLine(line_number=1, line='dotenv', filename=PosixPath('patterns/run_multiple_pipelines/requirements.txt')))) — Pin all dependencies to exact versions before auditing
 - [x] deps patterns/warehouse_savings/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement matplotlib is not pinned: matplotlib (from RequirementLine(line_number=1, line='matplotlib', filename=PosixPath('patterns/warehouse_savings/requirements.txt')))) — Pin all dependencies to exact versions before auditing
 - [x] deps python/integration_a/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement orchestra-sdk is not pinned: orchestra-sdk (from RequirementLine(line_number=1, line='orchestra-sdk', filename=PosixPath('python/integration_a/requirements.txt')))) — Pin all dependencies to exact versions before auditing
 - [x] deps python/postgres/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement gspread is not pinned: gspread (from RequirementLine(line_number=1, line='gspread', filename=PosixPath('python/postgres/requirements.txt')))) — Pin all dependencies to exact versions before auditing
 - [x] deps python/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement gspread is not pinned: gspread (from RequirementLine(line_number=2, line='gspread', filename=PosixPath('python/requirements.txt')))) — Pin all dependencies to exact versions before auditing
-- [ ] deps dbt_projects/duckdb_example/pyproject.toml:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement duckdb is not pinned: duckdb (from RequirementLine(line_number=1, line='duckdb', filename=PosixPath('/tmp/pip_audit_duckdb_example.txt')))) — Pin all dependencies to exact versions before auditing
-- [ ] deps dbt_projects/motherduck_postgres/pyproject.toml:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement duckdb is not pinned: duckdb (from RequirementLine(line_number=1, line='duckdb', filename=PosixPath('/tmp/pip_audit_motherduck_postgres.txt')))) — Pin all dependencies to exact versions before auditing
-- [ ] deps dbt_projects/motherduck_s3/pyproject.toml:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement duckdb is not pinned: duckdb (from RequirementLine(line_number=1, line='duckdb', filename=PosixPath('/tmp/pip_audit_motherduck_s3.txt')))) — Pin all dependencies to exact versions before auditing
-- [ ] deps dbt_projects/state_management/pyproject.toml:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement dbt-core is not pinned: dbt-core (from RequirementLine(line_number=1, line='dbt-core', filename=PosixPath('/tmp/pip_audit_state_management.txt')))) — Pin all dependencies to exact versions before auditing
+- [x] deps dbt_projects/duckdb_example/pyproject.toml:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement duckdb is not pinned: duckdb (from RequirementLine(line_number=1, line='duckdb', filename=PosixPath('/tmp/pip_audit_duckdb_example.txt')))) — Pin all dependencies to exact versions before auditing
+- [x] deps dbt_projects/motherduck_postgres/pyproject.toml:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement duckdb is not pinned: duckdb (from RequirementLine(line_number=1, line='duckdb', filename=PosixPath('/tmp/pip_audit_motherduck_postgres.txt')))) — Pin all dependencies to exact versions before auditing
+- [x] deps dbt_projects/motherduck_s3/pyproject.toml:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement duckdb is not pinned: duckdb (from RequirementLine(line_number=1, line='duckdb', filename=PosixPath('/tmp/pip_audit_motherduck_s3.txt')))) — Pin all dependencies to exact versions before auditing
+- [x] deps dbt_projects/state_management/pyproject.toml:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement dbt-core is not pinned: dbt-core (from RequirementLine(line_number=1, line='dbt-core', filename=PosixPath('/tmp/pip_audit_state_management.txt')))) — Pin all dependencies to exact versions before auditing
 - [x] deps python/uv_support/pyproject.toml:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement pandas is not pinned: pandas (from RequirementLine(line_number=1, line='pandas', filename=PosixPath('/tmp/pip_audit_uv_support.txt')))) — Pin all dependencies to exact versions before auditing
 
 ---
@@ -278,10 +278,10 @@ main PRs land._
 - [ ] ci Makefile:7 — make validate/lint/audit targets exist but are not enforced by any workflow end-to-end — Add shared CI workflow gating PRs on validate + lint + security + dependency audit
 - [ ] pipelines orchestra/:1 — `make validate lint` currently fails on baseline yamllint violations across many existing orchestra YAML files (indentation/line-length/document-start), blocking clean gate runs for unrelated branches — Triage and remediate in scoped pipelines cleanup branches
 - [ ] python repo:1 — `make lint` currently fails on baseline out-of-scope Ruff violations (for example: bauplan/scan.py F841, dlt/hubspot/__init__.py F401, python/reverse_etl.py F811, python/claude_agent/agent.py E722), blocking clean gate runs for unrelated branches — Triage and remediate in scoped cleanup/python branches
-- [ ] docs README.md:5 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): root README index missing azure, estuary, hybrid_deploy, multi_workspace_test — Handle on cleanup/docs
-- [ ] docs README.md:29 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): README 'Analytics' section has no matching top-level directory — Handle on cleanup/docs
-- [ ] docs README.md:67 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): README 'Sensors' section has no matching top-level directory — Handle on cleanup/docs
-- [ ] docs README.md:43 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): dbt nesting guidance mismatches current layout — Handle on cleanup/docs
+- [x] docs README.md:5 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): root README index missing azure, estuary, hybrid_deploy, multi_workspace_test — Handle on cleanup/docs
+- [x] docs README.md:29 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): README 'Analytics' section has no matching top-level directory — Handle on cleanup/docs
+- [x] docs README.md:67 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): README 'Sensors' section has no matching top-level directory — Handle on cleanup/docs
+- [x] docs README.md:43 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): dbt nesting guidance mismatches current layout — Handle on cleanup/docs
 
 ---
 

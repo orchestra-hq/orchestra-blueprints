@@ -2,4 +2,4 @@
 name = "state_management"
 version = "0.0.1"
 requires-python = ">=3.12"
-dependencies = ["dbt-core", "dbt-snowflake"]
+dependencies = ["dbt-core==1.11.7", "dbt-snowflake==1.11.3"]
