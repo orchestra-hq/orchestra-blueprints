@@ -1,8 +1,9 @@
 import time
 import numpy as np
-import os 
+import os
 import json
 import requests
+
 
 def power_iteration(A, num_simulations=2500):
     # Starting with a random vector
@@ -15,6 +16,7 @@ def power_iteration(A, num_simulations=2500):
     # Estimate the eigenvalue from the result
     eigenvalue = np.dot(b_k.T, np.dot(A, b_k))
     return eigenvalue
+
 
 def intensive_power_iteration():
     print("Starting power iteration computation...")
@@ -29,21 +31,22 @@ def intensive_power_iteration():
     print(f"Elapsed time: {end_time - start_time:.2f} seconds")
     print(f"Largest estimated eigenvalue: {largest_eigenvalue:.4f}")
 
-#intensive_power_iteration()
+
+# intensive_power_iteration()
 
 data = {
     "event_type": "SET_OUTPUT",
-    "task_run_id": os.getenv('ORCHESTRA_TASK_RUN_ID'),  # Replace with actual taskRunId
+    "task_run_id": os.getenv("ORCHESTRA_TASK_RUN_ID"),  # Replace with actual taskRunId
     "output_name": "DBT_TABLES",
-    "output_value": "event_parameters+ deals_clean+"
+    "output_value": "event_parameters+ deals_clean+",
 }
 
 url = "https://webhook.getorchestra.io"
-api_key = os.getenv('ORCHESTRA_API_KEY')
+api_key = os.getenv("ORCHESTRA_API_KEY")
 # Set headers with Bearer authentication
 headers = {
     "Content-Type": "application/json",
-    "Authorization": f"Bearer {api_key}" # Replace with actual orchestra_api_key
+    "Authorization": f"Bearer {api_key}",  # Replace with actual orchestra_api_key
 }
 
 response = requests.post(url, headers=headers, data=json.dumps(data))

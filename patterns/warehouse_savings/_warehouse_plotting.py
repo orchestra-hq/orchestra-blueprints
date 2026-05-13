@@ -54,13 +54,17 @@ def plot_total_operation_duration_by_state_orchestration(
     if "insertedAt" in ops_df.columns:
         ops_df["insertedAt"] = pd.to_datetime(ops_df["insertedAt"], errors="coerce")
     if "createdAt" in task_runs_df.columns:
-        task_runs_df["createdAt"] = pd.to_datetime(task_runs_df["createdAt"], errors="coerce")
+        task_runs_df["createdAt"] = pd.to_datetime(
+            task_runs_df["createdAt"], errors="coerce"
+        )
 
     if "taskParameters" in task_runs_df.columns:
         task_runs_df["use_state_orchestration"] = task_runs_df["taskParameters"].apply(
-            lambda x: x.get("use_state_orchestration", False)
-            if isinstance(x, dict)
-            else False,
+            lambda x: (
+                x.get("use_state_orchestration", False)
+                if isinstance(x, dict)
+                else False
+            ),
         )
     else:
         task_runs_df["use_state_orchestration"] = False
@@ -147,7 +151,9 @@ def plot_total_operation_duration_by_state_orchestration(
         before = task_data[task_data["days_from_first_use"] < 0]
         after = task_data[task_data["days_from_first_use"] >= 0]
 
-        avg_before = before["total_duration_seconds"].mean() if not before.empty else None
+        avg_before = (
+            before["total_duration_seconds"].mean() if not before.empty else None
+        )
         avg_after = after["total_duration_seconds"].mean() if not after.empty else None
 
         if avg_before is not None and avg_after is not None and avg_before > 0:
@@ -210,7 +216,10 @@ def plot_total_operation_duration_by_state_orchestration(
         fontsize=TITLE_FONTSIZE,
         fontweight="bold",
     )
-    ax.set_xlabel("Days from First State Orchestration Use (0 = first use)", fontsize=AXIS_LABEL_FONTSIZE)
+    ax.set_xlabel(
+        "Days from First State Orchestration Use (0 = first use)",
+        fontsize=AXIS_LABEL_FONTSIZE,
+    )
     ax.set_ylabel("Total Duration (seconds)", fontsize=AXIS_LABEL_FONTSIZE)
     ax.grid(True, alpha=GRID_ALPHA, linestyle="--")
 
@@ -243,7 +252,9 @@ def plot_total_operation_duration_by_state_orchestration(
         table_data.append(
             [
                 stat["task_name"],
-                f"{stat['avg_before']:.1f}" if stat["avg_before"] is not None else "N/A",
+                f"{stat['avg_before']:.1f}"
+                if stat["avg_before"] is not None
+                else "N/A",
                 f"{stat['avg_after']:.1f}" if stat["avg_after"] is not None else "N/A",
                 f"{change_str} {color_indicator}",
             ],

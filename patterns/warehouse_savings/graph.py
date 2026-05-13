@@ -2,7 +2,11 @@ import os
 
 import matplotlib.pyplot as plt
 
-from _warehouse_api import DEFAULT_ANALYSIS_DAYS, OrchestraAPIClient, calculate_time_range
+from _warehouse_api import (
+    DEFAULT_ANALYSIS_DAYS,
+    OrchestraAPIClient,
+    calculate_time_range,
+)
 from _warehouse_plotting import (
     FIGURE_HEIGHT,
     FIGURE_WIDTH,

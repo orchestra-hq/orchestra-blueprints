@@ -58,12 +58,14 @@ class MockAzureMLWorkspace:
         log(f"Model deployed to endpoint: {endpoint}", LogStyle.SUCCESS)
         return endpoint
 
-    def run_inference(self, endpoint: str, input_data: dict[str, Any]) -> dict[str, Any]:
+    def run_inference(
+        self, endpoint: str, input_data: dict[str, Any]
+    ) -> dict[str, Any]:
         log(f"Calling model endpoint: {endpoint}")
         log(f"Input: {input_data}")
         simulated_output = {
             "prediction": random.choice(["cat", "dog", "chicken", "robot"]),
-            "confidence": round(random.uniform(0.8, 0.99), 4)
+            "confidence": round(random.uniform(0.8, 0.99), 4),
         }
         time.sleep(1)
         log(f"Output: {simulated_output}", LogStyle.SUCCESS)
@@ -75,13 +77,17 @@ if __name__ == "__main__":
     workspace = MockAzureMLWorkspace(
         name="my-ml-workspace",
         subscription_id="1234-5678-9012",
-        resource_group="my-resource-group"
+        resource_group="my-resource-group",
     )
 
-    model_id = workspace.register_model("image_classifier", "./models/image_classifier.pkl")
+    model_id = workspace.register_model(
+        "image_classifier", "./models/image_classifier.pkl"
+    )
     run_id = workspace.submit_experiment("train_classifier", "train_classifier.py")
     workspace.monitor_run(run_id)
     endpoint = workspace.deploy_model(model_id, "image-service")
-    output = workspace.run_inference(endpoint, {"image_url": "https://example.com/cat.jpg"})
+    output = workspace.run_inference(
+        endpoint, {"image_url": "https://example.com/cat.jpg"}
+    )
 
     log("All operations completed (mocked)", LogStyle.SUCCESS)
