@@ -1,5 +1,5 @@
 version: v1
-name: 'AWS Glue Fivetran to dbt lakehouse #dbt #fivetran #glue #powerbi #python #slack #snowflake'
+name: 'AWS Glue Fivetran to dbt lakehouse #dbt #fivetran #glue #powerbi #slack #snowflake #metaengine'
 pipeline:
   e2c76632-fad8-429f-9cad-fd4460309461:
     tasks:

@@ -1,5 +1,5 @@
 version: v1
-name: 'Iceberg GCP #bauplan #bigquery #dataproc #dataflow #crun #dbt #pg #python #slack #snowflake #tableau'
+name: 'Iceberg #metaengine #bauplan #bigquery #dataproc #dataflow #crun #dbt #pg #slack #snowflake #tableau'
 pipeline:
   140ed7f2-4e5a-4781-a72f-0a3b6531c88b:
     tasks:
