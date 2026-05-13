@@ -6,8 +6,28 @@ on:
       - main
 
 jobs:
-  
+  quality-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install validation and lint tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install orchestra-cli yamllint ruff
+      - name: Run repository validation gate
+        run: make validate
+      - name: Run Ruff check/format gates
+        run: |
+          ruff check . --exclude worktrees
+          ruff format --check . --exclude worktrees
+
   import:
+    needs: quality-gates
     environment: production
     runs-on: ubuntu-latest
     steps:
@@ -39,12 +59,12 @@ jobs:
       - name: Log new files
         shell: bash
         run: echo ${{ steps.added-files.outputs.files }}
-      
+
       - name: Import Pipeline from YAML
         if: ${{ steps.added-files.outputs.files != '' }}
         shell: bash
         run: |
-          for file in ${{ steps.added-files.outputs.files }}; do  
+          for file in ${{ steps.added-files.outputs.files }}; do
             alias=$(basename $file .yml)
             alias="${alias%.yaml}"
             echo "Importing $file to Orchestra with alias $alias"
