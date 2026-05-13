@@ -42,6 +42,9 @@ models:
     config:
       tags:
         - massive_dag
+      meta:
+        owner: "@Gary"
+        channel: "#alert-demos"
     description: "Example store sales"
     columns:
       - name: _pk
@@ -50,5 +53,5 @@ models:
           - not_null:
               config:
                 severity: warn
-                warn_if: ">= 1"
+                # warn_if: ">= 1"
           - unique
