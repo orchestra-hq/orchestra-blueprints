@@ -1,5 +1,5 @@
 version: v1
-name: 'Fivetran dbt into Power BI #dbt #fivetran #powerbi #slack'
+name: ft_db_pbi
 pipeline:
   dbtTaskGroup:
     tasks:

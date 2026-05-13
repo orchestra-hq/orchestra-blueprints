@@ -1,5 +1,5 @@
 version: v1
-name: 'Rivery ingestion to Snowflake dbt #dbt #glue #python #rivery #slack #snowflake'
+name: rv_sf_dbt_ac
 pipeline:
   8252937c-272e-440b-bb57-cf5a8df54c11:
     tasks:

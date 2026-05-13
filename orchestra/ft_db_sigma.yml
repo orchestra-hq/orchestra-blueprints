@@ -1,5 +1,5 @@
 version: v1
-name: 'Fivetran dbt to Sigma analytics #datadog #dbt #email #fivetran #sigma #slack #snowflake #teams'
+name: ft_db_sigma
 pipeline:
   308a17c9-1fd6-4179-bdae-f36f0b146c57:
     tasks:

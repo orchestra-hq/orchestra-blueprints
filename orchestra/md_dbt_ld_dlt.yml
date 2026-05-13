@@ -1,5 +1,5 @@
 version: v1
-name: 'Python dlt to MotherDuck and Lightdash #dbt #lightdash #motherduck #python #slack #snowflake'
+name: md_dbt_ld_dlt
 pipeline:
   097de434-8fc1-4b1c-b4a5-4bf1e0de49de:
     tasks:
