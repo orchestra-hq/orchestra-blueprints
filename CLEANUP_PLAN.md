@@ -204,16 +204,16 @@ _GitHub Actions, Makefile, pre-commit. Reserved files: anyone wanting a CI
 change adds a request under "Cross-cutting follow-ups" below._
 
 ### High
-- [ ] ci .github/workflows/24032026.yaml:20 — Pipeline workflow does not run make validate — Add validation job for YAML schema/lint gates
-- [ ] ci .github/workflows/27012026.yaml:24 — Import workflow does not run ruff check/format — Add Python lint/format gates before import
-- [ ] ci .github/workflows/gcp.yaml:16 — Pipeline workflow does not run gitleaks — Add secret scanning stage
-- [ ] ci .github/workflows/orchestra_trigger.yaml:16 — Pipeline workflow does not run pip-audit — Add dependency vulnerability audit stage
+- [x] ci .github/workflows/24032026.yaml:20 — Pipeline workflow does not run make validate — Add validation job for YAML schema/lint gates
+- [x] ci .github/workflows/27012026.yaml:24 — Import workflow does not run ruff check/format — Add Python lint/format gates before import
+- [x] ci .github/workflows/gcp.yaml:16 — Pipeline workflow does not run gitleaks — Add secret scanning stage
+- [x] ci .github/workflows/orchestra_trigger.yaml:16 — Pipeline workflow does not run pip-audit — Add dependency vulnerability audit stage
 
 ### Medium
-- [ ] ci .github/workflows/24032026.yaml:1 — Workflow purpose: run Orchestra impact-analysis and dbt stage pipeline on selected path changes — Pair runtime trigger with quality gates
-- [ ] ci .github/workflows/27012026.yaml:1 — Workflow purpose: import newly added orchestra YAML files to Orchestra on push — Add pre-import safety checks
-- [ ] ci .github/workflows/gcp.yaml:1 — Workflow purpose: run a specific Orchestra pipeline when orchestra/gcp.yml changes — Add repository-level validation/lint/security jobs
-- [ ] ci .github/workflows/orchestra_trigger.yaml:1 — Workflow purpose: run dq_metaengine pipeline when matching YAML changes — Add repository-level validation/lint/security jobs
+- [x] ci .github/workflows/24032026.yaml:1 — Workflow purpose: run Orchestra impact-analysis and dbt stage pipeline on selected path changes — Pair runtime trigger with quality gates
+- [x] ci .github/workflows/27012026.yaml:1 — Workflow purpose: import newly added orchestra YAML files to Orchestra on push — Add pre-import safety checks
+- [x] ci .github/workflows/gcp.yaml:1 — Workflow purpose: run a specific Orchestra pipeline when orchestra/gcp.yml changes — Add repository-level validation/lint/security jobs
+- [x] ci .github/workflows/orchestra_trigger.yaml:1 — Workflow purpose: run dq_metaengine pipeline when matching YAML changes — Add repository-level validation/lint/security jobs
 
 ---
 
