@@ -13,6 +13,16 @@ from time import sleep
 # import bauplan to get the decorators available
 import bauplan
 
+__all__ = [
+    "trips_and_zones_raw",
+    "normalized_trips",
+    "trip_data_staging",
+    "trips_aggregated",
+    "journeys_aggregated",
+    "fares_aggregated",
+    "profit_and_loss",
+]
+
 
 # this decorator tells Bauplan that this function has the model semantics - input: table, output: table.
 # the input is always an Arrow table, output can be an Arrow table, a pandas dataframe or a list of dictionaries.

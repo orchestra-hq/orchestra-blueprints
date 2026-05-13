@@ -1,3 +1,3 @@
-matplotlib
-pandas
-requests
+matplotlib==3.10.7
+pandas==3.0.3
+requests==2.34.0

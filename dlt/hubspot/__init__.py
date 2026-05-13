@@ -49,6 +49,23 @@ from .settings import (
 
 THubspotObjectType = Literal["company", "contact", "deal", "ticket", "product", "quote"]
 
+__all__ = [
+    "ALL",
+    "CRM_OBJECT_ENDPOINTS",
+    "DEFAULT_COMPANY_PROPS",
+    "DEFAULT_CONTACT_PROPS",
+    "DEFAULT_DEAL_PROPS",
+    "DEFAULT_PRODUCT_PROPS",
+    "DEFAULT_QUOTE_PROPS",
+    "DEFAULT_TICKET_PROPS",
+    "OBJECT_TYPE_PLURAL",
+    "STARTDATE",
+    "WEB_ANALYTICS_EVENTS_ENDPOINT",
+    "hubspot",
+    "crm_objects",
+    "hubspot_events_for_objects",
+]
+
 
 @dlt.source(name="hubspot")
 def hubspot(
