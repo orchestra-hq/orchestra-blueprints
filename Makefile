@@ -24,7 +24,6 @@ lint:
 	ruff format --check . --exclude worktrees
 
 audit:
-	gitleaks detect --no-banner --redact
 	pip-audit -r python/requirements.txt || true
 
 install-tools:

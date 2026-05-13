@@ -1,0 +1,8 @@
+extends: default
+
+rules:
+  # Existing pipeline examples intentionally use non-standard indentation/line
+  # width and omit document-start markers; keep key-duplicate checks strict.
+  document-start: disable
+  indentation: disable
+  line-length: disable
