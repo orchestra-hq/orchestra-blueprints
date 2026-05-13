@@ -91,6 +91,10 @@ pipeline:
         parameters:
           statement: execute task demo_task;
           role: ACCOUNTADMIN
+          # Historical Snowflake defaults for this task were:
+          # database: SNOWFLAKE_WORKING
+          # schema: PUBLIC
+          # set_outputs: false
           database: BIGQUERY_SAMPLE
           schema: PUBLIC
           set_outputs: false
