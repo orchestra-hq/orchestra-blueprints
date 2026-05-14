@@ -1,0 +1,116 @@
+version: v1
+name: '[AI AGENT WORKFLOW] dbt Core - Code Reviewer'
+pipeline:
+  run-dbt-core:
+    tasks:
+      dbt-core:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt run
+          package_manager: UV
+          python_version: '3.12'
+          project_dir: dbt_projects/motherduck_s3
+        depends_on: []
+        name: Run dbt Core
+        connection: dbt_motherduck__prod__39243
+    depends_on: []
+    name: ''
+  get-manifests-and-run-results:
+    tasks:
+      fetch-data:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install requests orchestra-sdk
+          set_outputs: true
+          source: INLINE
+          code: "import json\nimport os\nimport sys\n\nimport requests\nfrom orchestra_sdk.orchestra\
+            \ import OrchestraSDK\n\nDOWNLOAD_URL = (\n    \"https://app.getorchestra.io/api/engine/public/pipeline_runs/{}/task_runs/{}/artifacts/download\"\
+            \n)\napi_key = os.environ[\"ORCHESTRA_API_KEY\"]\norchestra = OrchestraSDK(api_key=api_key)\n\
+            \n\ndef download_file(url: str, filename: str) -> dict:\n    try:\n  \
+            \      response = requests.get(url, headers={\"Authorization\": f\"Bearer\
+            \ {api_key}\"})\n        response.raise_for_status()\n        return response.json()\n\
+            \    except requests.RequestException as e:\n        print(f\"Error downloading\
+            \ {filename}: {e}\", file=sys.stderr)\n        raise\n    except json.JSONDecodeError\
+            \ as e:\n        print(f\"Error parsing JSON from {filename}: {e}\", file=sys.stderr)\n\
+            \        raise\n\n\ndef main(pipeline_run_id: str, task_run_id: str):\n\
+            \    #\_Note: will not work with multiple command dbt Core runs.\n   \
+            \ manifest_url = f\"{DOWNLOAD_URL.format(pipeline_run_id, task_run_id)}?filename=manifest.json\"\
+            \n    run_results_url = (\n        f\"{DOWNLOAD_URL.format(pipeline_run_id,\
+            \ task_run_id)}?filename=run_results_1.json\"\n    )\n\n    try:\n   \
+            \     print(f\"Downloading manifest.json from: {manifest_url}\")\n   \
+            \     manifest_data = download_file(manifest_url, \"manifest.json\")\n\
+            \        manifest_data.pop(\"metadata\")\n        manifest_data.pop(\"\
+            macros\")\n        print(f\"Downloading run_results.json from: {run_results_url}\"\
+            )\n        run_results_data = download_file(run_results_url, \"run_results_1.json\"\
+            )\n        print(\"Successfully downloaded both files\")\n        orchestra.set_output(\n\
+            \            name=\"manifest\",\n            value=manifest_data,\n  \
+            \      )\n        orchestra.set_output(\n            name=\"run_results\"\
+            ,\n            value=run_results_data,\n        )\n        print(\"Successfully\
+            \ stored outputs in Orchestra\")\n    except Exception as e:\n       \
+            \ print(f\"Script failed: {e}\", file=sys.stderr)\n        sys.exit(1)\n\
+            \n\nif __name__ == \"__main__\":\n    pipeline_run_id = \"${{ ORCHESTRA.PIPELINE_RUN_ID\
+            \ }}\"\n    task_run_id = \"${{ ORCHESTRA.PIPELINE_RUN_TASKS['dbt-core'].task_run_id\
+            \ }}\"\n    main(pipeline_run_id, task_run_id)\n"
+        depends_on: []
+        name: Get manifest and run results
+    depends_on:
+    - run-dbt-core
+    name: ''
+  analyse:
+    tasks:
+      analyse-dbt-core-outputs:
+        integration: OPEN_AI
+        integration_job: OPEN_AI_CHAT
+        parameters:
+          prompt: "You are an expert dbt Core reviewer. You will be provided with\
+            \ a manifest.json and run_results.json.\n\nYour tasks (keep answers brief\
+            \ and high-priority only):\n\n1. Flag inefficient SQL patterns in models\
+            \ (select *, unfiltered joins, repeated CTEs, unbounded queries).\n2.\
+            \ Correlate runtime data with SQL: highlight only the slowest/failing/heaviest\
+            \ models and suggest optimisations (incremental, clustering/partitioning,\
+            \ pre-aggregations).\n3. Suggest project structure improvements (e.g.\
+            \ move logic staging\u2192marts, extract macros, split large models).\n\
+            4. Point out key testing gaps (missing uniqueness, accepted_values, relationships,\
+            \ column descriptions)."
+          model: gpt-5
+          context: 'Manifest: ${{ ORCHESTRA.PIPELINE_RUN_TASKS[''fetch-data''].OUTPUTS[''manifest'']
+            }}
+
+
+            Run results: ${{ ORCHESTRA.PIPELINE_RUN_TASKS[''fetch-data''].OUTPUTS[''run_results'']
+            }}'
+          instructions: "* Limit recommendations to top 3\u20135 per category.\n*\
+            \ Be concise, bullet-pointed. Use nice Slack formatting blocks where possible.\n\
+            * Provide code/config examples where possible.\n* Output only a Slack\
+            \ JSON payload in Blocks format, max 8 blocks."
+          set_outputs: true
+          return_text: false
+          output_schema: "Valid JSON for Slack webhook message:\n\n```json\n{\n  \"\
+            blocks\": []\n}\n```"
+        depends_on: []
+        name: Orchestra dbt Core review
+        connection: openai__prod__72452
+    depends_on:
+    - get-manifests-and-run-results
+    name: ''
+  da1b6e8c-e37d-414b-9726-5be3bc373af0:
+    tasks:
+      df4ddad4-7d92-4e9b-92ec-b5624051ac33:
+        integration: SLACK
+        integration_job: SEND_SLACK_MESSAGE
+        parameters:
+          channel_name: '#alert-demos'
+          text: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['analyse-dbt-core-outputs'].OUTPUTS['results']
+            }}['blocks']
+        depends_on: []
+        name: Send to Slack
+        connection: default_00000
+    depends_on:
+    - analyse
+    name: ''
+webhook:
+  enabled: false
