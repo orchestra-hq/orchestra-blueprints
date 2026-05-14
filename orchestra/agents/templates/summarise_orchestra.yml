@@ -1,0 +1,95 @@
+version: v1
+name: '[AI AGENT WORKFLOW] Summarise Orchestra activity (weekly)'
+pipeline:
+  stage-1:
+    tasks:
+      collect-metadata:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install requests orchestra-sdk
+          set_outputs: true
+          source: INLINE
+          code: "import os\nimport time\nfrom datetime import datetime, timedelta,\
+            \ timezone\n\nimport requests\nfrom orchestra_sdk.orchestra import OrchestraSDK\n\
+            \nAPI_KEY = os.getenv(\"ORCHESTRA_API_KEY\")\nBASE_URL = \"https://app.getorchestra.io/api/engine/public/task_runs\"\
+            \norchestra = OrchestraSDK(api_key=API_KEY)\n\n\ndef calculate_duration(completed_at:\
+            \ str | None, started_at: str | None) -> float | None:\n    if not completed_at\
+            \ or not started_at:\n        return None\n    return (\n        datetime.fromisoformat(completed_at)\
+            \ - datetime.fromisoformat(started_at)\n    ).total_seconds()\n\n\ndef\
+            \ fetch_tasks(time_filter: str = \"\") -> list:\n    tasks = []\n    page\
+            \ = 1\n\n    while True:\n        url = f\"{BASE_URL}?page={page}&page_size=100{time_filter}\"\
+            \n        response = requests.get(url, headers={\"Authorization\": f\"\
+            Bearer {API_KEY}\"})\n        data = response.json()\n\n        if not\
+            \ data[\"results\"]:\n            break\n\n        tasks.extend(data[\"\
+            results\"])\n        page += 1\n        time.sleep(1)\n\n    return tasks\n\
+            \n\ndef format_task(task: dict) -> dict:\n    return {\n        \"name\"\
+            : task[\"taskName\"],\n        \"pipelineId\": task[\"pipelineId\"],\n\
+            \        \"integration_job\": task[\"integrationJob\"],\n        \"status\"\
+            : task[\"status\"],\n        \"message\": task[\"message\"],\n       \
+            \ \"duration\": calculate_duration(task.get(\"completedAt\"), task.get(\"\
+            startedAt\")),\n    }\n\n\nif __name__ == \"__main__\":\n    tasks_this_week\
+            \ = fetch_tasks()\n    last_week_filter = f\"&time_to={(datetime.now(timezone.utc)\
+            \ - timedelta(days=7)).replace(microsecond=0).isoformat().replace('+00:00',\
+            \ 'Z')}\"\n    tasks_last_week = fetch_tasks(last_week_filter)\n    orchestra.set_output(\"\
+            tasks_this_week\", [format_task(task) for task in tasks_this_week[:100]])\n\
+            \    orchestra.set_output(\"tasks_last_week\", [format_task(task) for\
+            \ task in tasks_last_week[:100]])\n"
+        depends_on: []
+        name: Collect Orchestra metadata
+    depends_on: []
+    name: ''
+  stage-2:
+    tasks:
+      summarise-activity:
+        integration: OPEN_AI
+        integration_job: OPEN_AI_CHAT
+        parameters:
+          prompt: Provide a weekly summary of the tasks run in Orchestra. Include
+            a brief summary, but mainly focus on anomalies in the data compared with
+            the week before.
+          model: gpt-5
+          context: 'This week tasks: ${{ ORCHESTRA.PIPELINE_RUN_TASKS[''collect-metadata''].OUTPUTS[''tasks_this_week'']
+            }}
+
+
+            Last week: ${{ ORCHESTRA.PIPELINE_RUN_TASKS[''collect-metadata''].OUTPUTS[''tasks_last_week'']
+            }}
+
+            '
+          instructions: "Use Slack formatting. Emojis sparingly. Try to keep under\
+            \ 10 sentences. You will return nothing else. Do not include double quotes\
+            \ or anything that could break JSON parsing. Task names enclosed in backticks\
+            \ - do not include task IDs. Typical format is \n- Bullet point: Short\
+            \ summary(in bold): statistic (e.g. 40secs vs. 10secs R7DAY AVG): recommendation.,\
+            \ Keep it SUPER Succinct"
+          set_outputs: true
+          return_text: true
+        depends_on: []
+        name: Analyse metadata | find anomalies
+    depends_on:
+    - stage-1
+    name: ''
+  stage-3:
+    tasks:
+      8dff7abc-4ee6-4306-ae66-65ebe973a74e:
+        integration: SLACK
+        integration_job: SEND_SLACK_MESSAGE
+        parameters:
+          channel_name: '#alert-testing'
+          text: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['summarise-activity'].OUTPUTS['results']
+            }}
+        depends_on: []
+        name: Send to Slack
+        connection: default_00000
+    depends_on:
+    - stage-2
+    name: ''
+schedule:
+- name: Mondays at 9am (Europe/London)
+  cron: 0 9 ? * Mon *
+  timezone: Europe/London
+webhook:
+  enabled: false
