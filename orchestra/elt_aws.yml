@@ -1,0 +1,91 @@
+version: v1
+name: 'AWS ELT #sftp #s3 #lambda #glue #redshift #dbt #quicksight'
+pipeline:
+  e5f328c6-4213-4d09-9358-ec75f1aadc8a:
+    tasks:
+      bd2827e7-cb85-4aa8-8e28-3f1a26c81851:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          set_outputs: false
+          source: INLINE
+          code: "for file in ${{ inputs.new_files }}:\n    print(file)\n"
+        depends_on: []
+        name: Copy files to S3
+    depends_on: []
+    name: ''
+  2614e804-d2d8-45f1-af9f-7da20b7656c8:
+    tasks:
+      7a5a2e3c-9309-41e8-be6b-2f27e5c69c40:
+        integration: AWS_LAMBDA
+        integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
+        parameters:
+          function_name: handler
+          enable_polling: true
+          set_outputs: true
+        depends_on: []
+        name: Run Lambda
+        connection: aws_lambda_34195
+    depends_on:
+    - e5f328c6-4213-4d09-9358-ec75f1aadc8a
+    name: ''
+  cbe23b0c-51b6-4dea-8546-997c513309ca:
+    tasks:
+      c957e98a-5cfe-4a6f-98cb-0394392f1386:
+        integration: AWS_GLUE
+        integration_job: AWS_GLUE_RUN_JOB
+        parameters:
+          job_name: glue_job
+          aws_region: eu-west-2
+        depends_on: []
+        name: Run Glue Job
+        connection: glue_crawlers_79392
+    depends_on:
+    - 2614e804-d2d8-45f1-af9f-7da20b7656c8
+    name: ''
+  2eab7330-56f1-43b1-aa55-9fb354865440:
+    tasks:
+      b46eb92f-84b9-43d6-b510-8772eaf77bdd:
+        integration: AWS_REDSHIFT
+        integration_job: AWS_REDSHIFT_EXECUTE_STATEMENT
+        parameters:
+          statement: SELECT 1
+        depends_on: []
+        name: Run Redshift Query
+        connection: ${{ ENV.REDSHIFT_CONNECTION }}
+    depends_on:
+    - cbe23b0c-51b6-4dea-8546-997c513309ca
+    name: ''
+  093b5aba-f546-470b-9858-c9f98466cf16:
+    tasks:
+      14cec5d4-0776-4598-b1f1-c3a4cb1144a1:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt parse
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: Run dbt Core
+    depends_on:
+    - 2eab7330-56f1-43b1-aa55-9fb354865440
+    name: ''
+sensors:
+  58241881-8565-4a29-a34a-73c26d332040:
+    name: Sensor trigger
+    cron: 0 8 ? * * *
+    timezone: Europe/London
+    timeout_mins: 60
+    environments:
+    - 2789285b-7f8b-4889-9d67-f7f111eb27a8
+    checks:
+      SFTP Check:
+        integration: SFTP
+        sensor_type: SFTP_FILE
+        parameters: {}
+        map_outputs:
+          new_files: ${{ outputs.files }}
+webhook:
+  enabled: false
