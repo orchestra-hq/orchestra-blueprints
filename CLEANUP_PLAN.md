@@ -49,27 +49,9 @@ _Leaked secrets, credential hygiene, `.gitignore` gaps. Connection IDs are
 out of scope (see top of file)._
 
 ### High
-- [x] security orchestra/novat.yml:50 — gitleaks flagged secret-shaped string (generic-api-key: orchestra_api_key": "REDACTED") — Replace token-like literal with non-sensitive placeholder and rotate if real
-- [x] security metadata_api/README.md:14 — gitleaks flagged secret-shaped string (generic-api-key: DESTINATION__SNOWFLAKE__CREDENTIALS__HOST": "REDACTED") — Replace token-like literal with non-sensitive placeholder and rotate if real
-- [x] security dbt_projects/postgres/db/scripts/create_db_insert_data.py:66 — semgrep python.sqlalchemy.security.sqlalchemy-execute-raw-query.sqlalchemy-execute-raw-query — Refactor to safe subprocess usage / parameterized SQL
-- [x] security python/claude_agent/agent.py:15 — semgrep python.lang.security.audit.subprocess-shell-true.subprocess-shell-true — Refactor to safe subprocess usage / parameterized SQL
-
 ### Medium
-- [x] security dbt_projects/postgres/db/dockerfile:9 — semgrep dockerfile.security.missing-user.missing-user container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:4 — semgrep yaml.docker-compose.security.no-new-privileges.no-new-privileges container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:4 — semgrep yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:14 — semgrep yaml.docker-compose.security.no-new-privileges.no-new-privileges container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:14 — semgrep yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:20 — semgrep yaml.docker-compose.security.no-new-privileges.no-new-privileges container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:20 — semgrep yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:25 — semgrep yaml.docker-compose.security.no-new-privileges.no-new-privileges container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:25 — semgrep yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:30 — semgrep yaml.docker-compose.security.no-new-privileges.no-new-privileges container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [x] security dbt_projects/postgres/jaffle_shop_postgres/dbt_packages/dbt_utils/docker-compose.yml:30 — semgrep yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service container hardening gap — Apply non-root user, read-only FS, and no-new-privileges where applicable
-- [x] security patterns/run_multiple_pipelines/.env.example:1 — Committed .env-style file detected — Keep example values non-sensitive and document secret sourcing
 
 ### Low
-- [x] security azure/ml/config.json:1 — semgrep reported syntax parse error for this file — Fix file format so static scanners can parse it
 
 ---
 
@@ -78,18 +60,10 @@ out of scope (see top of file)._
 _Directory layout, naming conventions, redundant nesting, stale paths._
 
 ### High
-- [x] _No in-scope high items on `cleanup/structure` (root README.md is reserved on this branch; deferred under Cross-cutting follow-ups)._
 
 ### Medium
-- [x] structure orchestra/test_git_pipeline.yml:1 — Filename breaks sibling naming convention (contains spaces) — Rename to snake_case without spaces
-- [x] structure orchestra/postgres_demo_25012026.yaml:1 — Filename contains double underscore unlike siblings — Normalize to single-underscore snake_case
-- [x] structure dbt_projects/snowflake/README.md:1 — README filename casing differs from sibling convention — Normalize to README.md
-- [x] structure dbt_projects/motherduck_s3/README.md:1 — README filename casing differs from sibling convention — Normalize to README.md
-- [x] structure dbt_projects/duckdb_example/README.md:1 — README filename casing differs from sibling convention — Normalize to README.md
-- [x] structure dbt_projects/motherduck_postgres/README.md:1 — README filename casing differs from sibling convention — Normalize to README.md
 
 ### Low
-- [x] structure dbt_projects/README.md:1 — dbt_projects root lacks a local README for naming/layout convention — Add dbt_projects/README.md with expected structure
 
 ---
 
@@ -101,63 +75,11 @@ comments. Connection IDs are out of scope. Split by subtree below._
 _Policy note: for `orchestra/*.yml|yaml`, missing top-of-file showcase header comments and missing `configuration.retries` are intentionally ignored._
 
 ### `cleanup/pipelines/orchestra-core` — `orchestra/**/*.yml`
-- [x] pipelines orchestra/:1 — orchestra validate passed for all 52 YAML files; no schema validation failures — Keep validator enforced in CI
-- [x] pipelines orchestra/aws_glue_fivetran_dbt_lakehouse_demo.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/071125_oliver.yaml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/0711demo_2.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/fivetran_dbt_power_bi.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/2711_demo.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/agentic_analytics_dbt_pipeline.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/ai_agent_bigquery.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/aws_postgres_dbt.yaml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/claude_agent.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/claude_mcp_agent_approvals.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/cli_demo.yaml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/databricks_connections.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/databricks_fivetran_dbt_metadata.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/dbt_snowflake.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/demo.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/dlt_ecs_power_bi.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/motherduck_dbt_lightdash_dlt.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/dq_metaengine.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/end_to_end.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/fivetran_elt.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/gcp.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/gcp_data_pipeline.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/gcp_iceberg_bauplan_lakehouse.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/gcp_on_variant.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/grc_test.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/hl2e.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/hl2e_file1.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/lmr_test.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/matrices.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/novat.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/org_settings.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/pc_demo.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/aws_snowflake_looker_dbt.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/postgres_demo.yaml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/postgres_demo_25012026.yaml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/postgres_demo_27012026.yaml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/postgres_fivetran_dbt.yaml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/postgres_pipeline.yaml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/ps_demo.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/river.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/river_copy.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/sg.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/stellantis.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/studio_a.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/test_git_pipeline.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/tm.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/townhall.yml:1 — Missing alerts — add alerts block for failure notification
-- [x] pipelines orchestra/wl_demo.yml:1 — Missing alerts — add alerts block for failure notification
 ### `cleanup/pipelines/dbt-blueprints` — `dbt_projects/**/*.yml`
-- [x] pipelines dbt_projects/:1 — No Orchestra pipeline YAML files under dbt_projects/**/*.yml|yaml for validator run — No validate action required in this subtree
 
 ### `cleanup/pipelines/metadata-api` — `metadata_api/**/*.yml`
-- [x] pipelines metadata_api/orchestra_pipeline.yaml:1 — Pipeline YAML lacks top-of-file showcase header comment, alerts, and configuration.retries — Add header comment, alerts block, and retry policy
 
 ### `cleanup/pipelines/patterns` — `patterns/**/*.yml`
-- [x] pipelines patterns/:1 — No pipeline YAML files found under patterns/**/*.yml|yaml — No validate action required in this subtree
 
 ---
 
@@ -166,35 +88,12 @@ _Policy note: for `orchestra/*.yml|yaml`, missing top-of-file showcase header co
 _Ruff/format, type hints, dedup, parameter handling. Split by subtree below._
 
 ### `cleanup/python/workers` — `python/**/*.py`
-- [x] python python/:1 — ruff check reported 31 issues (F401=15, E722=9, F811=3, F841=2, E402=1, F821=1); ruff format --check would reformat 22 files — Run ruff fix + format pass across scoped Python trees
-- [x] python python/:1 — Top offenders by file (descending): dlt/hubspot/__init__.py(5), dlt/run_dlt_pipelines_snowflake.py(5), dlt/run_dlt_pipelines.py(4), python/integration_a/example_entrypoint.py(4), python/anomalies.py(3), python/reverse_etl.py(3), azure/ml/pipeline_script.py(2), bauplan/scan.py(1), dlt/google_sheets_pipeline.py(1), dlt/snowflake_pipeline.py(1), python/claude_agent/agent.py(1), python/postgres/postgres_connector.py(1) — Prioritize cleanup by this order
-- [x] python python/postgres/postgres_connector.py:1 — Public functions missing type hints (10) — Add parameter and return annotations for public APIs
-- [x] python python/integration_a/sftp.py:1 — Public functions missing type hints (7) — Add parameter and return annotations for public APIs
-- [x] python python/integration_a/sftp_snowflake.py:1 — Public functions missing type hints (7) — Add parameter and return annotations for public APIs
-- [x] python python/integration_a/example_entrypoint.py:1 — Public functions missing type hints (6) — Add parameter and return annotations for public APIs
-- [x] python python/reverse_etl.py:13 — Ad-hoc os.getenv parameter wiring used for runtime inputs — Consolidate runtime parameter parsing in one typed config object
-- [x] python python/integration_a/example_entrypoint.py:22 — Ad-hoc os.getenv parameter wiring used for runtime inputs — Replace scattered env access with structured runtime inputs
 
 ### `cleanup/python/metadata-api` — `metadata_api/**/*.py`
-- [x] python metadata_api/run.py:1 — Scoped lint/dead-code scans found no direct violations, but dependency hygiene is unpinned — Add version pins and enable lint gate for metadata_api subtree
-- [x] python metadata_api/requirements.txt:1 — pip-audit blocked because dependencies are not pinned — Pin all dependencies with exact versions
 
 ### `cleanup/python/bauplan-estuary-dlt` — `bauplan/**`, `estuary/**`, `dlt/**`
-- [x] python dlt/hubspot/__init__.py:40 — Ruff reports unused imports (5x F401) — Remove unused imports or export intentionally via __all__
-- [x] python dlt/run_dlt_pipelines.py:8 — Bare except blocks (E722) mask failures — Catch specific exceptions and handle/report explicitly
-- [x] python dlt/run_dlt_pipelines_snowflake.py:8 — Bare except blocks (E722) mask failures — Catch specific exceptions and handle/report explicitly
-- [x] python patterns/run_multiple_pipelines/run_multiple_pipelines.py:1 — Module exceeds 300 lines (428) — Split into smaller focused modules
-- [x] python patterns/warehouse_savings/graph.py:1 — Module exceeds 300 lines (504) — Split plotting/data prep/CLI responsibilities
-- [x] python dlt/google_sheets/helpers/data_processing.py:1 — Module exceeds 300 lines (349) — Decompose helper into smaller units
-- [x] python bauplan/models.py:20 — vulture flagged multiple unused functions — Remove dead code or wire functions into execution flow
-- [x] python bauplan/scan.py:95 — vulture flagged unused helper delete_branch_if_exists — Remove helper or integrate it where needed
-- [x] python bauplan/:1 — Duplicate helper scan found no cross-folder identical helper bodies — Keep shared helpers centralized as code evolves
 
 ### `cleanup/python/azure-hybrid` — `azure/ml/**`, `hybrid_deploy/**`, `multi_workspace_test/**`
-- [x] python azure/ml/pipeline_script.py:2 — Unused imports reported by ruff — Remove dead imports
-- [x] python azure/ml/scripts/prep_data.py:14 — Public functions missing type hints — Add parameter/return annotations
-- [x] python azure/ml/scripts/train.py:14 — Public functions missing type hints — Add parameter/return annotations
-- [x] python hybrid_deploy/README.md:1 — hybrid_deploy included in Python scope but has no .py files — Confirm intended scope or add code/docs clarifying purpose
 
 ---
 
@@ -204,16 +103,8 @@ _GitHub Actions, Makefile, pre-commit. Reserved files: anyone wanting a CI
 change adds a request under "Cross-cutting follow-ups" below._
 
 ### High
-- [x] ci .github/workflows/24032026.yaml:20 — Pipeline workflow does not run make validate — Add validation job for YAML schema/lint gates
-- [x] ci .github/workflows/27012026.yaml:24 — Import workflow does not run ruff check/format — Add Python lint/format gates before import
-- [x] ci .github/workflows/gcp.yaml:16 — Pipeline workflow does not run gitleaks — Add secret scanning stage
-- [x] ci .github/workflows/orchestra_trigger.yaml:16 — Pipeline workflow does not run pip-audit — Add dependency vulnerability audit stage
 
 ### Medium
-- [x] ci .github/workflows/24032026.yaml:1 — Workflow purpose: run Orchestra impact-analysis and dbt stage pipeline on selected path changes — Pair runtime trigger with quality gates
-- [x] ci .github/workflows/27012026.yaml:1 — Workflow purpose: import newly added orchestra YAML files to Orchestra on push — Add pre-import safety checks
-- [x] ci .github/workflows/gcp.yaml:1 — Workflow purpose: run a specific Orchestra pipeline when orchestra/gcp.yml changes — Add repository-level validation/lint/security jobs
-- [x] ci .github/workflows/orchestra_trigger.yaml:1 — Workflow purpose: run dq_metaengine pipeline when matching YAML changes — Add repository-level validation/lint/security jobs
 
 ---
 
@@ -223,23 +114,8 @@ _Root README, per-dir READMEs, generated PIPELINES.md. Reserved files:
 README.md and PIPELINES.md — only this agent edits them. Merges last._
 
 ### High
-- [x] docs README.md:5 — Root README omits top-level dirs: azure, estuary, hybrid_deploy, multi_workspace_test — Add sections and links for each
-- [x] docs README.md:29 — README 'Analytics' section has no matching top-level directory — Add directory or remove stale section
-- [x] docs README.md:67 — README 'Sensors' section has no matching top-level directory — Add directory or remove stale section
-- [x] docs metadata_api/orchestra_pipeline.yaml:1 — Pipeline YAML has no description key/header — Add description key or top header comment
 
 ### Medium
-- [x] docs azure/:1 — Top-level documentation coverage: has README=no, mentioned in root README=no — add top-level README, add root README mention
-- [x] docs bauplan/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
-- [x] docs dbt_projects/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
-- [x] docs dlt/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
-- [x] docs estuary/:1 — Top-level documentation coverage: has README=no, mentioned in root README=no — add top-level README, add root README mention
-- [x] docs hybrid_deploy/:1 — Top-level documentation coverage: has README=yes, mentioned in root README=no — add root README mention
-- [x] docs metadata_api/:1 — Top-level documentation coverage: has README=yes, mentioned in root README=yes — No change required
-- [x] docs multi_workspace_test/:1 — Top-level documentation coverage: has README=no, mentioned in root README=no — add top-level README, add root README mention
-- [x] docs orchestra/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
-- [x] docs patterns/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
-- [x] docs python/:1 — Top-level documentation coverage: has README=no, mentioned in root README=yes — add top-level README
 
 ---
 
@@ -248,24 +124,6 @@ README.md and PIPELINES.md — only this agent edits them. Merges last._
 _Unpinned, unused, vulnerable. Each Python sub-agent handles deps for its
 own subtree._
 
-- [x] deps bauplan/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement bauplan is not pinned: bauplan (from RequirementLine(line_number=1, line='bauplan', filename=PosixPath('bauplan/requirements.txt')))) — Pin all dependencies to exact versions before auditing
-- [x] deps dbt_projects/azure_fabric/requirements.txt:1 — Version pinning state: fully pinned; pip-audit result: 0 known vulnerabilities — Keep pins fresh and run in CI
-- [x] deps dbt_projects/databricks/requirements.txt:1 — Version pinning state: fully pinned; pip-audit result: 0 known vulnerabilities — Keep pins fresh and run in CI
-- [x] deps dbt_projects/postgres/db/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement pandas is not pinned: pandas (from RequirementLine(line_number=1, line='pandas', filename=PosixPath('dbt_projects/postgres/db/requirements.txt')))) — Pin all dependencies to exact versions before auditing
-- [x] deps dbt_projects/postgres/jaffle_shop_postgres/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement dbt-core is not pinned: dbt-core (from RequirementLine(line_number=1, line='dbt-core', filename=PosixPath('dbt_projects/postgres/jaffle_shop_postgres/requirements.txt')))) — Pin all dependencies to exact versions before auditing
-- [x] deps dbt_projects/snowflake/requirements.txt:1 — Version pinning state: fully pinned; pip-audit result: 0 known vulnerabilities — Keep pins fresh and run in CI
-- [x] deps dlt/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement orchestra-sdk is not pinned: orchestra-sdk (from RequirementLine(line_number=1, line='orchestra-sdk', filename=PosixPath('dlt/requirements.txt')))) — Pin all dependencies to exact versions before auditing
-- [x] deps metadata_api/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement dlt is not pinned: dlt (from RequirementLine(line_number=1, line='dlt', filename=PosixPath('metadata_api/requirements.txt')))) — Pin all dependencies to exact versions before auditing
-- [x] deps patterns/run_multiple_pipelines/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement dotenv is not pinned: dotenv (from RequirementLine(line_number=1, line='dotenv', filename=PosixPath('patterns/run_multiple_pipelines/requirements.txt')))) — Pin all dependencies to exact versions before auditing
-- [x] deps patterns/warehouse_savings/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement matplotlib is not pinned: matplotlib (from RequirementLine(line_number=1, line='matplotlib', filename=PosixPath('patterns/warehouse_savings/requirements.txt')))) — Pin all dependencies to exact versions before auditing
-- [x] deps python/integration_a/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement orchestra-sdk is not pinned: orchestra-sdk (from RequirementLine(line_number=1, line='orchestra-sdk', filename=PosixPath('python/integration_a/requirements.txt')))) — Pin all dependencies to exact versions before auditing
-- [x] deps python/postgres/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement gspread is not pinned: gspread (from RequirementLine(line_number=1, line='gspread', filename=PosixPath('python/postgres/requirements.txt')))) — Pin all dependencies to exact versions before auditing
-- [x] deps python/requirements.txt:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement gspread is not pinned: gspread (from RequirementLine(line_number=2, line='gspread', filename=PosixPath('python/requirements.txt')))) — Pin all dependencies to exact versions before auditing
-- [x] deps dbt_projects/duckdb_example/pyproject.toml:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement duckdb is not pinned: duckdb (from RequirementLine(line_number=1, line='duckdb', filename=PosixPath('/tmp/pip_audit_duckdb_example.txt')))) — Pin all dependencies to exact versions before auditing
-- [x] deps dbt_projects/motherduck_postgres/pyproject.toml:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement duckdb is not pinned: duckdb (from RequirementLine(line_number=1, line='duckdb', filename=PosixPath('/tmp/pip_audit_motherduck_postgres.txt')))) — Pin all dependencies to exact versions before auditing
-- [x] deps dbt_projects/motherduck_s3/pyproject.toml:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement duckdb is not pinned: duckdb (from RequirementLine(line_number=1, line='duckdb', filename=PosixPath('/tmp/pip_audit_motherduck_s3.txt')))) — Pin all dependencies to exact versions before auditing
-- [x] deps dbt_projects/state_management/pyproject.toml:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement dbt-core is not pinned: dbt-core (from RequirementLine(line_number=1, line='dbt-core', filename=PosixPath('/tmp/pip_audit_state_management.txt')))) — Pin all dependencies to exact versions before auditing
-- [x] deps python/uv_support/pyproject.toml:1 — Version pinning state: unpinned/partial; pip-audit result: blocked (ERROR:pip_audit._cli:requirement pandas is not pinned: pandas (from RequirementLine(line_number=1, line='pandas', filename=PosixPath('/tmp/pip_audit_uv_support.txt')))) — Pin all dependencies to exact versions before auditing
 
 ---
 
@@ -275,14 +133,6 @@ _Findings that don't fit a single branch, or that one agent surfaces while
 working in someone else's territory. Owner agent picks these up after their
 main PRs land._
 
-- [x] ci Makefile:7 — make validate/lint/audit targets exist but are not enforced by any workflow end-to-end — Add shared CI workflow gating PRs on validate + lint + security + dependency audit
-- [x] pipelines orchestra/:1 — `make validate lint` currently fails on baseline yamllint violations across many existing orchestra YAML files (indentation/line-length/document-start), blocking clean gate runs for unrelated branches — Triage and remediate in scoped pipelines cleanup branches
-- [x] python repo:1 — `make lint` currently fails on baseline out-of-scope Ruff violations (for example: bauplan/scan.py F841, dlt/hubspot/__init__.py F401, python/reverse_etl.py F811, python/claude_agent/agent.py E722), blocking clean gate runs for unrelated branches — Triage and remediate in scoped cleanup/python branches
-- [x] docs README.md:5 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): root README index missing azure, estuary, hybrid_deploy, multi_workspace_test — Handle on cleanup/docs
-- [x] docs README.md:29 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): README 'Analytics' section has no matching top-level directory — Handle on cleanup/docs
-- [x] docs README.md:67 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): README 'Sensors' section has no matching top-level directory — Handle on cleanup/docs
-- [x] docs README.md:43 — Structure cleanup item deferred from cleanup/structure (reserved-file rule): dbt nesting guidance mismatches current layout — Handle on cleanup/docs
-
 ---
 
 ## 8. Pipeline lifecycle cleanup  → `cleanup/pipelines/lifecycle`
@@ -291,6 +141,49 @@ _Optional scope expansion. Use Orchestra runtime metadata (via MCP/API) to
 decide which pipelines should be fixed, deleted, or retained. This stream is
 allowed when explicitly requested and remains separate from hygiene-only edits._
 
+### CI-unreferenced pipeline YAMLs (reference scan)
+The following Orchestra pipeline YAML files exist in this repo but are not referenced by any GitHub Actions workflow `paths:` filters (reference scan found only `orchestra/dq_metaengine.yml`, `orchestra/aws_glue_fivetran_dbt_lakehouse_demo.yml`, and `orchestra/gcp_iceberg_bauplan_lakehouse.yml`).
+Consider these candidates for `keep` / `fix` / `delete` classification in the lifecycle cleanup stream.
+- orchestra/agents/claude_dbt.yml
+- orchestra/agents/claude_lightdash.yml
+- orchestra/agents/templates/dbt_impact.yml
+- orchestra/agents/templates/dbt_reviewer.yml
+- orchestra/agents/templates/enrich_snowflake.yml
+- orchestra/agents/templates/impact_analysis.yml
+- orchestra/agents/templates/personalised_slack.yml
+- orchestra/agents/templates/summarise_orchestra.yml
+- orchestra/alteryx_dbt_snowflake_teams.yml
+- orchestra/agentic_analytics_dbt_pipeline.yml
+- orchestra/aws_snowflake_looker_dbt.yml
+- orchestra/claude_mcp_agent_approvals.yml
+- orchestra/databricks_fivetran_dbt_metadata.yml
+- orchestra/dbt/ecs.yml
+- orchestra/dbt/databricks/sao.yml
+- orchestra/dbt/motherduck/poetry.yml
+- orchestra/dbt/snowflake/basic.yml
+- orchestra/dbt/snowflake/snowflake_dbt_state_aware.yaml
+- orchestra/dlt_ecs_power_bi.yml
+- orchestra/dq_snowflake.yml
+- orchestra/dq_snowflake_recon_approval.yml
+- orchestra/elt_aws.yml
+- orchestra/estuary/test.yaml
+- orchestra/fivetran_coalesce_powerbi.yml
+- orchestra/fivetran_dbt_hightouch_snowflake.yml
+- orchestra/fivetran_dbt_power_bi.yml
+- orchestra/fivetran_dbt_sigma.yml
+- orchestra/gcp_bigquery_python_tableau_fivetran.yml
+- orchestra/metadata_api/orchestra_pipeline.yaml
+- orchestra/metaengine_outputs.yml
+- orchestra/motherduck_dbt_lightdash_dlt.yml
+- orchestra/multi_workspace_test/a.yaml
+- orchestra/parallel_elt.yml
+- orchestra/pipeline_examples/agents_produce_agents.yaml
+- orchestra/python_anomalies_slack.yml
+- orchestra/python_bigquery_metadata.yml
+- orchestra/python_dbt_claude.yml
+- orchestra/python_fivetran_dbt_powerbi.yml
+- orchestra/rivery_snowflake_dbt_accounting.yml
+- orchestra/snowflake_dbt_python_meta.yml
 ### Decision criteria
 
 Apply these checks before deleting any pipeline:
@@ -331,11 +224,3 @@ counts so you can decide whether to split further or merge sub-branches._
 | cleanup/docs | 15 | 1 | Docs stays one final merge branch (per instruction). |
 | cleanup/pipelines/lifecycle | TBD after MCP inventory | 1-2 | Uses Orchestra runtime metadata to decide keep/fix/delete and remove subsequent unused code. |
 
----
-
-## Done
-
-_Move completed items here with the merging PR number, so the live sections
-stay focused on remaining work._
-
-- [x] _example: pipelines — orchestra/snowflake_demo.yml missing alerts — #42_
