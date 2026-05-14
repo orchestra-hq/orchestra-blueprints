@@ -1,0 +1,42 @@
+version: v1
+name: 'Snowflake Processing Pipeline #dbt #snowflake'
+pipeline:
+  a5f366a8-5618-4ee5-812b-841a6fbad169:
+    tasks:
+      38ca71c9-5db9-4b46-8275-5391cd4bccfd:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: "Select\ntablename as table_name \nfrom ${{ MATRIX.tables }}"
+        depends_on: []
+        name: Process data
+    depends_on: []
+    name: group
+    matrix:
+      inputs:
+        tables:
+        - table_1
+        - table_2
+  c01ef13f-8719-401e-810e-c8c39c969445:
+    tasks:
+      905c51be-27f9-4715-8569-6e9c54919f7e:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: dbt build
+    depends_on:
+    - a5f366a8-5618-4ee5-812b-841a6fbad169
+    name: group
+webhook:
+  enabled: false
+alerts:
+- name: Teams
+  statuses:
+  - FAILED
+  destinations:
+  - integration: MICROSOFT_TEAMS
+    connection_id: migrated_teams_66347
