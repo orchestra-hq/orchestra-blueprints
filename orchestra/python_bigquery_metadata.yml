@@ -1,0 +1,39 @@
+version: v1
+name: 'Orchestra Metadata Import #metadata #dlt #bigquery'
+pipeline:
+  7f390bfb-f2db-4647-939e-9400a4b2a2bf:
+    tasks:
+      e27fee8a-be41-4fbe-850f-448cfe78ca2e:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          set_outputs: false
+          source: GIT
+          command: python -m run ${{inputs.warehouse}}
+          project_dir: metadata_api
+        depends_on: []
+        name: Import Metadata to bigQuery (edited)
+        connection: ${{ ENV.PYTHON_CREDENTIAL }}
+    depends_on: []
+    name: ''
+schedule:
+- name: Daily at 8am
+  cron: 0 8 ? * * *
+  timezone: Europe/London
+webhook:
+  enabled: false
+inputs:
+  warehouse:
+    type: string
+    default: bigquery
+alerts:
+- name: Metadata failures
+  statuses:
+  - FAILED
+  destinations:
+  - integration: EMAIL
+    destination: hugo@getorchestra.io
+  custom_message: Hey hugo the biguery internal dlt import is failing xx
