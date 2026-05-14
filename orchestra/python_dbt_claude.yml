@@ -1,0 +1,62 @@
+version: v1
+name: 'Claude dbt Agent #python #claude'
+pipeline:
+  7cd939fd-039d-4daf-9156-156d05297320:
+    tasks:
+      af176096-755f-4158-8c6d-26bde6823feb:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: UV
+          python_version: '3.12'
+          build_command: uv init && uv add claude-agent-sdk
+          environment_variables: "{\n  \"CLAUDE_PROMPT\": \"${{ MATRIX.claude_inputs['task']\
+            \ }}\",\n  \"TOOLS\": \"${{ MATRIX.claude_inputs['TOOLS'] }}\",\n  \"\
+            GITHUB_REPO\": \"${{ MATRIX.claude_inputs['GITHUB_REPO'] }}\"\n}"
+          set_outputs: false
+          source: GIT
+          command: python python/claude_agent/agent.py
+          branch: ${{ MATRIX.claude_inputs['Branch'] }}
+        depends_on: []
+        name: update dbt code
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        claude_inputs:
+        - task: Head to the dbt_projects/snowflake/models/clean directory and add
+            docstrings to a few of the models explaining what is happening. Make a
+            new branch and make a PR.
+          Branch: main
+          TOOLS: Read,Edit,Glob,Bash
+          GITHUB_REPO: orchestra-hq/orchestra-blueprints
+        - task: Head to the dbt_projects/snowflake/models/aggregated directory and
+            add docstrings to a few of the models explaining what is happening. Make
+            a new branch and make a PR.
+          Branch: main
+          TOOLS: Read,Edit,Glob,Bash
+          GITHUB_REPO: orchestra-hq/orchestra-blueprints
+        - task: Head to the dbt_projects/snowflake/models/staging directory and add
+            docstrings to a few of the models explaining what is happening. Make a
+            new branch and make a PR.
+          Branch: main
+          TOOLS: Read,Edit,Glob,Bash
+          GITHUB_REPO: orchestra-hq/orchestra-blueprints
+webhook:
+  enabled: false
+inputs:
+  prompt:
+    type: string
+    default: Head to the dbt_projects/snowflake?models/ clean directory and add docstrings
+      to a few of the models explaining what is happening. Make a new branch and make
+      a PR.
+  tools:
+    type: string
+    default: Read,Edit,Glob,Bash
+  github_repo:
+    type: string
+    default: orchestra-hq/orchestra-blueprints
+  github_branch:
+    type: string
+    default: main
