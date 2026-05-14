@@ -1,0 +1,134 @@
+version: v1
+name: '#cloudrun #gcp #dbt #bigquery #python #tableau #fivetran'
+pipeline:
+  db5d92c0-9d84-4658-a841-16125ef410fc:
+    tasks:
+      677cbba7-0fd1-4a29-8427-e72626d87197:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build --exclude tag:external_metadata
+          package_manager: PIP
+          python_version: '3.12'
+          branch: ${{ inputs.branch }}
+        depends_on: []
+        name: dbt BigQuery
+        connection: dbt_core_bigquery_prod_38077
+        operation_metadata:
+          65837cb3-e3ab-4ffe-ad53-2df79e49d919:
+            integration: GCP_BIG_QUERY
+            connection: bigquery_metadata_79232
+        treat_failure_as_warning: true
+    depends_on:
+    - c95e31a3-5f2e-4bc8-b58a-1b21750e1bf6
+    name: ''
+  9f7538e7-9439-4d60-ba01-b9986ae628d4:
+    tasks:
+      bffbaaf3-c004-4e44-b90e-2e23802369e8:
+        integration: GCP_DATAFLOW
+        integration_job: GCP_DATAFLOW_RUN_PIPELINE
+        parameters:
+          pipeline_name: ingest-api-to-bigquery
+        depends_on: []
+        name: Ingest SFTP
+    depends_on: []
+    name: ''
+  3bfc92c0-b0d7-459a-998b-9782cc6dfc1b:
+    tasks:
+      16f6dad2-8a14-49d5-852f-8ee96e7f4553:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+
+            "SHEET_NAME": "${{ MATRIX.gsheets[''SHEET_NAME''] }}",
+
+
+            "TABLE_NAME":"${{ MATRIX.gsheets[''TABLE_NAME''] }}"
+
+
+            }'
+          set_outputs: false
+          source: GIT
+          command: python -m run_dlt_pipelines
+          project_dir: dlt
+          shallow_clone_dirs: dlt
+        depends_on: []
+        name: SFTP Data
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: ''
+    matrix:
+      inputs:
+        gsheets:
+        - SHEET_NAME: 1H0UnZ1vJ6WSsZgiVkg96zq52p7qaXkhvodlO1Mzoj6s
+          TABLE_NAME: dbt_leads
+        - SHEET_NAME: 1TMNhQFZbmaBsa1vIehQzh3vdyfc05damwJ_PIKDF14A
+          TABLE_NAME: social_leads
+        - SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ
+          TABLE_NAME: unstructured_feedback
+  42cebbe6-61b1-43f7-9101-1886b4a773f6:
+    tasks:
+      f34c3045-dea9-4a50-a8b0-ea496db4cd3f:
+        integration: TABLEAU_CLOUD
+        integration_job: TABLEAU_REFRESH_EXTRACT
+        parameters:
+          project_name: oaknorth
+          datasource_name: ${{ MATRIX.extracts }}
+        depends_on: []
+        name: Refresh Extracts
+    depends_on:
+    - db5d92c0-9d84-4658-a841-16125ef410fc
+    - 59b47850-b4e7-4b3f-9550-6bbecb79c4af
+    - 9f7538e7-9439-4d60-ba01-b9986ae628d4
+    name: ''
+    matrix:
+      inputs:
+        extracts:
+        - extract_1
+        - extract_2
+        - extract_3
+        - extract_4
+  59b47850-b4e7-4b3f-9550-6bbecb79c4af:
+    tasks:
+      f9746b15-accb-48bb-bc2b-d0f691596752:
+        integration: GCP_BIG_QUERY
+        integration_job: GCP_BQ_RUN_SCHEDULED_QUERY_JOB
+        parameters:
+          resource_name: projects/249301810188/locations/europe-west1/transferConfigs/66e02643-0000-2d9b-b72a-582429cb0ea4
+        depends_on: []
+        name: Scheduled Query
+        connection: bigquery__scheduled_query__prod__64336
+    depends_on:
+    - 3bfc92c0-b0d7-459a-998b-9782cc6dfc1b
+    name: ''
+  c95e31a3-5f2e-4bc8-b58a-1b21750e1bf6:
+    tasks:
+      694c3891-f08f-4127-978d-ce235ab10237:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: manual_carrier
+        depends_on: []
+        name: fivetran_ingest
+      7f91cb16-c45f-4dbf-8255-b66c144c0e2c:
+        integration: GCP_CLOUD_RUN
+        integration_job: GCP_CLOUD_RUN_EXECUTE_JOB
+        parameters:
+          job_name: run
+          env_variables:
+            FAIL_RATE: 0.01
+            ORCHESTRA_TASK_RUN_ID: ${{ ORCHESTRA.TASK_RUN_ID }}
+        depends_on: []
+        name: Execute Cloud Run dlt
+    depends_on: []
+    name: ''
+webhook:
+  enabled: false
+inputs:
+  branch:
+    type: string
+    default: main
