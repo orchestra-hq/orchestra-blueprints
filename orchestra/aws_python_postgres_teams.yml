@@ -1,0 +1,141 @@
+version: v1
+name: 'AWS to Teams Processing #glue #lamda #python #postgres #teams'
+pipeline:
+  dataIngestion:
+    tasks:
+      glueTask:
+        integration: AWS_GLUE
+        integration_job: AWS_GLUE_RUN_JOB
+        parameters:
+          job_name: Testing
+        depends_on: []
+        name: Glue Ingestion
+        connection: glue_crawlers_79392
+        configuration:
+          retries: 3
+          retry_delay: 5
+    depends_on: []
+    name: ''
+  dataTransformation:
+    tasks:
+      pythonTask:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.11'
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+
+            "SHEET_NAME": "${{ MATRIX.gsheets[''SHEET_NAME''] }}",
+
+
+            "TABLE_NAME":"${{ MATRIX.gsheets[''TABLE_NAME''] }}"
+
+
+            }'
+          set_outputs: false
+          source: GIT
+          command: python -m run_dlt_pipelines
+          project_dir: dlt
+          shallow_clone_dirs: dlt
+        depends_on: []
+        name: Pandas Transformation
+        connection: python__production__blueprints__19239
+        configuration:
+          retries: 3
+          retry_delay: 5
+      postgresTask:
+        integration: POSTGRES
+        integration_job: POSTGRES_RUN_QUERY
+        parameters:
+          statement: "INSERT INTO test (name)\nVALUES (\n    chr(trunc(65 + random()\
+            \ * 26)::int) ||  -- random uppercase letter\n    chr(trunc(97 + random()\
+            \ * 26)::int) ||  -- random lowercase letter\n    chr(trunc(97 + random()\
+            \ * 26)::int) ||  -- more random lowercase letters\n    chr(trunc(97 +\
+            \ random() * 26)::int)\n);\nselect * from test;"
+        depends_on: []
+        name: Postgres Transformation
+        connection: postgres__prod__15825
+        configuration:
+          retries: 3
+          retry_delay: 5
+    depends_on:
+    - dataIngestion
+    - fd299f4c-2773-4fd1-b549-cc92216ae949
+    name: ''
+    matrix:
+      inputs:
+        gsheets:
+        - SHEET_NAME: 1H0UnZ1vJ6WSsZgiVkg96zq52p7qaXkhvodlO1Mzoj6s
+          TABLE_NAME: dbt_leads
+        - SHEET_NAME: 1TMNhQFZbmaBsa1vIehQzh3vdyfc05damwJ_PIKDF14A
+          TABLE_NAME: social_leads
+        - SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ
+          TABLE_NAME: unstructured_feedback
+  notification:
+    tasks:
+      teamsTask:
+        integration: MICROSOFT_TEAMS
+        integration_job: SEND_MICROSOFT_TEAMS_MESSAGE
+        parameters:
+          content:
+            text: Data pipeline execution completed successfully.
+        depends_on: []
+        name: Teams Notifications
+        connection: migrated_teams_66347
+        configuration:
+          retries: 3
+          retry_delay: 5
+    depends_on:
+    - 3157a283-dae5-4cd8-8f74-de18eae9b43d
+    - e5838284-f078-4a2d-8027-5415f6479ae6
+    name: ''
+  3157a283-dae5-4cd8-8f74-de18eae9b43d:
+    tasks:
+      fd593945-0607-468a-9918-045ea127dcdc:
+        integration: POSTGRES
+        integration_job: POSTGRES_RUN_TEST
+        parameters:
+          statement: ' SELECT * FROM staging_data '
+          error_threshold_expression: '> 1000000000'
+          warn_threshold_expression: < 0
+        depends_on: []
+        name: Check Data
+    depends_on:
+    - dataTransformation
+    name: ''
+  fd299f4c-2773-4fd1-b549-cc92216ae949:
+    tasks:
+      d2cabfeb-1ffc-42b7-8763-7a510e0a2f40:
+        integration: AWS_LAMBDA
+        integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
+        parameters:
+          function_name: aws_lambda_test
+          payload: '{}'
+          enable_polling: true
+          set_outputs: true
+        depends_on: []
+        name: Lambda Processing
+        connection: aws_lambda__dev__70069
+        configuration:
+          retries: 3
+          retry_delay: 5
+    depends_on: []
+    name: ''
+  e5838284-f078-4a2d-8027-5415f6479ae6:
+    tasks:
+      29a5fdcb-93c7-436d-bee3-b744b4280495:
+        integration: AWS_REDSHIFT
+        integration_job: AWS_REDSHIFT_EXECUTE_STATEMENT
+        parameters:
+          statement: SELECT * from DEV.PUBLIC."raw" LIMIT 10;
+        depends_on: []
+        name: Redshift SQL
+        connection: redshift_prod_02183
+        treat_failure_as_warning: true
+    depends_on:
+    - dataTransformation
+    name: ''
+webhook:
+  enabled: false
