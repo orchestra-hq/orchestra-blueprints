@@ -1,0 +1,95 @@
+version: v1
+name: 'Claude Lightdash Agent with approvals#python #claude'
+pipeline:
+  7cd939fd-039d-4daf-9156-156d05297320:
+    tasks:
+      af176096-755f-4158-8c6d-26bde6823feb:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: UV
+          python_version: '3.12'
+          build_command: uv init && uv add claude-agent-sdk==0.1.48
+          environment_variables: "{\n  \"CLAUDE_PROMPT\": \"A pipeline failed! Please\
+            \ fix it\",\n  \"TOOLS\": \"Read,Edit,Glob,Bash\",\n  \"GITHUB_REPO\"\
+            : \"orchestra-hq/orchestra-blueprints\"\n}"
+          set_outputs: true
+          source: GIT
+          command: 'python python/claude_agent/agent.py '
+          branch: main
+        depends_on: []
+        name: Analyse Lightdash with Agent and CLI
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: ''
+  5214d7a0-d72e-4065-ad80-9d4ca19ae3de:
+    tasks:
+      1da6d1e1-0621-443b-bd42-2ed39756669d:
+        integration: ORCHESTRA
+        integration_job: APPROVAL
+        parameters:
+          message: 'Charts to delete:
+
+            ${{ ORCHESTRA.PIPELINE_RUN_TASKS[''af176096-755f-4158-8c6d-26bde6823feb''].OUTPUTS[''lightdash_chart_ids'']
+            }}
+
+            '
+        depends_on: []
+        name: Check Charts
+    depends_on:
+    - 7cd939fd-039d-4daf-9156-156d05297320
+    name: ''
+  d99c4dfb-978c-407b-91c4-ae4203ef11ac:
+    tasks:
+      a7041d01-a438-43b8-bfaa-06008cfd5ef1:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: UV
+          python_version: '3.12'
+          build_command: uv init && uv add claude-agent-sdk==0.1.48
+          environment_variables: "{\n  \"CLAUDE_PROMPT\": \"1. Delete these Lightdash\
+            \ Charts: No Chart IDs or Lightdash API key was not set. Note the lIghtdash\
+            \ API key is in environment variables\",\n  \"TOOLS\": \"Read,Edit,Glob,Bash\"\
+            ,\n  \"GITHUB_REPO\": \"orchestra-hq/orchestra-blueprints\",\n\"LIGHTDASH_URL\"\
+            :\"https://app.lightdash.cloud\"\n}"
+          set_outputs: true
+          source: GIT
+          command: python python/claude_agent/agent.py
+          branch: main
+        depends_on: []
+        name: Delete Charts
+        connection: python__production__blueprints__19239
+    depends_on:
+    - 5214d7a0-d72e-4065-ad80-9d4ca19ae3de
+    name: ''
+trigger_events:
+- type: pipeline
+  pipeline_id: '*'
+  statuses:
+  - FAILED
+  run_inputs:
+    prompt: Head to the dbt_projects/snowflake?models/ clean directory and add docstrings
+      to a few of the models explaining what is happening. Make a new branch and make
+      a PR.
+    tools: Read,Edit,Glob,Bash
+    github_repo: orchestra-hq/orchestra-blueprints
+    github_branch: main
+    failed_run: ${{ outputs.pipeline_run }}
+webhook:
+  enabled: false
+inputs:
+  prompt:
+    type: string
+    default: Head to the dbt_projects/snowflake?models/ clean directory and add docstrings
+      to a few of the models explaining what is happening. Make a new branch and make
+      a PR.
+  tools:
+    type: string
+    default: Read,Edit,Glob,Bash
+  github_repo:
+    type: string
+    default: orchestra-hq/orchestra-blueprints
+  github_branch:
+    type: string
+    default: main
