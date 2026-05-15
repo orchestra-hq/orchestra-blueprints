@@ -13,7 +13,6 @@ integration examples across multiple tooling stacks.
 | [`dbt_projects/`](dbt_projects/) | dbt blueprint projects for multiple warehouses. |
 | [`dlt/`](dlt/) | dlt ingestion examples and runner scripts. |
 | [`estuary/`](estuary/) | Estuary-related sample configuration files. |
-| [`hybrid_deploy/`](hybrid_deploy/) | Hybrid deployment Terraform example. |
 | [`metadata_api/`](metadata_api/) | Metadata API ingestion pipeline and worker code. |
 | [`multi_workspace_test/`](multi_workspace_test/) | Multi-workspace test pipeline examples. |
 | [`orchestra/`](orchestra/) | Orchestra pipeline YAML definitions. |
