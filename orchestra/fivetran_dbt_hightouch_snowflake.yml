@@ -42,8 +42,8 @@ pipeline:
           set_outputs: true
           source: GIT
           command: python -m run_dlt_pipelines
-          project_dir: dlt
-          shallow_clone_dirs: dlt
+          project_dir: python/dlt
+          shallow_clone_dirs: python/dlt
         depends_on: []
         name: Execute parallel dlt
         connection: python__production__blueprints__19239
@@ -115,8 +115,8 @@ pipeline:
           source: GIT
           command: python -m pg_replication_pipeline
           branch: postgres_dlt
-          project_dir: dlt
-          shallow_clone_dirs: dlt
+          project_dir: python/dlt
+          shallow_clone_dirs: python/dlt
         depends_on: []
         name: Postgres
         connection: python__production__blueprints__19239

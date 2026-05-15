@@ -23,8 +23,8 @@ pipeline:
           set_outputs: false
           source: GIT
           command: python -m run_dlt_pipelines
-          project_dir: dlt
-          shallow_clone_dirs: dlt
+          project_dir: python/dlt
+          shallow_clone_dirs: python/dlt
         depends_on: []
         name: Run dlt
         connection: python__production__blueprints__19239
