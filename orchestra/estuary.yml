@@ -1,5 +1,5 @@
 version: v1
-name: 'TEST: Estuary'
+name: 'Estuary #estuary #dbt'
 pipeline:
   0078c254-ca29-4742-949f-34e9fdaa581c:
     tasks:
