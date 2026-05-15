@@ -67,6 +67,8 @@ pipeline:
         integration_job: DBT_CORE_EXECUTE
         parameters:
           commands: dbt ${{ inputs.dbt_command }}
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
           package_manager: PIP
           python_version: '3.12'
           use_state_orchestration: false
@@ -145,3 +147,4 @@ inputs:
   environment:
     type: string
     default: ${{ ENV.ENV_NAME }}
+
