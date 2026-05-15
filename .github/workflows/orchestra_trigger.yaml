@@ -26,6 +26,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Run Custom Action
         uses: orchestra-hq/run-pipeline@v1
         with:

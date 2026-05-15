@@ -24,7 +24,7 @@ lint:
 	ruff format --check . --exclude worktrees
 
 audit:
-	pip-audit -r python/requirements.txt || true
+	pip-audit -r python/dlt/requirements.txt || true
 
 install-tools:
 	pipx install orchestra-cli ruff vulture pip-audit yamllint

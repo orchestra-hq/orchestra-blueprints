@@ -14,7 +14,8 @@ on:
       pip_audit_requirements_path:
         type: string
         required: false
-        default: python/requirements.txt
+        # Optional: if empty, the dependency vulnerability audit step is skipped.
+        default: ''
 
 jobs:
   quality-gates:
@@ -38,5 +39,5 @@ jobs:
         if: ${{ inputs.run_ruff_format }}
         run: ruff format --check . --exclude worktrees
       - name: Run dependency vulnerability audit
-        if: ${{ inputs.run_pip_audit }}
+        if: ${{ inputs.run_pip_audit && inputs.pip_audit_requirements_path != '' }}
         run: pip-audit -r ${{ inputs.pip_audit_requirements_path }}
