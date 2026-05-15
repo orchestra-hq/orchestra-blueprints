@@ -71,6 +71,8 @@ pipeline:
           python_version: '3.12'
           use_state_orchestration: false
           branch: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
         depends_on: []
         name: dbt_
         connection: dbt_snowflake_56978
