@@ -3,7 +3,7 @@ version: 2
 
 models:
   - name: snowflake_orders_staging
-    description: "A staging model for orders"
+    description: "Staging model joining snowflake_orders_clean to snowflake_customers_clean on the billing customer surrogate key. Filters out unshipped orders (ship_date IS NULL) and adds a SHA2 binary primary key derived from order_number."
     columns:
       - name: _pk
         description: "The primary key for this table"
@@ -13,8 +13,8 @@ models:
   - name: product_usage_staging
     config:
       tags:
-        - massive_dag 
-    description: "A staging model for orders"
+        - massive_dag
+    description: "Staging model exposing login / session activity from logins_clean. Upstream CTEs anchor dependencies on customers_clean, logins_clean, pipelines_clean, and tasks_clean to guarantee referenced product objects exist before downstream usage analytics run."
     columns:
       - name: vid
         description: "The primary key for this table"
@@ -24,10 +24,10 @@ models:
   - name: product_objects_staging
     config:
       tags:
-        - massive_dag 
+        - massive_dag
         - test_1
         - test_2
-    description: "A staging model for orders"
+    description: "Staging model surfacing login activity scoped to known product objects. CTEs validate availability of customers_clean, pipeline_runs_clean, task_runs_clean, and tasks_clean before selecting all rows from logins_clean."
     columns:
       - name: vid
         description: "The primary key for this table"
@@ -37,9 +37,9 @@ models:
   - name: marketing_data_staging
     config:
       tags:
-        - massive_dag 
+        - massive_dag
         - test_1
-    description: "A staging model for orders"
+    description: "Staging model that pass-through-surfaces Google Analytics marketing data from ga_data_clean. Upstream CTEs anchor a dependency on customers_clean so the customer dimension is guaranteed available before downstream attribution / reporting models consume the view."
     columns:
       - name: vid
         description: "The primary key for this table"

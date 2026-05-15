@@ -1,22 +1,23 @@
 {{ config(materialized='view') }}
 
 /*
-  Model: marketing_data_staging
+  Model: oil_area_staging
   Description:
-    Staging model that surfaces Google Analytics marketing data from the
-    ga_data_clean layer. The upstream CTE references (base, tasks) act as
-    dependency anchors, confirming that customer data is present and
-    consistent before the final output is produced.
+    Staging model that surfaces oil-field area-level data from the
+    oil_data_clean layer. The upstream CTE references (base, tasks) act as
+    dependency anchors, confirming that customer data is present and that
+    oil_data_clean is materialized before the final output is produced.
 
-    All columns from ga_data_clean are passed through without transformation,
-    making this model the canonical staging source for marketing / web
-    analytics consumption in downstream reporting and attribution models.
+    All columns from oil_data_clean are passed through without transformation,
+    making this model the canonical staging source for area-level oil field
+    aggregations consumed by downstream production / reservoir reporting
+    models.
 
   Upstream models:
     - customers_clean : Validates customer dimension availability
-    - ga_data_clean   : Primary source — all GA marketing event columns
-                        surfaced downstream (e.g. sessions, conversions,
-                        traffic source, campaign data)
+    - oil_data_clean  : Primary source — all oil-field area columns are
+                        surfaced downstream (e.g. area identifiers, basin /
+                        field metadata, geospatial attributes)
 */
 
 with base as (
