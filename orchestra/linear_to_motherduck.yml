@@ -33,7 +33,7 @@ inputs:
     default: main
   since_days:
     type: string
-    default: '7'
+    default: '8'
   md_staging_database:
     type: string
     default: my_db_staging
