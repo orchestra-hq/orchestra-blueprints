@@ -1,0 +1,22 @@
+version: v1
+name: 'dbt Databricks Simple #dbt #databricks'
+pipeline:
+  f16f81cf-a1cf-41af-8545-6b5dd4254600:
+    tasks:
+      e5aaa2cd-d1a4-4f0f-b721-11a0c78bafd8:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: false
+          project_dir: dbt_projects/databricks
+          shallow_clone_dirs: dbt_projects/databricks
+        depends_on: []
+        name: dbt Build
+        connection: dbt_databricks_demo_54814
+    depends_on: []
+    name: group
+webhook:
+  enabled: false
