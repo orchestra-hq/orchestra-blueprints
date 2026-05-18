@@ -12,5 +12,5 @@ Platform interaction patterns live under `patterns/`.
 
 - Worker modules for integrations and data movement.
 - Subfolders with targeted examples (for example `integration_a/`,
-  `integration_b/`, `postgres/`, and `claude_agent/`).
+  `integration_b/`, and `claude_agent/`).
 - Shared dependencies in `requirements.txt`.
