@@ -24,6 +24,14 @@ git checkout main && git pull
 git checkout -b feat/dlt-<source>
 ```
 
+**If the source already exists on `main`** (i.e. you're "rebuilding" or
+re-running a previously merged pipeline): cut a `-v2`/`-rerun` branch and
+**keep the existing `python/dlt/<source>/`, `<source>_pipeline.py`, and
+`orchestra/<source>_to_motherduck.yml` files as-is** — skip ahead to step 5.
+"Rebuild" in this context means re-register and re-trigger on a fresh branch,
+not delete and re-author working code. Only rewrite files if the user
+explicitly says the existing code is broken or that they want it replaced.
+
 ### 2. Identify the source endpoints
 Read the source's API docs (or call `WebFetch` on them) to determine:
 - Which endpoint(s) yield the entities the user asked for.
@@ -125,15 +133,18 @@ The pipeline has a single PYTHON_EXECUTE_SCRIPT task. The two non-obvious bits:
    replaces it.
 
 Skeleton (let the `orchestra-pipeline` skill generate the full YAML; this is
-just the shape):
+just the shape). Two stages: Python load → MotherDuck promote. The promote is
+wired into the pipeline as a `MOTHERDUCK_EXECUTE_QUERY` task that depends on
+the Python stage, so prod is updated atomically as part of each run and there
+is no separate manual MCP `COPY FROM DATABASE` step.
 
 ```yaml
 version: v1
 name: '<source> to MotherDuck #dlt #motherduck'
 pipeline:
-  <stage-uuid>:
+  <python-stage-uuid>:
     tasks:
-      <task-uuid>:
+      <python-task-uuid>:
         integration: PYTHON
         integration_job: PYTHON_EXECUTE_SCRIPT
         parameters:
@@ -156,6 +167,19 @@ pipeline:
         name: Run <source> dlt
         connection: python__production__blueprints__19239
     depends_on: []
+    name: ''
+  <promote-stage-uuid>:
+    tasks:
+      <promote-task-uuid>:
+        integration: MOTHERDUCK
+        integration_job: MOTHERDUCK_EXECUTE_QUERY
+        parameters:
+          query: "COPY FROM DATABASE ${{ inputs.md_staging_database }} TO ${{ inputs.md_prod_database }} (SCHEMA '${{ inputs.md_dataset }}', OVERWRITE);"
+          set_outputs: false
+        depends_on: []
+        name: Promote staging to prod
+    depends_on:
+    - <python-stage-uuid>
     name: ''
 inputs:
   branch:
@@ -245,70 +269,38 @@ task, then `download_task_run_log` for its log. The most common causes:
 Once the run is green on the feature branch, the staging database holds the
 fresh load. Prod is still untouched — promote it in step 8.
 
-### 8. Promote staging to prod
-The pipeline writes only to staging. Once you've sanity-checked the load (row
-counts, schema, a spot-check query), promote it to prod with MotherDuck's
-`COPY FROM DATABASE … (OVERWRITE)`. The SQL is built at call time by
-substituting the staging and prod DB names from the env vars in step 3 — those
-names are set in this skill, not hardcoded in the SQL:
-
-```python
-staging = os.environ["<SOURCE>_MD_STAGING_DATABASE"]   # e.g. my_db_staging
-prod    = os.environ["<SOURCE>_MD_PROD_DATABASE"]      # e.g. my_db
-
-sql = f"COPY FROM DATABASE {staging} TO {prod} (OVERWRITE)"
-```
-
-Then call it via the MotherDuck MCP:
-
-```
-mcp__MotherDuck__query_rw(sql="COPY FROM DATABASE <staging> TO <prod> (OVERWRITE)")
-```
-
+### 8. Verify the promote
+The promote ran as the `MOTHERDUCK_EXECUTE_QUERY` task in step 4c, scoped to
+the `${{ inputs.md_dataset }}` schema via `(SCHEMA '<md_dataset>', OVERWRITE)`.
 `OVERWRITE` drops tables in `<prod>` that also exist in `<staging>` before
-recopying — anything in prod that isn't in staging is left alone. To scope the
-copy to a single schema (e.g. promote only the `dlt_<source>` schema and leave
-other prod schemas untouched), add `SCHEMA`:
+recopying — anything in prod outside the `<md_dataset>` schema is left alone.
+
+Once the pipeline run is green end-to-end (Python stage SUCCEEDED, promote
+stage SUCCEEDED), spot-check the prod result via the MotherDuck MCP:
 
 ```
-COPY FROM DATABASE <staging> TO <prod> (SCHEMA '<md_dataset>', OVERWRITE)
-```
-
-Quick sanity-check queries to run before the promote:
-
-```
-mcp__MotherDuck__query(database="<staging>",
+mcp__MotherDuck__query(database="<md_prod_database>",
   sql="SELECT COUNT(*) FROM <md_dataset>.<main_table>")
-mcp__MotherDuck__query(database="<staging>",
+mcp__MotherDuck__query(database="<md_prod_database>",
   sql="SELECT MIN(updated_at), MAX(updated_at) FROM <md_dataset>.<main_table>")
 ```
 
-If anything looks off, **don't promote** — investigate first; the prod snapshot
-from step 6 is your safety net only if the COPY itself goes wrong, not if you
-push bad data through it.
+If the promote stage failed but the Python stage succeeded, staging holds the
+correct data and prod is untouched — re-run only the promote stage from the
+Orchestra UI (or re-trigger the whole pipeline; `OVERWRITE` is idempotent). If
+the COPY itself corrupted prod, `RESTORE` from the snapshot taken in step 6.
 
-Once the run is green on the feature branch and the promote is clean, the YAML
-and Python code are ready to merge to `main`.
+Once both stages are green on the feature branch, the YAML and Python code are
+ready to merge to `main`.
 
 ## Notes
-- Validate locally first by running `python <source>_pipeline.py` with the env
-  vars set (including `<SOURCE>_MD_STAGING_DATABASE` and `<SOURCE>_MD_DATASET`).
-  A 7-day window is usually small enough to finish in under a minute and
-  confirms credentials, pagination, and the MotherDuck destination before you
-  spend an Orchestra run on it. The local validation writes to staging too —
-  never run it against `<SOURCE>_MD_PROD_DATABASE`.
-- The pre-load snapshot in step 6 and the promote in step 8 are per-run, not
-  one-time at skill authoring — every Orchestra trigger should be preceded by
-  a fresh snapshot, and followed by a promote, if you want a clean rollback
-  point and an atomic prod write. For scheduled runs, bake both into the YAML
-  as MOTHERDUCK_EXECUTE_QUERY tasks bracketing the Python task:
-  - First task: `CREATE SNAPSHOT … OF ${{ inputs.md_prod_database }}` (no
-    `depends_on`).
-  - Python task: depends on the snapshot.
-  - Last task: `COPY FROM DATABASE ${{ inputs.md_staging_database }} TO
-    ${{ inputs.md_prod_database }} (OVERWRITE)`, depends on the Python task.
-  That way manual MCP calls aren't needed and the whole snapshot → load →
-  promote sequence is wired in the pipeline.
+- The promote in step 8 is wired into the pipeline as a
+  `MOTHERDUCK_EXECUTE_QUERY` task that depends on the Python stage — it runs
+  automatically on every trigger, no manual MCP call required. The pre-load
+  snapshot in step 6 is still a manual MCP step; consider promoting it into
+  the YAML as a third `MOTHERDUCK_EXECUTE_QUERY` task (no `depends_on`, with
+  the Python task gaining `depends_on: [<snapshot-stage>]`) once the pattern
+  is proven on the source.
 - Staging vs prod: dlt should never write directly to prod. The split exists
   so a half-failed load only corrupts staging (which is rebuilt every run),
   and prod only changes via the atomic `COPY FROM DATABASE … (OVERWRITE)` in
