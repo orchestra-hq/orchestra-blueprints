@@ -11,22 +11,9 @@ Environment variables consumed:
 import os
 
 import dlt
+from dlt.destinations import motherduck
 
 from linear import linear_source
-
-
-def _configure_motherduck_credentials(database: str) -> None:
-    token = os.environ.get("MOTHERDUCK_API_TOKEN") or os.environ.get(
-        "MOTHERDUCK_TOKEN"
-    )
-    if not token:
-        raise EnvironmentError(
-            "MOTHERDUCK_API_TOKEN (or MOTHERDUCK_TOKEN) must be set."
-        )
-    os.environ.setdefault("MOTHERDUCK_TOKEN", token)
-    os.environ["DESTINATION__MOTHERDUCK__CREDENTIALS"] = (
-        f"md:{database}?motherduck_token={token}"
-    )
 
 
 def run_pipeline(since_days: int = 7) -> None:
@@ -34,14 +21,25 @@ def run_pipeline(since_days: int = 7) -> None:
     if not api_key:
         raise EnvironmentError("LINEAR_API_KEY must be set.")
 
+    token = os.environ.get("MOTHERDUCK_API_TOKEN") or os.environ.get(
+        "MOTHERDUCK_TOKEN"
+    )
+    if not token:
+        raise EnvironmentError(
+            "MOTHERDUCK_API_TOKEN (or MOTHERDUCK_TOKEN) must be set."
+        )
+
     database = os.environ.get("LINEAR_MD_STAGING_DATABASE", "my_db_staging")
     dataset = os.environ.get("LINEAR_MD_DATASET", "dlt_linear")
-    _configure_motherduck_credentials(database)
+
+    destination = motherduck(
+        credentials={"database": database, "password": token},
+    )
 
     pipeline = dlt.pipeline(
         pipeline_name="linear",
         dataset_name=dataset,
-        destination="motherduck",
+        destination=destination,
     )
 
     source = linear_source(api_key=api_key, since_days=since_days)
