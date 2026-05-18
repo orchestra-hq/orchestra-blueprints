@@ -29,7 +29,7 @@ pipeline:
 inputs:
   branch:
     type: string
-    default: main
+    default: feat/dlt-linear-cycles
   since_days:
     type: string
     default: '7'
