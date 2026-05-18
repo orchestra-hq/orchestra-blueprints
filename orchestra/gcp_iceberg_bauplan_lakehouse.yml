@@ -98,8 +98,8 @@ pipeline:
           set_outputs: false
           source: GIT
           command: python -m wap_manual
-          project_dir: bauplan
-          shallow_clone_dirs: bauplan
+          project_dir: python/bauplan
+          shallow_clone_dirs: python/bauplan
         depends_on: []
         name: Python WAP
         connection: python__production__blueprints__19239
@@ -168,7 +168,7 @@ pipeline:
         integration: BAUPLAN
         integration_job: BAUPLAN_EXECUTE_PIPELINE
         parameters:
-          project_dir: bauplan/
+          project_dir: python/bauplan/
           bauplan_ref: orchestradevs.oliver_test
           project_branch: test-bauplan
           namespace: bauplan

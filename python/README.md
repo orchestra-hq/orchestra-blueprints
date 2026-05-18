@@ -1,6 +1,12 @@
 # Python workers
 
-This directory contains Python scripts that can be run by Orchestra tasks.
+`python/` contains Python modules used by this repo’s demos.
+
+Most subfolders are intended to be executed by Orchestra via Python task
+integrations (i.e., Orchestra launches the Python code as part of a pipeline
+run).
+
+Platform interaction patterns live under `patterns/`.
 
 ## Contents
 

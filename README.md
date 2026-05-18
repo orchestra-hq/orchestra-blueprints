@@ -8,8 +8,8 @@ integration examples across multiple tooling stacks.
 
 | Directory | Purpose |
 | --- | --- |
-| [`azure/`](azure/) | Azure ML example assets and pipeline support files. |
-| [`bauplan/`](bauplan/) | Bauplan project examples and helper scripts. |
+| [`python/azure/`](python/azure/) | Azure ML example assets and pipeline support files. |
+| [`python/bauplan/`](python/bauplan/) | Bauplan project examples and helper scripts. |
 | [`dbt_projects/`](dbt_projects/) | dbt blueprint projects for multiple warehouses. |
 | [`dlt/`](dlt/) | dlt ingestion examples and runner scripts. |
 | [`estuary/`](estuary/) | Estuary-related sample configuration files. |
@@ -18,6 +18,8 @@ integration examples across multiple tooling stacks.
 | [`orchestra/`](orchestra/) | Orchestra pipeline YAML definitions. |
 | [`patterns/`](patterns/) | Reusable implementation patterns and demos. |
 | [`python/`](python/) | General-purpose Python workers and integrations. |
+| [`patterns/run_multiple_pipelines/`](patterns/run_multiple_pipelines/) | Examples for programmatic multi-pipeline runs (Orchestra API patterns). |
+| [`patterns/warehouse_savings/`](patterns/warehouse_savings/) | Warehouse optimization and analytics (Orchestra API pattern). |
 
 ## Directory notes
 
@@ -39,11 +41,21 @@ in downstream warehouses. It includes an example Orchestra pipeline file and
 runtime script.
 
 ### Patterns
+`patterns/` holds reusable workflow patterns and supporting examples.
 
-`patterns/` holds reusable workflow patterns, including the run-multiple
-pipelines utility.
+### Run multiple pipelines
+
+`patterns/run_multiple_pipelines/` contains patterns for interacting with
+Orchestra as a platform (programmatic multi-pipeline runs via the API).
+
+### Warehouse savings
+
+`patterns/warehouse_savings/` contains the warehouse optimization and analytics
+pattern examples, implemented as an Orchestra API client/analysis.
 
 ### Python workers
 
-`python/` contains worker scripts that Orchestra can execute via Python task
+`python/` contains Python modules used by the repo’s demos.
+
+Most subfolders are intended to be executed by Orchestra via Python task
 integrations.
