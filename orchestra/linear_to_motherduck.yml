@@ -27,6 +27,19 @@ pipeline:
         connection: python__production__blueprints__19239
     depends_on: []
     name: ''
+  7b5e4c02-9f1d-4a3e-8c6b-1d2e3f4a5b6c:
+    tasks:
+      a1c2b3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d:
+        integration: MOTHERDUCK
+        integration_job: MOTHERDUCK_EXECUTE_QUERY
+        parameters:
+          query: "COPY FROM DATABASE ${{ inputs.md_staging_database }} TO ${{ inputs.md_prod_database }} (SCHEMA '${{ inputs.md_dataset }}', OVERWRITE);"
+          set_outputs: false
+        depends_on: []
+        name: Promote staging to prod
+    depends_on:
+    - 9c7a4d12-1ab3-4e7f-b8c1-2f5a9d0e4a01
+    name: ''
 inputs:
   branch:
     type: string
