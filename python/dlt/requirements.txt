@@ -4,5 +4,6 @@ dlt==1.16.0
 openpyxl==3.1.5
 dlt[bigquery]==1.16.0
 dlt[snowflake]==1.16.0
+dlt[motherduck]==1.16.0
 hubspot-api-client==10.0.0
 google-api-python-client==2.182.0

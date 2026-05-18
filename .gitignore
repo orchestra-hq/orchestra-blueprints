@@ -20,6 +20,11 @@ dbt_projects/postgres/jaffle_shop_postgres/target/*
 profiles.yml
 .user.yml
 
+
+# AI generated Folders
+.claude/settings.local.json
+.dive-preview
+
 # terraform ignores
 .terraform
 .terraform.lock.hcl
