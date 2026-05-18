@@ -1,0 +1,41 @@
+version: v1
+name: 'Linear cycles to MotherDuck #dlt #motherduck #linear'
+pipeline:
+  3a1f8b40-77c2-4d18-9e2a-6b0c5d7f8a11:
+    tasks:
+      6c4d9e22-8a3b-4f51-bd07-2e1a4f6b9c23:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.11'
+          build_command: pip install -r requirements.txt
+          source: GIT
+          branch: ${{ inputs.branch }}
+          command: python -m linear_cycles_pipeline
+          project_dir: python/dlt
+          shallow_clone_dirs: python/dlt
+          environment_variables: '{
+            "LINEAR_CYCLES_SINCE_DAYS": "${{ inputs.since_days }}",
+            "LINEAR_CYCLES_MD_STAGING_DATABASE": "${{ inputs.md_staging_database }}",
+            "LINEAR_CYCLES_MD_DATASET":          "${{ inputs.md_dataset }}"
+            }'
+          set_outputs: true
+        depends_on: []
+        name: Run linear cycles dlt
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: ''
+inputs:
+  branch:
+    type: string
+    default: main
+  since_days:
+    type: string
+    default: '7'
+  md_staging_database:
+    type: string
+    default: my_db_staging
+  md_dataset:
+    type: string
+    default: dlt_linear_cycles
