@@ -73,7 +73,7 @@ if __name__ == "__main__":
     prompt = os.getenv(
         "CLAUDE_PROMPT",
         "Lightdash API key in env vars. Using this, "
-        "return a list of Lightdash cahrts with less than 30 views. Return a list of strings of IDs of the charts like ['chart_id1', 'chart_id2'] and set these as an environment variable LIGHTDASH_CHART_IDS.",
+        "return a list of Lightdash charts with less than 30 views. Return a list of strings of IDs of the charts like ['chart_id1', 'chart_id2'] and set these as an environment variable LIGHTDASH_CHART_IDS.",
     )
     github_repo = os.getenv("GITHUB_REPO", "orchestra-hq/orchestra-blueprints")
     print("The Prompt is:", prompt)

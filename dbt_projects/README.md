@@ -10,11 +10,11 @@ This directory contains standalone dbt blueprint examples.
 
 ## Current subprojects
 
-- `azure_fabric`
+- `azure_fabric` - UNUSED
 - `databricks`
-- `duckdb_example`
-- `motherduck_postgres`
+- `duckdb_example` - UNUSED
+- `motherduck_postgres` - UNUSED
 - `motherduck_s3`
-- `postgres`
+- `postgres` - UNUSED
 - `snowflake`
-- `state_management`
+- `state_management` - UNUSED
