@@ -20,6 +20,8 @@ dbt_projects/postgres/jaffle_shop_postgres/target/*
 profiles.yml
 .user.yml
 
+.claude/settings.local.json
+
 # terraform ignores
 .terraform
 .terraform.lock.hcl
