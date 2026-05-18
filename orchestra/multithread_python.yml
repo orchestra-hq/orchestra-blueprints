@@ -1,0 +1,23 @@
+version: v1
+name: 'Multithread #python'
+pipeline:
+  5c9d3f7e-8f88-410e-9bbb-cf12eb74cdab:
+    tasks:
+      b0d9e977-2de1-4c0c-adc5-8865ff633d21:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          set_outputs: false
+          source: GIT
+          command: python multithread.py 4 10
+          project_dir: python/multithread
+          shallow_clone_dirs: python/multithread
+        depends_on: []
+        name: Run Multithread
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: group
+webhook:
+  enabled: false
