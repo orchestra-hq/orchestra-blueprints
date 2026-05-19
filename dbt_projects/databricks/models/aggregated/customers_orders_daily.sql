@@ -26,8 +26,7 @@ select
 
     a.Day,
     b.*,
-    HASHBYTES('SHA2_256', CONCAT(cast(a.Day as STRING),cast(b.customer_id as STRING))) _pk
-
+    sha2(CONCAT(cast(a.Day as STRING),cast(b.customer_id as STRING)), 256) _pk
 
 
 
