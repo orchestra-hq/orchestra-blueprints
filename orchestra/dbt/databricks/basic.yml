@@ -11,6 +11,7 @@ pipeline:
           package_manager: PIP
           python_version: '3.12'
           use_state_orchestration: false
+          branch: live-alerts
           project_dir: dbt_projects/databricks
           shallow_clone_dirs: dbt_projects/databricks
         depends_on: []
