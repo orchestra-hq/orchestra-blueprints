@@ -1,0 +1,11 @@
+[project]
+name = "motherduck_oil"
+version = "0.1.0"
+description = "MotherDuck dbt models aligned with orchestra-blueprints snowflake oil_data_clean / oil_data_aggregated"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "duckdb==1.5.2",
+  "dbt-duckdb==1.10.1",
+  "dbt-core==1.10.9",
+]
