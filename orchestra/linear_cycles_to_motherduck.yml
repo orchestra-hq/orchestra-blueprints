@@ -46,7 +46,7 @@ pipeline:
         integration: MOTHERDUCK
         integration_job: MOTHERDUCK_EXECUTE_QUERY
         parameters:
-          query: "COPY FROM DATABASE ${{ inputs.md_staging_database }}  (OVERWRITE, SNAPSHOT_NAME ${{ inputs.snapshot)name }}, OVERWRITE) TO ${{ inputs.md_prod_database }}"
+          query: "COPY FROM DATABASE ${{ inputs.md_staging_database }}  (OVERWRITE, SNAPSHOT_NAME ${{ inputs.snapshot_name }}, OVERWRITE) TO ${{ inputs.md_prod_database }}"
           set_outputs: false
         depends_on: []
         name: Promote staging to prod
