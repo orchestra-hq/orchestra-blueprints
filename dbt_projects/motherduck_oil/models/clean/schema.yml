@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: oil_data_clean
+    description: "Oil production clean layer (same shape as snowflake_airflow_dbt oil_data_clean; DuckDB uses sha256 for _pk)"
+    columns:
+      - name: _pk
+        description: "The primary key for this table"
+        tests:
+          - not_null:
+              config:
+                severity: warn
+                warn_if: ">= 1"
+          - unique

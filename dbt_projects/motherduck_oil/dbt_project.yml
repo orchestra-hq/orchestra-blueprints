@@ -1,0 +1,28 @@
+name: "motherduck_oil"
+version: "1.0.0"
+config-version: 2
+
+profile: "motherduck"
+
+model-paths: ["models", "sources"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  motherduck_oil:
+    clean:
+      +materialized: table
+      schema: clean
+    staging:
+      +materialized: table
+      schema: staging
+    aggregated:
+      +materialized: table
+      schema: aggregated

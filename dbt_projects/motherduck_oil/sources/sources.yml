@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: fivetran
+    schema: google_sheets
+    tables:
+      - name: oil_data
+        description: "Oil field production data (mirror Fivetran Google Sheets shape in MotherDuck)"
+        freshness:
+          warn_after: {count: 10, period: minute}
+          error_after: {count: 30, period: minute}
+        loaded_at_field: _fivetran_synced
+        columns:
+          - name: timestamp
+            description: "The timestamp for this table"
+            tests:
+              - not_null
