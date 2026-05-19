@@ -36,7 +36,7 @@ pipeline:
 
             "ERROR_WEBHOOK_AUTH": "Bearer Nzg2ODc0MGQtOTIzYy00MmZlLWI3YTUtMzI0YzVhMzIyODlmOmJDa1JsQjlWQWF3M1hXUGpOR28yN0NzTk9mdEtxZGti",
 
-            "IDLE_TIMEOUT_SEC": "60"
+            "LOG_DISCOVERY_TIMEOUT_SEC": "180"
 
             }'
           set_outputs: false
@@ -77,7 +77,8 @@ pipeline:
             )   # optional override\nPOLL_INTERVAL    = float(os.getenv(\"POLL_INTERVAL_SEC\"\
             , \"5\"))\nERROR_COOLDOWN   = float(os.getenv(\"ERROR_COOLDOWN_SEC\",\
             \ \"30\"))\nIDLE_TIMEOUT     = float(os.getenv(\"IDLE_TIMEOUT_SEC\", \"\
-            300\"))\n\n# \u2500\u2500 Patterns \u2500\u2500\u2500\u2500\u2500\u2500\
+            300\"))\nLOG_DISCOVERY_TIMEOUT = float(os.getenv(\"LOG_DISCOVERY_TIMEOUT_SEC\"\
+            , \"120\"))\n\n# \u2500\u2500 Patterns \u2500\u2500\u2500\u2500\u2500\u2500\
             \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
             \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
             \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
@@ -179,22 +180,30 @@ pipeline:
             \ calls will fire.\\n\"\n        )\n    if not ERROR_WEBHOOK_AUTH:\n \
             \       print(\n            \"[monitor] \u26A0\uFE0F  ERROR_WEBHOOK_AUTH\
             \ not set \u2014 requests will be sent without an Authorization header.\\\
-            n\"\n        )\n\n\ndef wait_for_log_file():\n    \"\"\"Block until the\
-            \ target log file appears in the task run, then return its name.\"\"\"\
-            \n    target = WATCH_FILENAME\n    print(f\"[monitor] Waiting for log\
-            \ file{' (' + target + ')' if target else ''} to appear\u2026\")\n\n \
-            \   while True:\n        try:\n            filenames = list_log_filenames()\n\
-            \        except requests.RequestException as exc:\n            print(f\"\
-            [monitor] \u26A0\uFE0F  Could not list logs ({exc}), retrying\u2026\"\
-            )\n            time.sleep(POLL_INTERVAL)\n            continue\n\n   \
-            \     if filenames:\n            chosen = target if (target and target\
-            \ in filenames) else discover_dbt_filename(filenames)\n            if\
-            \ chosen:\n                print(f\"[monitor] \U0001F4C4 Watching log\
-            \ file: '{chosen}'\\n{'\u2500' * 60}\")\n                return chosen\n\
-            \n        time.sleep(POLL_INTERVAL)\n\n\ndef monitor(filename):\n    byte_offset\
-            \ = 0\n    finished = False\n    last_new_bytes_time = time.time()\n \
-            \   partial_line = \"\"           # buffer for lines split across chunk\
-            \ boundaries\n\n    print(f\"[monitor] Polling every {POLL_INTERVAL}s\
+            n\"\n        )\n\n\ndef wait_for_log_file():\n    \"\"\"Poll until the\
+            \ target log file appears, then return its name. Exit if timeout is reached.\"\
+            \"\"\n    target = WATCH_FILENAME\n    deadline = time.time() + LOG_DISCOVERY_TIMEOUT\n\
+            \    attempt = 0\n\n    print(\n        f\"[monitor] Waiting for log file{'\
+            \ (' + target + ')' if target else ''} to appear \"\n        f\"(timeout:\
+            \ {LOG_DISCOVERY_TIMEOUT:.0f}s)\u2026\"\n    )\n\n    while time.time()\
+            \ < deadline:\n        attempt += 1\n        try:\n            filenames\
+            \ = list_log_filenames()\n            if filenames:\n                print(f\"\
+            [monitor] Attempt {attempt}: found log files: {filenames}\")\n       \
+            \         chosen = target if (target and target in filenames) else discover_dbt_filename(filenames)\n\
+            \                if chosen:\n                    print(f\"[monitor] \U0001F4C4\
+            \ Watching log file: '{chosen}'\\n{'\u2500' * 60}\")\n               \
+            \     return chosen\n                else:\n                    print(f\"\
+            [monitor] Attempt {attempt}: no dbt log matched among {filenames}, retrying\u2026\
+            \")\n            else:\n                print(f\"[monitor] Attempt {attempt}:\
+            \ no log files available yet, retrying\u2026\")\n        except requests.RequestException\
+            \ as exc:\n            print(f\"[monitor] Attempt {attempt}: request failed\
+            \ ({exc}), retrying\u2026\")\n\n        time.sleep(POLL_INTERVAL)\n\n\
+            \    print(\n        f\"[monitor] \u274C Timed out after {LOG_DISCOVERY_TIMEOUT:.0f}s\
+            \ waiting for a log file. \"\n        \"Check your pipeline/task run IDs\
+            \ and that the run has started.\"\n    )\n    sys.exit(1)\n\n\ndef monitor(filename):\n\
+            \    byte_offset = 0\n    finished = False\n    last_new_bytes_time =\
+            \ time.time()\n    partial_line = \"\"           # buffer for lines split\
+            \ across chunk boundaries\n\n    print(f\"[monitor] Polling every {POLL_INTERVAL}s\
             \  |  idle timeout: {IDLE_TIMEOUT}s\\n\")\n\n    while not finished:\n\
             \        try:\n            chunk = fetch_new_bytes(filename, byte_offset)\n\
             \        except requests.RequestException as exc:\n            print(f\"\
