@@ -44,8 +44,8 @@ models:
             method => 'POST',
             path => 'chat.postMessage',
             json => to_json(named_struct(
-              'channel', '#test-data-alerts',
-              'text', 'Model {{ this.name }} completed successfully!'
+              'channel', CAST('#test-data-alerts' AS STRING),
+              'text', CAST('Model {{ this.name }} completed successfully!' AS STRING)
             )),
             headers => map('Accept', 'application/json')
           );
