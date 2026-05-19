@@ -15,12 +15,10 @@ pipeline:
           command: python -m linear_pipeline
           project_dir: python/dlt
           shallow_clone_dirs: python/dlt
-          environment_variables: '{
-            "LINEAR_SINCE_DAYS": "${{ inputs.since_days }}",
-            "LINEAR_MD_STAGING_DATABASE": "${{ inputs.md_staging_database }}",
-            "LINEAR_MD_PROD_DATABASE":    "${{ inputs.md_prod_database }}",
-            "LINEAR_MD_DATASET":          "${{ inputs.md_dataset }}"
-            }'
+          environment_variables: '{ "LINEAR_SINCE_DAYS": "${{ inputs.since_days }}",
+            "LINEAR_MD_STAGING_DATABASE": "${{ inputs.md_staging_database }}", "LINEAR_MD_PROD_DATABASE":    "${{
+            inputs.md_prod_database }}", "LINEAR_MD_DATASET":          "${{ inputs.md_dataset
+            }}" }'
           set_outputs: true
         depends_on: []
         name: Run linear dlt
@@ -33,13 +31,17 @@ pipeline:
         integration: MOTHERDUCK
         integration_job: MOTHERDUCK_EXECUTE_QUERY
         parameters:
-          query: "COPY FROM DATABASE ${{ inputs.md_staging_database }} TO ${{ inputs.md_prod_database }} (SCHEMA '${{ inputs.md_dataset }}', OVERWRITE);"
+          query: COPY FROM DATABASE ${{ inputs.md_staging_database }} (OVERWRITE,
+            SNAPSHOT_NAME ${{ inputs.snapshot_name }}) TO ${{ inputs.md_prod_database
+            }}
           set_outputs: false
         depends_on: []
         name: Promote staging to prod
     depends_on:
     - 9c7a4d12-1ab3-4e7f-b8c1-2f5a9d0e4a01
     name: ''
+webhook:
+  enabled: false
 inputs:
   branch:
     type: string
@@ -56,3 +58,6 @@ inputs:
   md_dataset:
     type: string
     default: dlt_linear
+  snapshot_name:
+    type: string
+    default: dlt_linear_snapshot
