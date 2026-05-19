@@ -11,6 +11,7 @@ pipeline:
           package_manager: PIP
           python_version: '3.12'
           use_state_orchestration: true
+          branch: live-alerts
         depends_on: []
         name: dbt run state
         connection: dbt_databricks_78961
