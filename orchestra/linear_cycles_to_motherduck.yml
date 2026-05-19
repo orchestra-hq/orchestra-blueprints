@@ -18,6 +18,7 @@ pipeline:
           environment_variables: '{
             "LINEAR_CYCLES_SINCE_DAYS": "${{ inputs.since_days }}",
             "LINEAR_CYCLES_MD_STAGING_DATABASE": "${{ inputs.md_staging_database }}",
+            "LINEAR_CYCLES_MD_PROD_DATABASE":    "${{ inputs.md_prod_database }}",
             "LINEAR_CYCLES_MD_DATASET":          "${{ inputs.md_dataset }}"
             }'
           set_outputs: true
@@ -25,6 +26,19 @@ pipeline:
         name: Run linear cycles dlt
         connection: python__production__blueprints__19239
     depends_on: []
+    name: ''
+  8d2f5a91-4b7c-4e83-9d1a-3f6b8c2e7a45:
+    tasks:
+      b2d3c4e5-6f7a-8b9c-0d1e-2f3a4b5c6d7e:
+        integration: MOTHERDUCK
+        integration_job: MOTHERDUCK_EXECUTE_QUERY
+        parameters:
+          query: "COPY FROM DATABASE ${{ inputs.md_staging_database }} TO ${{ inputs.md_prod_database }} (SCHEMA '${{ inputs.md_dataset }}', OVERWRITE);"
+          set_outputs: false
+        depends_on: []
+        name: Promote staging to prod
+    depends_on:
+    - 3a1f8b40-77c2-4d18-9e2a-6b0c5d7f8a11
     name: ''
 inputs:
   branch:
@@ -36,6 +50,9 @@ inputs:
   md_staging_database:
     type: string
     default: my_db_staging
+  md_prod_database:
+    type: string
+    default: my_db
   md_dataset:
     type: string
     default: dlt_linear_cycles
