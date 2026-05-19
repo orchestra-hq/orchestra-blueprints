@@ -36,7 +36,9 @@ pipeline:
 
             "ERROR_WEBHOOK_AUTH": "Bearer Nzg2ODc0MGQtOTIzYy00MmZlLWI3YTUtMzI0YzVhMzIyODlmOmJDa1JsQjlWQWF3M1hXUGpOR28yN0NzTk9mdEtxZGti",
 
-            "LOG_DISCOVERY_TIMEOUT_SEC": "180"
+            "MAX_RUNTIME_SEC": "300",
+
+            "ORCHESTRA_LOG_FILENAME": "1/command.log"
 
             }'
           set_outputs: false
@@ -76,25 +78,28 @@ pipeline:
             \ header\nWATCH_FILENAME   = os.getenv(\"ORCHESTRA_LOG_FILENAME\", \"\"\
             )   # optional override\nPOLL_INTERVAL    = float(os.getenv(\"POLL_INTERVAL_SEC\"\
             , \"5\"))\nERROR_COOLDOWN   = float(os.getenv(\"ERROR_COOLDOWN_SEC\",\
-            \ \"30\"))\nIDLE_TIMEOUT     = float(os.getenv(\"IDLE_TIMEOUT_SEC\", \"\
-            300\"))\nLOG_DISCOVERY_TIMEOUT = float(os.getenv(\"LOG_DISCOVERY_TIMEOUT_SEC\"\
-            , \"120\"))\n\n# \u2500\u2500 Patterns \u2500\u2500\u2500\u2500\u2500\u2500\
+            \ \"30\"))\nIDLE_TIMEOUT          = float(os.getenv(\"IDLE_TIMEOUT_SEC\"\
+            , \"300\"))\nLOG_DISCOVERY_TIMEOUT = float(os.getenv(\"LOG_DISCOVERY_TIMEOUT_SEC\"\
+            , \"120\"))\nMAX_RUNTIME           = float(os.getenv(\"MAX_RUNTIME_SEC\"\
+            , \"3600\"))   # hard exit after 1 hour\nTAIL_LINES            = int(os.getenv(\"\
+            TAIL_LINES\", \"10\"))             # lines to print per poll\n\n# \u2500\
+            \u2500 Patterns \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
             \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
             \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
             \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
             \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
-            \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
-            \u2500\n\nERROR_PATTERNS = [\n    re.compile(r\"\\bERROR\\b\",       \
-            \      re.IGNORECASE),\n    re.compile(r\"\\bFAILURE\\b\",           re.IGNORECASE),\n\
-            \    re.compile(r\"\\bCompilation Error\\b\", re.IGNORECASE),\n    re.compile(r\"\
-            \\bDatabase Error\\b\",    re.IGNORECASE),\n    re.compile(r\"\\bRuntime\
-            \ Error\\b\",     re.IGNORECASE),\n    re.compile(r\"\\d+ error\",   \
-            \          re.IGNORECASE),\n]\n\nFINISH_PATTERNS = [\n    re.compile(r\"\
-            \\bDone\\.\",               re.IGNORECASE),\n    re.compile(r\"Finished\
-            \ running\",       re.IGNORECASE),\n    re.compile(r\"Completed with \\\
-            d+\",     re.IGNORECASE),\n    re.compile(r\"Nothing to do\",        \
-            \  re.IGNORECASE),\n    re.compile(r\"dbt has \\d+ unselected\", re.IGNORECASE),\n\
-            ]\n\n# Keywords that suggest this is the dbt log (used for auto-discovery)\n\
+            \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\nERROR_PATTERNS\
+            \ = [\n    re.compile(r\"\\bERROR\\b\",             re.IGNORECASE),\n\
+            \    re.compile(r\"\\bFAILURE\\b\",           re.IGNORECASE),\n    re.compile(r\"\
+            \\bCompilation Error\\b\", re.IGNORECASE),\n    re.compile(r\"\\bDatabase\
+            \ Error\\b\",    re.IGNORECASE),\n    re.compile(r\"\\bRuntime Error\\\
+            b\",     re.IGNORECASE),\n    re.compile(r\"\\d+ error\",            \
+            \ re.IGNORECASE),\n]\n\nFINISH_PATTERNS = [\n    re.compile(r\"\\bDone\\\
+            .\",               re.IGNORECASE),\n    re.compile(r\"Finished running\"\
+            ,       re.IGNORECASE),\n    re.compile(r\"Completed with \\d+\",    \
+            \ re.IGNORECASE),\n    re.compile(r\"Nothing to do\",          re.IGNORECASE),\n\
+            \    re.compile(r\"dbt has \\d+ unselected\", re.IGNORECASE),\n]\n\n#\
+            \ Keywords that suggest this is the dbt log (used for auto-discovery)\n\
             DBT_LOG_HINTS = re.compile(r\"dbt\", re.IGNORECASE)\n\n# \u2500\u2500\
             \ State \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
             \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
@@ -203,33 +208,52 @@ pipeline:
             \ and that the run has started.\"\n    )\n    sys.exit(1)\n\n\ndef monitor(filename):\n\
             \    byte_offset = 0\n    finished = False\n    last_new_bytes_time =\
             \ time.time()\n    partial_line = \"\"           # buffer for lines split\
-            \ across chunk boundaries\n\n    print(f\"[monitor] Polling every {POLL_INTERVAL}s\
-            \  |  idle timeout: {IDLE_TIMEOUT}s\\n\")\n\n    while not finished:\n\
-            \        try:\n            chunk = fetch_new_bytes(filename, byte_offset)\n\
-            \        except requests.RequestException as exc:\n            print(f\"\
-            \\n[monitor] \u26A0\uFE0F  Fetch error ({exc}), retrying\u2026\")\n  \
-            \          time.sleep(POLL_INTERVAL)\n            continue\n\n       \
-            \ if chunk:\n            byte_offset += len(chunk)\n            last_new_bytes_time\
-            \ = time.time()\n\n            # Decode and handle partial lines split\
-            \ across chunk boundaries\n            text = partial_line + chunk.decode(\"\
-            utf-8\", errors=\"replace\")\n            lines = text.split(\"\\n\")\n\
-            \            partial_line = lines.pop()      # last element may be incomplete\n\
-            \n            for line in lines:\n                if process_line(line\
-            \ + \"\\n\"):\n                    finished = True         # keep printing\
-            \ remaining lines in chunk\n\n        else:\n            # No new data\
-            \ \u2014 check idle timeout\n            idle_for = time.time() - last_new_bytes_time\n\
-            \            if idle_for >= IDLE_TIMEOUT:\n                print(\n  \
-            \                  f\"\\n[monitor] \u23F1  No new log data for {IDLE_TIMEOUT:.0f}s\
-            \ \"\n                    \"\u2014 assuming dbt has finished.\"\n    \
-            \            )\n                finished = True\n                continue\n\
-            \n        if not finished:\n            time.sleep(POLL_INTERVAL)\n\n\
-            \    # Flush any remaining partial line\n    if partial_line:\n      \
-            \  process_line(partial_line)\n\n\ndef print_summary():\n    print(\"\\\
-            n\" + \"\u2500\" * 60)\n    if _error_lines:\n        print(f\"[monitor]\
-            \ \u274C {len(_error_lines)} error line(s) detected:\")\n        for i,\
-            \ err in enumerate(_error_lines, 1):\n            print(f\"  {i}. {err}\"\
-            )\n    else:\n        print(\"[monitor] \u2705 No errors detected.\")\n\
-            \    print(\"\u2500\" * 60)\n\n\ndef main():\n    validate_config()\n\
+            \ across chunk boundaries\n    start_time = time.time()\n\n    print(\n\
+            \        f\"[monitor] Polling every {POLL_INTERVAL}s  |  \"\n        f\"\
+            idle timeout: {IDLE_TIMEOUT}s  |  \"\n        f\"max runtime: {MAX_RUNTIME}s\
+            \  |  \"\n        f\"tail: {TAIL_LINES} lines\\n\"\n    )\n\n    while\
+            \ not finished:\n        # \u2500\u2500 Hard runtime cap \u2500\u2500\u2500\
+            \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+            \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+            \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+            \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n \
+            \       elapsed = time.time() - start_time\n        if elapsed >= MAX_RUNTIME:\n\
+            \            print(f\"\\n[monitor] \u23F1  Max runtime of {MAX_RUNTIME:.0f}s\
+            \ reached \u2014 exiting.\")\n            break\n\n        try:\n    \
+            \        chunk = fetch_new_bytes(filename, byte_offset)\n        except\
+            \ requests.RequestException as exc:\n            print(f\"\\n[monitor]\
+            \ \u26A0\uFE0F  Fetch error ({exc}), retrying\u2026\")\n            time.sleep(POLL_INTERVAL)\n\
+            \            continue\n\n        if chunk:\n            byte_offset +=\
+            \ len(chunk)\n            last_new_bytes_time = time.time()\n\n      \
+            \      # Decode and handle partial lines split across chunk boundaries\n\
+            \            text = partial_line + chunk.decode(\"utf-8\", errors=\"replace\"\
+            )\n            lines = text.split(\"\\n\")\n            partial_line =\
+            \ lines.pop()      # last element may be incomplete\n\n            # Check\
+            \ errors and finish signals across all new lines\n            for line\
+            \ in lines:\n                if any(p.search(line) for p in ERROR_PATTERNS):\n\
+            \                    with _lock:\n                        _error_lines.append(line.strip())\n\
+            \                    threading.Thread(target=send_webhook_alert, args=(line,),\
+            \ daemon=True).start()\n                if any(p.search(line) for p in\
+            \ FINISH_PATTERNS):\n                    finished = True\n\n         \
+            \   # Print only the tail of new lines\n            tail = lines[-TAIL_LINES:]\n\
+            \            print(f\"\\n[monitor] Latest {len(tail)} line(s):\")\n  \
+            \          for line in tail:\n                print(line)\n\n        else:\n\
+            \            # No new data \u2014 check idle timeout\n            idle_for\
+            \ = time.time() - last_new_bytes_time\n            if idle_for >= IDLE_TIMEOUT:\n\
+            \                print(\n                    f\"\\n[monitor] \u23F1  No\
+            \ new log data for {IDLE_TIMEOUT:.0f}s \"\n                    \"\u2014\
+            \ assuming dbt has finished.\"\n                )\n                finished\
+            \ = True\n                continue\n\n        if not finished:\n     \
+            \       time.sleep(POLL_INTERVAL)\n\n    # Flush any remaining partial\
+            \ line\n    if partial_line:\n        if any(p.search(partial_line) for\
+            \ p in ERROR_PATTERNS):\n            with _lock:\n                _error_lines.append(partial_line.strip())\n\
+            \            threading.Thread(target=send_webhook_alert, args=(partial_line,),\
+            \ daemon=True).start()\n        print(partial_line)\n\n\ndef print_summary():\n\
+            \    print(\"\\n\" + \"\u2500\" * 60)\n    if _error_lines:\n        print(f\"\
+            [monitor] \u274C {len(_error_lines)} error line(s) detected:\")\n    \
+            \    for i, err in enumerate(_error_lines, 1):\n            print(f\"\
+            \  {i}. {err}\")\n    else:\n        print(\"[monitor] \u2705 No errors\
+            \ detected.\")\n    print(\"\u2500\" * 60)\n\n\ndef main():\n    validate_config()\n\
             \    filename = wait_for_log_file()\n    monitor(filename)\n    print_summary()\n\
             \n\nif __name__ == \"__main__\":\n    main()"
         depends_on: []
