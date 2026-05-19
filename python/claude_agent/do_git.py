@@ -1,5 +1,4 @@
 import subprocess
-import sys
 
 cwd = '/c/repos/orchestra-blueprints/python/claude_agent'
 
