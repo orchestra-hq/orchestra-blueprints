@@ -47,7 +47,9 @@ models:
               'channel', CAST('#test-data-alerts' AS STRING),
               'text', CAST('Model {{ this.name }} completed successfully!' AS STRING)
             )),
-            headers => map('Accept', 'application/json')
+            headers => map(
+              'Accept', "application/vnd.github+json",
+            )
           );
     aggregated:
       +materialized: table
