@@ -69,3 +69,6 @@ inputs:
   md_dataset:
     type: string
     default: dlt_linear_cycles
+  snapshot_name:
+    type: string
+    default: dlt_linear_cycles
