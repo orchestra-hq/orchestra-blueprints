@@ -15,12 +15,10 @@ pipeline:
           command: python -m linear_cycles_pipeline
           project_dir: python/dlt
           shallow_clone_dirs: python/dlt
-          environment_variables: '{
-            "LINEAR_CYCLES_SINCE_DAYS": "${{ inputs.since_days }}",
-            "LINEAR_CYCLES_MD_STAGING_DATABASE": "${{ inputs.md_staging_database }}",
-            "LINEAR_CYCLES_MD_PROD_DATABASE":    "${{ inputs.md_prod_database }}",
-            "LINEAR_CYCLES_MD_DATASET":          "${{ inputs.md_dataset }}"
-            }'
+          environment_variables: '{ "LINEAR_CYCLES_SINCE_DAYS": "${{ inputs.since_days
+            }}", "LINEAR_CYCLES_MD_STAGING_DATABASE": "${{ inputs.md_staging_database
+            }}", "LINEAR_CYCLES_MD_PROD_DATABASE":    "${{ inputs.md_prod_database
+            }}", "LINEAR_CYCLES_MD_DATASET":          "${{ inputs.md_dataset }}" }'
           set_outputs: true
         depends_on: []
         name: Run linear cycles dlt
@@ -33,12 +31,13 @@ pipeline:
         integration: MOTHERDUCK
         integration_job: MOTHERDUCK_EXECUTE_QUERY
         parameters:
-          query: 'CREATE SNAPSHOT ${{ inputs.snapshot_name }} OF ${{ inputs.md_staging_database }}'
+          query: CREATE SNAPSHOT ${{ inputs.snapshot_name }} OF ${{ inputs.md_staging_database
+            }}
           set_outputs: false
         depends_on: []
         name: Create snapshot of prod
     depends_on:
-    - 3a1f8b40-77c2-4d18-9e2a-6b0c5d7f8a11
+    - d15d7c8a-e4b8-4cbc-a19f-b9be813a782d
     name: ''
   8d2f5a91-4b7c-4e83-9d1a-3f6b8c2e7a45:
     tasks:
@@ -46,13 +45,31 @@ pipeline:
         integration: MOTHERDUCK
         integration_job: MOTHERDUCK_EXECUTE_QUERY
         parameters:
-          query: "COPY FROM DATABASE ${{ inputs.md_staging_database }}  (OVERWRITE, SNAPSHOT_NAME ${{ inputs.snapshot_name }}, OVERWRITE) TO ${{ inputs.md_prod_database }}"
+          query: COPY FROM DATABASE ${{ inputs.md_staging_database }}  (OVERWRITE,
+            SNAPSHOT_NAME ${{ inputs.snapshot_name }}, OVERWRITE) TO ${{ inputs.md_prod_database
+            }}
           set_outputs: false
         depends_on: []
         name: Promote staging to prod
     depends_on:
     - 5e9a3c14-2b6d-4f7e-8c91-1a3b5d7e9f02
     name: ''
+  d15d7c8a-e4b8-4cbc-a19f-b9be813a782d:
+    tasks:
+      9c8bb4c1-352f-48e9-a31e-5192c57fc6e1:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build --select models_i_just_did
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: dbt modelling
+    depends_on:
+    - 3a1f8b40-77c2-4d18-9e2a-6b0c5d7f8a11
+    name: group
+webhook:
+  enabled: false
 inputs:
   branch:
     type: string
