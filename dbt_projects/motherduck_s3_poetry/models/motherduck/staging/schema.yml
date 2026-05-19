@@ -1,0 +1,8 @@
+models:
+  - name: stg_events
+    columns:
+      - name: event_name
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["moo"]
