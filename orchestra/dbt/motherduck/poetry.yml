@@ -7,7 +7,7 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: dbt parse
+          commands: dbt test
           package_manager: POETRY
           python_version: '3.12'
           branch: fefeat/md-poetry
