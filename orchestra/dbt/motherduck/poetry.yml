@@ -38,7 +38,9 @@ pipeline:
 
             "MAX_RUNTIME_SEC": "300",
 
-            "ORCHESTRA_LOG_FILENAME": "1/command.log"
+            "ORCHESTRA_LOG_FILENAME": "1/command.log",
+
+            "LOG_DISCOVERY_TIMEOUT_SEC": "30"
 
             }'
           set_outputs: false
