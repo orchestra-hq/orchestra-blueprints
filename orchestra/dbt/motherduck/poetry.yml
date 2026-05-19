@@ -25,11 +25,20 @@ pipeline:
         parameters:
           package_manager: PIP
           python_version: '3.12'
-          environment_variables: "{\n\"ORCHESTRA_PIPELINE_RUN_ID\": \"${{ ORCHESTRA.PIPELINE_RUN_ID\
-            \ }}\",\n\"ORCHESTRA_TASK_RUN_ID\": \"${{ tasks['3fa9e578-ae87-4a6a-a092-e405a81e5d99'].task_run_id\
-            \ }}\",\n\"ERROR_WEBHOOK_URL\": \"https://app.getorchestra.io/api/engine/public/pipelines/37a87fd9-4c62-4512-8349-4a9290b8617d/start\"\
-            ,\n\"ERROR_WEBHOOK_AUTH\": \"Bearer Nzg2ODc0MGQtOTIzYy00MmZlLWI3YTUtMzI0YzVhMzIyODlmOmJDa1JsQjlWQWF3M1hXUGpOR28yN0NzTk9mdEtxZGti\"\
-            \   \n}"
+          environment_variables: '{
+
+            "ORCHESTRA_PIPELINE_RUN_ID": "${{ ORCHESTRA.PIPELINE_RUN_ID }}",
+
+            "ORCHESTRA_TASK_RUN_ID": "${{ tasks[''3fa9e578-ae87-4a6a-a092-e405a81e5d99''].task_run_id
+            }}",
+
+            "ERROR_WEBHOOK_URL": "https://app.getorchestra.io/api/engine/public/pipelines/37a87fd9-4c62-4512-8349-4a9290b8617d/start",
+
+            "ERROR_WEBHOOK_AUTH": "Bearer Nzg2ODc0MGQtOTIzYy00MmZlLWI3YTUtMzI0YzVhMzIyODlmOmJDa1JsQjlWQWF3M1hXUGpOR28yN0NzTk9mdEtxZGti",
+
+            "IDLE_TIMEOUT_SEC": "60"
+
+            }'
           set_outputs: false
           source: INLINE
           code: "#!/usr/bin/env python3\n\"\"\"\ndbt Log Monitor \u2014 Orchestra\
