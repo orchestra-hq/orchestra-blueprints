@@ -27,18 +27,31 @@ pipeline:
         connection: python__production__blueprints__19239
     depends_on: []
     name: ''
+  5e9a3c14-2b6d-4f7e-8c91-1a3b5d7e9f02:
+    tasks:
+      a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d:
+        integration: MOTHERDUCK
+        integration_job: MOTHERDUCK_EXECUTE_QUERY
+        parameters:
+          query: 'CREATE SNAPSHOT ${{ inputs.snapshot_name }} OF ${{ inputs.md_staging_database }}'
+          set_outputs: false
+        depends_on: []
+        name: Create snapshot of prod
+    depends_on:
+    - 3a1f8b40-77c2-4d18-9e2a-6b0c5d7f8a11
+    name: ''
   8d2f5a91-4b7c-4e83-9d1a-3f6b8c2e7a45:
     tasks:
       b2d3c4e5-6f7a-8b9c-0d1e-2f3a4b5c6d7e:
         integration: MOTHERDUCK
         integration_job: MOTHERDUCK_EXECUTE_QUERY
         parameters:
-          query: "COPY FROM DATABASE ${{ inputs.md_staging_database }} TO ${{ inputs.md_prod_database }} (SCHEMA '${{ inputs.md_dataset }}', OVERWRITE);"
+          query: "COPY FROM DATABASE ${{ inputs.md_staging_database }}  (OVERWRITE, SNAPSHOT_NAME ${{ inputs.snapshot)name }}, OVERWRITE) TO ${{ inputs.md_prod_database }}"
           set_outputs: false
         depends_on: []
         name: Promote staging to prod
     depends_on:
-    - 3a1f8b40-77c2-4d18-9e2a-6b0c5d7f8a11
+    - 5e9a3c14-2b6d-4f7e-8c91-1a3b5d7e9f02
     name: ''
 inputs:
   branch:
