@@ -48,7 +48,7 @@ models:
               'text', CAST('Model {{ this.name }} completed successfully!' AS STRING)
             )),
             headers => map(
-              'Accept', "application/vnd.github+json",
+              'Accept', "application/vnd.github+json"
             )
           );
     aggregated:
