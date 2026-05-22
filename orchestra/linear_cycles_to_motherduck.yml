@@ -1,5 +1,5 @@
 version: v1
-name: 'Linear cycles to MotherDuck #dlt #motherduck #linear'
+name: 'Linear cycles + issues to MotherDuck #dlt #motherduck #linear'
 pipeline:
   3a1f8b40-77c2-4d18-9e2a-6b0c5d7f8a11:
     tasks:
@@ -59,7 +59,7 @@ inputs:
     default: feat/dlt-linear-cycles
   since_days:
     type: string
-    default: '7'
+    default: '84'
   md_staging_database:
     type: string
     default: my_db_staging
@@ -71,4 +71,4 @@ inputs:
     default: dlt_linear_cycles
   snapshot_name:
     type: string
-    default: dlt_linear_cycles
+    default: dlt_linear_cycles_pre_20260522
