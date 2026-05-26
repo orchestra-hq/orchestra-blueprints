@@ -1,0 +1,39 @@
+version: v1
+name: 'Snowflake Anomalies #dataquality #snowflake'
+pipeline:
+  198cb657-d163-4d40-a239-6ab48a8c1346:
+    tasks:
+      b1ef1996-db51-4bbe-bb5f-72fdaf1800e1:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: SELECT 1
+          set_outputs: true
+        depends_on: []
+        name: List Snowflake Tables
+        connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
+    depends_on: []
+    name: group
+  8d985a98-55d3-42fc-8e4e-aa64540783ad:
+    tasks:
+      02ef8ce6-fb36-4f0d-ac7b-ba89aa6ba270:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_ANOMALY_DETECTION
+        parameters:
+          model_name: x
+          train_sql_statement: x
+          predict_sql_statement: x
+          timestamp_colname: x
+          target_colname: x
+        depends_on: []
+        name: Row Count Anomalies - ${{ MATRIX.table_name }}
+        connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
+    depends_on:
+    - 198cb657-d163-4d40-a239-6ab48a8c1346
+    name: group
+    matrix:
+      inputs:
+        table_name: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['b1ef1996-db51-4bbe-bb5f-72fdaf1800e1'].OUTPUTS['results']['table_name']
+          }}
+webhook:
+  enabled: false
