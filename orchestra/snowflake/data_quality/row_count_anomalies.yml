@@ -1,39 +1,26 @@
 version: v1
 name: 'Snowflake Anomalies #dataquality #snowflake'
 pipeline:
-  198cb657-d163-4d40-a239-6ab48a8c1346:
-    tasks:
-      b1ef1996-db51-4bbe-bb5f-72fdaf1800e1:
-        integration: SNOWFLAKE
-        integration_job: SNOWFLAKE_RUN_QUERY
-        parameters:
-          statement: SELECT 1
-          set_outputs: true
-        depends_on: []
-        name: List Snowflake Tables
-        connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
-    depends_on: []
-    name: group
   8d985a98-55d3-42fc-8e4e-aa64540783ad:
     tasks:
       02ef8ce6-fb36-4f0d-ac7b-ba89aa6ba270:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_ANOMALY_DETECTION
         parameters:
-          model_name: x
-          train_sql_statement: x
-          predict_sql_statement: x
-          timestamp_colname: x
-          target_colname: x
+          model_name: volume_anomalies
+          train_sql_statement: SELECT updated_at::timestamp_ntz as timestamp_col,
+            incremental_rows as target_col, table_name as series_col FROM FIVETRAN.FIVETRAN_METADATA.INCREMENTAL_MAR
+            WHERE SCHEMA_NAME = 'fivetran_metadata' AND MEASURED_DATE < CURRENT_DATE();
+          predict_sql_statement: SELECT last_ddl::timestamp_ntz as timestamp_col,
+            row_count as target_col, table_name as series_col FROM FIVETRAN.INFORMATION_SCHEMA.TABLES
+            WHERE TABLE_SCHEMA = 'FIVETRAN_METADATA';
+          timestamp_colname: timestamp_col
+          target_colname: target_col
+          series_colname: series_col
         depends_on: []
-        name: Row Count Anomalies - ${{ MATRIX.table_name }}
+        name: Row Count Anomalies
         connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
-    depends_on:
-    - 198cb657-d163-4d40-a239-6ab48a8c1346
+    depends_on: []
     name: group
-    matrix:
-      inputs:
-        table_name: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['b1ef1996-db51-4bbe-bb5f-72fdaf1800e1'].OUTPUTS['results']['table_name']
-          }}
 webhook:
   enabled: false
