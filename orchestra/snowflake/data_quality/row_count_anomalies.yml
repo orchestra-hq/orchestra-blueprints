@@ -19,7 +19,7 @@ pipeline:
           series_colname: series_col
         depends_on: []
         name: Row Count Anomalies
-        connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
+        connection: snowflake_db_user_72601
     depends_on: []
     name: group
 webhook:
