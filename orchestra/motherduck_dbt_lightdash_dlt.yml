@@ -1,5 +1,6 @@
 version: v1
-name: 'Python dlt MotherDuck Lightdash #dbt #lightdash #motherduck #python #slack #snowflake #metaengine'
+name: 'Python dlt MotherDuck Lightdash #dbt #lightdash #motherduck #python #slack
+  #snowflake #metaengine'
 pipeline:
   097de434-8fc1-4b1c-b4a5-4bf1e0de49de:
     tasks:
@@ -17,6 +18,7 @@ pipeline:
           set_outputs: false
         depends_on: []
         name: Loads from S3 to Motherduck
+        connection: md_my_db_09250
     depends_on: []
     name: ''
   8252937c-272e-440b-bb57-cf5a8df54c11:
@@ -112,11 +114,10 @@ inputs:
   branch:
     type: string
     default: main
-
 alerts:
-  - name: Failures
-    statuses:
-      - FAILED
-    destinations:
-      - integration: SLACK
-        destination: alert-demos
+- name: Failures
+  statuses:
+  - FAILED
+  destinations:
+  - integration: SLACK
+    destination: alert-demos
