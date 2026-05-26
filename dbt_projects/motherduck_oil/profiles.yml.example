@@ -5,3 +5,11 @@ motherduck:
       type: duckdb
       path: md:your_database
       schema: motherduck_oil
+    ci:
+      type: duckdb
+      path: md:your_database
+      schema: "ci_{{ env_var('DBT_CI_SCHEMA_SUFFIX', 'pr') }}"
+    prod:
+      type: duckdb
+      path: md:your_database
+      schema: motherduck_oil

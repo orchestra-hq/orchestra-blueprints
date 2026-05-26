@@ -1,0 +1,40 @@
+name: dbt MotherDuck Slim CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'dbt_projects/motherduck_oil/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'dbt_projects/motherduck_oil/**'
+  workflow_dispatch:
+
+jobs:
+  quality-gates:
+    uses: ./.github/workflows/reusable-quality-gates.yml
+
+  dbt-slim-ci:
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'pull_request' && 'staging' || 'production' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Run Orchestra pipeline (Slim CI)
+        uses: orchestra-hq/run-pipeline@v1
+        with:
+          api_key: ${{ secrets.ORCHESTRA_API_KEY }}
+          pipeline_id: 73411213-9808-4fe4-802d-ba1da8c11a90
+          poll_interval: 20
+          environment: ${{ github.event_name == 'pull_request' && 'Staging' || 'Production' }}
+          task_ids: 07628741-c100-43c2-91d2-54b9ca5d4fe2
+          run_inputs: |
+            {
+              "dbt_command": "build -s state:modified+ --defer --state latest_production --target ${{ github.event_name == 'pull_request' && 'ci' || 'prod' }}",
+              "dbt_branch": "${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}"
+            }
