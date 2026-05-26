@@ -12,8 +12,7 @@ pipeline:
             incremental_rows as target_col, table_name as series_col FROM FIVETRAN.FIVETRAN_METADATA.INCREMENTAL_MAR
             WHERE SCHEMA_NAME = 'fivetran_metadata' AND MEASURED_DATE < CURRENT_DATE();
           predict_sql_statement: SELECT last_ddl::timestamp_ntz as timestamp_col,
-            row_count as target_col, table_name as series_col FROM FIVETRAN.INFORMATION_SCHEMA.TABLES
-            WHERE TABLE_SCHEMA = 'FIVETRAN_METADATA';
+            row_count as target_col, table_name as series_col FROM FIVETRAN.TEST.TEST_DATA;
           timestamp_colname: timestamp_col
           target_colname: target_col
           series_colname: series_col
