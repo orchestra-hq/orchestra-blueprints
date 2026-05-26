@@ -20,28 +20,27 @@
 */
 
 with base as (
-select
+    select
+        1
+    from
+        {{ ref('oil_area_staging') }}
 
-    1
-
-from {{ ref('oil_area_staging') }} ),
+),
 
 
 tasks as (
 
     select
-
         1
-
-    from {{ ref('oil_production_staging') }}
-
+    from
+        {{ ref('oil_production_staging') }}
 
 )
 
 select 
     site_name,
     owner,
-    to_timestamp(timestamp) timestamp,
+    timestamp,
     measurement,
     _fourth_column,
     _pk
