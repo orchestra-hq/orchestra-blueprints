@@ -1,5 +1,5 @@
 version: v1
-name: '#dbt #motherduck #poetry'
+name: 'dbt MotherDuck (Poetry) #dbt #motherduck #poetry'
 pipeline:
   9c3274b1-f2e8-4988-975c-55b68c7f3236:
     tasks:
