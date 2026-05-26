@@ -17,6 +17,9 @@ pipeline:
           timestamp_colname: timestamp_col
           target_colname: target_col
           series_colname: series_col
+          warehouse: COMPUTE_WH
+          database: TEST
+          schema: ANOMALIES
         depends_on: []
         name: Row Count Anomalies
         connection: snowflake_db_user_72601
