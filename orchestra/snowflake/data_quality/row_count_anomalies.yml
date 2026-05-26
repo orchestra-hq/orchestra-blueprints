@@ -22,7 +22,7 @@ pipeline:
           schema: ANOMALIES
         depends_on: []
         name: Row Count Anomalies
-        connection: snowflake_db_user_72601
+        connection: snowflake_anomaly_user_81552
     depends_on: []
     name: group
 webhook:
