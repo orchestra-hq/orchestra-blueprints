@@ -27,7 +27,7 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
-          statement: SELECT * FROM my_anomalies WHERE IS_ANOMALY = TRUE
+          statement: SELECT * FROM fivetran.test.my_anomalies WHERE IS_ANOMALY = TRUE
           set_outputs: true
         depends_on: []
         name: Retrieve Anomalies
