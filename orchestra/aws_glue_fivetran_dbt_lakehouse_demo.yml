@@ -1,5 +1,6 @@
 version: v1
-name: 'AWS Glue Fivetran to dbt lakehouse #dbt #fivetran #glue #powerbi #slack #snowflake #metaengine'
+name: 'AWS Glue Fivetran to dbt lakehouse #dbt #fivetran #glue #powerbi #slack #snowflake
+  #metaengine'
 pipeline:
   e2c76632-fad8-429f-9cad-fd4460309461:
     tasks:
@@ -21,6 +22,7 @@ pipeline:
           job_name: Testing
         depends_on: []
         name: Heavy Ingest
+        connection: glue_crawlers_79392
     depends_on: []
     name: ''
   7b344075-c133-47f9-bd1a-7e2573276b46:
@@ -91,10 +93,6 @@ pipeline:
         parameters:
           statement: execute task demo_task;
           role: ACCOUNTADMIN
-          # Historical Snowflake defaults for this task were:
-          # database: SNOWFLAKE_WORKING
-          # schema: PUBLIC
-          # set_outputs: false
           database: BIGQUERY_SAMPLE
           schema: PUBLIC
           set_outputs: false
@@ -136,9 +134,9 @@ meta:
 
     '
 alerts:
-  - name: Failures
-    statuses:
-      - FAILED
-    destinations:
-      - integration: SLACK
-        destination: alert-demos
+- name: Failures
+  statuses:
+  - FAILED
+  destinations:
+  - integration: SLACK
+    destination: alert-demos
