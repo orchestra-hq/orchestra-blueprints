@@ -12,10 +12,7 @@ pipeline:
             incremental_rows as target_col, table_name as series_col FROM FIVETRAN.FIVETRAN_METADATA.INCREMENTAL_MAR
             WHERE SCHEMA_NAME = 'fivetran_metadata' AND MEASURED_DATE < CURRENT_DATE()
             - 1;
-          predict_sql_statement: SELECT updated_at::timestamp_ntz as timestamp_col,
-            incremental_rows as target_col, table_name as series_col FROM FIVETRAN.FIVETRAN_METADATA.INCREMENTAL_MAR
-            WHERE SCHEMA_NAME = 'fivetran_metadata' AND MEASURED_DATE = CURRENT_DATE()
-            - 1;
+          predict_sql_statement: SELECT * FROM FIVETRAN.TEST.TEST_DATA;
           timestamp_colname: timestamp_col
           target_colname: target_col
           series_colname: series_col
