@@ -21,5 +21,19 @@ pipeline:
         connection: snowflake_anomaly_user_81552
     depends_on: []
     name: group
+  c786b55d-34b0-4a46-9a18-fb2ac7aa7126:
+    tasks:
+      0a0450af-9dc8-412c-a66e-9befa5e33a4e:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: SELECT * FROM my_anomalies WHERE IS_ANOMALY = TRUE
+          set_outputs: true
+        depends_on: []
+        name: Retrieve Anomalies
+        connection: snowflake_anomaly_user_81552
+    depends_on:
+    - 8d985a98-55d3-42fc-8e4e-aa64540783ad
+    name: group
 webhook:
   enabled: false
