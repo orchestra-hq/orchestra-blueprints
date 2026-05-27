@@ -34,6 +34,8 @@ pipeline:
         connection: snowflake_anomaly_user_81552
     depends_on:
     - 8d985a98-55d3-42fc-8e4e-aa64540783ad
+    condition: ${{ task_groups['8d985a98-55d3-42fc-8e4e-aa64540783ad'].any().status
+      == 'FAILED' }}
     name: group
 webhook:
   enabled: false
