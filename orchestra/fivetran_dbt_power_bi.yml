@@ -14,7 +14,7 @@ pipeline:
           shallow_clone_dirs: dbt_projects/motherduck_oil
         depends_on: []
         name: dbt Run
-        connection: dbt_snowflake_blueprints_prod_07025
+        connection: dbt_motherduck__prod__39243
     depends_on:
     - f9683aab-3a2e-4972-94d4-e2ddb06870ed
     name: ''
