@@ -27,7 +27,13 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
-          statement: SELECT * FROM fivetran.test.my_anomalies WHERE IS_ANOMALY = TRUE
+          statement: "BEGIN\n    CALL TEST.ROW_COUNT_MONITORING.volume_anomalies!DETECT_ANOMALIES(\n\
+            \        INPUT_DATA => SYSTEM$QUERY_REFERENCE('SELECT * FROM FIVETRAN.TEST.TEST_DATA;'),\n\
+            \        TIMESTAMP_COLNAME => 'timestamp_col',\n        SERIES_COLNAME\
+            \ => 'series_col',\n        TARGET_COLNAME => 'target_col'\n    );\n \
+            \   LET x := SQLID;\n    CREATE OR REPLACE TEMPORARY TABLE my_anomalies\
+            \ AS SELECT * FROM TABLE(RESULT_SCAN(:x));\nEND;\nSELECT * FROM my_anomalies\
+            \ WHERE IS_ANOMALY = TRUE"
           set_outputs: true
         depends_on: []
         name: Retrieve Anomalies
