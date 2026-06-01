@@ -1,0 +1,55 @@
+version: v1
+name: Tutorial - Daily Analytics Pipeline
+pipeline:
+  e47e8951-029b-46f6-8a04-f92ce16dcfe6:
+    tasks:
+      a0e0e610-6727-49f7-a897-14c66688ffe9:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: consonant_admirably
+          resync: false
+        depends_on: []
+        name: Fivetran Sync
+        connection: h_94547
+    depends_on: []
+    name: group
+  7742adff-da09-49b5-96e1-359fe2964b96:
+    tasks:
+      b888fa77-6e61-4cc8-8ba1-dfba97bb2297:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt parse;
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: dbt Build
+        connection: dbt_databricks_78961
+    depends_on:
+    - e47e8951-029b-46f6-8a04-f92ce16dcfe6
+    name: group
+  2944d844-5226-40b2-9448-be7f2e37eafe:
+    tasks:
+      f0d62917-ae81-4882-996e-4ee949120197:
+        integration: LIGHTDASH
+        integration_job: LIGHTDASH_REFRESH_DASHBOARD
+        parameters:
+          dashboard_id: 23e12d2e-6b3c-43e7-9cf6-fab399a421ec
+          invalidate_cache: false
+        depends_on: []
+        name: Lightdash Refresh Dashboard
+        connection: lightdash__prod__23382
+    depends_on:
+    - 7742adff-da09-49b5-96e1-359fe2964b96
+    name: group
+webhook:
+  enabled: false
+alerts:
+- name: Daily Analytics Pipeline Failure
+  statuses:
+  - FAILED
+  destinations:
+  - integration: SLACK
+    destination: alert-testing
+    connection_id: default_00000
