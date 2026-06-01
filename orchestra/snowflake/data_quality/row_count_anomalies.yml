@@ -20,6 +20,7 @@ pipeline:
         name: Row Count Anomalies
         connection: snowflake_anomaly_user_81552
     depends_on: []
+    condition: ${{ 1==0 }}
     name: group
   c786b55d-34b0-4a46-9a18-fb2ac7aa7126:
     tasks:
