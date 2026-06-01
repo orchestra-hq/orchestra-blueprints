@@ -11,7 +11,7 @@ filtered as (
         event_value
     from base
     where event_name is not null
-      and event_ts is not null
+      -- and event_ts is not null
 )
 select * from filtered
 
