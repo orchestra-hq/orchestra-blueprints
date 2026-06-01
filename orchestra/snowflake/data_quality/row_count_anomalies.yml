@@ -43,5 +43,59 @@ pipeline:
     condition: ${{ task_groups['8d985a98-55d3-42fc-8e4e-aa64540783ad'].any().status
       == 'FAILED' }}
     name: group
+  45f26ae8-b839-4ae8-94cb-82d5a5ded470:
+    tasks:
+      0c7c2fb4-35c3-4dad-9508-d1743e273737:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: "CREATE OR REPLACE SNOWFLAKE.ML.ANOMALY_DETECTION TEST.ROW_COUNT_MONITORING.VOLUME_ANOMALIES(\n\
+            \    INPUT_DATA => SYSTEM$QUERY_REFERENCE('SELECT updated_at::timestamp_ntz\
+            \ as timestamp_col, incremental_rows as target_col, table_name as series_col\
+            \ FROM FIVETRAN.FIVETRAN_METADATA.INCREMENTAL_MAR WHERE SCHEMA_NAME =\
+            \ \\'fivetran_metadata\\' AND MEASURED_DATE < CURRENT_DATE() - 1;'),\n\
+            \    TIMESTAMP_COLNAME => 'timestamp_col',\n    TARGET_COLNAME => 'target_col',\n\
+            \    SERIES_COLNAME => 'series_col',\n    label_colname => ''\n)"
+          set_outputs: true
+        depends_on: []
+        name: Train Model
+        connection: snowflake_anomaly_user_81552
+    depends_on: []
+    name: group
+  e6949752-8c16-4da2-ac15-9b758310601a:
+    tasks:
+      6e4303a3-c33a-4053-a5df-1c7edef4a286:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: "BEGIN\n    CALL TEST.ROW_COUNT_MONITORING.volume_anomalies!DETECT_ANOMALIES(\n\
+            \        INPUT_DATA => SYSTEM$QUERY_REFERENCE('SELECT * FROM FIVETRAN.TEST.TEST_DATA;'),\n\
+            \        TIMESTAMP_COLNAME => 'timestamp_col',\n        SERIES_COLNAME\
+            \ => 'series_col',\n        TARGET_COLNAME => 'target_col'\n    );\n \
+            \   LET x := SQLID;\n    CREATE OR REPLACE TABLE my_anomalies AS SELECT\
+            \ * FROM TABLE(RESULT_SCAN(:x));\nEND"
+          set_outputs: true
+        depends_on: []
+        name: Run Inference
+        connection: snowflake_anomaly_user_81552
+    depends_on:
+    - 45f26ae8-b839-4ae8-94cb-82d5a5ded470
+    name: group
+  9c09f7e5-52bc-4194-83a6-d9a47623c391:
+    tasks:
+      9ba53806-6dbd-481e-a012-a3e0227abd31:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: 'SELECT * FROM my_anomalies WHERE IS_ANOMALY = TRUE
+
+            '
+          set_outputs: false
+        depends_on: []
+        name: Retrieve Anomalies
+        connection: snowflake_anomaly_user_81552
+    depends_on:
+    - e6949752-8c16-4da2-ac15-9b758310601a
+    name: group
 webhook:
   enabled: false
