@@ -43,6 +43,19 @@ pipeline:
     depends_on:
     - 7742adff-da09-49b5-96e1-359fe2964b96
     name: group
+  65260ec1-bfa9-4795-9282-d65a04b72c3c:
+    tasks:
+      86304d2b-ae41-4798-b380-f913dd218b6f:
+        integration: ORCHESTRA
+        integration_job: RUN_AGENT
+        parameters:
+          agent_id: 219e8880-c8bf-4cfb-bb86-a5003d4fb668
+          prompt: here you go! this ID:1567
+        depends_on: []
+        name: run me
+    depends_on:
+    - 2944d844-5226-40b2-9448-be7f2e37eafe
+    name: group
 webhook:
   enabled: false
 alerts:
