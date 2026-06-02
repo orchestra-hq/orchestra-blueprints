@@ -35,9 +35,10 @@ pipeline:
             \n# Stream logs\noffset = 0\nwhile True:\n    res = httpx.get(\n     \
             \   f\"{BASE_URL}/pipeline_runs/{pipeline_run_id}/task_runs/{TASK_RUN_ID}/logs/download\"\
             ,\n        params={\"filename\": filename},\n        headers={**headers,\
-            \ \"Range\": f\"bytes={offset}-\"},\n        timeout=30,\n    )\n    if\
-            \ res.status_code in {200, 206}:\n        chunk = res.content[offset if\
-            \ res.status_code == 200 else 0:].decode(\"utf-8\", errors=\"replace\"\
+            \ \"Range\": f\"bytes={offset}-\"},\n        timeout=30,\n    )\n    print(res.content[offset\
+            \ if res.status_code == 200 else 0:].decode(\"utf-8\", errors=\"replace\"\
+            ))\n    if res.status_code in {200, 206}:\n        chunk = res.content[offset\
+            \ if res.status_code == 200 else 0:].decode(\"utf-8\", errors=\"replace\"\
             )\n        print(chunk, end=\"\", flush=True)\n        if \"FAIL\" in\
             \ chunk:\n            print(\"\u26A0\uFE0F  dbt error detected\")\n  \
             \      for line in chunk.splitlines():\n            if line.strip().startswith(\"\
