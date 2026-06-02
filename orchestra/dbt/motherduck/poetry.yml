@@ -24,23 +24,26 @@ pipeline:
           build_command: pip install httpx
           set_outputs: false
           source: INLINE
-          code: "import os\nimport time\nimport httpx\n\ntime.sleep(5)\n\nTASK_RUN_ID\
+          code: "import os\nimport time\nimport httpx\n\ntime.sleep(5)\nTASK_RUN_ID\
             \ = \"${{ ORCHESTRA.PIPELINE_RUN_TASKS['3fa9e578-ae87-4a6a-a092-e405a81e5d99'].TASK_RUN_ID\
             \ }}\"\nBASE_URL = \"https://app.getorchestra.io/api/engine/public\"\n\
-            \nORCHESTRA_API_KEY = os.environ.get(\"ORCHESTRA_API_KEY\")\n\nheaders\
-            \ = {\"Authorization\": f\"Bearer {ORCHESTRA_API_KEY}\"}\npipeline_run_id\
-            \ = \"${{ ORCHESTRA.PIPELINE_RUN_ID }}\"\n\n# Pick first log file\nres\
-            \ = httpx.get(f\"{BASE_URL}/pipeline_runs/{pipeline_run_id}/task_runs/{TASK_RUN_ID}/logs\"\
+            ORCHESTRA_API_KEY = os.environ.get(\"ORCHESTRA_API_KEY\")\nheaders = {\"\
+            Authorization\": f\"Bearer {ORCHESTRA_API_KEY}\"}\npipeline_run_id = \"\
+            ${{ ORCHESTRA.PIPELINE_RUN_ID }}\"\n\n# Pick first log file\nres = httpx.get(f\"\
+            {BASE_URL}/pipeline_runs/{pipeline_run_id}/task_runs/{TASK_RUN_ID}/logs\"\
             , headers=headers, timeout=30)\nfilename = res.json()[\"filenames\"][0]\n\
             \n# Stream logs\noffset = 0\nwhile True:\n    res = httpx.get(\n     \
             \   f\"{BASE_URL}/pipeline_runs/{pipeline_run_id}/task_runs/{TASK_RUN_ID}/logs/download\"\
             ,\n        params={\"filename\": filename},\n        headers={**headers,\
-            \ \"Range\": f\"bytes={offset}-\"},\n        timeout=30,\n    )\n\n  \
-            \  if res.status_code in {200, 206}:\n        chunk = res.content[offset\
-            \ if res.status_code == 200 else 0:].decode(\"utf-8\", errors=\"replace\"\
+            \ \"Range\": f\"bytes={offset}-\"},\n        timeout=30,\n    )\n    if\
+            \ res.status_code in {200, 206}:\n        chunk = res.content[offset if\
+            \ res.status_code == 200 else 0:].decode(\"utf-8\", errors=\"replace\"\
             )\n        print(chunk, end=\"\", flush=True)\n        if \"Error\" in\
             \ chunk or \"error\" in chunk:\n            print(\"\u26A0\uFE0F  dbt\
-            \ error detected\")\n        content_range = res.headers.get(\"content-range\"\
+            \ error detected\")\n        for line in chunk.splitlines():\n       \
+            \     if line.strip().startswith(\"Failure in test\") or \"FAIL\" in line\
+            \ or \"ERROR\" in line:\n                print(f\"\u274C dbt failure:\
+            \ {line.strip()}\")\n        content_range = res.headers.get(\"content-range\"\
             , \"\")\n        if \"bytes \" in content_range:\n            offset =\
             \ int(content_range.split(\"-\")[1].split(\"/\")[0]) + 1\n        file_status\
             \ = res.headers.get(\"x-file-status\", \"\").upper()\n        print(\"\
@@ -49,7 +52,7 @@ pipeline:
             \        file_status = res.headers.get(\"x-file-status\", \"\").upper()\n\
             \        print(\"File status 4: \", file_status)\n        if file_status\
             \ not in {\"PENDING\", \"WRITING\"}:\n            break\n    elif res.status_code\
-            \ == 204:\n        print(\"Moo\")\n        break\n\n    time.sleep(1)"
+            \ == 204:\n        print(\"Moo\")\n        break\n    time.sleep(1)"
         depends_on: []
         name: Log
     depends_on: []
