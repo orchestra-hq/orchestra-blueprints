@@ -21,6 +21,7 @@ pipeline:
         parameters:
           package_manager: PIP
           python_version: '3.12'
+          build_command: pip install httpx
           set_outputs: false
           source: INLINE
           code: "import time\nimport httpx\n\nTASK_RUN_ID = \"${{ ORCHESTRA.PIPELINE_RUN_TASKS['3fa9e578-ae87-4a6a-a092-e405a81e5d99'].TASK_RUN_ID\
