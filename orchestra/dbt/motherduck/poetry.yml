@@ -38,21 +38,21 @@ pipeline:
             \ \"Range\": f\"bytes={offset}-\"},\n        timeout=30,\n    )\n    if\
             \ res.status_code in {200, 206}:\n        chunk = res.content[offset if\
             \ res.status_code == 200 else 0:].decode(\"utf-8\", errors=\"replace\"\
-            )\n        print(chunk, end=\"\", flush=True)\n        if \"Error\" in\
-            \ chunk or \"error\" in chunk:\n            print(\"\u26A0\uFE0F  dbt\
-            \ error detected\")\n        for line in chunk.splitlines():\n       \
-            \     if line.strip().startswith(\"Failure in test\") or \"FAIL\" in line\
-            \ or \"ERROR\" in line:\n                print(f\"\u274C dbt failure:\
-            \ {line.strip()}\")\n        content_range = res.headers.get(\"content-range\"\
-            , \"\")\n        if \"bytes \" in content_range:\n            offset =\
-            \ int(content_range.split(\"-\")[1].split(\"/\")[0]) + 1\n        file_status\
-            \ = res.headers.get(\"x-file-status\", \"\").upper()\n        print(\"\
-            File status 2: \", file_status)\n        if file_status not in {\"PENDING\"\
-            , \"WRITING\"}:\n            break\n    elif res.status_code == 416:\n\
-            \        file_status = res.headers.get(\"x-file-status\", \"\").upper()\n\
-            \        print(\"File status 4: \", file_status)\n        if file_status\
-            \ not in {\"PENDING\", \"WRITING\"}:\n            break\n    elif res.status_code\
-            \ == 204:\n        print(\"Moo\")\n        break\n    time.sleep(1)"
+            )\n        print(chunk, end=\"\", flush=True)\n        if \"FAIL\" in\
+            \ chunk:\n            print(\"\u26A0\uFE0F  dbt error detected\")\n  \
+            \      for line in chunk.splitlines():\n            if line.strip().startswith(\"\
+            Failure in test\") or \"FAIL\" in line or \"ERROR\" in line:\n       \
+            \         print(f\"\u274C dbt failure: {line.strip()}\")\n        content_range\
+            \ = res.headers.get(\"content-range\", \"\")\n        if \"bytes \" in\
+            \ content_range:\n            offset = int(content_range.split(\"-\")[1].split(\"\
+            /\")[0]) + 1\n        file_status = res.headers.get(\"x-file-status\"\
+            , \"\").upper()\n        print(\"File status 2: \", file_status)\n   \
+            \     if file_status not in {\"PENDING\", \"WRITING\"}:\n            break\n\
+            \    elif res.status_code == 416:\n        file_status = res.headers.get(\"\
+            x-file-status\", \"\").upper()\n        print(\"File status 4: \", file_status)\n\
+            \        if file_status not in {\"PENDING\", \"WRITING\"}:\n         \
+            \   break\n    elif res.status_code == 204:\n        print(\"Moo\")\n\
+            \        break\n    time.sleep(1)"
         depends_on: []
         name: Log
     depends_on: []
