@@ -1,5 +1,5 @@
 version: v1
-name: 'Matrices Output Usage #python #metaengine'
+name: 'MetaEngine Output Usage #python #metaengine'
 pipeline:
   48097157-22f6-465b-8595-4bf998f1e10d:
     tasks:
