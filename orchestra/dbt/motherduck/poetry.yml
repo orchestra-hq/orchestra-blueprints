@@ -15,6 +15,40 @@ pipeline:
         depends_on: []
         name: dbt
         connection: dbt_motherduck_s3_poetry_81152
+      fd8802c4-2d28-4134-ba0f-fb9c4c813ef0:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          source: INLINE
+          code: "import time\nimport httpx\n\nTASK_RUN_ID = \"your-task-run-id\"\n\
+            BASE_URL = \"https://app.getorchestra.io/api/engine/public\"\n\nheaders\
+            \ = {\"Authorization\": f\"Bearer {ORCHESTRA_API_KEY}\"}\n\n# Resolve\
+            \ pipeline run ID\nres = httpx.get(f\"{BASE_URL}/task_runs\", params={\"\
+            task_run_ids\": TASK_RUN_ID}, headers=headers, timeout=30)\npipeline_run_id\
+            \ = res.json()[\"results\"][0][\"pipelineRunId\"]\n\n# Pick first log\
+            \ file\nres = httpx.get(f\"{BASE_URL}/pipeline_runs/{pipeline_run_id}/task_runs/{TASK_RUN_ID}/logs\"\
+            , headers=headers, timeout=30)\nfilename = res.json()[\"filenames\"][0]\n\
+            \n# Stream logs\noffset = 0\nwhile True:\n    res = httpx.get(\n     \
+            \   f\"{BASE_URL}/pipeline_runs/{pipeline_run_id}/task_runs/{TASK_RUN_ID}/logs/download\"\
+            ,\n        params={\"filename\": filename},\n        headers={**headers,\
+            \ \"Range\": f\"bytes={offset}-\"},\n        timeout=30,\n    )\n\n  \
+            \  if res.status_code in {200, 206}:\n        chunk = res.content[offset\
+            \ if res.status_code == 200 else 0:].decode(\"utf-8\", errors=\"replace\"\
+            )\n        print(chunk, end=\"\", flush=True)\n        if \"Error\" in\
+            \ chunk or \"error\" in chunk:\n            print(\"\u26A0\uFE0F  dbt\
+            \ error detected\")\n        content_range = res.headers.get(\"content-range\"\
+            , \"\")\n        if \"bytes \" in content_range:\n            offset =\
+            \ int(content_range.split(\"-\")[1].split(\"/\")[0]) + 1\n        file_status\
+            \ = res.headers.get(\"x-file-status\", \"\").upper()\n        if file_status\
+            \ not in {\"PENDING\", \"WRITING\"}:\n            break\n    elif res.status_code\
+            \ == 416:\n        file_status = res.headers.get(\"x-file-status\", \"\
+            \").upper()\n        if file_status not in {\"PENDING\", \"WRITING\"}:\n\
+            \            break\n    elif res.status_code == 204:\n        break\n\n\
+            \    time.sleep(2)"
+        depends_on: []
+        name: Log
     depends_on: []
     name: group
 webhook:
