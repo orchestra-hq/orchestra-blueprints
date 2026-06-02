@@ -26,8 +26,8 @@ pipeline:
           code: "import time\nimport httpx\n\nTASK_RUN_ID = \"${{ ORCHESTRA.PIPELINE_RUN_TASKS['3fa9e578-ae87-4a6a-a092-e405a81e5d99'].TASK_RUN_ID\
             \ }}\"\nBASE_URL = \"https://app.getorchestra.io/api/engine/public\"\n\
             \nheaders = {\"Authorization\": f\"Bearer {ORCHESTRA_API_KEY}\"}\npipeline_run_id\
-            \ = ${{ ORCHESTRA.PIPELINE_RUN_ID }}\n\n# Pick first log file\nres = httpx.get(f\"\
-            {BASE_URL}/pipeline_runs/{pipeline_run_id}/task_runs/{TASK_RUN_ID}/logs\"\
+            \ = \"${{ ORCHESTRA.PIPELINE_RUN_ID }}\"\n\n# Pick first log file\nres\
+            \ = httpx.get(f\"{BASE_URL}/pipeline_runs/{pipeline_run_id}/task_runs/{TASK_RUN_ID}/logs\"\
             , headers=headers, timeout=30)\nfilename = res.json()[\"filenames\"][0]\n\
             \n# Stream logs\noffset = 0\nwhile True:\n    res = httpx.get(\n     \
             \   f\"{BASE_URL}/pipeline_runs/{pipeline_run_id}/task_runs/{TASK_RUN_ID}/logs/download\"\
