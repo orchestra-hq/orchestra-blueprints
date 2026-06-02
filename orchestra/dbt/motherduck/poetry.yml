@@ -24,7 +24,8 @@ pipeline:
           build_command: pip install httpx
           set_outputs: false
           source: INLINE
-          code: "import os\nimport time\nimport httpx\n\nTASK_RUN_ID = \"${{ ORCHESTRA.PIPELINE_RUN_TASKS['3fa9e578-ae87-4a6a-a092-e405a81e5d99'].TASK_RUN_ID\
+          code: "import os\nimport time\nimport httpx\n\ntime.sleep(5)\n\nTASK_RUN_ID\
+            \ = \"${{ ORCHESTRA.PIPELINE_RUN_TASKS['3fa9e578-ae87-4a6a-a092-e405a81e5d99'].TASK_RUN_ID\
             \ }}\"\nBASE_URL = \"https://app.getorchestra.io/api/engine/public\"\n\
             \nORCHESTRA_API_KEY = os.environ.get(\"ORCHESTRA_API_KEY\")\n\nheaders\
             \ = {\"Authorization\": f\"Bearer {ORCHESTRA_API_KEY}\"}\npipeline_run_id\
