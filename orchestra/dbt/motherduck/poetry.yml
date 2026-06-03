@@ -48,12 +48,12 @@ pipeline:
             \ content_range:\n            offset = int(content_range.split(\"-\")[1].split(\"\
             /\")[0]) + 1\n        file_status = res.headers.get(\"x-file-status\"\
             , \"\").upper()\n        print(\"File status 2: \", file_status)\n   \
-            \     if file_status not in {\"PENDING\", \"WRITING\"}:\n            break\n\
+            \     if file_status not in {\"PENDING\", \"WRITING\"}:\n            continue\n\
             \    elif res.status_code == 416:\n        file_status = res.headers.get(\"\
             x-file-status\", \"\").upper()\n        print(\"File status 4: \", file_status)\n\
             \        if file_status not in {\"PENDING\", \"WRITING\"}:\n         \
-            \   break\n    elif res.status_code == 204:\n        print(\"Moo\")\n\
-            \        break\n    time.sleep(1)"
+            \   continue\n    elif res.status_code == 204:\n        print(\"Moo\"\
+            )\n        continue\n    time.sleep(1)"
         depends_on: []
         name: Log
     depends_on: []
