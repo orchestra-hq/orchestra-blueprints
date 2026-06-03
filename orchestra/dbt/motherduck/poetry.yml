@@ -26,8 +26,8 @@ pipeline:
           source: INLINE
           code: "import os\nimport sys\nimport subprocess\nimport time\n\ntime.sleep(5)\n\
             \nTASK_RUN_ID = \"${{ ORCHESTRA.PIPELINE_RUN_TASKS['3fa9e578-ae87-4a6a-a092-e405a81e5d99'].TASK_RUN_ID\
-            \ }}\"\n\nprocess = subprocess.Popen(\n    [\"orchestra-cli\", \"--help\"\
-            ],\n    stdout=subprocess.PIPE,\n    text=True,\n    env={**os.environ},\n\
+            \ }}\"\n\nprocess = subprocess.Popen(\n    [\"orchestra-cli\", \"pipeline\"\
+            , \"list\"],\n    stdout=subprocess.PIPE,\n    text=True,\n    env={**os.environ},\n\
             )\n\n# process = subprocess.Popen(\n#     [sys.executable, \" -m \" \"\
             orchestra \", \"task \" \"logs \", \"--task-run-id \", TASK_RUN_ID, \"\
             \ -f \",  \"1.log\"],\n#     stdout=subprocess.PIPE,\n#     text=True,\n\
