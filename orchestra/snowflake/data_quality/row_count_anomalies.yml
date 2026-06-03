@@ -91,7 +91,7 @@ pipeline:
           statement: 'SELECT * FROM my_anomalies WHERE IS_ANOMALY = TRUE
 
             '
-          set_outputs: false
+          set_outputs: true
         depends_on: []
         name: Retrieve Anomalies
         connection: snowflake_anomaly_user_81552
