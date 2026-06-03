@@ -31,8 +31,8 @@ pipeline:
             \ }}\"\n\nprocess = subprocess.Popen(\n    [\"orchestra-cli\", \"task\"\
             , \"logs\", \"--task-run-id\", TASK_RUN_ID],\n    stdout=subprocess.PIPE,\n\
             \    text=True,\n    env={**os.environ},\n)\n\nfor line in process.stdout:\n\
-            \    print(line, end=\"\", flush=True)\n#     if \"FAIL\" in line:\n#\
-            \         print(f\"\u274C dbt failure: {line.strip()}\")\n\nprocess.wait()"
+            \    print(line, end=\"\", flush=True)\n    if \"FAIL\" in line:\n   \
+            \     print(f\"\u274C dbt failure: {line.strip()}\")\n\nprocess.wait()"
         depends_on: []
         name: Log
     depends_on: []
