@@ -29,11 +29,10 @@ pipeline:
           code: "import os\nimport sys\nimport subprocess\nimport time\n\ntime.sleep(5)\n\
             \nTASK_RUN_ID = \"${{ ORCHESTRA.PIPELINE_RUN_TASKS['3fa9e578-ae87-4a6a-a092-e405a81e5d99'].TASK_RUN_ID\
             \ }}\"\n\nprocess = subprocess.Popen(\n    [\"orchestra-cli\", \"task\"\
-            , \"logs\", \"--task-run-id\", TASK_RUN_ID, \"-f\",  \"1.log\"],\n   \
-            \ stdout=subprocess.PIPE,\n    text=True,\n    env={**os.environ},\n)\n\
-            \nfor line in process.stdout:\n    print(line, end=\"\", flush=True)\n\
-            #     if \"FAIL\" in line:\n#         print(f\"\u274C dbt failure: {line.strip()}\"\
-            )\n\nprocess.wait()"
+            , \"logs\", \"--task-run-id\", TASK_RUN_ID],\n    stdout=subprocess.PIPE,\n\
+            \    text=True,\n    env={**os.environ},\n)\n\nfor line in process.stdout:\n\
+            \    print(line, end=\"\", flush=True)\n#     if \"FAIL\" in line:\n#\
+            \         print(f\"\u274C dbt failure: {line.strip()}\")\n\nprocess.wait()"
         depends_on: []
         name: Log
     depends_on: []
