@@ -21,7 +21,9 @@ pipeline:
         parameters:
           package_manager: PIP
           python_version: '3.12'
-          build_command: pip install httpx orchestra-cli
+          build_command: 'pip install httpx orchestra-cli git+https://github.com/orchestra-hq/orchestra-cli.git@main
+
+            '
           set_outputs: false
           source: INLINE
           code: "import os\nimport sys\nimport subprocess\nimport time\n\ntime.sleep(5)\n\
