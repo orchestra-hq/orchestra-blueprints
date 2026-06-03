@@ -31,9 +31,10 @@ pipeline:
             Authorization\": f\"Bearer {ORCHESTRA_API_KEY}\"}\npipeline_run_id = \"\
             ${{ ORCHESTRA.PIPELINE_RUN_ID }}\"\n\n# Pick first log file\nres = httpx.get(f\"\
             {BASE_URL}/pipeline_runs/{pipeline_run_id}/task_runs/{TASK_RUN_ID}/logs\"\
-            , headers=headers, timeout=30)\nfilename = res.json()[\"filenames\"][0]\n\
-            \n# Stream logs\noffset = 0\nwhile True:\n    res = httpx.get(\n     \
-            \   f\"{BASE_URL}/pipeline_runs/{pipeline_run_id}/task_runs/{TASK_RUN_ID}/logs/download\"\
+            , headers=headers, timeout=30)\ntry:\n    filename = res.json()[\"filenames\"\
+            ][0]\nexcept:\n    print(res.json())\n    time.sleep(5)\n    filename\
+            \ = res.json()[\"filenames\"][0]\n\n# Stream logs\noffset = 0\nwhile True:\n\
+            \    res = httpx.get(\n        f\"{BASE_URL}/pipeline_runs/{pipeline_run_id}/task_runs/{TASK_RUN_ID}/logs/download\"\
             ,\n        params={\"filename\": filename},\n        headers={**headers,\
             \ \"Range\": f\"bytes={offset}-\"},\n        timeout=30,\n    )\n    print(res.content[offset\
             \ if res.status_code == 200 else 0:].decode(\"utf-8\", errors=\"replace\"\
