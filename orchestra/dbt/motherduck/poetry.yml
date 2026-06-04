@@ -15,27 +15,6 @@ pipeline:
         depends_on: []
         name: dbt
         connection: dbt_motherduck_s3_poetry_81152
-      fd8802c4-2d28-4134-ba0f-fb9c4c813ef0:
-        integration: PYTHON
-        integration_job: PYTHON_EXECUTE_SCRIPT
-        parameters:
-          package_manager: PIP
-          python_version: '3.12'
-          build_command: 'pip install httpx orchestra-cli git+https://github.com/orchestra-hq/orchestra-cli.git@main
-
-            '
-          set_outputs: false
-          source: INLINE
-          code: "import os\nimport sys\nimport subprocess\nimport time\n\ntime.sleep(5)\n\
-            \nTASK_RUN_ID = \"${{ ORCHESTRA.PIPELINE_RUN_TASKS['3fa9e578-ae87-4a6a-a092-e405a81e5d99'].TASK_RUN_ID\
-            \ }}\"\n\nprocess = subprocess.Popen(\n    [\"orchestra-cli\", \"task\"\
-            , \"logs\", \"--task-run-id\", TASK_RUN_ID],\n    stdout=subprocess.PIPE,\n\
-            \    text=True,\n    env={**os.environ},\n)\n\nfor line in process.stdout:\n\
-            \    print(\"Printing line from logs:\", line, end=\"\", flush=True)\n\
-            \    if \"FAIL\" in line:\n        print(f\"\u274C dbt failure: {line.strip()}\"\
-            )\n\nprocess.wait()"
-        depends_on: []
-        name: Log
     depends_on: []
     name: group
 webhook:
