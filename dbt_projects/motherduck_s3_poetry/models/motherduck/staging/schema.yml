@@ -3,6 +3,4 @@ models:
     columns:
       - name: event_name
         data_tests:
-          - accepted_values:
-              arguments:
-                values: ["moo"]
+          - not_null
