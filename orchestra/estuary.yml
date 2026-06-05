@@ -13,7 +13,7 @@ pipeline:
           latency_threshold: 3
         depends_on: []
         name: Check task
-        connection: test_91003
+        connection: estuary__prod__97109
     depends_on: []
     name: ''
     matrix:
