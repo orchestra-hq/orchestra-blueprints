@@ -66,7 +66,7 @@ pipeline:
         integration: FIVETRAN
         integration_job: FIVETRAN_SYNC_ALL
         parameters:
-          connector_id: memoranda_ing
+          connector_id: faithfulness_coal
         depends_on: []
         name: fivetran_sync
     depends_on: []
