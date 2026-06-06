@@ -114,7 +114,7 @@ pipeline:
           set_outputs: false
           source: GIT
           command: python -m pg_replication_pipeline
-          branch: postgres_dlt
+          branch: main
           project_dir: python/dlt
           shallow_clone_dirs: python/dlt
         depends_on: []
