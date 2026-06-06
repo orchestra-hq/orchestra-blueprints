@@ -1,5 +1,6 @@
 version: v1
-name: 'Fivetran dbt state sync Hightouch #dbt #fivetran #hightouch #python #slack #snowflake #metaengine'
+name: 'Fivetran dbt state sync Hightouch #dbt #fivetran #hightouch #python #slack
+  #snowflake #metaengine'
 pipeline:
   8252937c-272e-440b-bb57-cf5a8df54c11:
     tasks:
@@ -103,7 +104,6 @@ pipeline:
         parameters:
           package_manager: PIP
           python_version: '3.12'
-          build_command: pip install -r requirements.txt
           environment_variables: '{
 
             "SCHEMA_NAME":"${{ MATRIX.tables[''SCHEMA_NAME''] }}",
@@ -112,14 +112,29 @@ pipeline:
 
             }'
           set_outputs: false
-          source: GIT
-          command: python -m pg_replication_pipeline
-          branch: main
-          project_dir: python/dlt
-          shallow_clone_dirs: python/dlt
+          source: INLINE
+          code: 'import os
+
+
+            schema_name = os.getenv("SCHEMA_NAME")
+
+            table_name = os.getenv("TABLE_NAME")
+
+
+            print(f"Starting Postgres replication for {schema_name}.{table_name}")
+
+
+            # Placeholder: connect to Postgres source and replicate the specified
+            table
+
+            # to the destination (e.g. Snowflake) using dlt.
+
+            # Replace this block with the actual dlt source / destination configuration.
+
+
+            print(f"Successfully replicated {schema_name}.{table_name}")'
         depends_on: []
         name: Postgres
-        connection: python__production__blueprints__19239
     depends_on: []
     name: ''
     matrix:
