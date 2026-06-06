@@ -84,7 +84,7 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
-          statement: EXECUTE TASK KICK_OFF_TASK;
+          statement: EXECUTE TASK DEMO_TASK;
           set_outputs: false
         depends_on: []
         name: EXECUTE TASK
