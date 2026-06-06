@@ -1,5 +1,5 @@
 version: v1
-name: 'Parallel ELT #dbt #snowflake #airbyte #snowflake #python #powerbi #tableau'
+name: 'Parallel ELT #dbt #snowflake #airbyte #snowflake #python #powerbi'
 pipeline:
   ef92b6c1-86d3-4145-a8c4-c6f5ba6b2a45:
     tasks:
@@ -47,14 +47,6 @@ pipeline:
           dataset_id: 5e83dd8a-2c30-44ec-8f53-e5e751ae515d
         depends_on: []
         name: Refresh Dataset
-      6fc1cdc7-429d-4345-a67a-4b213291370b:
-        integration: TABLEAU_CLOUD
-        integration_job: TABLEAU_REFRESH_EXTRACT
-        parameters:
-          project_name: core_data
-          datasource_name: customers
-        depends_on: []
-        name: Refresh Extract
     depends_on:
     - e11aeb30-cb66-4ace-8eee-f91b395c5675
     condition: ${{ task_groups['e11aeb30-cb66-4ace-8eee-f91b395c5675'].all().status
