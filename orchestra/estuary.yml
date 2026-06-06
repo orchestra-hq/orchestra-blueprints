@@ -19,9 +19,7 @@ pipeline:
     matrix:
       inputs:
         task:
-        - DevLordInc/something/source-hello-world
         - DevLordInc/slacky/source-slack
-        - DevLordInc/webhook_test/source-http-ingest
         - DevLordInc/webhook_in_gs/materialize-google-sheets
   38c6e1bb-b900-40e6-8c23-4b720736747d:
     tasks:
