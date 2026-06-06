@@ -10,7 +10,6 @@ pipeline:
           commands: dbt test
           package_manager: POETRY
           python_version: '3.12'
-          branch: fefeat/md-poetry
           project_dir: dbt_projects/motherduck_s3_poetry
         depends_on: []
         name: dbt
