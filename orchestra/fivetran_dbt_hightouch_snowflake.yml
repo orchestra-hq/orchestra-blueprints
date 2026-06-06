@@ -89,9 +89,10 @@ pipeline:
         integration: HIGHTOUCH
         integration_job: HIGHTOUCH_SYNC
         parameters:
-          sync_id: '234567'
+          sync_id: '2023628'
         depends_on: []
         name: Hightouch sync
+        connection: hightouch_74388
     depends_on:
     - 8252937c-272e-440b-bb57-cf5a8df54c11
     - e6858647-0e86-4530-9eb2-78d080941022
