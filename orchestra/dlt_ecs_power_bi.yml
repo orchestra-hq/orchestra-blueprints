@@ -72,7 +72,7 @@ pipeline:
         integration: POWER_BI
         integration_job: POWER_BI_REFRESH_DATASET
         parameters:
-          dataset_id: liquidity_metrics
+          dataset_id: 5e83dd8a-2c30-44ec-8f53-e5e751ae515d
         depends_on: []
         name: Power BI Reporting
         connection: ${{ ENV.POWER_BI }}
