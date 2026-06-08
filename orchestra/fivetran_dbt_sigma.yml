@@ -67,8 +67,8 @@ pipeline:
         parameters:
           datamodel_id: c177c9cc-8e0c-4fff-b605-d61be15c7b9f
           sheet_ids:
-          - Customers
-          - Stock
+          - _qoLA7edEW
+          - h2dzmi98x4
         depends_on: []
         name: Trigger Datamodel Refresh
         connection: sigma__dev__73579
@@ -78,7 +78,7 @@ pipeline:
         parameters:
           workbook_id: 8784d84d-5cf3-4656-8629-f0484a1204b2
           sheet_ids:
-          - Oil_Data
+          - xRCPUYX1rW
         depends_on: []
         name: Trigger Workbook
         connection: sigma__dev__73579
