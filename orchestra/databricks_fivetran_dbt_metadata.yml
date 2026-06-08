@@ -116,8 +116,8 @@ schedule:
   timezone: Europe/London
   run_inputs:
     is_full_refresh: --full-refresh
-- name: Daily at 8am
-  cron: 0 8 ? * * *
+- name: Daily at 8:15am
+  cron: 15 8 ? * * *
   timezone: Europe/London
   run_inputs:
     is_full_refresh: ' '
