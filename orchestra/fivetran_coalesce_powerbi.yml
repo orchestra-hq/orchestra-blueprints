@@ -9,7 +9,7 @@ pipeline:
         parameters:
           environment_id: '8'
           snowflake_auth_type: KeyPair
-          force_ignore_workspace_status: false
+          force_ignore_workspace_status: true
         depends_on: []
         name: Trigger transformations
         operation_metadata:
@@ -40,6 +40,8 @@ pipeline:
           dataset_id: 5e83dd8a-2c30-44ec-8f53-e5e751ae515d
         depends_on: []
         name: Refresh dashboards
+        configuration:
+          retries: 2
     depends_on:
     - 4a406291-dfd5-4e34-9f8a-1347d7933893
     name: ''
