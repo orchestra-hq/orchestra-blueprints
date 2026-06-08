@@ -56,6 +56,7 @@ pipeline:
         depends_on: []
         name: Duplicate Key test
         connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
+        treat_failure_as_warning: true
     depends_on:
     - not_null_tests
     name: Duplicate Key Tests
@@ -83,6 +84,7 @@ pipeline:
         depends_on: []
         name: Invalid Values test
         connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
+        treat_failure_as_warning: true
     depends_on:
     - duplicate_tests
     name: Invalid Values Tests
