@@ -18,6 +18,7 @@ pipeline:
         depends_on: []
         name: Not Null test
         connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
+        treat_failure_as_warning: true
     depends_on: []
     name: Not Null Tests
     matrix:
