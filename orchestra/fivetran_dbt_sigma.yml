@@ -65,18 +65,23 @@ pipeline:
         integration: SIGMA
         integration_job: SIGMA_DATAMODEL_MATERIALIZATION
         parameters:
-          datamodel_id: b62cca11-fc6f-4561-9d60-6e0b3093d28d
-          sheet_ids: []
+          datamodel_id: c177c9cc-8e0c-4fff-b605-d61be15c7b9f
+          sheet_ids:
+          - Customers
+          - Stock
         depends_on: []
         name: Trigger Datamodel Refresh
+        connection: sigma__dev__73579
       c2352f05-c77b-411d-bfc4-301336f8a085:
         integration: SIGMA
         integration_job: SIGMA_WORKBOOK_MATERIALIZATION
         parameters:
-          workbook_id: 8f231425-2b98-47a3-8766-375fea961f8c
-          sheet_ids: []
+          workbook_id: 8784d84d-5cf3-4656-8629-f0484a1204b2
+          sheet_ids:
+          - Oil_Data
         depends_on: []
         name: Trigger Workbook
+        connection: sigma__dev__73579
     depends_on:
     - d48629ca-679b-4095-942d-89f8f79d7e95
     name: ''
