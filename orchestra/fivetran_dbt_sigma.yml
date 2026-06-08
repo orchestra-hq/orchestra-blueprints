@@ -1,5 +1,6 @@
 version: v1
-name: 'Fivetran dbt to Sigma analytics #datadog #dbt #email #fivetran #sigma #slack #snowflake #teams'
+name: 'Fivetran dbt to Sigma analytics #datadog #dbt #email #fivetran #sigma #slack
+  #snowflake #teams'
 pipeline:
   308a17c9-1fd6-4179-bdae-f36f0b146c57:
     tasks:
@@ -67,7 +68,7 @@ pipeline:
           datamodel_id: b62cca11-fc6f-4561-9d60-6e0b3093d28d
           sheet_ids: []
         depends_on: []
-        name: Some ID
+        name: Trigger Datamodel Refresh
       c2352f05-c77b-411d-bfc4-301336f8a085:
         integration: SIGMA
         integration_job: SIGMA_WORKBOOK_MATERIALIZATION
