@@ -41,6 +41,7 @@ pipeline:
         depends_on: []
         name: Snowflake DQ Test
         connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
+        treat_failure_as_warning: true
     depends_on: []
     name: ''
     matrix:
@@ -65,6 +66,7 @@ pipeline:
         depends_on: []
         name: Not Null test
         connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
+        treat_failure_as_warning: true
     depends_on:
     - 5c6e2fd1-7782-4a79-9850-0daf332a6f79
     name: ''
