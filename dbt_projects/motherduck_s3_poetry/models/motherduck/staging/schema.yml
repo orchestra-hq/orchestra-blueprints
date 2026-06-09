@@ -1,0 +1,6 @@
+models:
+  - name: stg_events
+    columns:
+      - name: event_name
+        data_tests:
+          - not_null
