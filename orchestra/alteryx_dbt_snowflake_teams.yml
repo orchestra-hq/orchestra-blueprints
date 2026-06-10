@@ -1,3 +1,5 @@
+# Pipeline sweep 2026-06-10: STALE — no run in 36 days (last success 2026-05-05). Review whether
+# to add a schedule, archive this config, or re-import to Production.
 version: v1
 name: 'Alteryx, dbt, and Snowflake to Teams Summary #snowflake #sensor #alteryx #teams
   #dbt #openai'
