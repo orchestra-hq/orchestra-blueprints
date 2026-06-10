@@ -1,6 +1,6 @@
 select 
 
   a.Day,
-  SHA2(cast(a.Day as STRING), 256) _pk
+  HASHBYTES('SHA2_256', cast(a.Day as STRING)) _pk
 
  from {{ref('daily_calendar')}} a
