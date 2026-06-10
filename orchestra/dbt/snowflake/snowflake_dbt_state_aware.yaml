@@ -1,3 +1,5 @@
+# Pipeline sweep 2026-06-10: STALE — Staging scheduled runs last succeeded 2026-05-07 (>5 days).
+# Confirm Staging import is active or pause the schedule until the pipeline is re-linked.
 version: v1
 name: 'Snowflake dbt state-aware build #dbt #slack #snowflake'
 pipeline:
