@@ -1,17 +1,10 @@
-
-version: 2
-
-models:
-  - name: orders_with_products
-    config:
-      tags: ['daily', 'test']
-    description: "Cleaned Google Analytics Events"
+seeds:
+  - name: orders_raw
+    description: Order data
     columns:
-      - name: _pk
-        description: "The primary key for this table"
+      - name: order_id
+        description: Order identifier
         tests:
-          - unique
-          - not_null
           - accepted_values:
               values: ["Moo"]
               config:

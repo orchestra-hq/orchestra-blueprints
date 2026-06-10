@@ -32,6 +32,18 @@ models:
         tests:
           - unique
           - not_null
+          - accepted_values:
+              values: ["Moo"]
+              config:
+                severity: warn
+                meta:
+                  tags:
+                    - "Data Tests"
+                  owner: "gary@getorchestra.io"
+                  channel: "#alert-testing"
+                  subscribers:
+                    - "gary@getorchestra.io"
+
   - name: products
     config:
       tags: ['daily', 'test']
