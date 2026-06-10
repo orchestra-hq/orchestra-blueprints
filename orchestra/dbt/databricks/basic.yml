@@ -11,11 +11,29 @@ pipeline:
           package_manager: PIP
           python_version: '3.12'
           use_state_orchestration: false
+          branch: live-alerts-dbt
           project_dir: dbt_projects/databricks
           shallow_clone_dirs: dbt_projects/databricks
         depends_on: []
         name: dbt Build
         connection: dbt_databricks_demo_54814
+      2094af7f-66e8-4a7c-ba13-752ebeec4d40:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install httpx orchestra-cli git+https://github.com/orchestra-hq/orchestra-cli.git@main
+          set_outputs: false
+          source: GIT
+          command: python live-dbt-alerts.py ${{ ORCHESTRA.PIPELINE_RUN_TASKS['e5aaa2cd-d1a4-4f0f-b721-11a0c78bafd8'].TASK_RUN_ID
+            }}
+          branch: live-alerts
+          project_dir: python
+          shallow_clone_dirs: python
+        depends_on: []
+        name: Live Alerts
+        connection: python__product__dbt_bigquery__79436
     depends_on: []
     name: group
 webhook:
