@@ -15,7 +15,9 @@ models:
           - accepted_values:
               values: ["Moo"]
               config:
-                severity: warn
+                severity: error
+                error_if: ">1000"
+                warn_if: ">10"
                 meta:
                   tags:
                     - "Data Tests"
