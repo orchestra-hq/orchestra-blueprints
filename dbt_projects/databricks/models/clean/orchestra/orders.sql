@@ -1,10 +1,6 @@
-with x as (
-  SELECT COUNT(*) as moo
-  FROM range(100000000)
-)
-select 
-
-  a.*,
-  SHA2(cast(a.order_id as STRING), 256) _pk
-
- from {{ref('orders_raw')}} a
+select
+    a.*,
+    sha2(cast(a.order_id as string), 256) as _pk
+from {{ ref('orders_raw') }} a
+cross join range(1000) r
+qualify row_number() over (partition by a.order_id order by r.id) = 1
