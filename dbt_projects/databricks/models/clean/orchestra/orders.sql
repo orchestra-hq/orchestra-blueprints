@@ -1,3 +1,7 @@
+with x as (
+  SELECT COUNT(*) as moo
+  FROM range(100000000)
+)
 select 
 
   a.*,
