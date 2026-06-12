@@ -1,3 +1,5 @@
+# Pipeline sweep 2026-06-12: STALE — not present in workspace run history (>38 days since last
+# known success 2026-05-05). Review whether to add a schedule, archive this config, or re-import.
 version: v1
 name: 'Alteryx, dbt, and Snowflake to Teams Summary #snowflake #sensor #alteryx #teams
   #dbt #openai'
