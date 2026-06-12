@@ -34,7 +34,26 @@ pipeline:
         depends_on: []
         name: Live Alerts
         connection: python__product__dbt_bigquery__79436
-    depends_on: []
+    depends_on:
+    - b65d09bb-a8cf-4676-8d68-7ea31877bd01
     name: group
+  b65d09bb-a8cf-4676-8d68-7ea31877bd01:
+    tasks:
+      fbdcc516-c193-4117-ac11-216479757636:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: false
+          branch: live-alerts-dbt
+          project_dir: dbt_projects/databricks
+          shallow_clone_dirs: dbt_projects/databricks
+        depends_on: []
+        name: '[COPY] dbt Build'
+        connection: dbt_databricks_demo_54814
+    depends_on: []
+    name: '[COPY] group'
 webhook:
   enabled: false
