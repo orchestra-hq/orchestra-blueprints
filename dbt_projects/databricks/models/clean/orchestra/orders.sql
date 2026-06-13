@@ -1,6 +1,6 @@
 select 
 
   a.*,
-  HASHBYTES('SHA2_256', cast(a.order_id as NVARCHAR(255))) _pk
+  sha2(cast(a.order_id as string), 256) as _pk
 
  from {{ref('orders_raw')}} a

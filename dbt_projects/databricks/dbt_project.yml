@@ -36,6 +36,9 @@ seeds:
     gsheet_accountids:
       # Override column types
       +column_types:
-        Hubspot_account_ids: BIGINT
-        Orchestra_account_GUID: VARCHAR(MAX)
-        Name: VARCHAR(MAX)
+        Hubspot_account_ids: bigint
+        Orchestra_account_GUID: string
+        Name: string
+    daily_calendar:
+      +column_types:
+        Day: date
