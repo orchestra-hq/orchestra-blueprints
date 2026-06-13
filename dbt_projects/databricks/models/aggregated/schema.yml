@@ -24,4 +24,4 @@ models:
                   owner: "gary@getorchestra.io"
                   channel: "#alert-testing"
                   subscribers:
-                    - "gary@getorchestra.io"
+                    - "spyro@getorchestra.io"
