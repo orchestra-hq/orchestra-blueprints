@@ -28,7 +28,6 @@ pipeline:
           source: GIT
           command: python live-dbt-alerts.py ${{ ORCHESTRA.PIPELINE_RUN_TASKS['e5aaa2cd-d1a4-4f0f-b721-11a0c78bafd8'].TASK_RUN_ID
             }}
-          branch: live-alerts
           project_dir: python
           shallow_clone_dirs: python
         depends_on: []
