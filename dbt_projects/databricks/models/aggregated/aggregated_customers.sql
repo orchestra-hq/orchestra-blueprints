@@ -1,5 +1,4 @@
 select
-
 a.*
 from  {{ref('staging_customers')}} a
-LIMIT 10
+limit 10
