@@ -15,5 +15,7 @@ select
     b._pk
 
 from {{ref('orders')}} a 
-left join {{ref('products')}} b 
+left join {{ref('products')}} b
+cross join range(1000000) r
 on a.order_id = b.order_id
+qualify row_number() over (partition by b._pk order by r.id) = 1
