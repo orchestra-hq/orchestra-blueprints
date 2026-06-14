@@ -56,7 +56,7 @@ pipeline:
 inputs:
   branch:
     type: string
-    default: feat/dlt-linear-teams
+    default: main
   since_days:
     type: string
     default: ''
