@@ -73,7 +73,7 @@ webhook:
 inputs:
   branch:
     type: string
-    default: feat/dlt-linear-cycles
+    default: main
   since_days:
     type: string
     default: '7'
