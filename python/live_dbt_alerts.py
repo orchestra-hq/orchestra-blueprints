@@ -56,9 +56,13 @@ def wait_for_log_stream(task_run_id: str, dbt_command: str) -> subprocess.Popen:
     while True:
         process = subprocess.Popen(
             [
-                "orchestra-cli", "task", "logs",
-                "--task-run-id", task_run_id,
-                "--filename", f"1/{dbt_command}",
+                "orchestra-cli",
+                "task",
+                "logs",
+                "--task-run-id",
+                task_run_id,
+                "--filename",
+                f"1/{dbt_command}",
             ],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -104,7 +108,11 @@ def build_alert_message(data: dict) -> dict:
     blocks = [
         {
             "type": "header",
-            "text": {"type": "plain_text", "text": "\U0001F6A8 dbt Test Failure", "emoji": True},
+            "text": {
+                "type": "plain_text",
+                "text": "\U0001f6a8 dbt Test Failure",
+                "emoji": True,
+            },
         },
         {
             "type": "section",
@@ -117,27 +125,38 @@ def build_alert_message(data: dict) -> dict:
                 {"type": "mrkdwn", "text": f"*Channel*\n`{meta.get('channel', '')}`"},
                 {"type": "mrkdwn", "text": f"*Column*\n{column}"},
                 {"type": "mrkdwn", "text": f"*Test name*\n{test_name}"},
-                {"type": "mrkdwn", "text": f"*Subscribers*\n{', '.join(subscribers) if subscribers else 'None'}"},
-                {"type": "mrkdwn", "text": f"*Tags*\n{', '.join(tags) if tags else 'None'}"},
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Subscribers*\n{', '.join(subscribers) if subscribers else 'None'}",
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Tags*\n{', '.join(tags) if tags else 'None'}",
+                },
             ],
         },
         {
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": f"\U0001F50E *Result*\n```Got {failures} failures, status: {status}```",
+                "text": f"\U0001f50e *Result*\n```Got {failures} failures, status: {status}```",
             },
         },
         {
             "type": "context",
             "elements": [
-                {"type": "mrkdwn", "text": f"Failed at {failed_at}  \u2022  Alerted at {alerted_at}"},
+                {
+                    "type": "mrkdwn",
+                    "text": f"Failed at {failed_at}  \u2022  Alerted at {alerted_at}",
+                },
             ],
         },
     ]
 
     # Fallback text for notifications and clients that don't render blocks.
-    fallback = f"dbt test failure: {test_name} on {model}.{column} ({failures} failures)"
+    fallback = (
+        f"dbt test failure: {test_name} on {model}.{column} ({failures} failures)"
+    )
 
     # Blocks live inside the attachment so the red sidebar spans the whole card.
     return {

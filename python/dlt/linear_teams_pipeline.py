@@ -22,9 +22,7 @@ def run_pipeline(since_days: Optional[int] = None) -> None:
     if not api_key:
         raise EnvironmentError("LINEAR_API_KEY must be set.")
 
-    token = os.environ.get("MOTHERDUCK_API_TOKEN") or os.environ.get(
-        "MOTHERDUCK_TOKEN"
-    )
+    token = os.environ.get("MOTHERDUCK_API_TOKEN") or os.environ.get("MOTHERDUCK_TOKEN")
     if not token:
         raise EnvironmentError(
             "MOTHERDUCK_API_TOKEN (or MOTHERDUCK_TOKEN) must be set."
