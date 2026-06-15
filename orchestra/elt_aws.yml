@@ -89,3 +89,7 @@ sensors:
           new_files: ${{ outputs.files }}
 webhook:
   enabled: false
+inputs:
+  new_files:
+    type: list
+    default: []
