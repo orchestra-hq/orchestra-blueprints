@@ -84,6 +84,10 @@ pipeline:
     - db5d92c0-9d84-4658-a841-16125ef410fc
     - 59b47850-b4e7-4b3f-9550-6bbecb79c4af
     - 9f7538e7-9439-4d60-ba01-b9986ae628d4
+    condition: ${{ task_groups['db5d92c0-9d84-4658-a841-16125ef410fc'].all().status
+      in ['SUCCEEDED', 'WARNING'] and task_groups['59b47850-b4e7-4b3f-9550-6bbecb79c4af'].all().status
+      in ['SUCCEEDED', 'WARNING'] and task_groups['9f7538e7-9439-4d60-ba01-b9986ae628d4'].all().status
+      in ['SUCCEEDED', 'WARNING'] and 1==0 }}
     name: ''
     matrix:
       inputs:
@@ -94,11 +98,14 @@ pipeline:
         - extract_4
   59b47850-b4e7-4b3f-9550-6bbecb79c4af:
     tasks:
-      f9746b15-accb-48bb-bc2b-d0f691596752:
+      69026bcc-4aa4-40bc-a4b3-4e766099d721:
         integration: GCP_BIG_QUERY
-        integration_job: GCP_BQ_RUN_SCHEDULED_QUERY_JOB
+        integration_job: GCP_BQ_RUN_QUERY_JOB
         parameters:
-          resource_name: projects/249301810188/locations/europe-west1/transferConfigs/66e02643-0000-2d9b-b72a-582429cb0ea4
+          query: SELECT 1
+          set_outputs: false
+          enable_drive_scope: false
+          location: europe-west1
         depends_on: []
         name: Scheduled Query
         connection: dbt_bigquery_24777
