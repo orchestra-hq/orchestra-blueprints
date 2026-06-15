@@ -8,8 +8,10 @@ pipeline:
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
           statement: "Select\ntablename as table_name \nfrom ${{ MATRIX.tables }}"
+          set_outputs: false
         depends_on: []
         name: Process data
+        connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
     depends_on: []
     name: group
     matrix:
@@ -28,6 +30,7 @@ pipeline:
           python_version: '3.12'
         depends_on: []
         name: dbt build
+        connection: ${{ ENV.DBT_CORE_SNOWFLAKE }}
     depends_on:
     - a5f366a8-5618-4ee5-812b-841a6fbad169
     name: group
