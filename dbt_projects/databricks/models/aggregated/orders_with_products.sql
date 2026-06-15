@@ -14,6 +14,6 @@ select
     b.total_price,
     b._pk
 
-from {{ref('orders')}} a 
-left join {{ref('products')}} b 
+from {{ ref('orders') }} a
+inner join {{ ref('products') }} b
 on a.order_id = b.order_id
