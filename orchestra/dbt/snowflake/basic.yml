@@ -7,7 +7,7 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
-          statement: "Select\ntablename as table_name \nfrom ${{ MATRIX.tables }}"
+          statement: 'Select ''${{ MATRIX.tables }}'' as table_name '
           set_outputs: false
         depends_on: []
         name: Process data
