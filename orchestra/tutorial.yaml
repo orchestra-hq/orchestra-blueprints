@@ -55,6 +55,8 @@ pipeline:
         name: run me
     depends_on:
     - 2944d844-5226-40b2-9448-be7f2e37eafe
+    condition: ${{ task_groups['2944d844-5226-40b2-9448-be7f2e37eafe'].all().status
+      in ['SUCCEEDED', 'WARNING'] and 1==0 }}
     name: group
 webhook:
   enabled: false
