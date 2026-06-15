@@ -101,7 +101,7 @@ pipeline:
           resource_name: projects/249301810188/locations/europe-west1/transferConfigs/66e02643-0000-2d9b-b72a-582429cb0ea4
         depends_on: []
         name: Scheduled Query
-        connection: bigquery__scheduled_query__prod__64336
+        connection: dbt_bigquery_24777
     depends_on:
     - 3bfc92c0-b0d7-459a-998b-9782cc6dfc1b
     name: ''
