@@ -28,9 +28,14 @@ pipeline:
           source_query: SELECT '${{ format_date(add_days(ORCHESTRA.CURRENT_TIME, 1),
             "%A") }}'
           destination_connection_id: python_connector_user_35098
-          destination_query: "select decode(extract ('dayofweek_iso',current_date()\
-            \ + 1),\n  1, 'Monday',\n  2, 'Tuesday',\n  3, 'Wednesday',\n  4, 'Thursday',\n\
-            \  5, 'Friday',\n  6, 'Saturday',\n  7, 'Sunday');"
+          destination_query: "select decode(extract ('dayofweek_iso',current_date()            \ + 1),
+  1, 'Monday',
+  2, 'Tuesday',
+  3, 'Wednesday',
+  4, 'Thursday',
+            \  5, 'Friday',
+  6, 'Saturday',
+  7, 'Sunday');"
           source_integration: SNOWFLAKE
           destination_integration: SNOWFLAKE
         depends_on: []
@@ -47,7 +52,7 @@ pipeline:
         integration: HTTP
         integration_job: HTTP_REQUEST
         parameters:
-          path: /get
+          path: /200
           method: GET
         depends_on: []
         name: Trigger on Input
@@ -71,7 +76,7 @@ pipeline:
         integration: HTTP
         integration_job: HTTP_REQUEST
         parameters:
-          path: /get
+          path: /200
           method: GET
         depends_on: []
         name: Trigger on Env
@@ -96,8 +101,11 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
-          statement: "SELECT \n    CASE \n        WHEN '${{ env.env_name }}' = 'Production'\
-            \ THEN 50 \n        ELSE 100\n    END AS result;"
+          statement: "SELECT 
+    CASE 
+        WHEN '${{ env.env_name }}' = 'Production'            \ THEN 50 
+        ELSE 100
+    END AS result;"
           set_outputs: true
         depends_on: []
         name: Start
@@ -110,7 +118,7 @@ pipeline:
         integration: HTTP
         integration_job: HTTP_REQUEST
         parameters:
-          path: /get
+          path: /200
           method: GET
         depends_on: []
         name: Trigger on Outputs and Globals
