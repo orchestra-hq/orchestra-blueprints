@@ -1,0 +1,153 @@
+version: v1
+name: 'TEST: Orchestra Parameters Syntax'
+pipeline:
+  fade09b0-23a3-4037-ac0f-b6b415691636:
+    tasks:
+      481b6598-b407-4371-bc7d-e56d4a96263b:
+        integration: ORCHESTRA
+        integration_job: DATA_RECONCILIATION_MANUAL_QUERY
+        parameters:
+          source_connection_id: python_connector_user_35098
+          source_query: SELECT (${{ env.CONDITION_TEST }} * ${{ inputs.test_int }})
+          destination_connection_id: python_connector_user_35098
+          destination_query: SELECT ${{ ORCHESTRA.PIPELINE_RUN_TASKS['12b477fa-1b8c-452a-ba5c-e1d682a22b0d'].OUTPUTS['results'][0][0]
+            }}
+          source_integration: SNOWFLAKE
+          destination_integration: SNOWFLAKE
+        depends_on: []
+        name: Test Equivalent (Env, Inputs, Task Outputs)
+        operation_metadata:
+          48b9324d-c848-4656-870d-036020e1c1b7:
+            integration: SNOWFLAKE
+            connection: python_connector_user_35098
+      3333c0cd-344b-4781-bcca-212fb10edad8:
+        integration: ORCHESTRA
+        integration_job: DATA_RECONCILIATION_MANUAL_QUERY
+        parameters:
+          source_connection_id: python_connector_user_35098
+          source_query: SELECT '${{ format_date(add_days(ORCHESTRA.CURRENT_TIME, 1),
+            "%A") }}'
+          destination_connection_id: python_connector_user_35098
+          destination_query: "select decode(extract ('dayofweek_iso',current_date()\
+            \ + 1),\n  1, 'Monday',\n  2, 'Tuesday',\n  3, 'Wednesday',\n  4, 'Thursday',\n\
+            \  5, 'Friday',\n  6, 'Saturday',\n  7, 'Sunday');"
+          source_integration: SNOWFLAKE
+          destination_integration: SNOWFLAKE
+        depends_on: []
+        name: Test Equivalent (Global Vars)
+        operation_metadata:
+          e34ddd9a-8aa8-4ba6-91b0-1d6eab10ce26:
+            integration: SNOWFLAKE
+    depends_on:
+    - b9e790c8-b4bd-49fd-b3a4-24e9c17bccd0
+    name: ''
+  ab24e18a-a504-411a-bfa9-bc1997c231cb:
+    tasks:
+      33507539-7654-4f6c-b23f-eb022fe13fb7:
+        integration: HTTP
+        integration_job: HTTP_REQUEST
+        parameters:
+          path: /get
+          method: GET
+        depends_on: []
+        name: Trigger on Input
+        connection: httpbin_11593
+        alerts:
+        - name: 'Alert Skipped Condition: Input'
+          statuses:
+          - SKIPPED
+          destinations:
+          - integration: SLACK
+            destination: staging-alerts
+          custom_message: This is potentially an error in the engine. Please investigate.
+    depends_on:
+    - fade09b0-23a3-4037-ac0f-b6b415691636
+    condition: ${{ task_groups['fade09b0-23a3-4037-ac0f-b6b415691636'].all().status
+      == 'SUCCEEDED' and inputs.test_int > 3 and inputs.set_to_true is True }}
+    name: ''
+  fe27f0b7-b9c9-4e91-9c8c-08dae7272c15:
+    tasks:
+      5eea4e18-99ee-409f-8df2-387612578654:
+        integration: HTTP
+        integration_job: HTTP_REQUEST
+        parameters:
+          path: /get
+          method: GET
+        depends_on: []
+        name: Trigger on Env
+        connection: httpbin_11593
+        alerts:
+        - name: 'Alert Skipped Condition: Env'
+          statuses:
+          - SKIPPED
+          destinations:
+          - integration: SLACK
+            destination: staging-alerts
+          custom_message: This is potentially an error in the engine. Please investigate.
+    depends_on:
+    - fade09b0-23a3-4037-ac0f-b6b415691636
+    condition: ${{ task_groups['fade09b0-23a3-4037-ac0f-b6b415691636'].all().status
+      in ['SUCCEEDED', 'SKIPPED'] and env.ENV_NAME == "Production" or env.ENV_NAME
+      == "Staging" }}
+    name: ''
+  b9e790c8-b4bd-49fd-b3a4-24e9c17bccd0:
+    tasks:
+      12b477fa-1b8c-452a-ba5c-e1d682a22b0d:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: "SELECT \n    CASE \n        WHEN '${{ env.env_name }}' = 'Production'\
+            \ THEN 50 \n        ELSE 100\n    END AS result;"
+          set_outputs: true
+        depends_on: []
+        name: Start
+        connection: python_connector_user_35098
+    depends_on: []
+    name: ''
+  64bfaa1a-3483-470b-a2d2-58c6e5bf46f2:
+    tasks:
+      fd1f490d-d1ec-46a0-8e90-a8cc56729681:
+        integration: HTTP
+        integration_job: HTTP_REQUEST
+        parameters:
+          path: /get
+          method: GET
+        depends_on: []
+        name: Trigger on Outputs and Globals
+        connection: httpbin_11593
+        alerts:
+        - name: 'Alert Skipped Condition: Outputs Globals'
+          statuses:
+          - SKIPPED
+          destinations:
+          - integration: SLACK
+            destination: staging-alerts
+          custom_message: This is potentially an error in the engine. Please investigate.
+    depends_on:
+    - fade09b0-23a3-4037-ac0f-b6b415691636
+    condition: ${{ task_groups['fade09b0-23a3-4037-ac0f-b6b415691636'].all().status
+      == 'COMPLETED' and tasks['12b477fa-1b8c-452a-ba5c-e1d682a22b0d'].TASK_RUN_ID
+      != ORCHESTRA.TASK_RUN_ID and 2 in [1, 2, 3] }}
+    name: ''
+schedule:
+- name: Daily at 8am
+  cron: 0 8 ? * * *
+  timezone: Europe/London
+  environment: 10ea86c6-7565-4bb4-98f2-e3c2df5e8d3f
+  run_inputs:
+    set_to_true: true
+- name: Daily at 8am
+  cron: 0 8 ? * * *
+  timezone: Europe/London
+  environment: 98561de0-d271-4624-a4a7-725e3f45eaf2
+  run_inputs:
+    set_to_true: true
+webhook:
+  enabled: false
+inputs:
+  test_int:
+    type: number
+    default: 5
+  set_to_true:
+    type: boolean
+    optional: true
