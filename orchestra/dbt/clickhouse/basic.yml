@@ -10,6 +10,7 @@ pipeline:
           commands: dbt build
           package_manager: PIP
           python_version: '3.12'
+          branch: feat/Clickhouse-dbt
           project_dir: dbt_projects/clickhouse
           shallow_clone_dirs: dbt_projects/clickhouse
         depends_on: []
@@ -20,9 +21,9 @@ pipeline:
 webhook:
   enabled: false
 alerts:
-  - name: Teams
-    statuses:
-      - FAILED
-    destinations:
-      - integration: MICROSOFT_TEAMS
-        connection_id: migrated_teams_66347
+- name: Teams
+  statuses:
+  - FAILED
+  destinations:
+  - integration: MICROSOFT_TEAMS
+    connection_id: migrated_teams_66347
