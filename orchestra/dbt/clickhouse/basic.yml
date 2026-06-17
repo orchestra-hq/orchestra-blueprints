@@ -16,32 +16,6 @@ pipeline:
         depends_on: []
         name: dbt build
         connection: ${{ ENV.DBT_CORE_CLICKHOUSE }}
-      93287b5c-78db-4e9c-a310-f4531b0fca8b:
-        integration: PYTHON
-        integration_job: PYTHON_EXECUTE_SCRIPT
-        parameters:
-          package_manager: PIP
-          python_version: '3.12'
-          build_command: pip install requests
-          set_outputs: false
-          source: INLINE
-          code: 'import requests
-
-
-            session = requests.Session()
-
-            session.auth = (''demo_dbt_user'',''GgorFp-oTGQGLMR66z9QdApR4p2-ShnuBTUjQDn-ZNc'')
-
-
-            auth = session.post(''https://giwn63p46z.eu-west-2.aws.clickhouse.cloud:8443'')
-
-            response = session.get(''https://giwn63p46z.eu-west-2.aws.clickhouse.cloud:8443'',
-            data=''SELECT 1'')
-
-
-            print(response.content)'
-        depends_on: []
-        name: Test
     depends_on: []
     name: group
 webhook:
