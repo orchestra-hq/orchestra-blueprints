@@ -20,10 +20,3 @@ pipeline:
     name: group
 webhook:
   enabled: false
-alerts:
-- name: Teams
-  statuses:
-  - FAILED
-  destinations:
-  - integration: MICROSOFT_TEAMS
-    connection_id: migrated_teams_66347
