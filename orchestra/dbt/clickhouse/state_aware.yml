@@ -12,11 +12,11 @@ pipeline:
           python_version: '3.12'
           project_dir: dbt_projects/clickhouse
           shallow_clone_dirs: dbt_projects/clickhouse
+          use_state_orchestration: true
         depends_on: []
         name: dbt build
         connection: ${{ ENV.DBT_CORE_CLICKHOUSE }}
     depends_on: []
     name: group
-    use_state_orchestration: true
 webhook:
   enabled: false
