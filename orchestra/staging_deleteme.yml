@@ -133,13 +133,13 @@ schedule:
 - name: Daily at 8am
   cron: 0 8 ? * * *
   timezone: Europe/London
-  environment: 10ea86c6-7565-4bb4-98f2-e3c2df5e8d3f
+  environment: 2789285b-7f8b-4889-9d67-f7f111eb27a8
   run_inputs:
     set_to_true: true
 - name: Daily at 8am
   cron: 0 8 ? * * *
   timezone: Europe/London
-  environment: 98561de0-d271-4624-a4a7-725e3f45eaf2
+  environment: dbfb4825-b265-40ac-8d36-18aded5c9487
   run_inputs:
     set_to_true: true
 webhook:
