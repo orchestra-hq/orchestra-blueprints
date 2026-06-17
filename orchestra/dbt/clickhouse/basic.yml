@@ -1,5 +1,5 @@
 version: v1
-name: 'ClickHouse dbt Orchestra Metadata #dbt #clickhouse'
+name: 'dbt Clickhouse Basic - #dbt #clickhouse'
 pipeline:
   a1b2c3d4-e5f6-47a8-9b1c-2d3e4f5a6b7c:
     tasks:
