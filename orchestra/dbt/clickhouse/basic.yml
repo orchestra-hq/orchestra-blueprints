@@ -1,0 +1,28 @@
+version: v1
+name: 'ClickHouse dbt Orchestra Metadata #dbt #clickhouse'
+pipeline:
+  a1b2c3d4-e5f6-47a8-9b1c-2d3e4f5a6b7c:
+    tasks:
+      b2c3d4e5-f6a7-48b9-ac2d-3e4f5a6b7c8d:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          project_dir: dbt_projects/clickhouse
+          shallow_clone_dirs: dbt_projects/clickhouse
+        depends_on: []
+        name: dbt build
+        connection: ${{ ENV.DBT_CORE_CLICKHOUSE }}
+    depends_on: []
+    name: group
+webhook:
+  enabled: false
+alerts:
+  - name: Teams
+    statuses:
+      - FAILED
+    destinations:
+      - integration: MICROSOFT_TEAMS
+        connection_id: migrated_teams_66347

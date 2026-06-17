@@ -1,0 +1,43 @@
+name: 'orchestra_metadata_clickhouse'
+version: '1.0.0'
+config-version: 2
+
+profile: 'orchestra_metadata_clickhouse'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+vars:
+  # Schema where Orchestra data is loaded
+  orchestra_source_schema: 'orchestra'
+  # ClickHouse database (if using multi-db setup)
+  orchestra_source_database: null
+  # Keep dbt_project_evaluator off unless explicitly enabled
+  run_dbt_project_evaluator: false
+
+models:
+  orchestra_metadata_clickhouse:
+    +materialized: view
+    staging:
+      +materialized: view
+      +schema: staging
+    marts:
+      +materialized: table
+      +schema: marts
+      dimensions:
+        +materialized: table
+      facts:
+        +materialized: table
+        +engine: MergeTree
+        +order_by: created_at_utc
+
+  dbt_project_evaluator:
+    +enabled: "{{ var('run_dbt_project_evaluator', false) }}"

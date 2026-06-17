@@ -1,0 +1,92 @@
+version: 2
+
+models:
+  - name: fct_pipeline_runs
+    description: |
+      Fact table containing pipeline execution events with aggregated task metrics.
+      One row per pipeline run, including counts and rates of task execution results.
+    columns:
+      - name: pipeline_run_id
+        description: Unique identifier for the pipeline run
+      - name: pipeline_id
+        description: Pipeline definition identifier
+      - name: pipeline_name
+        description: Name of the pipeline
+      - name: run_status
+        description: Status of the pipeline run
+      - name: created_at_utc
+        description: When the run was created
+      - name: completed_at_utc
+        description: When the run completed
+      - name: duration_seconds
+        description: Total execution time in seconds
+      - name: total_tasks
+        description: Count of tasks in the run
+      - name: successful_tasks
+        description: Count of successful tasks
+      - name: task_success_rate_pct
+        description: Percentage of successful tasks
+
+  - name: fct_task_runs
+    description: |
+      Fact table containing task execution events with aggregated operation metrics.
+      One row per task run, including counts and rates of operation execution results.
+    columns:
+      - name: task_run_id
+        description: Unique identifier for the task run
+      - name: pipeline_run_id
+        description: Parent pipeline run identifier
+      - name: task_name
+        description: Name of the task
+      - name: task_status
+        description: Status of the task run
+      - name: integration
+        description: Integration type (dbt, Fivetran, etc.)
+      - name: created_at_utc
+        description: When the task run was created
+      - name: completed_at_utc
+        description: When the task run completed
+      - name: duration_seconds
+        description: Total execution time in seconds
+      - name: total_operations
+        description: Count of operations in the task
+      - name: successful_operations
+        description: Count of successful operations
+      - name: total_rows_affected
+        description: Total rows impacted by operations
+      - name: operation_success_rate_pct
+        description: Percentage of successful operations
+      - name: rows_per_second
+        description: Throughput metric (rows/second)
+
+  - name: fct_operations
+    description: |
+      Fact table containing granular operation-level events.
+      One row per operation, including detailed metrics and type flags.
+    columns:
+      - name: operation_id
+        description: Unique identifier for the operation
+      - name: task_run_id
+        description: Parent task run identifier
+      - name: operation_name
+        description: Name of the operation
+      - name: operation_status
+        description: Status of the operation
+      - name: operation_type
+        description: Type of operation performed
+      - name: integration
+        description: Integration that performed the operation
+      - name: rows_affected
+        description: Number of rows impacted
+      - name: duration_seconds
+        description: Operation execution time in seconds
+      - name: created_at_utc
+        description: When the operation was created
+      - name: is_successful
+        description: Whether the operation succeeded
+      - name: is_failed
+        description: Whether the operation failed
+      - name: is_skipped
+        description: Whether the operation was skipped
+      - name: rows_per_second
+        description: Throughput metric (rows/second)

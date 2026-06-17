@@ -1,0 +1,111 @@
+version: 2
+
+sources:
+  - name: orchestra
+    description: Orchestra platform metadata tables ingested via dlt
+    tables:
+      - name: pipeline_runs
+        description: Pipeline execution metadata
+        columns:
+          - name: id
+            description: Unique identifier for the pipeline run
+          - name: pipeline_id
+            description: Identifier of the pipeline definition
+          - name: pipeline_name
+            description: Human-readable name of the pipeline
+          - name: run_status
+            description: Current status of the pipeline run
+          - name: triggered_by
+            description: User or system that initiated the run
+          - name: branch
+            description: Git branch the pipeline ran from
+          - name: commit
+            description: Git commit SHA the pipeline ran from
+          - name: created_at
+            description: Timestamp when the pipeline run was created
+          - name: started_at
+            description: Timestamp when execution started
+          - name: updated_at
+            description: Timestamp of last status update
+          - name: completed_at
+            description: Timestamp when execution completed
+
+      - name: task_runs
+        description: Task execution within pipelines
+        columns:
+          - name: id
+            description: Unique identifier for the task run
+          - name: pipeline_run_id
+            description: ID of the parent pipeline run
+          - name: task_name
+            description: Name of the task
+          - name: status
+            description: Current status of the task run
+          - name: integration
+            description: Integration type (e.g., dbt, Fivetran)
+          - name: integration_job
+            description: Specific job within the integration
+          - name: message
+            description: Status or error message
+          - name: external_status
+            description: Status from the external integration
+          - name: created_at
+            description: Timestamp when the task run was created
+          - name: started_at
+            description: Timestamp when execution started
+          - name: updated_at
+            description: Timestamp of last status update
+          - name: completed_at
+            description: Timestamp when execution completed
+
+      - name: operations
+        description: Granular operation-level details
+        columns:
+          - name: id
+            description: Unique identifier for the operation
+          - name: task_run_id
+            description: ID of the parent task run
+          - name: external_id
+            description: External identifier from the integration
+          - name: name
+            description: Name of the operation
+          - name: status
+            description: Status of the operation
+          - name: type
+            description: Type of operation performed
+          - name: integration
+            description: Integration that performed the operation
+          - name: integration_job
+            description: Specific job within the integration
+          - name: rows_affected
+            description: Number of rows affected
+          - name: duration_seconds
+            description: Operation duration in seconds
+          - name: created_at
+            description: Timestamp when the operation was created
+
+      - name: assets
+        description: Data asset catalog
+        columns:
+          - name: id
+            description: Unique identifier for the asset
+          - name: external_id
+            description: External identifier in the source system
+          - name: name
+            description: Name of the asset
+          - name: type
+            description: Type of asset
+          - name: integration
+            description: Integration where the asset resides
+          - name: status
+            description: Current status of the asset
+          - name: upstream_dependencies
+            description: Array of upstream dependencies
+          - name: downstream_dependencies
+            description: Array of downstream dependencies
+          - name: row_count
+            description: Number of rows (for tables/views)
+          - name: size_bytes
+            description: Size in bytes
+          - name: created_at
+            description: Timestamp when created in the integration
