@@ -10,7 +10,6 @@ pipeline:
           commands: dbt parse
           package_manager: UV
           python_version: '3.12'
-          branch: feat/Clickhouse-dbt
           project_dir: dbt_projects/clickhouse
           shallow_clone_dirs: dbt_projects/clickhouse
         depends_on: []
