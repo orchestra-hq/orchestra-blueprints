@@ -1,0 +1,9 @@
+version: 2
+
+models:
+  - name: integration_testing_data
+    columns:
+      - name: id
+        data_type: numeric
+      - name: name
+        data_type: string
