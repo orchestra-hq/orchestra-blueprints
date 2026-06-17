@@ -11,6 +11,7 @@ This directory contains standalone dbt blueprint examples.
 ## Current subprojects
 
 - `azure_fabric` - UNUSED
+- `clickhouse` - Sample ClickHouse integration
 - `databricks`
 - `duckdb_example` - UNUSED
 - `motherduck_postgres` - UNUSED
