@@ -1,21 +1,11 @@
 [project]
-name = "orchestra-metadata-clickhouse"
-version = "1.0.0"
-description = "dbt project for Orchestra metadata analytics in ClickHouse"
-authors = [{name = "Orchestra", email = "support@getorchestra.io"}]
-requires-python = ">=3.9"
-
+name = "orchestra_metadata_clickhouse"
+version = "0.1.0"
+description = "Orchestra Clickhouse Demo Project"
+readme = "README.md"
+requires-python = ">=3.11"
 dependencies = [
-    "dbt-clickhouse>=1.7.0",
-    "dbt-utils>=1.0.0",
+  "dbt-clickhouse==1.10.1",
+  "dbt-core==1.11.11",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "sqlfluff>=2.0.0",
-    "dbt-project-evaluator>=1.0.0",
-]
-
-[build-system]
-requires = ["setuptools>=45", "wheel"]
-build-backend = "setuptools.build_meta"
