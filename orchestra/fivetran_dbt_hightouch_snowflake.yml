@@ -66,9 +66,13 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
-          statement: Execute task demo_task;
+          statement: 'Execute task demo_task;
+
+            '
+          set_outputs: false
         depends_on: []
         name: Execute Task
+        connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
     depends_on:
     - 29aade18-ad5a-4eeb-8aca-18c25a34d549
     name: ''
