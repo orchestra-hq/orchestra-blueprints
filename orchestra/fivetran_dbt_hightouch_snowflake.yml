@@ -145,6 +145,18 @@ pipeline:
           TABLE_NAME: customers
         - SCHEMA_NAME: PRODUCTION
           TABLE_NAME: orders
+  1493d955-fcb4-40c7-b61a-3722b3b5ddd9:
+    tasks:
+      8375b588-ec4d-4d4a-aeb6-88f955a14b5f:
+        integration: DBT
+        integration_job: DBT_RUNJOB
+        parameters:
+          job_id: '409876'
+        depends_on: []
+        name: dbt cloud
+    depends_on:
+    - 5717ba18-dffe-4688-b925-93220efb214d
+    name: group
 schedule:
 - name: Daily at 8am
   cron: 0 8 ? * * *
