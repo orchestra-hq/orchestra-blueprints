@@ -5,6 +5,7 @@ config-version: 2
 profile: 'orchestra_metadata_clickhouse'
 
 model-paths: ["models"]
+source-paths: ["sources"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
 seed-paths: ["seeds"]
