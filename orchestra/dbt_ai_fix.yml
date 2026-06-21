@@ -1,5 +1,5 @@
 version: v1
-name: dbt to Snowflake Fix
+name: '[AI AGENT] dbt to Snowflake Fix'
 pipeline:
   d48629ca-679b-4095-942d-89f8f79d7e95:
     tasks:
