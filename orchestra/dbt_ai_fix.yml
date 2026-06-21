@@ -10,7 +10,7 @@ pipeline:
           commands: dbt  ${{ inputs.dbt_command }}
           package_manager: PIP
           python_version: '3.12'
-          use_state_orchestration: true
+          use_state_orchestration: false
           branch: ${{ inputs.dbt_branch }}
           project_dir: dbt_projects/snowflake
           shallow_clone_dirs: dbt_projects/snowflake
