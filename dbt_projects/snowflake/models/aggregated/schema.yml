@@ -59,6 +59,7 @@ models:
         description: "The shipment date"
         tests:
           - not_null
+          - unique
   - name: oil_data_aggregated
     description: "Aggregated Oil Field Production Data"
     columns:
