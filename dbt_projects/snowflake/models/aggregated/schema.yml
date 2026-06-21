@@ -6,11 +6,11 @@ models:
     config:
       tags:
         - massive_dag 
-        freshness:
-        build_after:
-          count: something
-          period: hour
-          updates_on: all
+      freshness:
+      build_after:
+        count: 1
+        period: hour
+        updates_on: all
 
     description: "A staging model for orders"
     columns:
@@ -68,5 +68,3 @@ models:
         tests:
           - not_null
           - unique
-
-
