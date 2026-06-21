@@ -43,6 +43,6 @@ select
     owner,
     to_timestamp(timestamp) timestamp,
     measurement,
-    _fourth_column,
+    _fourth_column
     _pk
 from {{ref('oil_data_clean')}}
