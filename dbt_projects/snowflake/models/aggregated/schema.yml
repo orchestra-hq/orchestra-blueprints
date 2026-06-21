@@ -6,9 +6,9 @@ models:
     config:
       tags:
         - massive_dag 
-      freshness:
+        freshness:
         build_after:
-          count: 1
+          count: something
           period: hour
           updates_on: all
 
