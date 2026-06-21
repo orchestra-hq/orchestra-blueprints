@@ -1,17 +1,14 @@
-
 version: 2
 
 models:
   - name: marketing_data_aggregated
     config:
       tags:
-        - massive_dag 
-      freshness:
-      build_after:
-        count: 1
-        period: hour
-        updates_on: all
-
+        - massive_dag
+    build_after:
+      count: 1
+      period: hour
+      updates_on: all
     description: "A staging model for orders"
     columns:
       - name: vid
@@ -21,7 +18,7 @@ models:
   - name: product_usage_aggregated
     config:
       tags:
-        - massive_dag 
+        - massive_dag
     description: "A staging model for orders"
     columns:
       - name: vid
@@ -31,7 +28,7 @@ models:
   - name: product_objects_aggregated
     config:
       tags:
-        - broken 
+        - broken
     description: "A staging model for orders"
     columns:
       - name: vid
