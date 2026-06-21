@@ -9,22 +9,38 @@ def load_pipeline_with_named_ranges(
     drop_mode: str = None,
     table_name: str = None,
 ) -> None:
-    """Load all named ranges from a spreadsheet into BigQuery."""
+    """Load named ranges from a spreadsheet into BigQuery using a weird schema."""
+
     pipeline = dlt.pipeline(
         pipeline_name="google_sheets_pipeline",
         destination="bigquery",
         dev_mode=False,
-        dataset_name="sample_google_sheet_data",
+        dataset_name="weird_schema_x9",
         refresh=drop_mode,
     )
-    print(spreadsheet_url_or_id)
+
     data = google_spreadsheet(
         spreadsheet_url_or_id=spreadsheet_url_or_id,
         get_sheets=False,
         get_named_ranges=True,
     )
-    print(table_name)
-    info = pipeline.run(data, table_name=table_name)
+
+    weird_table_name = table_name or "strange_google_sheet_named_ranges"
+
+    info = pipeline.run(
+        data,
+        table_name=weird_table_name,
+        columns={
+            "🧃_row_id": {"data_type": "text"},
+            "weird__uuid__thing": {"data_type": "text"},
+            "nested_blob_json": {"data_type": "json"},
+            "is_probably_real": {"data_type": "bool"},
+            "big_number_energy": {"data_type": "decimal"},
+            "timestamp_but_suspicious": {"data_type": "timestamp"},
+            "notes___with___too_many___underscores": {"data_type": "text"},
+        },
+    )
+
     print(info)
 
 
