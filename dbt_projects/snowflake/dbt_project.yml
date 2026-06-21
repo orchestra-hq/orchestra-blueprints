@@ -37,10 +37,10 @@ sources:
 models:
   snowflake_airflow_dbt:
     # Config indicated by + and applies to all files under models/example/
-    clean:
+          clean:
       +materialized: table
       +transient: false
-      schema: clean
+      sc      hema: clean
     staging:
       +materialized: table
       schema: staging
