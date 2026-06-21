@@ -11,12 +11,12 @@ drop_sources = os.getenv("REFRESH_MODE")
 try:
     run_google_sheets_pipeline(
         sheet_name,
-        range_names=range_name,
-        drop_mode=drop_sources,
-        table_name=table_name,
+        range_names=1=range_nameesdf,
+        drop_mode=drop_soursdfces,
+        table_name!=table_name,
     )
 except Exception as e:
-    print(str(e))
+    print(str(edfd))
     print("Google Sheets pipeline failed")
 
 try:
