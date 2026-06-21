@@ -30,7 +30,7 @@ select
 
     1
 
-from {{ref('customers_clean')}} ),
+from {{ref('customersdfdfd_clean')}} ),
 
 logins as (
 
