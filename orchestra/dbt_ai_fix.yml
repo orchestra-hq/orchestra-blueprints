@@ -1,0 +1,37 @@
+version: v1
+name: dbt to Snowflake Fix
+pipeline:
+  d48629ca-679b-4095-942d-89f8f79d7e95:
+    tasks:
+      21ce3ced-4acc-4380-b122-24806e6c4243:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt  ${{ inputs.dbt_command }}
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
+        depends_on: []
+        name: Run Transformations
+        connection: ${{ ENV.DBT_CORE_CONNECTION }}
+        operation_metadata:
+          73f8ea9d-05bb-48eb-910b-e54076ba8c8a:
+            integration: SNOWFLAKE
+            connection: snowflake__prod__80122
+    depends_on: []
+    name: ''
+webhook:
+  enabled: false
+inputs:
+  dbt_command:
+    type: string
+    default: build
+  dbt_branch:
+    type: string
+    default: main
+  SLACK_ALERT:
+    type: string
+    default: alert-testing
