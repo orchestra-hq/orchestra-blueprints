@@ -114,6 +114,14 @@ sensors:
           custom: ${{ outputs.results[0][0] }}
     run_inputs:
       example: sensor_trigger
+    alerts:
+    - name: Failures
+      statuses:
+      - FAILED
+      destinations:
+      - integration: SLACK
+        destination: alerts-data
+        connection_id: default_00000
 trigger_events:
 - type: pipeline
   pipeline_id: '*'
