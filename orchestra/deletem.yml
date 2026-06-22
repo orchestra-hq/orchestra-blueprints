@@ -78,6 +78,12 @@ pipeline:
           shallow_clone_dirs: python/dlt
         depends_on: []
         name: Some arbitrary python
+      cc7e6c6f-6ce4-4679-b135-e8be243c209f:
+        integration: ORCHESTRA
+        integration_job: APPROVAL
+        parameters: {}
+        depends_on: []
+        name: group
     depends_on: []
     name: group
     matrix:
