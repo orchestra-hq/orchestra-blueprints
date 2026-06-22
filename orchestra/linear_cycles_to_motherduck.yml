@@ -89,3 +89,12 @@ inputs:
   snapshot_name:
     type: string
     default: dlt_linear_cycles
+alerts:
+- name: On Failure
+  statuses:
+  - FAILED
+  - RUNNING_TIMEOUT
+  destinations:
+  - integration: SLACK
+    destination: '#data-alerts'
+  custom_message: 'Pipeline "Linear cycles to MotherDuck" failed. View run: https://app.getorchestra.io/pipeline-runs/${{ ORCHESTRA.PIPELINE_RUN_ID }}/lineage'
