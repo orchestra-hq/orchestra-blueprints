@@ -145,3 +145,6 @@ inputs:
   python_branch:
     type: string
     default: main
+meta:
+  notes: This is a complex pipeline designed to simulate  abunch of annoying edge
+    cases
