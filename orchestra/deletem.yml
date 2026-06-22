@@ -89,6 +89,7 @@ pipeline:
           TABLE_NAME: social_leads
         - SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ
           TABLE_NAME: unstructured_feedback
+      sequential: true
 schedule:
 - name: Weekly Schedule
   cron: 0 9 ? * MON *
