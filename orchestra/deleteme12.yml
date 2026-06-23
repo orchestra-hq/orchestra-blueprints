@@ -26,7 +26,8 @@ pipeline:
           python_version: '3.12'
         depends_on: []
         name: DBT Core Task
-    depends_on: []
+    depends_on:
+    - f56285af-7b11-4ac1-8e85-3daa7fc10084
     name: group
   defc9cbb-ff48-46d2-bca5-697dfaf711ef:
     tasks:
@@ -52,6 +53,51 @@ pipeline:
     depends_on:
     - a1896497-55a9-49c3-a8b2-05dafdeb332a
     name: '[COPY] group'
+  f56285af-7b11-4ac1-8e85-3daa7fc10084:
+    tasks:
+      4410c3b3-d2f5-4351-9e71-16bd1032bb24:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: credulity_gentleness
+        depends_on: []
+        name: Run ingest
+    depends_on: []
+    name: group
+  3a17e674-5efd-4f84-a8c5-49f6e2a43049:
+    tasks:
+      75fd6f8f-fc5b-436f-b6a7-4f0e21513545:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: EXPORT STATEMENT
+        depends_on: []
+        name: Export to S3
+      3d4e4ca9-afad-46db-a568-356a34ead5c7:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          source: GIT
+          command: python -m ftp
+        depends_on: []
+        name: Push to client's FTP Server
+    depends_on:
+    - defc9cbb-ff48-46d2-bca5-697dfaf711ef
+    name: group
+  b82309fc-d843-42a7-be46-c2d6ccb4e87b:
+    tasks:
+      5a4a7993-3a19-49f7-a58a-01079e41e533:
+        integration: SQL_SERVER
+        integration_job: SQL_SERVER_RUN_QUERY
+        parameters:
+          statement: execute stored_proc;
+        depends_on: []
+        name: Execute stored procedure
+    depends_on:
+    - 3a17e674-5efd-4f84-a8c5-49f6e2a43049
+    name: group
 webhook:
   enabled: false
 inputs:
