@@ -40,6 +40,18 @@ pipeline:
     depends_on:
     - a1896497-55a9-49c3-a8b2-05dafdeb332a
     name: group
+  1637ea06-ecda-47b4-82b3-23fa7abeafb5:
+    tasks:
+      3336bacf-e856-4a7c-ac86-c90e59b7ec9c:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: execute task kick_off_task;
+        depends_on: []
+        name: '[COPY] Execute task'
+    depends_on:
+    - a1896497-55a9-49c3-a8b2-05dafdeb332a
+    name: '[COPY] group'
 webhook:
   enabled: false
 inputs:
