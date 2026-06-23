@@ -13,8 +13,10 @@ pipeline:
             \ WHERE ... ]\n    [ QUALIFY ... ]\n  ) AS <source_alias>\n  ON <join_condition>\n\
             \  [ WHEN MATCHED [ AND ... ] THEN { UPDATE SET ... | DELETE } ] [...]\n\
             \  [ WHEN NOT MATCHED [ AND ... ] THEN INSERT (...) VALUES (...) ]\n)"
+          set_outputs: false
         depends_on: []
         name: INSERT STATEMENT
+        connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
       dbt-core-task:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
