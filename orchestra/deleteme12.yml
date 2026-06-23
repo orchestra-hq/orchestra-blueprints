@@ -31,3 +31,11 @@ pipeline:
     name: group
 webhook:
   enabled: false
+alerts:
+- name: Failures
+  statuses:
+  - FAILED
+  destinations:
+  - integration: SLACK
+    destination: alert-testing
+    connection_id: default_00000
