@@ -21,7 +21,9 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: dbt run
+          commands: dbt ${{ inputs.dbt_command }}
+          package_manager: PIP
+          python_version: '3.12'
         depends_on: []
         name: DBT Core Task
     depends_on: []
@@ -40,6 +42,10 @@ pipeline:
     name: group
 webhook:
   enabled: false
+inputs:
+  dbt_command:
+    type: string
+    default: build
 alerts:
 - name: Failures
   statuses:
