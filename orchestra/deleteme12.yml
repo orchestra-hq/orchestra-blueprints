@@ -1,0 +1,33 @@
+version: v1
+name: Snowflake / dbt
+pipeline:
+  a1896497-55a9-49c3-a8b2-05dafdeb332a:
+    tasks:
+      c4458006-742b-4dba-9c66-098d77b11dc2:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: "REFRESH USING (\n  MERGE INTO SELF [AS <target_alias>]\n  USING\
+            \ (\n    SELECT ...\n    FROM <source> CHANGES( [INFORMATION => { DEFAULT\
+            \ | APPEND_ONLY }] ) [AS <alias>]\n    [ JOIN <table> ON ... ]\n    [\
+            \ WHERE ... ]\n    [ QUALIFY ... ]\n  ) AS <source_alias>\n  ON <join_condition>\n\
+            \  [ WHEN MATCHED [ AND ... ] THEN { UPDATE SET ... | DELETE } ] [...]\n\
+            \  [ WHEN NOT MATCHED [ AND ... ] THEN INSERT (...) VALUES (...) ]\n)"
+        depends_on: []
+        name: INSERT STATEMENT
+    depends_on: []
+    name: group
+  defc9cbb-ff48-46d2-bca5-697dfaf711ef:
+    tasks:
+      296d4902-c911-444c-b3a7-ca00b1fa06ab:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: execute task kick_off_task;
+        depends_on: []
+        name: Execute task
+    depends_on:
+    - a1896497-55a9-49c3-a8b2-05dafdeb332a
+    name: group
+webhook:
+  enabled: false
