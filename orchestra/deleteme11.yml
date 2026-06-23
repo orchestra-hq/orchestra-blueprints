@@ -1,0 +1,70 @@
+version: v1
+name: 'Internal: end-to-end pipeline (Simple)'
+pipeline:
+  bi_refresh:
+    tasks:
+      refresh_lightdash:
+        integration: LIGHTDASH
+        integration_job: LIGHTDASH_REFRESH_DASHBOARD
+        parameters:
+          dashboard_id: 23e12d2e-6b3c-43e7-9cf6-fab399a421ec
+        depends_on: []
+        name: Refresh Lightdash
+        connection: production___orchestra_58515
+    depends_on:
+    - dbt_core_snapshot
+    name: ''
+  dbt_core_snapshot:
+    tasks:
+      run_dbt_snapshot:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          branch: ${{ inputs.dbt_branch }}
+        depends_on: []
+        name: dbt Snapshot
+        connection: dbt_core_bigquery_production_04081
+        operation_metadata:
+          b0540026-4935-4714-b264-5de4d60d80af:
+            integration: GCP_BIG_QUERY
+            connection: bigquery_production_88096
+        treat_failure_as_warning: true
+    depends_on:
+    - aa3f91d8-b327-4ec0-9234-4097bc250dda
+    name: ''
+  aa3f91d8-b327-4ec0-9234-4097bc250dda:
+    tasks:
+      072db82e-8b03-4fb7-9296-d8f14845cf34:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: appetite_trimness
+        depends_on: []
+        name: Sync leads
+    depends_on: []
+    name: group
+schedule:
+- name: Daily at 5am (UTC)
+  cron: 0 5 ? * * *
+  timezone: UTC
+- name: Hourly Through the Day
+  cron: 0 8-19 ? * 2-6 *
+  timezone: UTC
+  environment: 170dcbbe-76b3-47aa-ab9e-8e6c8e3e108b
+webhook:
+  enabled: false
+configuration:
+  retries: 2
+inputs:
+  dbt_branch:
+    type: string
+    default: main
+  dbt_command:
+    type: string
+    default: build dbt_community_leads_clean+
+  dbt_ci_schema_suffix:
+    type: string
+    optional: true
