@@ -15,6 +15,13 @@ pipeline:
             \  [ WHEN NOT MATCHED [ AND ... ] THEN INSERT (...) VALUES (...) ]\n)"
         depends_on: []
         name: INSERT STATEMENT
+      dbt-core-task:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt run
+        depends_on: []
+        name: DBT Core Task
     depends_on: []
     name: group
   defc9cbb-ff48-46d2-bca5-697dfaf711ef:
