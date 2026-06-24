@@ -123,6 +123,14 @@ pipeline:
         tables:
         - table_1
         - table_2
+schedule:
+- name: Daily at 9am
+  cron: 0 9 ? * * *
+  timezone: Europe/London
+  run_inputs:
+    dbt_command: run --select models tag:clean
+    dbt_branch: main
+    trigger_name: 9am
 webhook:
   enabled: false
 inputs:
@@ -132,6 +140,8 @@ inputs:
   dbt_branch:
     type: string
     default: main
+  trigger_name:
+    type: string
 alerts:
 - name: Failures
   statuses:
