@@ -95,6 +95,7 @@ pipeline:
         name: Run Salesforce River
         treat_failure_as_warning: true
     depends_on: []
+    condition: ${{ inputs.trigger_name == "sensor" }}
     name: ''
     matrix:
       inputs:
@@ -131,8 +132,27 @@ schedule:
     dbt_command: run --select models tag:clean
     dbt_branch: main
     trigger_name: 9am
+sensors:
+  c767d2c4-9b42-415c-bc81-dcf2f69756d7:
+    name: Sensor trigger
+    cron: 0 8 ? * * *
+    timezone: Europe/London
+    timeout_mins: 60
+    checks:
+      Check to see if snowflake is available:
+        integration: SNOWFLAKE
+        sensor_type: SNOWFLAKE_QUERY
+        parameters:
+          query: select * from table where date = current_date() limit 1
+        map_outputs:
+          sensor_outputs: ${{ outputs.results }}
+    run_inputs:
+      trigger_name: sensor
 webhook:
   enabled: false
+configuration:
+  concurrency:
+    max_active: 10
 inputs:
   dbt_command:
     type: string
@@ -142,6 +162,8 @@ inputs:
     default: main
   trigger_name:
     type: string
+meta:
+  notes: This is a complex pipeline designed for simple demos.
 alerts:
 - name: Failures
   statuses:
@@ -149,3 +171,12 @@ alerts:
   destinations:
   - integration: SLACK
     destination: alert-testing
+- name: Teams
+  statuses:
+  - ANY_COMPLETED
+  destinations:
+  - integration: MICROSOFT_TEAMS
+    connection_id: migrated_teams_66347
+  - integration: EMAIL
+    destination: alerts@getorchestra.io
+  custom_message: Custom message
