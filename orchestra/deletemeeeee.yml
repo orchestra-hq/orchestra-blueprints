@@ -1,0 +1,84 @@
+version: v1
+name: 'Fivetran to Sigma ELT #fivetran #dbt #snowflake #sigma'
+pipeline:
+  11111111-1111-4111-8111-111111111111:
+    tasks:
+      a1111111-1111-4111-8111-111111111111:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: ${{ inputs.fivetran_connector_id }}
+          resync: false
+        depends_on: []
+        name: Fivetran Sync
+    depends_on: []
+    name: ''
+  22222222-2222-4222-8222-222222222222:
+    tasks:
+      a2222222-2222-4222-8222-222222222222:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt ${{ inputs.dbt_command }}
+          package_manager: PIP
+          python_version: '3.12'
+          branch: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
+        depends_on: []
+        name: Run dbt
+    depends_on:
+    - 11111111-1111-4111-8111-111111111111
+    name: ''
+  33333333-3333-4333-8333-333333333333:
+    tasks:
+      a3333333-3333-4333-8333-333333333333:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: ${{ inputs.snowflake_statement }}
+          set_outputs: false
+        depends_on: []
+        name: Execute Snowflake Task
+    depends_on:
+    - 22222222-2222-4222-8222-222222222222
+    name: ''
+  44444444-4444-4444-8444-444444444444:
+    tasks:
+      a4444444-4444-4444-8444-444444444444:
+        integration: SIGMA
+        integration_job: SIGMA_DATASET_MATERIALIZATION
+        parameters:
+          dataset_id: ${{ inputs.sigma_dataset_id }}
+        depends_on: []
+        name: Materialize Sigma Dataset
+    depends_on:
+    - 33333333-3333-4333-8333-333333333333
+    name: ''
+schedule:
+- name: Daily at 6am
+  cron: 0 6 ? * * *
+  timezone: Europe/London
+  run_inputs:
+    dbt_command: build
+    dbt_branch: main
+webhook:
+  enabled: false
+inputs:
+  fivetran_connector_id:
+    type: string
+    default: roast_chicken
+  dbt_command:
+    type: string
+    default: build
+  dbt_branch:
+    type: string
+    default: main
+  snowflake_statement:
+    type: string
+    default: EXECUTE TASK my_post_dbt_task;
+  sigma_dataset_id:
+    type: string
+    default: replace-with-sigma-dataset-id
+meta:
+  notes: 'Linear Fivetran -> dbt -> Snowflake -> Sigma ELT. Migrated to Git-backed storage (GitBridge).'
