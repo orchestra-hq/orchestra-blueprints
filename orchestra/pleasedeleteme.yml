@@ -10,6 +10,7 @@ pipeline:
           commands: dbt build;
           package_manager: PIP
           python_version: '3.12'
+          project_dir: dbt_projects/snowflake
         depends_on: []
         name: dbt build
     depends_on: []
