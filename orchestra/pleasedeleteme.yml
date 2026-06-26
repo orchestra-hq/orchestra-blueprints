@@ -1,0 +1,22 @@
+version: v1
+name: justdbt
+pipeline:
+  b5a572b3-77f9-4fc8-b086-ee7145b98232:
+    tasks:
+      43e6b3ed-bb6d-4bf6-8e80-d38ae9cc16b1:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build;
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: dbt build
+    depends_on: []
+    name: group
+schedule:
+- name: Daily at 7am
+  cron: 0 */1 ? * * *
+  timezone: Europe/London
+webhook:
+  enabled: false
