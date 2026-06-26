@@ -1,0 +1,81 @@
+version: v1
+name: 'SQL Server to Snowflake ELT #python #dbt #snowflake'
+pipeline:
+  11111111-1111-4111-8111-111111111111:
+    tasks:
+      aaaaaaaa-1111-4aaa-8aaa-aaaaaaaaaaaa:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          source: GIT
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          command: python move_data.py
+          branch: ${{ inputs.python_branch }}
+          project_dir: python/sqlserver_to_snowflake
+          shallow_clone_dirs: python/sqlserver_to_snowflake
+          set_outputs: false
+          environment_variables: '{
+
+            "SOURCE_TABLE": "dbo.orders",
+
+            "TARGET_TABLE": "RAW.ORDERS",
+
+            "BATCH_SIZE": "500"
+
+            }'
+        depends_on: []
+        name: Move data SQL Server to Snowflake
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: Extract and Load
+  22222222-2222-4222-8222-222222222222:
+    tasks:
+      bbbbbbbb-2222-4bbb-8bbb-bbbbbbbbbbbb:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build;
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: false
+          branch: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
+          warehouse_identifier: JH88529.UK-SOUTH.AZURE
+        depends_on: []
+        name: dbt build
+        connection: ${{ ENV.DBT_CORE_CONNECTION }}
+    depends_on:
+    - 11111111-1111-4111-8111-111111111111
+    name: Transform
+  33333333-3333-4333-8333-333333333333:
+    tasks:
+      cccccccc-3333-4ccc-8ccc-cccccccccccc:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt test;
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: false
+          branch: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
+          warehouse_identifier: JH88529.UK-SOUTH.AZURE
+        depends_on: []
+        name: dbt test
+        connection: ${{ ENV.DBT_CORE_CONNECTION }}
+    depends_on:
+    - 22222222-2222-4222-8222-222222222222
+    name: Test
+webhook:
+  enabled: false
+inputs:
+  python_branch:
+    type: string
+    default: feature/sqlserver-to-snowflake-demo
+  dbt_branch:
+    type: string
+    default: feature/sqlserver-to-snowflake-demo
