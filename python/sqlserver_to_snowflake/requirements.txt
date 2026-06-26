@@ -1,0 +1,4 @@
+# No third-party deps needed for the simulated job.
+# For a real SQL Server -> Snowflake load, uncomment:
+# pyodbc==5.1.0
+# snowflake-connector-python==3.12.0
