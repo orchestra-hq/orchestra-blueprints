@@ -28,6 +28,13 @@ pipeline:
         depends_on: []
         name: Move data SQL Server to Snowflake
         connection: python__production__blueprints__19239
+      52757728-2ce7-4424-92b1-920c12cfbcc3:
+        integration: ALTERYX_SERVER
+        integration_job: ALTERYX_SERVER_TRIGGER_WORKFLOW
+        parameters:
+          workflow_id: '12355'
+        depends_on: []
+        name: Extract and Load
     depends_on: []
     name: Extract and Load
   22222222-2222-4222-8222-222222222222:
@@ -79,3 +86,10 @@ inputs:
   dbt_branch:
     type: string
     default: feature/sqlserver-to-snowflake-demo
+alerts:
+- name: Add aerts
+  statuses:
+  - FAILED
+  destinations:
+  - integration: MICROSOFT_TEAMS
+    connection_id: migrated_teams_66347
