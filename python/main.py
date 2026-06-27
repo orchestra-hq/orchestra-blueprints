@@ -16,6 +16,12 @@ The dataset IDs are resolved from one of two sources, checked in order:
    variables, the script lists the datasets in the workspace (group) and selects
    the refreshable ones.
 
+If neither source is configured, the task does NOT fail. It emits an empty
+``datasets`` list (the downstream Power BI matrix then fans out over nothing)
+and exits successfully, so an unconfigured optional refresh target never aborts
+the upstream dbt build. Configure ``POWERBI_DATASET_IDS`` or a service principal
+to actually refresh datasets.
+
 Environment variables (REST API path):
   POWERBI_TENANT_ID      (or AZURE_TENANT_ID / TENANT_ID)
   POWERBI_CLIENT_ID      (or AZURE_CLIENT_ID / CLIENT_ID)
@@ -38,6 +44,11 @@ import requests
 
 PBI_SCOPE = "https://analysis.windows.net/powerbi/api/.default"
 PBI_API = "https://api.powerbi.com/v1.0/myorg"
+
+
+def _log(message: str) -> None:
+    """Emit a diagnostic message to stderr (kept off the stdout data path)."""
+    print(message, file=sys.stderr)
 
 
 def _first_env(*names: str) -> Optional[str]:
@@ -109,12 +120,15 @@ def _ids_from_api() -> list:
         if not value
     ]
     if missing:
-        raise SystemExit(
-            "No Power BI dataset source configured. Either set POWERBI_DATASET_IDS "
+        # No service principal configured. This is an optional refresh target,
+        # so warn and return nothing rather than failing the whole pipeline.
+        _log(
+            "WARNING: No Power BI dataset source configured. Set POWERBI_DATASET_IDS "
             "to an explicit list of dataset GUIDs, or configure a service principal "
-            "on the Python connection so datasets can be fetched from the Power BI "
-            "REST API (missing: " + ", ".join(missing) + ")."
+            "on the Python connection to fetch datasets from the Power BI REST API "
+            "(missing: " + ", ".join(missing) + "). Continuing with no datasets."
         )
+        return []
 
     token = _get_token(tenant, client_id, client_secret)
     datasets = _list_datasets(token, group)
@@ -140,10 +154,16 @@ def main() -> int:
     ids = [x for x in ids if not (x in seen or seen.add(x))]
 
     if not ids:
-        raise SystemExit(
-            "No Power BI datasets resolved to refresh. Check the workspace/group "
-            "configuration or the POWERBI_DATASET_IDS override."
+        # No datasets resolved. Emit an empty output so the downstream Power BI
+        # matrix fans out over nothing (a no-op) instead of aborting the run.
+        _log(
+            "WARNING: No Power BI datasets resolved to refresh. Emitting an empty "
+            "'datasets' output; the downstream Power BI refresh will be a no-op. "
+            "Configure POWERBI_DATASET_IDS or a service principal to refresh datasets."
         )
+        _set_output("datasets", [])
+        print("Set Orchestra output 'datasets' to [] (no datasets to refresh).")
+        return 0
 
     print(f"Resolved {len(ids)} dataset(s) to refresh via {source}: {ids}")
     _set_output("datasets", ids)
