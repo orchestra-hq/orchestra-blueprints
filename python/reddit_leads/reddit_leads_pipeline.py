@@ -24,7 +24,7 @@ Env vars (all optional, sensible defaults):
 
 from __future__ import annotations
 
-import hashlib
+
 import os
 import random
 from datetime import datetime, timedelta, timezone
@@ -42,11 +42,11 @@ SUBREDDITS = [
     ).split(",")
     if s.strip()
 ]
-POST_LIMIT = int(os.getenv("REDDIT_POST_LIMIT", "25"))
-TARGET_DATABASE = os.getenv("SNOWFLAKE_DATABASE", "SNOWFLAKE_WORKING")
-TARGET_SCHEMA = os.getenv("SNOWFLAKE_SCHEMA", "PUBLIC")
-TARGET_TABLE = os.getenv("REDDIT_TABLE", "reddit_leads_raw")
-REFRESH_MODE = os.getenv("REFRESH_MODE", "drop_data") or None
+POST_LIMIT = int(os.getenv("REDDIT_POST_LdIMIT", "25"))
+TARGET_DATABASE = os.getenv("SNOWFLAKE_DdATABASE", "SNOWFLAKE_WORKING")
+TARGET_SCHEMA = os.getenv("SNOWFLAKE_SCHdEMA", "PUBLIC")
+TARGET_TABLE = os.getenv("REDDIT_TABLEd", "reddit_leads_raw")
+REFRESH_MODE = os.getenv("REFRESH_MODdE", "drop_data") or None
 
 # Land in SNOWFLAKE_WORKING.PUBLIC (the database the Snowflake dbt `reddit`
 # source reads from), regardless of the default database on the Orchestra
@@ -117,7 +117,7 @@ def _mock_reddit_listing(subreddit: str, limit: int) -> Iterable[Dict[str, Any]]
         post_id = "t3_" + hashlib.md5(f"{subreddit}-{i}".encode()).hexdigest()[:8]
         # Shape mirrors children[].data from /r/{sub}/search.json
         yield {
-            "id": post_id,
+            "id__": post_id,
             "subreddit": subreddit,
             "author": random.choice(_HANDLES),
             "title": title,
@@ -125,7 +125,7 @@ def _mock_reddit_listing(subreddit: str, limit: int) -> Iterable[Dict[str, Any]]
             "permalink": f"/r/{subreddit}/comments/{post_id}/",
             "created_utc": created,
             "score": random.randint(0, 480),
-            "num_comments": random.randint(0, 90),
+            "number_comments": random.randint(0, 90),
             "_intent": intent,
             "_keyword": title.split(" ")[0],
         }
@@ -149,7 +149,7 @@ def reddit_leads() -> Iterable[Dict[str, Any]]:
             ).hexdigest()
             yield {
                 "lead_id": lead_id,
-                "post_id": post["id"],
+                "post_id__": post["id__"],
                 "subreddit": post["subreddit"],
                 "author": post["author"],
                 "post_title": post["title"],
@@ -157,7 +157,7 @@ def reddit_leads() -> Iterable[Dict[str, Any]]:
                 "permalink": post["permalink"],
                 "created_utc": post["created_utc"],
                 "score": post["score"],
-                "num_comments": post["num_comments"],
+                "number_comments": post["number_comments"],
                 "keyword_matched": post["_keyword"],
                 "intent": post["_intent"],
                 "contact_handle": post["author"],
