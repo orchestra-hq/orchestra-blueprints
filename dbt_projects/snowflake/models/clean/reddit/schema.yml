@@ -11,22 +11,22 @@ models:
       - name: lead_id
         description: "Primary key — deterministic hash of subreddit + post id."
         tests:
-          - unique
-          - not_null
-      - name: post_id
-        description: "Reddit post id."
-        tests:
-          - not_null
-      - name: subreddit
-        description: "Lower-cased subreddit name."
-        tests:
-          - not_null
-      - name: intent
-        description: "Normalised purchase-intent classification."
+              - unique
+              - not_null
+          - name: post_id
+            description: "Reddit post id."
+            tests:
+              - not_null
+          - name: subreddit
+            description: "Lower-cased subreddit name."
+            tests:
+              - not_null
+          - name: intent
+            description: "Normalised purchase-intent classification."
         tests:
           - not_null
           - accepted_values:
-              values: ['high', 'medium', 'low', 'unknown']
+              values: ['large', 'big', 'stink', 'unknown']
       - name: is_qualified
         description: "True when intent = high."
         tests:
