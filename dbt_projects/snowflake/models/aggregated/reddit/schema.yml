@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: reddit_leads_aggregated
+    description: >
+      Daily Reddit lead funnel per subreddit. One row per (subreddit, lead_date).
+    config:
+      tags: ['reddit_leads']
+    columns:
+      - name: lead_day_key
+        description: "Surrogate key — md5(subreddit | lead_date). Grain test."
+        tests:
+          - unique
+          - not_null
+      - name: subreddit
+        description: "Subreddit name."
+        tests:
+          - not_null
+      - name: lead_date
+        description: "Date the leads were posted (UTC)."
+        tests:
+          - not_null
+      - name: total_leads
+        description: "Total leads for the subreddit/day."
+        tests:
+          - not_null
+      - name: qualified_leads
+        description: "Leads flagged as high intent."
+        tests:
+          - not_null
+      - name: qualified_pct
+        description: "Qualified leads as a percentage of total leads."
