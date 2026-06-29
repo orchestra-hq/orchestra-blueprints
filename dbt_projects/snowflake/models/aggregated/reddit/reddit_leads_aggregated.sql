@@ -50,6 +50,5 @@ select
     round(qualified_leads * 100.0 / nullif(total_leads, 0), 1)    as qualified_pct,
     avg_post_score,
     total_comments,
-    distinct_contacts,m
-  postid
+    distinct_contacts
 from aggregated
