@@ -27,7 +27,7 @@ deduped as (
         *,
         row_number() over (
             partition by lead_id
-            order by ingested_at desc
+            order by ingested_at_time desc
         ) as _rn
     from source
 
