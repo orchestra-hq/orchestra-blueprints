@@ -16,6 +16,7 @@ Orchestra PYTHON connection (the same ``DESTINATION__SNOWFLAKE__*`` env vars tha
 Env vars (all optional, sensible defaults):
     REDDIT_SUBREDDITS   comma-separated subreddits to "search"   (default: dataengineering,analytics,businessintelligence)
     REDDIT_POST_LIMIT   number of posts to mock per subreddit     (default: 25)
+    SNOWFLAKE_DATABASE  target Snowflake database / dlt catalog     (default: SNOWFLAKE_WORKING)
     SNOWFLAKE_SCHEMA    target Snowflake schema / dlt dataset      (default: PUBLIC)
     REDDIT_TABLE        target table name                          (default: reddit_leads_raw)
     REFRESH_MODE        dlt refresh mode (drop_data/drop_sources)  (default: drop_data)
@@ -42,9 +43,15 @@ SUBREDDITS = [
     if s.strip()
 ]
 POST_LIMIT = int(os.getenv("REDDIT_POST_LIMIT", "25"))
+TARGET_DATABASE = os.getenv("SNOWFLAKE_DATABASE", "SNOWFLAKE_WORKING")
 TARGET_SCHEMA = os.getenv("SNOWFLAKE_SCHEMA", "PUBLIC")
 TARGET_TABLE = os.getenv("REDDIT_TABLE", "reddit_leads_raw")
 REFRESH_MODE = os.getenv("REFRESH_MODE", "drop_data") or None
+
+# Land in SNOWFLAKE_WORKING.PUBLIC (the database the Snowflake dbt `reddit`
+# source reads from), regardless of the default database on the Orchestra
+# Snowflake connection (which points at BIGQUERY_SAMPLE).
+os.environ["DESTINATION__SNOWFLAKE__CREDENTIALS__DATABASE"] = TARGET_DATABASE
 
 # Deterministic output for reproducible demo runs.
 random.seed(42)
@@ -163,7 +170,8 @@ def reddit_leads() -> Iterable[Dict[str, Any]]:
 def main() -> None:
     print(
         f"Starting Reddit -> Snowflake mock ingestion "
-        f"(schema={TARGET_SCHEMA}, table={TARGET_TABLE}, subreddits={SUBREDDITS})"
+        f"(database={TARGET_DATABASE}, schema={TARGET_SCHEMA}, "
+        f"table={TARGET_TABLE}, subreddits={SUBREDDITS})"
     )
     pipeline = dlt.pipeline(
         pipeline_name="reddit_leads_snowflake",
