@@ -47,7 +47,7 @@ pipeline:
         integration: HTTP
         integration_job: HTTP_REQUEST
         parameters:
-          path: /get
+          path: /200
           method: GET
         depends_on: []
         name: Trigger on Input
@@ -71,7 +71,7 @@ pipeline:
         integration: HTTP
         integration_job: HTTP_REQUEST
         parameters:
-          path: /get
+          path: /200
           method: GET
         depends_on: []
         name: Trigger on Env
@@ -110,7 +110,7 @@ pipeline:
         integration: HTTP
         integration_job: HTTP_REQUEST
         parameters:
-          path: /get
+          path: /200
           method: GET
         depends_on: []
         name: Trigger on Outputs and Globals
