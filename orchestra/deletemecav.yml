@@ -1,5 +1,5 @@
 version: v1
-name: "ELT Starter \u2014 Fivetran to dbt to Power BI #fivetran #dbt #powerbi"
+name: "ELT Starter \u2014 Fivetran to dbt to Power BI"
 pipeline:
   ingest:
     tasks:
