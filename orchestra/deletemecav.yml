@@ -26,6 +26,7 @@ pipeline:
           branch: ${{ inputs.dbt_branch }}
           project_dir: dbt_projects/snowflake
           shallow_clone_dirs: dbt_projects/snowflake
+          use_state_orchestration: true
         depends_on: []
         name: dbt build
         connection: dbt_snowflake_blueprints_prod_07025
