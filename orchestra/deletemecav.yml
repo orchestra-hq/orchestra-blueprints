@@ -1,0 +1,80 @@
+version: v1
+name: "ELT Starter \u2014 Fivetran to dbt to Power BI #fivetran #dbt #powerbi"
+pipeline:
+  ingest:
+    tasks:
+      fivetran_sync:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: REPLACE_fivetran_connector_id
+          resync: false
+        depends_on: []
+        name: Fivetran sync
+        connection: h_94547
+    depends_on: []
+    name: Ingest
+  transform:
+    tasks:
+      dbt_build:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt ${{ inputs.dbt_command }}
+          package_manager: PIP
+          python_version: '3.12'
+          branch: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
+        depends_on: []
+        name: dbt build
+        connection: dbt_snowflake_blueprints_prod_07025
+    depends_on:
+    - ingest
+    name: Transform
+  report:
+    tasks:
+      powerbi_refresh:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: REPLACE_powerbi_dataset_id
+          workspace_id: REPLACE_powerbi_workspace_id
+          refresh_type: Full
+          apply_refresh_policy: false
+        depends_on: []
+        name: Power BI dataset refresh
+        connection: power_bi__prod__63353
+        treat_failure_as_warning: true
+    depends_on:
+    - transform
+    name: Report
+schedule:
+- name: Daily at 7am
+  cron: 0 7 ? * * *
+  timezone: Europe/London
+  run_inputs:
+    trigger_name: schedule
+webhook:
+  enabled: false
+inputs:
+  dbt_command:
+    type: string
+    default: build --select tag:daily
+  dbt_branch:
+    type: string
+    default: main
+  trigger_name:
+    type: string
+    default: manual
+meta:
+  notes: 'Canonical ELT starter: Fivetran sync -> dbt build -> Power BI refresh. Parameterised
+    dbt command/branch, daily schedule and Slack failure alerts.'
+alerts:
+- name: Failures to Slack
+  statuses:
+  - FAILED
+  destinations:
+  - integration: SLACK
+    destination: alerts-data
+    connection_id: default_00000
