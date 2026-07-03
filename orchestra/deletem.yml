@@ -129,11 +129,6 @@ sensors:
       - integration: SLACK
         destination: alerts-data
         connection_id: default_00000
-trigger_events:
-- type: pipeline
-  pipeline_id: '*'
-  run_inputs:
-    example: event_trigger
 webhook:
   enabled: true
   run_inputs:
