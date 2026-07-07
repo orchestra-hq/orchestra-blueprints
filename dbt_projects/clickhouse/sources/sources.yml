@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: raw
-    database: default
+    schema: default
     tables:
       - name: integration_testing_data
         columns:
