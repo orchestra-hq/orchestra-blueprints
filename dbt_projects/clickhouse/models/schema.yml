@@ -1,5 +1,11 @@
 version: 2
 
+sources:
+  - name: raw
+    schema: default
+    tables:
+      - name: integration_testing_data
+
 models:
   - name: integration_testing_data
     columns:
