@@ -1,0 +1,94 @@
+version: v1
+name: Databricks EL then T
+pipeline:
+  extract-load:
+    tasks:
+      autoloader:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_RUN_WORKFLOW
+        parameters:
+          job_id: "388351090838358"
+          job_parameters: "{}"
+          set_outputs: false
+        depends_on: []
+        name: AutoLoader (EL)
+        tags: [EL]
+        connection: databricks__prod__39884
+      complete-data-ingestion:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_RUN_WORKFLOW
+        parameters:
+          job_id: "151525551440642"
+          job_parameters: "{}"
+          set_outputs: false
+        depends_on: []
+        name: Complete Data Ingestion (EL)
+        tags: [EL]
+        connection: databricks__prod__39884
+      run-some-python:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_RUN_WORKFLOW
+        parameters:
+          job_id: "884488811150119"
+          job_parameters: "{}"
+          set_outputs: false
+        depends_on: []
+        name: Run some python (EL)
+        tags: [EL]
+        connection: databricks__prod__39884
+    depends_on: []
+    name: Extract & Load
+  transform:
+    tasks:
+      dbt-transform:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_RUN_WORKFLOW
+        parameters:
+          job_id: "328046474824087"
+          job_parameters: "{}"
+          set_outputs: false
+        depends_on: []
+        name: dbt transform (T)
+        tags: [T]
+        connection: databricks__prod__39884
+      feature-engineering:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_RUN_WORKFLOW
+        parameters:
+          job_id: "282315419537065"
+          job_parameters: "{}"
+          set_outputs: false
+        depends_on: []
+        name: Feature Engineering (T)
+        tags: [T]
+        connection: databricks__prod__39884
+      sql-feature-engineering:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_RUN_WORKFLOW
+        parameters:
+          job_id: "506576821476843"
+          job_parameters: "{}"
+          set_outputs: false
+        depends_on: []
+        name: SQL-based feature engineering (T)
+        tags: [T]
+        connection: databricks__prod__39884
+      commence-analytics:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_RUN_WORKFLOW
+        parameters:
+          job_id: "901678036732468"
+          job_parameters: "{}"
+          set_outputs: false
+        depends_on: []
+        name: Commence Analytics (T)
+        tags: [T]
+        connection: databricks__prod__39884
+    depends_on: [extract-load]
+    name: Transform
+schedule: []
+trigger_events: []
+webhook:
+  enabled: false
+configuration:
+  retries: 0
