@@ -1,2 +1,41 @@
 
 version: 2
+
+sources:
+  - name: main_raw
+    description: "Raw landed source data in the `main.raw` schema on Databricks Unity Catalog."
+    database: main
+    schema: raw
+    tables:
+      - name: src_customers
+        description: "Raw customer records."
+        columns:
+          - name: customer_id
+            description: "Natural key for a customer."
+            tests:
+              - unique
+              - not_null
+          - name: customer_email
+            description: "Customer email address."
+      - name: src_orders
+        description: "Raw order records, one row per order."
+        columns:
+          - name: order_id
+            description: "Natural key for an order."
+            tests:
+              - unique
+              - not_null
+          - name: customer_id
+            description: "FK to src_customers.customer_id."
+            tests:
+              - not_null
+      - name: src_tickets
+        description: "Raw support/validation tickets, one row per ticket."
+        columns:
+          - name: ticket_uuid
+            description: "Natural key for a ticket."
+            tests:
+              - unique
+              - not_null
+          - name: order_id
+            description: "FK to src_orders.order_id."

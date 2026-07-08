@@ -1,0 +1,61 @@
+
+version: 2
+
+models:
+  - name: stg_src_customers
+    description: "Cleaned, typed one-row-per-customer staging model built on main.raw.src_customers."
+    config:
+      tags: ['staging']
+    columns:
+      - name: customer_id
+        description: "Natural key for a customer."
+        tests:
+          - unique
+          - not_null
+      - name: customer_email
+        description: "Lower-cased, trimmed email address."
+        tests:
+          - not_null
+
+  - name: stg_src_orders
+    description: "Cleaned, typed one-row-per-order staging model built on main.raw.src_orders."
+    config:
+      tags: ['staging']
+    columns:
+      - name: order_id
+        description: "Natural key for an order."
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "FK to stg_src_customers.customer_id."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_src_customers')
+              field: customer_id
+      - name: total_amount
+        description: "Order total amount."
+        tests:
+          - not_null
+
+  - name: stg_src_tickets
+    description: "Cleaned, typed one-row-per-ticket staging model built on main.raw.src_tickets."
+    config:
+      tags: ['staging']
+    columns:
+      - name: ticket_id
+        description: "Natural key for a ticket."
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        description: "FK to stg_src_orders.order_id."
+        tests:
+          - not_null
+      - name: is_valid
+        description: "Whether the ticket is valid (nulls coalesced to false)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]

@@ -1,0 +1,64 @@
+
+version: 2
+
+models:
+  - name: dim_customers
+    description: "Customer dimension (one row per customer) with lifetime order metrics."
+    config:
+      tags: ['marts', 'dim']
+    columns:
+      - name: customer_id
+        description: "Surrogate/natural key for the customer dimension."
+        tests:
+          - unique
+          - not_null
+      - name: customer_email
+        description: "Cleaned customer email."
+        tests:
+          - not_null
+      - name: lifetime_order_count
+        description: "Total number of orders placed by the customer."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: has_ordered
+        description: "True when the customer has at least one order."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+
+  - name: fct_orders
+    description: "Order fact table (one row per order) with ticket-validity measures."
+    config:
+      tags: ['marts', 'fct']
+    columns:
+      - name: order_id
+        description: "Natural key for the order."
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "FK to dim_customers.customer_id."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+      - name: total_amount
+        description: "Total monetary amount of the order."
+        tests:
+          - not_null
+      - name: valid_ticket_count
+        description: "Number of valid tickets attached to the order."
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: all_tickets_valid
+        description: "True when every ticket on the order is valid (false when no tickets)."
+        tests:
+          - not_null

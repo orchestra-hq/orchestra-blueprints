@@ -27,6 +27,12 @@ models:
     aggregated:
       +materialized: table
       +dataset: aggregated
+    staging:
+      +materialized: view
+      +dataset: staging
+    marts:
+      +materialized: table
+      +dataset: marts
 
 seeds:
   orchestra_dbt_databricks:
