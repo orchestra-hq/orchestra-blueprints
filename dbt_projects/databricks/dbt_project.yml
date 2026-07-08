@@ -28,7 +28,10 @@ models:
       +materialized: table
       +dataset: aggregated
     staging:
-      +materialized: view
+      # Materialized as tables (not views): sources live in Unity Catalog (main.raw)
+      # while the target schema is on the Hive Metastore, and a persistent view
+      # cannot span both (UC_COMMAND_NOT_SUPPORTED). A CTAS table can.
+      +materialized: table
       +dataset: staging
     marts:
       +materialized: table
