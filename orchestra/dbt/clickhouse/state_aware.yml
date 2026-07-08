@@ -8,7 +8,7 @@ pipeline:
         integration_job: DBT_CORE_EXECUTE
         parameters:
           commands: dbt parse
-          package_manager: PIP
+          package_manager: UV
           python_version: '3.12'
           use_state_orchestration: true
           project_dir: dbt_projects/clickhouse
