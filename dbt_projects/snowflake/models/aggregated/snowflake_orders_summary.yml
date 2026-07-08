@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: snowflake_orders_summary
+    description: >
+      One row per billing customer summarising catalog-sales orders
+      (order count, units, wholesale spend, first/last order date).
+      Built from the Snowflake TPC-DS sample data.
+    columns:
+      - name: bill_customer_sk_id
+        description: "Billing customer surrogate key (grain of the table)."
+        tests:
+          - not_null
+          - unique
+      - name: _pk
+        description: "SHA-256 surrogate primary key derived from the customer key."
+        tests:
+          - not_null
+          - unique
+      - name: order_count
+        description: "Distinct catalog orders attributed to the customer."
+        tests:
+          - not_null
+      - name: total_wholesale_cost
+        description: "Sum of wholesale cost across the customer's order lines."
