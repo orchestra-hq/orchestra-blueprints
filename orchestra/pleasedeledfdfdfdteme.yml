@@ -1,0 +1,63 @@
+version: v1
+name: Dynamic ELT Pipeline
+pipeline:
+  run-dlt-matrix:
+    tasks:
+      run-dlt-script:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          source: GIT
+          command: python -m ${{ MATRIX.dlt_jobs['SCRIPT'] }}
+          branch: ${{ inputs.python_branch }}
+          project_dir: python/dlt
+          shallow_clone_dirs: python/dlt
+          set_outputs: false
+          environment_variables: '{ "SHEET_NAME": "${{ MATRIX.dlt_jobs[''SHEET_NAME'']
+            }}", "TABLE_NAME": "${{ MATRIX.dlt_jobs[''TABLE_NAME''] }}", "RANGE_NAME":
+            "${{ MATRIX.dlt_jobs[''RANGE_NAME''] }}", "REFRESH_MODE": "${{ inputs.refresh_mode
+            }}" }'
+        depends_on: []
+        name: Run dlt ingestion
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: Run dlt pipelines (dynamic)
+    matrix:
+      inputs:
+        dlt_jobs:
+        - SCRIPT: run_dlt_pipelines
+          SHEET_NAME: 1H0UnZ1vJ6WSsZgiVkg96zq52p7qaXkhvodlO1Mzoj6s
+          TABLE_NAME: dbt_leads
+          RANGE_NAME: dlt_range
+        - SCRIPT: run_dlt_pipelines
+          SHEET_NAME: 1TMNhQFZbmaBsa1vIehQzh3vdyfc05damwJ_PIKDF14A
+          TABLE_NAME: social_leads
+          RANGE_NAME: dlt_range
+        - SCRIPT: run_dlt_pipelines_snowflake
+          SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ
+          TABLE_NAME: unstructured_feedback
+          RANGE_NAME: dlt_range
+schedule:
+- name: Daily at 8am
+  cron: 0 8 ? * * *
+  timezone: Europe/London
+webhook:
+  enabled: false
+configuration:
+  concurrency:
+    max_active: 10
+inputs:
+  python_branch:
+    type: string
+    default: main
+  refresh_mode:
+    type: string
+    default: drop_data
+meta:
+  notes: Dynamic ELT pipeline that fans out the orchestra-blueprints dlt runner scripts
+    (python/dlt) across a matrix. Each matrix entry runs a Python script concurrently
+    with different env-var inputs (SHEET_NAME, TABLE_NAME, RANGE_NAME) consumed by
+    run_dlt_pipelines.py / run_dlt_pipelines_snowflake.py.
