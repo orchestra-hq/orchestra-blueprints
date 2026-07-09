@@ -1,0 +1,54 @@
+version: v1
+name: Anomaly Detection
+pipeline:
+  stage-run:
+    name: Run
+    depends_on: []
+    tasks:
+      task-load:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        name: Simulated load
+        depends_on: []
+        parameters:
+          source: INLINE
+          package_manager: PIP
+          python_version: '3.12'
+          environment_variables: '{"DELAY_MINUTES": "${{ inputs.delay_minutes }}"}'
+          code: |
+            import os, time
+            mins = float(os.environ.get('DELAY_MINUTES', '0'))
+            print(f'Simulating load: sleeping {mins} minutes')
+            time.sleep(mins * 60)
+            print('Done')
+        anomalies:
+          - type: task_duration_above_baseline
+            percentage_above_baseline: 30
+            destinations:
+              - integration: SLACK
+                destination: data-alerts
+                connection_id: default_00000
+anomalies:
+  - type: pipeline_duration_above_baseline
+    percentage_above_baseline: 30
+    destinations:
+      - integration: SLACK
+        destination: data-alerts
+        connection_id: default_00000
+inputs:
+  delay_minutes:
+    type: string
+    default: '0'
+schedule:
+  - name: Daily at 8am
+    cron: 0 8 ? * * *
+    timezone: Europe/London
+meta:
+  notes: >-
+    Minimal demo of Orchestra duration-baseline anomaly detection. One Python
+    task sleeps for delay_minutes (default 0). Run it ~10 times fast to build a
+    baseline, then run once with a large delay_minutes to trip
+    task_duration_above_baseline and pipeline_duration_above_baseline, both
+    notifying Slack. Anomaly baselines only count runs on the default branch.
+webhook:
+  enabled: false
