@@ -27,8 +27,13 @@ logger = logging.getLogger(__name__)
 
 
 def get_snowflake_connection():
-    required = ["SNOWFLAKE_ACCOUNT", "SNOWFLAKE_USER", "SNOWFLAKE_PASSWORD",
-                "SNOWFLAKE_DATABASE", "SNOWFLAKE_WAREHOUSE"]
+    required = [
+        "SNOWFLAKE_ACCOUNT",
+        "SNOWFLAKE_USER",
+        "SNOWFLAKE_PASSWORD",
+        "SNOWFLAKE_DATABASE",
+        "SNOWFLAKE_WAREHOUSE",
+    ]
     missing = [v for v in required if not os.environ.get(v)]
     if missing:
         logger.error("Missing required environment variables: %s", missing)
@@ -62,9 +67,15 @@ def ensure_table(cur):
 
 
 def load_sample_data(cur):
-    sample = pd.DataFrame([
-        {"source": "orchestra_pipeline", "event_ts": pd.Timestamp.utcnow().isoformat(), "payload": '{"status": "ok"}'},
-    ])
+    sample = pd.DataFrame(
+        [
+            {
+                "source": "orchestra_pipeline",
+                "event_ts": pd.Timestamp.utcnow().isoformat(),
+                "payload": '{"status": "ok"}',
+            },
+        ]
+    )
     rows = list(sample.itertuples(index=False, name=None))
     cur.executemany(
         "INSERT INTO orchestra_ingest_demo (source, event_ts, payload) SELECT %s, %s, PARSE_JSON(%s)",
