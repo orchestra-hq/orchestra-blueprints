@@ -1,5 +1,5 @@
 version: v1
-name: dbt core__
+name: dbt core__ [2]
 pipeline:
   dbt_core_snowflake_group:
     tasks:
@@ -17,8 +17,23 @@ pipeline:
         depends_on: []
         name: Run dbt Core on Snowflake
         connection: dbt_snowflake_blueprints_prod_07025
-    depends_on: []
+    depends_on:
+    - 78b4a06a-48e9-49ec-bbcd-5828ff3d8072
     name: dbt Core (Snowflake)
+  78b4a06a-48e9-49ec-bbcd-5828ff3d8072:
+    tasks:
+      45e64b62-16c6-4240-a060-ca4a2c85ef22:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          source: GIT
+          command: python -m main.py
+        depends_on: []
+        name: Run python
+    depends_on: []
+    name: group
 schedule:
 - name: Daily at 9am
   cron: 0 9 ? * * *
