@@ -1,5 +1,5 @@
 version: v1
-name: dbt core
+name: dbt core__
 pipeline:
   dbt_core_snowflake_group:
     tasks:
