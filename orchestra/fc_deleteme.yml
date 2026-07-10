@@ -38,6 +38,9 @@ schedule:
 - name: Daily at 9am
   cron: 0 9 ? * * *
   timezone: Europe/London
+trigger_events:
+- type: pipeline
+  pipeline_id: fbaa2bdd-e717-4e42-b7f0-e2dd8aa234d9
 webhook:
   enabled: false
 inputs:
