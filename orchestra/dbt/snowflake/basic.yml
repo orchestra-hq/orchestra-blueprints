@@ -25,9 +25,10 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: dbt build
+          commands: dbt ${{ inputs.dbt_command }}
           package_manager: PIP
           python_version: '3.12'
+          branch: ${{ inputs.dbt_branch }}
           project_dir: dbt_projects/snowflake
           shallow_clone_dirs: dbt_projects/snowflake
         depends_on: []
@@ -38,6 +39,13 @@ pipeline:
     name: group
 webhook:
   enabled: false
+inputs:
+  dbt_command:
+    type: string
+    default: build
+  dbt_branch:
+    type: string
+    default: main
 alerts:
 - name: Teams
   statuses:
@@ -45,3 +53,10 @@ alerts:
   destinations:
   - integration: MICROSOFT_TEAMS
     connection_id: migrated_teams_66347
+meta:
+  notes: >-
+    Runs the dbt_projects/snowflake project. Parameterised with inputs so the
+    dbt command and the branch dbt clones can be set per run. Defaults are
+    intentionally not branch/PR-relative: dbt_command=build, dbt_branch=main.
+    Override dbt_branch at run time (e.g. a feature branch) to test changes
+    without changing the pipeline defaults.
