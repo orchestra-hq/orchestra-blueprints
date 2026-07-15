@@ -19,6 +19,7 @@ pipeline:
         tables:
         - table_1
         - table_2
+        - table_3
   c01ef13f-8719-401e-810e-c8c39c969445:
     tasks:
       905c51be-27f9-4715-8569-6e9c54919f7e:
