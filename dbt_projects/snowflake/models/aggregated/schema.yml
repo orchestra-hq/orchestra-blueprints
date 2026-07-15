@@ -68,4 +68,33 @@ models:
           - not_null
           - unique
 
-
+  # ---------------------------------------------------------------------------
+  # Oil star schema - aggregated layer (marts built on the star)
+  # ---------------------------------------------------------------------------
+  - name: oil_production_by_site
+    description: >-
+      Production rolled up per site (fct_oil_measurement joined to dim_oil_site).
+    columns:
+      - name: site_key
+        description: "Surrogate key from dim_oil_site."
+        tests:
+          - not_null
+          - unique
+      - name: site_name
+        description: "Conformed site name."
+        tests:
+          - not_null
+      - name: total_measurement
+        description: "Sum of measurements for the site."
+  - name: oil_production_daily
+    description: >-
+      Production rolled up per calendar date (fct_oil_measurement joined to
+      dim_oil_date).
+    columns:
+      - name: date_key
+        description: "Integer YYYYMMDD key from dim_oil_date."
+        tests:
+          - not_null
+          - unique
+      - name: total_measurement
+        description: "Sum of measurements for the day."

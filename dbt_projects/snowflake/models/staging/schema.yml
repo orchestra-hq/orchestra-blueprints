@@ -63,3 +63,64 @@ models:
           - not_null
           - unique
 
+  # ---------------------------------------------------------------------------
+  # Oil star schema - staging layer (conformed dimensions + fact)
+  # ---------------------------------------------------------------------------
+  - name: dim_oil_site
+    description: >-
+      Site dimension for the oil star schema. One row per conformed oil site,
+      with the raw '•'/whitespace prefix stripped so bullet-prefixed duplicates
+      collapse to a single site. Surrogate key `site_key` is referenced by
+      fct_oil_measurement.
+    columns:
+      - name: site_key
+        description: "Surrogate key (sha2 of the cleaned site name)."
+        tests:
+          - not_null
+          - unique
+      - name: site_name
+        description: "Conformed (cleaned) site name."
+        tests:
+          - not_null
+      - name: owner
+        description: "Operator/owner responsible for the site."
+  - name: dim_oil_date
+    description: >-
+      Date dimension for the oil star schema. One row per calendar date on which
+      a measurement was recorded, keyed by an integer YYYYMMDD `date_key`.
+    columns:
+      - name: date_key
+        description: "Integer YYYYMMDD surrogate key."
+        tests:
+          - not_null
+          - unique
+      - name: calendar_date
+        description: "The calendar date."
+        tests:
+          - not_null
+  - name: fct_oil_measurement
+    description: >-
+      Fact table for the oil star schema. Grain: one measurement reading per
+      site per timestamp. Foreign keys reference dim_oil_site and dim_oil_date.
+    columns:
+      - name: measurement_pk
+        description: "Primary key at the reading grain (carried from oil_data_clean._pk)."
+        tests:
+          - not_null
+          - unique
+      - name: site_key
+        description: "Foreign key to dim_oil_site."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_oil_site')
+              field: site_key
+      - name: date_key
+        description: "Foreign key to dim_oil_date."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_oil_date')
+              field: date_key
+      - name: measurement
+        description: "The recorded oil production measurement."
