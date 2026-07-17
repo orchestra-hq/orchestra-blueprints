@@ -5,6 +5,10 @@ models:
     config:
       tags:
         - massive_dag
+      meta:
+        dags:
+          - marketing_reporting_dag
+          - crm_sync_dag
     description: "A starter dbt model"
     columns:
       - name: vid
@@ -21,6 +25,9 @@ models:
     config:
       tags:
         - massive_dag
+      meta:
+        dags:
+          - seed_load_dag
     description: "A starter dbt model"
     columns:
       - name: a
@@ -45,6 +52,11 @@ models:
     config:
       tags:
         - massive_dag
+      meta:
+        dags:
+          - oil_production_dag
+          - oil_area_dag
+          - energy_reporting_dag
     description: "Example store sales"
     columns:
       - name: _pk

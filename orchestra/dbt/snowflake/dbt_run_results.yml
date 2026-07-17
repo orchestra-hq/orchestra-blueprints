@@ -1,0 +1,152 @@
+version: v1
+name: 'dbt Snowflake build with Python run results #dbt #snowflake #python'
+pipeline:
+  dbt-build-group:
+    tasks:
+      dbt-build-task:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
+        depends_on: []
+        name: dbt build
+        connection: ${{ ENV.DBT_CORE_SNOWFLAKE }}
+    depends_on: []
+    name: dbt build
+  fetch-run-results-group:
+    tasks:
+      fetch-run-results-task:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install requests orchestra-sdk
+          environment_variables: '{
+
+            "DBT_TASK_RUN_ID": "${{ ORCHESTRA.PIPELINE_RUN_TASKS[''dbt-build-task''].TASK_RUN_ID }}",
+
+            "DBT_PIPELINE_RUN_ID": "${{ ORCHESTRA.PIPELINE_RUN_ID }}"
+
+            }'
+          set_outputs: true
+          source: INLINE
+          code: |
+            import os
+            import sys
+
+            import requests
+            from orchestra_sdk.orchestra import OrchestraSDK
+
+            BASE_URL = "https://app.getorchestra.io/api/engine/public"
+            ARTIFACTS_URL = BASE_URL + "/pipeline_runs/{}/task_runs/{}/artifacts"
+            ARTIFACT_DOWNLOAD_URL = ARTIFACTS_URL + "/download?filename={}"
+
+            api_key = os.environ["ORCHESTRA_API_KEY"]
+            orchestra = OrchestraSDK(api_key=api_key)
+
+
+            def fetch_task_run(task_run_id: str) -> dict:
+                response = requests.get(
+                    f"{BASE_URL}/task_runs",
+                    headers={"Authorization": f"Bearer {api_key}"},
+                    params={"task_run_ids": task_run_id},
+                    timeout=10,
+                )
+                response.raise_for_status()
+                return response.json()
+
+
+            def find_artifact_filename(pipeline_run_id: str, task_run_id: str, prefix: str) -> str:
+                response = requests.get(
+                    ARTIFACTS_URL.format(pipeline_run_id, task_run_id),
+                    headers={"Authorization": f"Bearer {api_key}"},
+                    timeout=10,
+                )
+                response.raise_for_status()
+                filenames = response.json().get("filenames", [])
+                for filename in filenames:
+                    if filename.startswith(prefix):
+                        return filename
+
+                raise RuntimeError(f"No artifact starting with '{prefix}' found in {filenames}")
+
+
+            def download_artifact(pipeline_run_id: str, task_run_id: str, filename: str) -> dict:
+                response = requests.get(
+                    ARTIFACT_DOWNLOAD_URL.format(pipeline_run_id, task_run_id, filename),
+                    headers={"Authorization": f"Bearer {api_key}"},
+                    timeout=30,
+                )
+                response.raise_for_status()
+                return response.json()
+
+
+            def successful_models_with_dags(manifest: dict, run_results: dict) -> list[list[str]]:
+                nodes = manifest.get("nodes", {})
+                pairs = []
+
+                for result in run_results.get("results", []):
+                    if result.get("status") != "success":
+                        continue
+
+                    node = nodes.get(result.get("unique_id", ""))
+                    if node is None or node.get("resource_type") != "model":
+                        continue
+
+                    meta = node.get("meta") or node.get("config", {}).get("meta", {})
+                    for dag in meta.get("dags", []):
+                        pairs.append([node.get("name"), dag])
+
+                return pairs
+
+
+            def main() -> None:
+                pipeline_run_id = os.environ["DBT_PIPELINE_RUN_ID"]
+                dbt_task_run_id = os.environ["DBT_TASK_RUN_ID"]
+
+                task_run = fetch_task_run(dbt_task_run_id)
+                result = task_run.get("results", [{}])[0]
+                status = result.get("status", "UNKNOWN")
+
+                print(f"dbt task run id: {dbt_task_run_id}")
+                print(f"dbt task status: {status}")
+
+                if status not in ("COMPLETED", "SUCCEEDED"):
+                    sys.exit(1)
+
+                manifest = download_artifact(pipeline_run_id, dbt_task_run_id, "manifest.json")
+                run_results_filename = find_artifact_filename(
+                    pipeline_run_id, dbt_task_run_id, "run_results",
+                )
+                run_results = download_artifact(pipeline_run_id, dbt_task_run_id, run_results_filename)
+
+                model_dag_pairs = successful_models_with_dags(manifest, run_results)
+
+                print("Successful models tagged with a dag (model, dag):")
+                for model_name, dag in model_dag_pairs:
+                    print(f"  ({model_name}, {dag})")
+
+                orchestra.set_output(name="model_dag_pairs", value=model_dag_pairs)
+
+
+            if __name__ == "__main__":
+                main()
+        depends_on: []
+        name: Get dbt run results
+    depends_on:
+    - dbt-build-group
+    name: fetch dbt run results
+webhook:
+  enabled: false
+alerts:
+- name: Failures
+  statuses:
+  - FAILED
+  destinations:
+  - integration: SLACK
+    destination: alert-testing
