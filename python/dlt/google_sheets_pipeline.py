@@ -24,7 +24,7 @@ def load_pipeline_with_named_ranges(
         get_named_ranges=True,
     )
     print(table_name)
-    info = pipeline.run(data, table_name=table_name)
+    info = pipeline.run(data, table_name=table_name, write_disposition="replace")
     print(info)
 
 
