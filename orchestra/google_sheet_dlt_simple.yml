@@ -10,18 +10,18 @@ pipeline:
           package_manager: PIP
           python_version: '3.12'
           build_command: pip install -r requirements.txt
-          environment_variables: '{
-            "SHEET_NAME": "1r6OykF-UAGR-IOn1WjVORCf7PiqA5f5USDT6kMoTGmM",
-            "TABLE_NAME": "new_sheet_data"
-            }'
+          environment_variables: '{ "SHEET_NAME": "1r6OykF-UAGR-IOn1WjVORCf7PiqA5f5USDT6kMoTGmM",
+            "TABLE_NAME": "new_sheet_data" }'
           set_outputs: false
           source: GIT
-          branch: add-google-sheet-dlt-pipeline
           command: python -m google_sheet_ingest
+          branch: add-google-sheet-dlt-pipeline
           project_dir: python/dlt
           shallow_clone_dirs: python/dlt
         depends_on: []
         name: Run Google Sheet dlt pipeline
-        connection: python__production__blueprints__19239
+        connection: ${{ ENV.PYTHON_CREDENTIAL }}
     depends_on: []
     name: ''
+webhook:
+  enabled: false
