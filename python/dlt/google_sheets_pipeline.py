@@ -44,7 +44,9 @@ def load_pipeline_with_named_ranges(
         get_sheets=False,
         get_named_ranges=True,
     )
-    data = data.add_filter(_has_data)
+    for resource_name, resource in data.resources.items():
+        if resource_name != "spreadsheet_info":
+            resource.add_filter(_has_data)
     print(table_name)
     info = pipeline.run(data, table_name=table_name, write_disposition="replace")
     print(info)
