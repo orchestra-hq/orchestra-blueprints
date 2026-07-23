@@ -15,7 +15,7 @@ pipeline:
           set_outputs: false
           source: GIT
           command: python -m google_sheet_ingest
-          branch: compare-gsheet-dlt-native-datasets
+          branch: main
           project_dir: python/dlt
           shallow_clone_dirs: python/dlt
         depends_on: []
