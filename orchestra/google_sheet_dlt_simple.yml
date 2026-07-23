@@ -1,0 +1,26 @@
+version: v1
+name: 'Google Sheet DLT Ingest #dlt #python #bigquery'
+pipeline:
+  76111440-4c94-4712-8b66-93c2a3ff6677:
+    tasks:
+      7dc7b4eb-2953-440e-a025-301bf1998caa:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+            "SHEET_NAME": "1r6OykF-UAGR-IOn1WjVORCf7PiqA5f5USDT6kMoTGmM",
+            "TABLE_NAME": "new_sheet_data"
+            }'
+          set_outputs: false
+          source: GIT
+          command: python -m google_sheet_ingest
+          project_dir: python/dlt
+          shallow_clone_dirs: python/dlt
+        depends_on: []
+        name: Run Google Sheet dlt pipeline
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: ''
