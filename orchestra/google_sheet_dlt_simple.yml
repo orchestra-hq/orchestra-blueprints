@@ -19,7 +19,7 @@ pipeline:
           project_dir: python/dlt
           shallow_clone_dirs: python/dlt
         depends_on: []
-        name: DLT - new_sheet_data
+        name: DLT - sample_google_sheet_data.new_sheet_data
         connection: ${{ ENV.PYTHON_CREDENTIAL }}
       d0db33f3-8c21-4bab-9f9c-74fb99239fd7:
         integration: PYTHON
@@ -37,7 +37,7 @@ pipeline:
           project_dir: python/google_sheets_native
           shallow_clone_dirs: python/google_sheets_native
         depends_on: []
-        name: Not DLT - new_sheet_data_native
+        name: Not DLT - sample_google_sheet_data.new_sheet_data_native
         connection: ${{ ENV.PYTHON_CREDENTIAL }}
     depends_on: []
     name: ''
