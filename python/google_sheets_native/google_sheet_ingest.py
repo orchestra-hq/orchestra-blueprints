@@ -1,5 +1,17 @@
 import os
 
+print(
+    "DEBUG env keys:",
+    sorted(
+        k
+        for k in os.environ
+        if any(
+            s in k.upper()
+            for s in ["CRED", "GOOGLE", "GCP", "BIGQUERY", "SERVICE_ACCOUNT"]
+        )
+    ),
+)
+
 import google.auth
 from google.cloud import bigquery
 from googleapiclient.discovery import build
