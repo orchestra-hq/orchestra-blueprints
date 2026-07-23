@@ -1,25 +1,21 @@
 import os
 
-print(
-    "DEBUG env keys:",
-    sorted(
-        k
-        for k in os.environ
-        if any(
-            s in k.upper()
-            for s in ["CRED", "GOOGLE", "GCP", "BIGQUERY", "SERVICE_ACCOUNT"]
-        )
-    ),
-)
-
-import google.auth
 from google.cloud import bigquery
+from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
-SCOPES = [
-    "https://www.googleapis.com/auth/spreadsheets.readonly",
-    "https://www.googleapis.com/auth/bigquery",
-]
+SHEETS_SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
+
+
+def _service_account_credentials(env_prefix: str, scopes: list) -> service_account.Credentials:
+    info = {
+        "type": "service_account",
+        "project_id": os.environ[f"{env_prefix}__PROJECT_ID"],
+        "client_email": os.environ[f"{env_prefix}__CLIENT_EMAIL"],
+        "private_key": os.environ[f"{env_prefix}__PRIVATE_KEY"],
+        "token_uri": "https://oauth2.googleapis.com/token",
+    }
+    return service_account.Credentials.from_service_account_info(info, scopes=scopes)
 
 
 def run_google_sheets_ingest(
@@ -29,9 +25,15 @@ def run_google_sheets_ingest(
     table_name: str,
 ) -> None:
     """Reads a range from a Google Sheet and loads it straight into BigQuery, no dlt involved."""
-    credentials, project_id = google.auth.default(scopes=SCOPES)
+    sheets_credentials = _service_account_credentials(
+        "SOURCES__GOOGLE_SHEETS__CREDENTIALS", SHEETS_SCOPES
+    )
+    bigquery_credentials = _service_account_credentials(
+        "DESTINATION__BIGQUERY__CREDENTIALS", []
+    )
+    project_id = bigquery_credentials.project_id
 
-    sheets_service = build("sheets", "v4", credentials=credentials)
+    sheets_service = build("sheets", "v4", credentials=sheets_credentials)
     values = (
         sheets_service.spreadsheets()
         .values()
@@ -46,7 +48,11 @@ def run_google_sheets_ingest(
     headers, *rows = values
     records = [dict(zip(headers, row)) for row in rows]
 
-    bq_client = bigquery.Client(credentials=credentials, project=project_id)
+    bq_client = bigquery.Client(
+        credentials=bigquery_credentials,
+        project=project_id,
+        location=os.environ.get("DESTINATION__BIGQUERY__LOCATION"),
+    )
     table_id = f"{project_id}.{dataset_name}.{table_name}"
     job = bq_client.load_table_from_json(
         records,
