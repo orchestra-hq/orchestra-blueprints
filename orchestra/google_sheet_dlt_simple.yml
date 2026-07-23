@@ -15,7 +15,7 @@ pipeline:
           set_outputs: false
           source: GIT
           command: python -m google_sheet_ingest
-          branch: add-google-sheet-dlt-pipeline
+          branch: main
           project_dir: python/dlt
           shallow_clone_dirs: python/dlt
         depends_on: []
@@ -34,7 +34,7 @@ pipeline:
             }'
           set_outputs: false
           source: GIT
-          branch: add-google-sheet-dlt-pipeline
+          branch: main
           command: python -m google_sheet_ingest
           project_dir: python/google_sheets_native
           shallow_clone_dirs: python/google_sheets_native
