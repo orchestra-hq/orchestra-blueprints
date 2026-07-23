@@ -17,6 +17,7 @@ _RANGE_METADATA_KEYS = {
 
 
 def _has_data(row: dict) -> bool:
+    print("DEBUG_ROW:", repr(row))
     return any(
         value not in (None, "")
         for key, value in row.items()
