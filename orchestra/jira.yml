@@ -1,0 +1,83 @@
+version: v1
+name: Failed Pipeline to Jira ticket
+pipeline:
+  a1b2c3d4-0001-4a1a-9b1a-000000000001:
+    tasks:
+      a1b2c3d4-0002-4a1a-9b1a-000000000002:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          source: INLINE
+          package_manager: PIP
+          python_version: '3.12'
+          code: "import sys\n\nprint(\"Starting data pipeline...\")\nrows_expected\
+            \ = 100\nrows_loaded = 0\nprint(f\"Rows expected: {rows_expected}, rows\
+            \ loaded: {rows_loaded}\")\n\n# Simulate a data pipeline failure\nif rows_loaded\
+            \ < rows_expected:\n    raise RuntimeError(\n        f\"Data quality check\
+            \ failed: loaded {rows_loaded} rows, expected {rows_expected}.\"\n   \
+            \ )\n\nprint(\"Pipeline completed successfully\")\n"
+        depends_on: []
+        name: Simulate pipeline error
+    depends_on: []
+    name: Run Python task
+  b5e46fca-a57a-44dc-8c2d-3107571716f0:
+    tasks:
+      376e640d-df2a-4ec3-b6be-dbecd68155cb:
+        integration: ORCHESTRA
+        integration_job: RUN_AGENT
+        parameters:
+          agent_id: 00c92b98-1683-45fb-912d-91687dd630c7
+          prompt: '
+
+            This failed:
+
+            ${{ ORCHESTRA.PIPELINE_RUN_TASKS[''a1b2c3d4-0002-4a1a-9b1a-000000000002''].TASK_RUN_ID
+            }}
+
+
+            Using the Sigma credential, upadte this:
+
+            https://app.sigmacomputing.com/testing-case/report/My-Report-1t2Y90a28ebmOAOMSYbFb6/edit?:nodeId=YcypM-NbRm
+
+
+            and update the data-update text control with the relevant data from the
+            failed task run, especially timestamps and statuses.'
+        depends_on: []
+        name: Update Sigma
+    depends_on:
+    - a1b2c3d4-0001-4a1a-9b1a-000000000001
+    condition: ${{ task_groups['a1b2c3d4-0001-4a1a-9b1a-000000000001'].any().status
+      == 'FAILED' }}
+    name: group
+  875fa81e-61d9-43fb-8094-d694110d69b9:
+    tasks:
+      3149b7c4-3a73-42fc-a73f-d23be8716642:
+        integration: ORCHESTRA
+        integration_job: RUN_AGENT
+        parameters:
+          agent_id: 7c95e43c-65d2-497a-a7e3-fc222de4a478
+          prompt: '
+
+            This failed:
+
+            ${{ ORCHESTRA.PIPELINE_RUN_TASKS[''a1b2c3d4-0002-4a1a-9b1a-000000000002''].TASK_RUN_ID
+            }}
+
+
+            Using the create-support-ticket skill create a relevant support ticket
+            in Jira. Get the relevant person to tag in Jira based on the owner meta
+            in the pipeline yml itself. Once done, summarise everything with nice
+            links including the jira link and send a summary to #alert-testing using
+            the slack credential you have access to.'
+        depends_on: []
+        name: '[COPY] Fix Pipeline and do Jira Ticket'
+    depends_on:
+    - a1b2c3d4-0001-4a1a-9b1a-000000000001
+    condition: ${{ task_groups['a1b2c3d4-0001-4a1a-9b1a-000000000001'].any().status
+      == 'FAILED' }}
+    name: '[COPY] group'
+webhook:
+  enabled: false
+meta:
+  notes: Demo pipeline that raises an error in an inline Python task to simulate a
+    data pipeline failure. On failure, alert the data team owner Hugo (hugo@getorchestra.io).
