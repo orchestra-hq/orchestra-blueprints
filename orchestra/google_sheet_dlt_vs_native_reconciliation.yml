@@ -28,6 +28,46 @@ pipeline:
           dataset: sample_google_sheet_data
           dlt_table: new_sheet_data
           native_table: new_sheet_data_native
+  schema_parity:
+    tasks:
+      check_schema_parity:
+        integration: GCP_BIG_QUERY
+        integration_job: GCP_BQ_RUN_TEST
+        parameters:
+          # Warn-only: schema_parity intentionally checks just the shared business columns
+          # (site_name, measurement, owner, timestamp) against the native table's definition.
+          # The dlt table's own metadata columns (_dlt_load_id, _dlt_id, spreadsheet_id, title,
+          # range_name, range_parsed__*, skipped) are out of scope -- see content_parity below.
+          # error_threshold_expression is set unreachably high so a schema drift here never
+          # fails the pipeline, only raises a WARNING for someone to look at.
+          query: >
+            select 1 from
+            (select column_name, data_type from `${{ MATRIX.table_checks['dataset'] }}`.INFORMATION_SCHEMA.COLUMNS
+             where table_name = '${{ MATRIX.table_checks['native_table'] }}'
+               and column_name in ('site_name', 'measurement', 'owner', 'timestamp')) as native
+            left join
+            (select column_name, data_type from `${{ MATRIX.table_checks['dataset'] }}`.INFORMATION_SCHEMA.COLUMNS
+             where table_name = '${{ MATRIX.table_checks['dlt_table'] }}') as dlt
+            using (column_name)
+            where dlt.column_name is null or dlt.data_type != native.data_type
+          enable_drive_scope: false
+          location: US
+          error_threshold_expression: '> 999999'
+          warn_threshold_expression: '> 0'
+        depends_on: []
+        name: "Schema parity (site_name, measurement, owner, timestamp) - ${{ MATRIX.table_checks['label'] }}"
+        connection: dbt_bigquery_24777
+    depends_on:
+    - row_count_parity
+    condition: ${{ task_groups['row_count_parity'].all().status == 'COMPLETED' }}
+    name: 'Schema Parity'
+    matrix:
+      inputs:
+        table_checks:
+        - label: 'new_sheet_data (dlt) vs new_sheet_data_native (non-dlt)'
+          dataset: sample_google_sheet_data
+          dlt_table: new_sheet_data
+          native_table: new_sheet_data_native
   content_parity:
     tasks:
       check_content_parity:
