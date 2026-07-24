@@ -76,28 +76,6 @@ pipeline:
     depends_on:
     - 7b052710-5b3b-4ba9-98b0-fbd4a4cd1a08
     name: group
-  9d0a7fae-9f15-4b11-a2ed-3d4b60a764e7:
-    tasks:
-      e232759a-b140-4244-8fc4-ec4383450d1d:
-        integration: MICROSOFT_TEAMS
-        integration_job: SEND_MICROSOFT_TEAMS_MESSAGE
-        parameters:
-          content:
-            $schema: http://adaptivecards.io/schemas/adaptive-card.json
-            type: AdaptiveCard
-            version: '1.0'
-            body:
-            - type: TextBlock
-              text: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['078d4cea-af5b-47eb-8412-ead5ad7be3ff'].OUTPUTS['results']
-                }}
-              wrap: true
-              horizontalAlignment: left
-        depends_on: []
-        name: Send Teams Summary
-        connection: migrated_teams_66347
-    depends_on:
-    - 1013fa5f-9228-4648-b55d-823a98b10e6a
-    name: group
   98c91e81-3bb6-4731-b318-5247d3a74891:
     tasks:
       83828d86-2bba-4c29-b93a-7bc93d41d85e:
