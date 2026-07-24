@@ -81,3 +81,5 @@ webhook:
 meta:
   notes: Demo pipeline that raises an error in an inline Python task to simulate a
     data pipeline failure. On failure, alert the data team owner Hugo (hugo@getorchestra.io).
+  owner_dl: serviceaccount@getorchestra.io
+  teams_channel: ${{ENV.TEAMS_ALERTING_CHANNEL}}
