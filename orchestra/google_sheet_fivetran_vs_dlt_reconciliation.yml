@@ -1,0 +1,106 @@
+version: v1
+name: 'Google Sheet Fivetran vs DLT Reconciliation #snowflake #bigquery #dq'
+pipeline:
+  snowflakeAggregateGroup:
+    tasks:
+      snowflakeAggregateTask:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: >
+            SELECT
+              COUNT(*) AS row_count,
+              COUNT(DISTINCT site_name) AS distinct_site_names,
+              COUNT(DISTINCT owner) AS distinct_owners,
+              SUM(measurement) AS sum_measurement,
+              DATE_PART(epoch_second, MIN(timestamp)) AS min_ts,
+              DATE_PART(epoch_second, MAX(timestamp)) AS max_ts
+            FROM fivetran.google_sheets.oil_data;
+          set_outputs: true
+        depends_on: []
+        name: Aggregate Fivetran oil_data (Snowflake)
+        connection: snowflake__prod__80122
+    depends_on: []
+    name: ''
+  bigqueryAggregateGroup:
+    tasks:
+      bigqueryAggregateTask:
+        integration: GCP_BIG_QUERY
+        integration_job: GCP_BQ_RUN_QUERY_JOB
+        parameters:
+          query: >
+            SELECT
+              COUNT(*) AS row_count,
+              COUNT(DISTINCT site_name) AS distinct_site_names,
+              COUNT(DISTINCT owner) AS distinct_owners,
+              SUM(measurement) AS sum_measurement,
+              UNIX_SECONDS(MIN(timestamp)) AS min_ts,
+              UNIX_SECONDS(MAX(timestamp)) AS max_ts
+            FROM `sample_google_sheet_data.new_sheet_data`
+          location: US
+          set_outputs: true
+        depends_on: []
+        name: Aggregate dlt new_sheet_data (BigQuery)
+        connection: dbt_bigquery_24777
+    depends_on: []
+    name: ''
+  compareGroup:
+    tasks:
+      compareTask:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          source: INLINE
+          code: |
+            import json
+
+            snowflake_rows = json.loads("""${{ ORCHESTRA.PIPELINE_RUN_TASKS['snowflakeAggregateTask'].OUTPUTS['results'] }}""")
+            bigquery_rows = json.loads("""${{ ORCHESTRA.PIPELINE_RUN_TASKS['bigqueryAggregateTask'].OUTPUTS['results'] }}""")
+
+            snowflake_row = {k.lower(): v for k, v in snowflake_rows[0].items()}
+            bigquery_row = {k.lower(): v for k, v in bigquery_rows[0].items()}
+
+            material_columns = (
+                "row_count",
+                "distinct_site_names",
+                "distinct_owners",
+                "sum_measurement",
+                "min_ts",
+                "max_ts",
+            )
+
+            mismatches = []
+            for column in material_columns:
+                sf_value = snowflake_row.get(column)
+                bq_value = bigquery_row.get(column)
+                if isinstance(sf_value, (int, float)) and isinstance(bq_value, (int, float)):
+                    if abs(float(sf_value) - float(bq_value)) > 0.01:
+                        mismatches.append(f"{column}: snowflake={sf_value} bigquery={bq_value}")
+                elif sf_value != bq_value:
+                    mismatches.append(f"{column}: snowflake={sf_value} bigquery={bq_value}")
+
+            if mismatches:
+                raise SystemExit(
+                    "Fivetran (Snowflake) vs dlt (BigQuery) material column mismatch:\n"
+                    + "\n".join(mismatches)
+                )
+
+            print("Fivetran (Snowflake) and dlt (BigQuery) material data columns match.")
+          set_outputs: false
+        depends_on: []
+        name: Compare Fivetran vs dlt aggregates
+    depends_on:
+    - snowflakeAggregateGroup
+    - bigqueryAggregateGroup
+    name: ''
+alerts:
+- name: Reconciliation Failure
+  statuses:
+  - FAILED
+  destinations:
+  - integration: SLACK
+    destination: alert-demos
+webhook:
+  enabled: false
