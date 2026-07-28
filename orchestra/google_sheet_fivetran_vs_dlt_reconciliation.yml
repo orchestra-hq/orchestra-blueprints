@@ -56,12 +56,6 @@ pipeline:
           code: |
             import json
 
-            snowflake_rows = json.loads("""${{ ORCHESTRA.PIPELINE_RUN_TASKS['snowflakeAggregateTask'].OUTPUTS['results'] }}""")
-            bigquery_rows = json.loads("""${{ ORCHESTRA.PIPELINE_RUN_TASKS['bigqueryAggregateTask'].OUTPUTS['results'] }}""")
-
-            snowflake_row = {k.lower(): v for k, v in snowflake_rows[0].items()}
-            bigquery_row = {k.lower(): v for k, v in bigquery_rows[0].items()}
-
             material_columns = (
                 "row_count",
                 "distinct_site_names",
@@ -70,6 +64,18 @@ pipeline:
                 "min_ts",
                 "max_ts",
             )
+
+            def to_row(first_result):
+                if isinstance(first_result, dict):
+                    return {k.lower(): v for k, v in first_result.items()}
+                # Snowflake returns positional lists instead of keyed objects.
+                return dict(zip(material_columns, first_result))
+
+            snowflake_rows = json.loads("""${{ ORCHESTRA.PIPELINE_RUN_TASKS['snowflakeAggregateTask'].OUTPUTS['results'] }}""")
+            bigquery_rows = json.loads("""${{ ORCHESTRA.PIPELINE_RUN_TASKS['bigqueryAggregateTask'].OUTPUTS['results'] }}""")
+
+            snowflake_row = to_row(snowflake_rows[0])
+            bigquery_row = to_row(bigquery_rows[0])
 
             mismatches = []
             for column in material_columns:
