@@ -39,6 +39,13 @@ pipeline:
         depends_on: []
         name: Not DLT - sample_google_sheet_data.new_sheet_data_native
         connection: ${{ ENV.PYTHON_CREDENTIAL }}
+      3f8c1a2d-6e91-4b7f-8a3c-1d9e5f2b7c04:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: faithfulness_coal
+        depends_on: []
+        name: Fivetran Sync - faithfulness_coal
     depends_on: []
     name: ''
 webhook:
