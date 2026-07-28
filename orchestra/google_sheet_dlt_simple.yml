@@ -44,8 +44,10 @@ pipeline:
         integration_job: FIVETRAN_SYNC_ALL
         parameters:
           connector_id: faithfulness_coal
+          resync: false
         depends_on: []
-        name: Fivetran Sync - faithfulness_coal
+        name: Fivetran - fivetran.google_sheets.oil_data
+        connection: h_94547
     depends_on: []
     name: ''
 webhook:
