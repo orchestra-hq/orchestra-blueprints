@@ -1,5 +1,5 @@
 version: v1
-name: 'Google Sheet Fivetran Ingest #fivetran #snowflake'
+name: 'Google Sheet Fivetran + DLT Ingest #fivetran #snowflake #dlt #python #bigquery'
 pipeline:
   76111440-4c94-4712-8b66-93c2a3ff6677:
     tasks:
@@ -12,6 +12,25 @@ pipeline:
         depends_on: []
         name: Fivetran - fivetran.google_sheets.oil_data
         connection: h_94547
+      9b2e4f6a-1c8d-4e3f-b5a7-2d6c9e8f1a03:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+            "SHEET_NAME": "1r6OykF-UAGR-IOn1WjVORCf7PiqA5f5USDT6kMoTGmM",
+            "TABLE_NAME": "new_sheet_data"
+            }'
+          set_outputs: false
+          source: GIT
+          command: python google_sheet_ingest.py
+          project_dir: python/dlt
+          shallow_clone_dirs: python/dlt
+        depends_on: []
+        name: dlt - google_sheets.new_sheet_data (BigQuery)
+        connection: python__production__blueprints__19239
     depends_on: []
     name: ''
 webhook:
