@@ -13,8 +13,8 @@ pipeline:
               COUNT(DISTINCT site_name) AS distinct_site_names,
               COUNT(DISTINCT owner) AS distinct_owners,
               SUM(measurement) AS sum_measurement,
-              DATE_PART(epoch_second, MIN(timestamp)) AS min_ts,
-              DATE_PART(epoch_second, MAX(timestamp)) AS max_ts
+              DATE_PART(epoch_second, MIN(TRY_TO_TIMESTAMP(timestamp))) AS min_ts,
+              DATE_PART(epoch_second, MAX(TRY_TO_TIMESTAMP(timestamp))) AS max_ts
             FROM fivetran.google_sheets.oil_data;
           set_outputs: true
         depends_on: []
