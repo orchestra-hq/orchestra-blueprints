@@ -1,0 +1,11 @@
+[project]
+name = "orchestra_metadata_clickhouse"
+version = "0.1.0"
+description = "Orchestra Clickhouse Demo Project"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "dbt-clickhouse==1.10.1",
+  "dbt-core==1.11.11",
+]
+

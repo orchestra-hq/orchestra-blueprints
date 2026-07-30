@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: dbt_test_model_10am
+    description: "Clone of dbt_test_model, state-aware and gated to build on the first run after 10am each day"
+    config:
+      freshness:
+        build_after:
+          count: >
+            {% set now = modules.datetime.datetime.now() %}
+            {% set today_10am = now.replace(hour=10, minute=0, second=0, microsecond=0) %}
+            {% set last_10am = today_10am if now >= today_10am else today_10am - modules.datetime.timedelta(days=1) %}
+            {{ ((now - last_10am).total_seconds() // 60) | int }}
+          period: minute
+          updates_on: any
+    columns:
+      - name: id
+        data_type: numeric
+      - name: name
+        data_type: string
