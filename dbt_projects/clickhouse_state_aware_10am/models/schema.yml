@@ -8,9 +8,8 @@ models:
         build_after:
           count: >
             {% set now = modules.datetime.datetime.now() %}
-            {% set today_10am = now.replace(hour=10, minute=0, second=0, microsecond=0) %}
-            {% set last_10am = today_10am if now >= today_10am else today_10am - modules.datetime.timedelta(days=1) %}
-            {{ ((now - last_10am).total_seconds() // 60) | int }}
+            {% set cutoff_hour = 10 %}
+            {{ (now.hour * 60 + now.minute - cutoff_hour * 60) % 1440 }}
           period: minute
           updates_on: any
     columns:
