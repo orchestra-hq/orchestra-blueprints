@@ -2,15 +2,17 @@ version: 2
 
 models:
   - name: dbt_test_model_10am
-    description: "Clone of dbt_test_model, state-aware and gated to build on the first run after 12:20pm each day"
+    description: "Clone of dbt_test_model, state-aware and gated to build once on the first run after 12:51pm each day, with a grace floor to avoid re-triggering on state-read lag right after the cutoff"
     config:
       freshness:
         build_after:
           count: >
             {% set now = modules.datetime.datetime.now() %}
             {% set cutoff_hour = 12 %}
-            {% set cutoff_minute = 20 %}
-            {{ ((now.hour * 60 + now.minute) - (cutoff_hour * 60 + cutoff_minute)) % 1440 }}
+            {% set cutoff_minute = 51 %}
+            {% set grace_minutes = 5 %}
+            {% set since_cutoff = ((now.hour * 60 + now.minute) - (cutoff_hour * 60 + cutoff_minute)) % 1440 %}
+            {{ since_cutoff if since_cutoff > grace_minutes else grace_minutes }}
           period: minute
           updates_on: any
     columns:
