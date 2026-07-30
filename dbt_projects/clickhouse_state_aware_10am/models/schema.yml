@@ -9,8 +9,8 @@ models:
           count: >
             {% set now = modules.datetime.datetime.now() %}
             {% set cutoff_hour = 10 %}
-            {{ (now.hour * 60 + now.minute - cutoff_hour * 60) % 1440 }}
-          period: minute
+            {{ (now.hour - cutoff_hour) % 24 }}
+          period: hour
           updates_on: any
     columns:
       - name: id
