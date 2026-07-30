@@ -2,14 +2,15 @@ version: 2
 
 models:
   - name: dbt_test_model_10am
-    description: "Clone of dbt_test_model, state-aware and gated to build on the first run after 10am each day"
+    description: "Clone of dbt_test_model, state-aware and gated to build on the first run after 12:20pm each day"
     config:
       freshness:
         build_after:
           count: >
             {% set now = modules.datetime.datetime.now() %}
-            {% set cutoff_hour = 10 %}
-            {{ (now.hour * 60 + now.minute - cutoff_hour * 60) % 1440 }}
+            {% set cutoff_hour = 12 %}
+            {% set cutoff_minute = 20 %}
+            {{ ((now.hour * 60 + now.minute) - (cutoff_hour * 60 + cutoff_minute)) % 1440 }}
           period: minute
           updates_on: any
     columns:
