@@ -10,15 +10,14 @@ pipeline:
           package_manager: PIP
           python_version: '3.12'
           set_outputs: false
-          source: INLINE
-          code: "import sys\n\nprint(\"Starting data pipeline...\")\nrows_expected\
-            \ = 100\nrows_loaded = 0\nprint(f\"Rows expected: {rows_expected}, rows\
-            \ loaded: {rows_loaded}\")\n\n# Simulate a data pipeline failure\nif rows_loaded\
-            \ < rows_expected:\n    raise RuntimeError(\n        f\"Data quality check\
-            \ failed: loaded {rows_loaded} rows, expected {rows_expected}.\"\n   \
-            \ )\n\nprint(\"Pipeline completed successfully\")\n"
+          source: GIT
+          command: python main.py
+          branch: pipeline-error-demo
+          project_dir: python/pipeline_error_demo
+          shallow_clone_dirs: python/pipeline_error_demo
         depends_on: []
         name: Pipeline error
+        connection: python__production__blueprints__19239
     depends_on: []
     name: Run Python task
   b5e46fca-a57a-44dc-8c2d-3107571716f0:
