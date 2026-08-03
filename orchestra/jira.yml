@@ -65,12 +65,21 @@ pipeline:
 
 
             Using the create-support-ticket skill create a relevant support ticket
-            in Jira. Get the relevant person to tag in Jira based on the owner meta
-            in the pipeline yml itself. Once done, summarise everything with nice
-            links including the jira link and send a summary to #alert-testing using
-            the slack credential you have access to.'
+            in Jira.
+
+
+            Create a new branch for the failing code and link that branch as well.
+
+
+            Get the relevant person to tag in Jira based on the owner meta in the
+            pipeline yml itself. Once done, summarise everything with nice links including
+            the jira link and send a summary to #alert-testing using the slack credential
+            you have access to.
+
+
+            '
         depends_on: []
-        name: '[COPY] Fix Pipeline and do Jira Ticket'
+        name: Fix Pipeline and do Jira Ticket
     depends_on:
     - a1b2c3d4-0001-4a1a-9b1a-000000000001
     condition: ${{ task_groups['a1b2c3d4-0001-4a1a-9b1a-000000000001'].any().status
