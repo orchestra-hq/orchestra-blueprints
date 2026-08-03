@@ -84,8 +84,11 @@ pipeline:
         integration_job: SEND_SLACK_MESSAGE
         parameters:
           channel_name: '#alert-testing'
-          text: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['summarise-activity'].OUTPUTS['results']
+          text: '${{ ORCHESTRA.PIPELINE_RUN_TASKS[''summarise-activity''].OUTPUTS[''results'']
             }}
+
+
+            make it awesome!'
         depends_on: []
         name: Send to Slack
         connection: default_00000
