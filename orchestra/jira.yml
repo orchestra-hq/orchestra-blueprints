@@ -18,7 +18,7 @@ pipeline:
             \ failed: loaded {rows_loaded} rows, expected {rows_expected}.\"\n   \
             \ )\n\nprint(\"Pipeline completed successfully\")\n"
         depends_on: []
-        name: Simulate pipeline error
+        name: Pipeline error
     depends_on: []
     name: Run Python task
   b5e46fca-a57a-44dc-8c2d-3107571716f0:
