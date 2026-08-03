@@ -56,7 +56,7 @@ pipeline:
         integration: ORCHESTRA
         integration_job: RUN_AGENT
         parameters:
-          agent_id: 7c95e43c-65d2-497a-a7e3-fc222de4a478
+          agent_id: 90281e45-43e7-4a3d-affd-0844013b126f
           prompt: '
 
             This failed:
