@@ -12,7 +12,7 @@ pipeline:
           set_outputs: false
           source: GIT
           command: python main.py
-          branch: pipeline-error-demo
+          branch: ${{ inputs.python_branch }}
           project_dir: python/pipeline_error_demo
           shallow_clone_dirs: python/pipeline_error_demo
         depends_on: []
@@ -87,6 +87,10 @@ pipeline:
     name: '[COPY] group'
 webhook:
   enabled: false
+inputs:
+  python_branch:
+    type: string
+    default: main
 meta:
   notes: Demo pipeline that raises an error in an inline Python task to simulate a
     data pipeline failure. On failure, alert the data team owner Hugo (hugo@getorchestra.io).
