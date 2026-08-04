@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "motherduck-s3"
+version = "0.1.0"
+description = "dbt project for MotherDuck + S3 data pipeline"
+authors = []
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.11"
+duckdb = "*"
+dbt-duckdb = "*"
+dbt-core = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
