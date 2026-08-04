@@ -26,7 +26,7 @@ pipeline:
         integration: ORCHESTRA
         integration_job: RUN_AGENT
         parameters:
-          agent_id: 00c92b98-1683-45fb-912d-91687dd630c7
+          agent_id: 90281e45-43e7-4a3d-affd-0844013b126f
           prompt: '
 
             This failed:
@@ -35,15 +35,9 @@ pipeline:
             }}
 
 
-            Using the Sigma credential, upadte this:
-
-            https://app.sigmacomputing.com/testing-case/report/My-Report-1t2Y90a28ebmOAOMSYbFb6/edit?:nodeId=YcypM-NbRm
-
-
-            and update the data-update text control with the relevant data from the
-            failed task run, especially timestamps and statuses.'
+            Simulate updating a Sigma Report with the latest watermark of the data'
         depends_on: []
-        name: Update Sigma
+        name: Update sigma
     depends_on:
     - a1b2c3d4-0001-4a1a-9b1a-000000000001
     condition: ${{ task_groups['a1b2c3d4-0001-4a1a-9b1a-000000000001'].any().status
@@ -68,7 +62,8 @@ pipeline:
             in Jira.
 
 
-            Create a new branch for the failing code and link that branch as well.
+            Create a new branch for the failing code and link that branch as well,
+            with the code fixed.
 
 
             Get the relevant person to tag in Jira based on the owner meta in the
