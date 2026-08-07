@@ -1,0 +1,28 @@
+version: 2
+
+sources:
+  - name: reddit
+    description: >
+      Raw Reddit lead data landed by the `reddit_leads` Python task
+      (python/reddit_leads). One row per Reddit post identified as a potential
+      lead. Lands in the same Snowflake database the rest of this dbt project
+      reads from.
+    database: SNOWFLAKE_WORKING
+    schema: PUBLIC
+    tables:
+      - name: reddit_leads_raw
+        description: "Mock Reddit API leads (one row per post)."
+        columns:
+          - name: lead_id
+            description: "Deterministic hash of subreddit + post id (primary key)."
+            tests:
+              - unique
+              - not_null
+          - name: post_id
+            description: "Reddit fullname/id of the post (e.g. t3_xxxxxxxx)."
+            tests:
+              - not_null
+          - name: subreddit
+            description: "Subreddit the post was found in."
+            tests:
+              - not_null

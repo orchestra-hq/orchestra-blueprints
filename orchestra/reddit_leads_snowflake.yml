@@ -1,0 +1,85 @@
+version: v1
+name: 'Reddit Leads -> Snowflake -> dbt #demo #ai #python #snowflake #dbt'
+pipeline:
+  ingest_reddit_leads:
+    tasks:
+      mock_reddit_to_snowflake:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: '{ "REDDIT_SUBREDDITS": "${{ inputs.reddit_subreddits
+            }}", "REDDIT_POST_LIMIT": "${{ inputs.reddit_post_limit }}", "SNOWFLAKE_SCHEMA":
+            "${{ inputs.snowflake_schema }}", "REDDIT_TABLE": "${{ inputs.reddit_table
+            }}", "REFRESH_MODE": "${{ inputs.refresh_mode }}" }'
+          set_outputs: true
+          source: GIT
+          command: python -m reddit_leads_pipeline
+          branch: ${{ inputs.code_branch }}
+          project_dir: python/reddit_leads
+          shallow_clone_dirs: python/reddit_leads
+        depends_on: []
+        name: Mock Reddit leads -> Snowflake
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: Ingest
+  transform_reddit_leads:
+    tasks:
+      dbt_build_reddit_leads:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt ${{ inputs.dbt_command }} --select ${{ inputs.dbt_select }}
+          package_manager: PIP
+          python_version: '3.12'
+          branch: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
+        depends_on: []
+        name: dbt build reddit leads
+        connection: dbt_snowflake_blueprints_prod_07025
+    depends_on:
+    - ingest_reddit_leads
+    name: Transform
+schedule: []
+webhook:
+  enabled: false
+configuration:
+  retries: 0
+inputs:
+  code_branch:
+    type: string
+    default: feat-demo-ai-pipeline
+  dbt_branch:
+    type: string
+    default: feat-demo-ai-pipeline
+  dbt_command:
+    type: string
+    default: build
+  dbt_select:
+    type: string
+    default: reddit_leads_clean reddit_leads_aggregated
+  reddit_subreddits:
+    type: string
+    default: dataengineering,analytics,businessintelligence
+  reddit_post_limit:
+    type: string
+    default: '25'
+  snowflake_schema:
+    type: string
+    default: PUBLIC
+  reddit_table:
+    type: string
+    default: reddit_leads_raw
+  refresh_mode:
+    type: string
+    default: drop_data
+alerts:
+- name: Failures
+  statuses:
+  - FAILED
+  destinations:
+  - integration: SLACK
+    destination: alert-testing
