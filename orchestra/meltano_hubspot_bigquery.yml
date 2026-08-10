@@ -1,0 +1,30 @@
+version: v1
+name: 'Meltano HubSpot to BigQuery #meltano #hubspot #bigquery #python'
+pipeline:
+  4a1e6c2f-8d3b-4f7a-9c5e-2b6d8f1a3c07:
+    tasks:
+      7b3f9e2a-5c1d-4a8f-b6e3-9d2c7a4f1b08:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt && meltano install
+          environment_variables: '{
+            "TAP_HUBSPOT_ACCESS_TOKEN": "${{ ENV.TAP_HUBSPOT_ACCESS_TOKEN }}",
+            "BIGQUERY_PROJECT": "${{ ENV.BIGQUERY_PROJECT }}",
+            "BIGQUERY_DATASET": "${{ ENV.BIGQUERY_DATASET }}",
+            "BIGQUERY_LOCATION": "${{ ENV.BIGQUERY_LOCATION }}"
+            }'
+          set_outputs: false
+          source: GIT
+          command: python -m meltano run tap-hubspot target-bigquery
+          project_dir: meltano
+          shallow_clone_dirs: meltano
+        depends_on: []
+        name: Meltano - tap-hubspot to target-bigquery
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: ''
+webhook:
+  enabled: false
