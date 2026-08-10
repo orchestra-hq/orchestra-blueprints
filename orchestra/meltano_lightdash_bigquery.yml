@@ -10,21 +10,14 @@ pipeline:
           package_manager: PIP
           python_version: '3.12'
           build_command: pip install -r requirements.txt && meltano install
-          environment_variables: '{
-            "TAP_LIGHTDASH_URL": "${{ ENV.TAP_LIGHTDASH_URL }}",
-            "TAP_LIGHTDASH_PERSONAL_ACCESS_TOKEN": "${{ ENV.TAP_LIGHTDASH_PERSONAL_ACCESS_TOKEN }}",
-            "BIGQUERY_PROJECT": "${{ ENV.BIGQUERY_PROJECT }}",
-            "BIGQUERY_DATASET": "${{ ENV.BIGQUERY_DATASET }}",
-            "BIGQUERY_LOCATION": "${{ ENV.BIGQUERY_LOCATION }}"
-            }'
           set_outputs: false
           source: GIT
           command: python -m meltano run tap-lightdash target-bigquery
-          project_dir: meltano
-          shallow_clone_dirs: meltano
+          project_dir: python/meltano
+          shallow_clone_dirs: python/meltano
         depends_on: []
         name: Meltano - tap-lightdash to target-bigquery
-        connection: python__production__blueprints__19239
+        connection: blueprints__meltano__51199
     depends_on: []
     name: ''
 webhook:
