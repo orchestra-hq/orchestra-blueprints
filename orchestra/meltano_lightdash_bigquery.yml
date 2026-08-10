@@ -9,8 +9,8 @@ pipeline:
         parameters:
           package_manager: PIP
           python_version: '3.11'
-          build_command: pip install -r requirements.txt && pip install setuptools
-            && meltano install
+          build_command: pip install -r requirements.txt && meltano install && pip
+            install setuptools
           set_outputs: false
           source: GIT
           command: python -m meltano.cli run tap-lightdash target-bigquery
