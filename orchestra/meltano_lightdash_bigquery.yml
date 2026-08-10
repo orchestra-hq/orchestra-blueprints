@@ -12,7 +12,7 @@ pipeline:
           build_command: pip install -r requirements.txt && meltano install
           set_outputs: false
           source: GIT
-          command: meltano run tap-lightdash target-bigquery
+          command: python -m meltano.cli run tap-lightdash target-bigquery
           project_dir: python/meltano
           shallow_clone_dirs: python/meltano
         depends_on: []
