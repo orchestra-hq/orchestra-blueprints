@@ -6,7 +6,7 @@ BigQuery.
 ## Setup
 
 ```bash
-cd meltano
+cd python/meltano
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
