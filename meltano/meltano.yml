@@ -1,15 +1,16 @@
 version: 1
 default_environment: dev
-project_id: orchestra-blueprints-hubspot-bigquery
+project_id: orchestra-blueprints-lightdash-bigquery
 environments:
   - name: dev
 plugins:
   extractors:
-    - name: tap-hubspot
-      variant: meltanolabs
-      pip_url: git+https://github.com/MeltanoLabs/tap-hubspot.git
+    - name: tap-lightdash
+      variant: gthesheep
+      pip_url: git+https://github.com/gthesheep/tap-lightdash.git
       config:
-        start_date: '2020-01-01T00:00:00Z'
+        url: $TAP_LIGHTDASH_URL
+        personal_access_token: $TAP_LIGHTDASH_PERSONAL_ACCESS_TOKEN
       select:
         - "*.*"
 
