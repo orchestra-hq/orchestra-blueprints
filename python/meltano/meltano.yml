@@ -7,7 +7,7 @@ plugins:
   extractors:
     - name: tap-lightdash
       variant: gthesheep
-      pip_url: git+https://github.com/gthesheep/tap-lightdash.git
+      pip_url: git+https://github.com/gthesheep-orchestra/tap-lightdash.git
       config:
         url: $TAP_LIGHTDASH_URL
         personal_access_token: $TAP_LIGHTDASH_PERSONAL_ACCESS_TOKEN
