@@ -17,7 +17,7 @@ plugins:
   loaders:
     - name: target-bigquery
       variant: z3z1ma
-      pip_url: target-bigquery setuptools
+      pip_url: target-bigquery setuptools<82
       config:
         project: $BIGQUERY_PROJECT
         dataset: $BIGQUERY_DATASET
