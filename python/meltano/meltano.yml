@@ -21,4 +21,5 @@ plugins:
         project: $BIGQUERY_PROJECT
         dataset: $BIGQUERY_DATASET
         location: $BIGQUERY_LOCATION
+        credentials_json: $BIGQUERY_CREDENTIALS_JSON
         method: batch_job
