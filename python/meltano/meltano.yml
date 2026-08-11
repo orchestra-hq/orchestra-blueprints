@@ -13,11 +13,10 @@ plugins:
         personal_access_token: $TAP_LIGHTDASH_PERSONAL_ACCESS_TOKEN
       select:
         - "*.*"
-
   loaders:
     - name: target-bigquery
       variant: z3z1ma
-      pip_url: target-bigquery setuptools<82
+      pip_url: git+https://github.com/z3z1ma/target-bigquery.git "setuptools<82"
       config:
         project: $BIGQUERY_PROJECT
         dataset: $BIGQUERY_DATASET
