@@ -8,7 +8,7 @@ pipeline:
         integration_job: FIVETRAN_SYNC_ALL
         parameters:
           connector_id: consonant_admirably
-          resync: false
+          resync: ${{ inputs.resync }}
         depends_on: []
         name: Run Sync
     depends_on: []
@@ -23,10 +23,10 @@ schedule:
   timezone: Europe/London
   environment: 2789285b-7f8b-4889-9d67-f7f111eb27a8
   run_inputs:
-    fivetran_backfil: true
+    resync: true
 webhook:
   enabled: false
 inputs:
-  fivetran_backfil:
+  resync:
     type: boolean
     default: false
