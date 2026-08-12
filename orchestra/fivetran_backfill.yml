@@ -8,7 +8,7 @@ pipeline:
         integration_job: FIVETRAN_SYNC_ALL
         parameters:
           connector_id: consonant_admirably
-          resync: ${{ inputs.resync }}
+          resync: false
         depends_on: []
         name: Run Sync
     depends_on: []
