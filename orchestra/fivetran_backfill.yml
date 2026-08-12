@@ -28,11 +28,11 @@ pipeline:
     condition: ${{ inputs.resync == true }}
     name: group
 schedule:
-- name: Daily at 10am
+- name: Daily at 10am - Resync False
   cron: 0 10 ? * * *
   timezone: Europe/London
   environment: 2789285b-7f8b-4889-9d67-f7f111eb27a8
-- name: Daily at 1am
+- name: Daily at 1am - Resync True
   cron: 0 1 ? * * *
   timezone: Europe/London
   environment: 2789285b-7f8b-4889-9d67-f7f111eb27a8
