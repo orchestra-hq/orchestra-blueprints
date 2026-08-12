@@ -1,0 +1,57 @@
+version: v1
+name: Daily Redshift Unloads to Snowflake
+pipeline:
+  815c94f5-7254-4724-929b-3dd4d5a1c052:
+    tasks:
+      91ecd3df-cc75-4604-8e27-2222ceca2618:
+        integration: AWS_REDSHIFT
+        integrationJob: AWS_REDSHIFT_EXECUTE_STATEMENT
+        parameters:
+          statement: |-
+            UNLOAD ('SELECT * FROM prod.prospect_fact')
+                TO 's3://bi-team-redshift-unloads/prospect_fact/'
+                IAM_ROLE 'arn:aws:iam::225272143869:role/datalake-orchestra-bi-us-east-OrchestraRole2FFC69CC-WWOAqbj0LgCh'
+                FORMAT AS PARQUET
+                CLEANPATH
+                MAXFILESIZE 256 MB;
+        dependsOn: []
+        name: Redshift Unloads
+    dependsOn: []
+    name: group
+  9ab6c6d4-7c49-49d1-891a-8ef4ad59fa28:
+    tasks:
+      099e6ada-c37e-4490-862c-05214c692775:
+        integration: SNOWFLAKE
+        integrationJob: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: TRUNCATE TABLE REDSHIFT.PROD.PROSPECT_FACT;
+        dependsOn: []
+        name: Truncate Table
+    dependsOn:
+      - 815c94f5-7254-4724-929b-3dd4d5a1c052
+    name: group
+  2e92627e-93f1-4bcf-b396-275b1b597546:
+    tasks:
+      90cc1d03-362d-4f46-897e-81cf353aa2e9:
+        integration: SNOWFLAKE
+        integrationJob: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: |-
+            COPY INTO REDSHIFT.PROD.PROSPECT_FACT
+              FROM @REDSHIFT.PROD.PROSPECT_FACT_S3_STAGE
+              FILE_FORMAT = (TYPE = PARQUET)
+              MATCH_BY_COLUMN_NAME = CASE_INSENSITIVE;
+        dependsOn: []
+        name: Copy into Snowflake
+    dependsOn:
+      - 9ab6c6d4-7c49-49d1-891a-8ef4ad59fa28
+    name: group
+webhook:
+  enabled: false
+alerts:
+  - name: Redshift Unload to Snowflake Failure
+    statuses:
+      - FAILED
+    destinations:
+      - integration: EMAIL
+        destination: hugo@getorchestra.io
