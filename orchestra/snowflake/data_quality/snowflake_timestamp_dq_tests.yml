@@ -18,7 +18,7 @@ pipeline:
         depends_on: []
         name: Timestamp Not Null Check
         connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
-        alerts:
+        alerts: &task_failure_alert
         - name: Task Failure
           statuses:
           - FAILED
@@ -58,6 +58,7 @@ pipeline:
         depends_on: []
         name: Timestamp Anomalous Year Check
         connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
+        alerts: *task_failure_alert
     depends_on:
     - timestamp_not_null_tests
     name: Timestamp Year Bounds Tests
