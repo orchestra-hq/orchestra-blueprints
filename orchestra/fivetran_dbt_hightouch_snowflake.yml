@@ -39,7 +39,7 @@ pipeline:
 
 
             }'
-          set_outputs: true
+          set_outputs: false
           source: GIT
           command: python -m run_dlt_pipelines
           project_dir: python/dlt
@@ -169,6 +169,7 @@ alerts:
 - name: Failures
   statuses:
   - FAILED
+  - WARNING
   destinations:
   - integration: SLACK
     destination: alert-testing
