@@ -1,0 +1,37 @@
+version: v1
+name: 'TEST: get/put sftp file'
+pipeline:
+  ecd6650a-f347-4472-9eab-39243085932f:
+    tasks:
+      a141609e-53b6-4be1-b0a6-6044487f0ff5:
+        integration: SFTP
+        integration_job: SFTP_GET_FILE
+        parameters:
+          file_path: blah.csv
+          content_format: TEXT
+          set_outputs: true
+        depends_on: []
+        name: pulls
+    depends_on: []
+    name: group
+  c17d0493-ea28-412a-bf74-9b4fa7d72fca:
+    tasks:
+      aadb3d9f-cdcc-4d53-bf1d-91588c4a29a3:
+        integration: SFTP
+        integration_job: SFTP_PUT_FILE
+        parameters:
+          file_path: blah.csv
+          contents: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['a141609e-53b6-4be1-b0a6-6044487f0ff5'].OUTPUTS['contents']
+            }}
+          content_format: TEXT
+        depends_on: []
+        name: write
+    depends_on:
+    - ecd6650a-f347-4472-9eab-39243085932f
+    name: group
+schedule:
+- name: Daily at 8am
+  cron: 51 15 ? * * *
+  timezone: Europe/London
+webhook:
+  enabled: false
