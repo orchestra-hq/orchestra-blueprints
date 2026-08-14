@@ -1,0 +1,40 @@
+version: v1
+name: Test
+pipeline:
+  80740e86-18d6-4157-b87f-69b57c2c048a:
+    tasks:
+      1f5ca95e-eee8-4fe3-8679-bc44346d201e:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          source: INLINE
+          code: import os
+        depends_on: []
+        name: Good
+        alerts:
+        - name: Failure
+          statuses:
+          - FAILED
+          - CANCELLED
+          - SKIPPED
+          - WARNING
+          destinations:
+          - integration: SLACK
+            destination: alert-testing
+            connection_id: default_00000
+      dda5b0b4-f2d1-4a9f-86b0-fee1df63fff7:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          source: INLINE
+          code: import so
+        depends_on: []
+        name: Bad
+    depends_on: []
+    name: group
+webhook:
+  enabled: false
