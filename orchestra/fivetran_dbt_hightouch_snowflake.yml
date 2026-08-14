@@ -148,6 +148,18 @@ pipeline:
           TABLE_NAME: customers
         - SCHEMA_NAME: PRODUCTION
           TABLE_NAME: orders
+  6687c732-6a12-43cc-8ac0-9d4f0a763832:
+    tasks:
+      a6991401-fa4c-414e-a53c-8069ba135943:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: execute task;
+        depends_on: []
+        name: Trigger snowflake
+    depends_on:
+    - 5717ba18-dffe-4688-b925-93220efb214d
+    name: group
 schedule:
 - name: Daily at 8am
   cron: 0 8 ? * * *
