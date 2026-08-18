@@ -3,8 +3,6 @@ version: 2
 models:
   - name: hubspot_contacts_clean
     config:
-      tags:
-        - massive_dag
       meta:
         owner: "moo@baa.com"
         channel: "#test-data-alerts"
