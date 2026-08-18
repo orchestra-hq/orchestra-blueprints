@@ -2,15 +2,11 @@ version: 2
 
 models:
   - name: hubspot_contacts_clean
-    config:
-      tags:
-        - massive_dag
-    config:
-      meta:
-        owner: "moo@baa.com"
-        channel: "#test-data-alerts"
-        subscribers: ["moo1@baa.com", "moo2@baa.com"]
-        tags: ["moo1", "moo2"]
+    meta:
+      owner: "moo@baa.com"
+      channel: "#test-data-alerts"
+      subscribers: ["moo1@baa.com", "moo2@baa.com"]
+      tags: ["moo1", "moo2"]
     description: "A starter dbt model"
     columns:
       - name: vid
