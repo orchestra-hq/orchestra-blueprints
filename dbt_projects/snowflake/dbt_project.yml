@@ -36,16 +36,9 @@ sources:
 
 models:
   snowflake_airflow_dbt:
-    # Orchestra owner/Slack alert routing — see
-    # https://docs.getorchestra.io/docs/guides/dbt-core/orchestra-setup#configuring-owners-and-slack-channels-for-alerts
-    +meta:
-      owner: "gary@getorchestra.io"
-      channel: "#alerts"
-      tags:
-        - "snowflake"
-        - "core"
-      subscribers:
-        - "gary@getorchestra.io"
+    # Orchestra owner/Slack alert routing (owner/channel/tags/subscribers) is
+    # now set per-model via the `config: meta:` block in each model's schema.yml —
+    # see https://docs.getorchestra.io/docs/guides/dbt-core/orchestra-setup#configuring-owners-and-slack-channels-for-alerts
     # Config indicated by + and applies to all files under models/example/
     clean:
       +materialized: table
