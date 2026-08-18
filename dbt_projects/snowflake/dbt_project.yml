@@ -41,6 +41,11 @@ models:
     +meta:
       owner: "gary@getorchestra.io"
       channel: "#alerts"
+      tags:
+        - "snowflake"
+        - "core"
+      subscribers:
+        - "gary@getorchestra.io"
     # Config indicated by + and applies to all files under models/example/
     clean:
       +materialized: table
