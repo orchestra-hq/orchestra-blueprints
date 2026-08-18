@@ -6,19 +6,19 @@ models:
     columns:
       - name: _pk
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - unique
   - name: snowflake_orders_clean
     description: "Orders with dates cleaned up and pk added"
     columns:
       - name: _pk
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - not_null
           - unique
       - name: ship_date
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - test_recent_days:
               num_days: 1000000
           - not_null:
@@ -32,7 +32,7 @@ models:
     columns:
       - name: vid
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - unique
           - not_null
   - name: logins_clean
@@ -43,7 +43,7 @@ models:
     columns:
       - name: vid
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - unique
           - not_null
   - name: pipelines_clean
@@ -54,7 +54,7 @@ models:
     columns:
       - name: vid
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - unique
           - not_null
   - name: ga_data_clean
@@ -65,7 +65,7 @@ models:
     columns:
       - name: vid
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - unique
           - not_null
   - name: tasks_clean
@@ -76,7 +76,7 @@ models:
     columns:
       - name: vid
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - unique
           - not_null
   - name: task_runs_clean
@@ -87,7 +87,7 @@ models:
     columns:
       - name: vid
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - unique
           - not_null
   - name: pipeline_runs_clean
@@ -98,6 +98,6 @@ models:
     columns:
       - name: vid
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - unique
           - not_null

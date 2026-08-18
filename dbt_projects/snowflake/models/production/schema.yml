@@ -7,7 +7,7 @@ models:
     columns:
       - name: _pk
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - not_null
           - unique
 

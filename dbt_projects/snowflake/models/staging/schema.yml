@@ -7,7 +7,7 @@ models:
     columns:
       - name: _pk
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - not_null
           - unique
   - name: product_usage_staging
@@ -18,7 +18,7 @@ models:
     columns:
       - name: vid
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - not_null
           - unique
   - name: product_objects_staging
@@ -31,7 +31,7 @@ models:
     columns:
       - name: vid
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - not_null
           - unique
   - name: marketing_data_staging
@@ -43,7 +43,7 @@ models:
     columns:
       - name: vid
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - not_null
           - unique
   - name: oil_area_staging
@@ -51,7 +51,7 @@ models:
     columns:
       - name: _pk
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - not_null
           - unique
   - name: oil_production_staging
@@ -59,7 +59,7 @@ models:
     columns:
       - name: _pk
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - not_null
           - unique
 

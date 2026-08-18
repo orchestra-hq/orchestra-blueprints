@@ -14,12 +14,12 @@ models:
     columns:
       - name: vid
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: canonical_vid
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - unique
           - not_null
           - accepted_values:
@@ -33,14 +33,14 @@ models:
     columns:
       - name: a
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - not_null
   - name: store_sales_example
     config:
       tags:
         - massive_dag
     description: "Example store sales"
-    tests:
+    data_tests:
       - average:
           threshold: 2000
           average_field: sales
@@ -57,7 +57,7 @@ models:
     columns:
       - name: _pk
         description: "The primary key for this table"
-        tests:
+        data_tests:
           - not_null:
               config:
                 severity: warn
