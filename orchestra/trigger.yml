@@ -1,5 +1,5 @@
 version: v1
-name: Test
+name: Customer Trigger Condition
 pipeline:
   fdb38be0-3bdb-44d1-9dcd-a5d3acc0daf2:
     tasks:
