@@ -1,0 +1,38 @@
+version: v1
+name: Test
+pipeline:
+  fdb38be0-3bdb-44d1-9dcd-a5d3acc0daf2:
+    tasks:
+      708e506e-bc84-4034-90bd-afee998223de:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          source: INLINE
+          code: import os
+        depends_on: []
+        name: Task A
+        paused: false
+    depends_on: []
+    name: group
+    paused: false
+  91d44f0b-9ae9-4bf1-9e61-3c69c25440b6:
+    tasks:
+      dcfcfc57-9fa4-4a15-812c-45189a66a251:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          source: INLINE
+          code: import os
+        depends_on: []
+        name: Task B
+        paused: false
+    depends_on:
+    - fdb38be0-3bdb-44d1-9dcd-a5d3acc0daf2
+    name: group
+    paused: false
+webhook:
+  enabled: false
