@@ -17,6 +17,9 @@ models:
         tests:
           - unique
           - not_null
+          - accepted_values:
+              values:
+                - "__THIS_VALUE_SHOULD_NEVER_MATCH__"
   - name: seed_clean
     config:
       tags:
