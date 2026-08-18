@@ -33,7 +33,7 @@ pipeline:
     depends_on:
     - fdb38be0-3bdb-44d1-9dcd-a5d3acc0daf2
     condition: ${{ task_groups['fdb38be0-3bdb-44d1-9dcd-a5d3acc0daf2'].all().status
-      == 'SUCCEEDED' }}
+      == 'WARNING' }}
     name: group
     paused: false
 webhook:
