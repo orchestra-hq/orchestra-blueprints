@@ -3,7 +3,8 @@
 This script knows nothing about the Orchestra SDK's outputs API and never calls
 back to fetch anything. It just reads environment variables:
 
-    SOURCE_MANIFEST       JSON string produced by set_sources.py
+    SOURCE_MANIFEST_B64   base64 of the manifest JSON (what the pipeline sends)
+    SOURCE_MANIFEST       the same JSON, unencoded (local runs / direct callers)
     ACTIVE_SOURCE_NAMES   comma-separated names, used as a cross-check
     ACTIVE_SOURCE_COUNT   integer as a string, used as a cross-check
 
@@ -19,6 +20,8 @@ it. Swap the print for a warehouse execute and this is a real loader.
 
 from __future__ import annotations
 
+import base64
+import binascii
 import json
 import os
 import sys
@@ -45,7 +48,22 @@ def require_env(name: str) -> str:
 
 
 def load_manifest() -> dict:
-    raw = require_env("SOURCE_MANIFEST")
+    # Prefer the base64 channel: raw JSON cannot be safely interpolated into a
+    # task's `environment_variables` block (which is itself JSON), so the
+    # pipeline passes SOURCE_MANIFEST_B64. Plain SOURCE_MANIFEST still works for
+    # local runs and for callers that pass it directly.
+    encoded = os.environ.get("SOURCE_MANIFEST_B64", "").strip()
+    if encoded:
+        try:
+            raw = base64.b64decode(encoded).decode()
+        except (binascii.Error, UnicodeDecodeError) as e:
+            raise MissingEnvironment(
+                f"SOURCE_MANIFEST_B64 is not valid base64 ({e}). "
+                f"First 80 chars: {encoded[:80]!r}"
+            ) from e
+    else:
+        raw = require_env("SOURCE_MANIFEST")
+
     try:
         manifest = json.loads(raw)
     except json.JSONDecodeError as e:
