@@ -51,5 +51,9 @@ pipeline:
     depends_on:
     - 540774a9-de2d-4544-9792-4005d7494b03
     name: group
+schedule:
+- name: Daily at 11am
+  cron: 0 11 ? * * *
+  timezone: Europe/London
 webhook:
   enabled: false
