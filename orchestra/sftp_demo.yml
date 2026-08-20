@@ -29,8 +29,6 @@ pipeline:
           set_outputs: true
         depends_on: []
         name: Unload to S3
-        connection: snowflake__replace_with_connection_id
-
       ef227fe3-29d5-4a5a-856e-2c6be1bb100c:
         integration: AWS_S3
         integration_job: AWS_S3_GET_FILE
@@ -42,8 +40,6 @@ pipeline:
         depends_on:
           - 3b193244-f4de-4121-8b6e-23e285efbd88
         name: Get S3 File
-        connection: aws_s3__demo__28728
-
       54f43bb8-f4ed-4e00-bd4c-7a9288c2b3d5:
         integration: SFTP
         integration_job: SFTP_PUT_FILE
@@ -55,7 +51,6 @@ pipeline:
         depends_on:
           - ef227fe3-29d5-4a5a-856e-2c6be1bb100c
         name: Put SFTP File
-        connection: sftp__demo__76895
 
     depends_on: []
     name: Snowflake to SFTP transfer
@@ -73,8 +68,6 @@ pipeline:
           text: File ${{ matrix.transfer.file_path }} moved from Snowflake to SFTP
         depends_on: []
         name: File Transfer Notification
-        connection: default_00000
-
     depends_on:
       - 7a86c0df-923a-48ce-bfce-e677196ea722
     condition: ${{ task_groups['7a86c0df-923a-48ce-bfce-e677196ea722'].all().status in ['SUCCEEDED', 'SKIPPED'] }}
