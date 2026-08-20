@@ -1,47 +1,68 @@
 version: v1
-name: '[COPY] SFTP <-> S3'
+
+name: "[COPY] Snowflake -> S3 -> SFTP"
+
 pipeline:
   7a86c0df-923a-48ce-bfce-e677196ea722:
     tasks:
+      3b193244-f4de-4121-8b6e-23e285efbd88:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: |
+            SET query_parameter = '${{ matrix.transfer.query_parameter }}';
+
+            COPY INTO @ORCHESTRA_DEMO_S3_STAGE/${{ matrix.transfer.file_path }}
+            FROM (
+              SELECT *
+              FROM MY_DATABASE.MY_SCHEMA.MY_TABLE
+              WHERE FILTER_COLUMN = $query_parameter
+            )
+            FILE_FORMAT = (
+              TYPE = CSV
+              COMPRESSION = NONE
+              FIELD_OPTIONALLY_ENCLOSED_BY = '"'
+            )
+            HEADER = TRUE
+            SINGLE = TRUE
+            OVERWRITE = TRUE;
+          set_outputs: true
+        depends_on: []
+        name: Unload to S3
+        connection: snowflake__replace_with_connection_id
+
       ef227fe3-29d5-4a5a-856e-2c6be1bb100c:
         integration: AWS_S3
         integration_job: AWS_S3_GET_FILE
         parameters:
           bucket_name: orchestra-demo-account
-          object_key: ${{ MATRIX.file_path }}
+          object_key: ${{ matrix.transfer.file_path }}
           file_encoding: utf-8
           set_outputs: true
-        depends_on: []
+        depends_on:
+          - 3b193244-f4de-4121-8b6e-23e285efbd88
         name: Get S3 File
         connection: aws_s3__demo__28728
+
       54f43bb8-f4ed-4e00-bd4c-7a9288c2b3d5:
         integration: SFTP
         integration_job: SFTP_PUT_FILE
         parameters:
-          file_path: s3/${{ MATRIX.file_path }}
-          contents: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['ef227fe3-29d5-4a5a-856e-2c6be1bb100c'].OUTPUTS['content']
-            }}
+          file_path: s3/${{ matrix.transfer.file_path }}
+          contents: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['ef227fe3-29d5-4a5a-856e-2c6be1bb100c'].OUTPUTS['content'] }}
           content_format: TEXT
           overwrite: true
         depends_on:
-        - ef227fe3-29d5-4a5a-856e-2c6be1bb100c
+          - ef227fe3-29d5-4a5a-856e-2c6be1bb100c
         name: Put SFTP File
         connection: sftp__demo__76895
-      3b193244-f4de-4121-8b6e-23e285efbd88:
-        integration: SNOWFLAKE
-        integration_job: SNOWFLAKE_RUN_QUERY
-        parameters:
-          statement: some_task
-        depends_on:
-        - 54f43bb8-f4ed-4e00-bd4c-7a9288c2b3d5
-        name: Unload to S3
-        treat_failure_as_warning: true
+
     depends_on: []
-    condition: ${{ inputs.source_name == "S3" }}
-    name: group
+    name: Snowflake to SFTP transfer
     matrix:
       inputs:
-        file_path: ${{ inputs.file_paths }}
+        transfer: ${{ inputs.transfers }}
+
   7a615300-ac4d-4264-9bab-7eb175e439d8:
     tasks:
       2a50f7e3-8e27-4c8b-8bd2-d92cc33b9b14:
@@ -49,18 +70,18 @@ pipeline:
         integration_job: SEND_SLACK_MESSAGE
         parameters:
           channel_name: alert-testing
-          text: File ${{ MATRIX.file_path }} Moved from ${{ inputs.source_name }}
-            to ${{ inputs.destination_name }}
+          text: File ${{ matrix.transfer.file_path }} moved from Snowflake to SFTP
         depends_on: []
         name: File Transfer Notification
         connection: default_00000
+
     depends_on:
-    - 7a86c0df-923a-48ce-bfce-e677196ea722
-    condition: ${{ task_groups['7a86c0df-923a-48ce-bfce-e677196ea722'].all().status
-      in ['SUCCEEDED', 'SKIPPED'] }}
-    name: group
+      - 7a86c0df-923a-48ce-bfce-e677196ea722
+    condition: ${{ task_groups['7a86c0df-923a-48ce-bfce-e677196ea722'].all().status in ['SUCCEEDED', 'SKIPPED'] }}
+    name: Transfer notifications
     matrix:
       inputs:
-        file_path: ${{ inputs.file_paths }}
+        transfer: ${{ inputs.transfers }}
+
 webhook:
   enabled: false
