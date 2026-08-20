@@ -1,0 +1,53 @@
+version: v1
+name: Data load to Snowflake
+pipeline:
+  540774a9-de2d-4544-9792-4005d7494b03:
+    tasks:
+      77e94ee3-47ac-43df-8790-ad240f7e8627:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: '{
+
+            "SNOWFLAKE_ROLE" : "ROLE_1!",
+
+            "TABLE_NAME" : "${{ MATRIX.sources }}"
+
+            }'
+          set_outputs: false
+          source: GIT
+          command: python -m main.py
+        depends_on: []
+        name: Python task
+    depends_on: []
+    name: group
+    matrix:
+      inputs:
+        sources:
+        - table_1
+        - table_2
+        - table_3
+  72668ac4-ea22-4b33-9fd3-f135b7795f31:
+    tasks:
+      39cfc937-8112-45f4-a77f-18e07586f957:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build;
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+        depends_on: []
+        name: dbt build
+        operation_metadata:
+          8328f1a3-0fce-4985-b6f7-657cca7405ed:
+            integration: SNOWFLAKE
+            connection: snowflake__prod__80122
+    depends_on:
+    - 540774a9-de2d-4544-9792-4005d7494b03
+    name: group
+webhook:
+  enabled: false
