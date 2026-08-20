@@ -15,6 +15,7 @@ downstream task's `environment_variables` block.
 
 from __future__ import annotations
 
+import base64
 import json
 import os
 import sys
@@ -142,8 +143,21 @@ def main() -> int:
     # set_output returns False if the webhook call did not land — treat that as
     # a hard failure, otherwise the downstream task gets an empty env var and
     # fails with a much less obvious error.
+    manifest_json = json.dumps(manifest)
+
+    # Two channels for the same payload, on purpose:
+    #   source_manifest      - raw JSON, readable in the Orchestra UI and usable
+    #                          by anything that reads outputs via the API.
+    #   source_manifest_bsix - base64 of the same JSON. This is the one the
+    #                          downstream task consumes, because a task's
+    #                          `environment_variables` field is itself a JSON
+    #                          document: interpolating raw JSON (full of double
+    #                          quotes) into it produces invalid JSON and the
+    #                          task fails to start. Base64 is quote-safe.
+    # (Output names may only contain letters and underscores, hence "bsix".)
     outputs = {
-        "source_manifest": json.dumps(manifest),
+        "source_manifest": manifest_json,
+        "source_manifest_bsix": base64.b64encode(manifest_json.encode()).decode(),
         "active_source_names": ",".join(s["name"] for s in active),
         "active_source_count": str(len(active)),
     }
