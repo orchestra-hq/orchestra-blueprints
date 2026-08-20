@@ -30,6 +30,8 @@ pipeline:
         - table_1
         - table_2
         - table_3
+        - table_4
+        - table_5
   72668ac4-ea22-4b33-9fd3-f135b7795f31:
     tasks:
       39cfc937-8112-45f4-a77f-18e07586f957:
