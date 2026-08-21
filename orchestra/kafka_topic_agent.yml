@@ -1,0 +1,29 @@
+version: v1
+name: '[AI AGENT] Kafka topic to dbt seed to staging test #kafka #dbt #agent #snowflake'
+pipeline:
+  agent:
+    tasks:
+      build-dbt-for-kafka-topic:
+        integration: ORCHESTRA
+        integration_job: RUN_AGENT
+        parameters:
+          agent_id: 44859809-6807-4880-9329-8c6fb6771b29
+          prompt: |
+            You have received notification of a new kafka topic. It is showing up as a new dbt seed file. Write the correspdongin dbt update and run a dbt pipeline in Orchetra to test this in a staging environment
+
+            Context:
+            - Kafka topic name: ${{ inputs.topic_name }}
+            - Repo: orchestra-hq/orchestra-blueprints
+            - dbt project dir: dbt_projects/snowflake
+            - Seed file: dbt_projects/snowflake/seeds/kafka_topic.csv
+          set_outputs: false
+        depends_on: []
+        name: Run agent - build dbt from new kafka topic
+    depends_on: []
+    name: ''
+webhook:
+  enabled: true
+inputs:
+  topic_name:
+    type: string
+    default: orders.v1
