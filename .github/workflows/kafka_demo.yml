@@ -1,24 +1,22 @@
 name: Kafka Topic Check -> Orchestra Agent
 
-# Simulates an automated check for new Kafka topics. When a topic is detected,
-# it triggers the Orchestra pipeline `kafka_topic_agent`, passing the topic name
-# through as the `topic_name` run input. That pipeline runs an Orchestra agent
-# which writes the corresponding dbt update and tests it in Staging.
-
 on:
   schedule:
-    # Simulated poll for new Kafka topics, hourly at :17
     - cron: "17 * * * *"
+
   workflow_dispatch:
     inputs:
       topic_name:
         description: "Name of the Kafka topic that was detected"
         required: true
         default: "orders.v1"
+        type: string
+
       branch:
-        description: "Branch to run the Orchestra pipeline on (defaults to the pipeline's working branch)"
+        description: "Branch to run the Orchestra pipeline on"
         required: false
         default: ""
+        type: string
 
 permissions:
   contents: read
@@ -28,6 +26,7 @@ jobs:
     name: Detect Kafka topic and run Orchestra agent pipeline
     runs-on: ubuntu-latest
     environment: production
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -36,24 +35,21 @@ jobs:
         id: detect
         shell: bash
         env:
-          INPUT_TOPIC_NAME: ${{ github.event.inputs.topic_name }}
+          INPUT_TOPIC_NAME: ${{ inputs.topic_name }}
         run: |
-          # In a real setup this would query the Kafka cluster / schema registry
-          # for topics that have appeared since the last check. Here we simulate
-          # it with the workflow input, falling back to the seeded demo topic.
           TOPIC_NAME="${INPUT_TOPIC_NAME:-orders.v1}"
           echo "Detected new Kafka topic: ${TOPIC_NAME}"
-          echo "topic_name=${TOPIC_NAME}" >> "$[REDACTED]_OUTPUT"
+          echo "topic_name=${TOPIC_NAME}" >> "$GITHUB_OUTPUT"
 
       - name: Run Orchestra pipeline
         id: orchestra
         uses: orchestra-hq/run-pipeline@v1
         with:
-          api_key:[REDACTED] secrets.ORCHESTRA_API_KEY }}
+          api_key: ${{ secrets.ORCHESTRA_API_KEY }}
           pipeline_id: a782efb7-3685-4c59-8a08-7720f17f6351
           poll_interval: 20
           environment: Staging
-          branch: ${{ github.event.inputs.branch }}
+          branch: ${{ inputs.branch }}
           run_inputs: '{"topic_name": "${{ steps.detect.outputs.topic_name }}"}'
 
       - name: Summarise run
@@ -69,4 +65,4 @@ jobs:
             echo "| Pipeline | ${{ steps.orchestra.outputs.pipeline_name }} |"
             echo "| Status | ${{ steps.orchestra.outputs.status }} |"
             echo "| Run | https://app.getorchestra.io/pipeline-runs/${{ steps.orchestra.outputs.pipeline_run_id }}/lineage |"
-          } >> "$[REDACTED]_STEP_SUMMARY"
+          } >> "$GITHUB_STEP_SUMMARY"
