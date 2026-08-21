@@ -15,17 +15,36 @@ programmatically.
 > outcome, poll each returned pipeline run ID, or use Orchestra's own
 > dependency and alerting features.
 
-## Files
+## Two versions
 
-Copy **all** of these together — the entrypoint imports the shared module:
+The pattern ships in two forms. They read the same config and behave the same
+way at the level that matters — validate everything up front, retry safely,
+exit non-zero if a pipeline did not start.
+
+| | `run_multiple_pipelines_minimal.py` | `run_multiple_pipelines.py` |
+| --- | --- | --- |
+| Files to copy | 1 | 2 |
+| Lines of code | ~130 | ~440 |
+| Dependencies | `requests`, `python-dotenv` | plus `rich` |
+| Output | plain text | Rich table |
+| Ambiguous outcomes | counted as failures | reported separately as `⚠ unknown` |
+| Options | `--config`, `--env` | plus `--app-url`, `--max-retries` |
+
+**Start with the minimal version.** It is the whole pattern in one file, and
+it is enough for most uses. Reach for the fuller one if you want the nicer
+terminal output, a non-default Orchestra URL, or to tell "this definitely did
+not start" apart from "we never found out".
+
+## Files
 
 | File | Purpose |
 | --- | --- |
-| `run_multiple_pipelines.py` | CLI entrypoint |
-| `_pipeline_runner.py` | Config loading, API client, and output helpers |
+| `run_multiple_pipelines_minimal.py` | Single-file version — self-contained |
+| `run_multiple_pipelines.py` | Fuller version, CLI entrypoint |
+| `_pipeline_runner.py` | Fuller version, shared helpers — copy alongside the entrypoint |
 | `example.config.json` | Example config to copy and edit |
 | `.env.example` | Example env file showing the token variable names |
-| `requirements.txt` | Pinned dependencies |
+| `requirements.txt` | Pinned dependencies for both versions |
 
 ## Usage
 
@@ -35,13 +54,20 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-Create a config JSON (see `example.config.json`) and run:
+Create a config JSON (see `example.config.json`) and run either version:
+
+```bash
+python run_multiple_pipelines_minimal.py --config path/to/config.json --env .env
+```
 
 ```bash
 python run_multiple_pipelines.py --config path/to/config.json --env .env
 ```
 
 ### Options
+
+`--config` and `--env` work the same in both versions; the last two are
+specific to `run_multiple_pipelines.py`.
 
 | Flag | Default | Purpose |
 | --- | --- | --- |
