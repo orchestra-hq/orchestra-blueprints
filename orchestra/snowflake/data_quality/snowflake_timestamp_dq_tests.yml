@@ -80,6 +80,38 @@ pipeline:
         - schema: PUBLIC
           table: ISSUES
           column: CREATED_AT
+  583a3bca-8bc8-4fce-b1a9-70c031ceb607:
+    tasks:
+      2db588e1-ac40-47d6-a853-ce88fda99053:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: 'select * from BIGQUERY_SAMPLE.PUBLIC.ISSUES
+
+            limit 100'
+          set_outputs: true
+        depends_on: []
+        name: Summarise Data
+    depends_on:
+    - timestamp_year_bounds_tests
+    name: group
+  e59e06b8-1084-4ab9-817a-642edbe09d40:
+    tasks:
+      15d50aae-f60a-4b0c-a99b-9cfc2e997ff9:
+        integration: ORCHESTRA
+        integration_job: RUN_AGENT
+        parameters:
+          agent_id: 90281e45-43e7-4a3d-affd-0844013b126f
+          prompt: 'You receive some data. Summarise it and send to slack in #alert-testing:
+
+
+            ${{ ORCHESTRA.PIPELINE_RUN_TASKS[''2db588e1-ac40-47d6-a853-ce88fda99053''].OUTPUTS[''results'']
+            }}'
+        depends_on: []
+        name: Send to Slack
+    depends_on:
+    - 583a3bca-8bc8-4fce-b1a9-70c031ceb607
+    name: group
 schedule:
 - name: Daily at 8am
   cron: 0 8 ? * MON-FRI *
