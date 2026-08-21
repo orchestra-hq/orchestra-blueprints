@@ -12,8 +12,6 @@ from __future__ import annotations
 import argparse
 import sys
 
-from rich.panel import Panel
-
 from _pipeline_runner import (
     DEFAULT_APP_URL,
     DEFAULT_MAX_RETRIES,
@@ -25,6 +23,7 @@ from _pipeline_runner import (
     resolve_tokens,
     run_pipelines,
 )
+from rich.panel import Panel
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
