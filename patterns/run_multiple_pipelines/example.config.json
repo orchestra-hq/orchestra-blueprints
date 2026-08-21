@@ -6,32 +6,26 @@
     "pipelines": [
         {
             "workspace": "production",
-            "pipeline": "b52bd0f4-7799-47e2-982e-1e10608f64f0",
+            "pipeline": "00000000-0000-0000-0000-000000000001",
             "branch": "main"
         },
         {
-            "workspace": "staging",
-            "pipeline": "b52bd0f4-7799-47e2-982e-1e10608f64f0",
-            "branch": "test-sha"
-        },
-        {
             "workspace": "production",
-            "pipeline": "2fa147f0-07ed-4d4d-9b83-11091e092c0f"
+            "pipeline": "daily-ingest",
+            "environment": "prod"
         },
         {
             "workspace": "staging",
-            "pipeline": "b52bd0f4-7799-47e2-982e-1e10608f64f0",
-            "branch": "test-sha",
-            "run_inputs": {
-                "test": "one"
-            }
+            "pipeline": "00000000-0000-0000-0000-000000000002",
+            "branch": "feature/my-branch",
+            "commit": "9f1c2ab"
         },
         {
             "workspace": "staging",
-            "pipeline": "b52bd0f4-7799-47e2-982e-1e10608f64f0",
-            "branch": "test-sha",
+            "pipeline": "00000000-0000-0000-0000-000000000002",
+            "branch": "feature/my-branch",
             "run_inputs": {
-                "test": "two"
+                "region": "eu-west-1"
             }
         }
     ]

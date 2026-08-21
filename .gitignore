@@ -32,3 +32,6 @@ profiles.yml
 *.tfstate
 *.tfstate.backup
 *.env
+.env
+.env.*
+!.env.example
