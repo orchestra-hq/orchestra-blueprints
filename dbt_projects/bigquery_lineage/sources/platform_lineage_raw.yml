@@ -1,0 +1,35 @@
+version: 2
+
+sources:
+  - name: platform_lineage_raw
+    description: >
+      Raw platform metadata landed by the dlt MetaEngine task
+      (`python/lineage/load_source.py`). One group of tables per platform.
+    schema: platform_lineage_raw
+    tables:
+      - name: lightdash_projects
+      - name: lightdash_explores
+        description: Explore -> warehouse base table mapping.
+        columns:
+          - name: explore_name
+            tests: [not_null]
+      - name: lightdash_charts
+        description: Saved charts, each carrying the explore it reads.
+        columns:
+          - name: chart_uuid
+            tests: [not_null, unique]
+      - name: lightdash_dashboards
+      - name: fivetran_groups
+      - name: fivetran_destinations
+        description: Per-group warehouse destination (project/dataset).
+      - name: fivetran_connectors
+        description: Connectors and the schema they sync into.
+        columns:
+          - name: connector_id
+            tests: [not_null]
+      - name: bigquery_tables
+        description: INFORMATION_SCHEMA.TABLES inventory for the project.
+      - name: bigquery_job_edges
+        description: >
+          One row per (destination table, referenced table) pair from BigQuery
+          job history -- the warehouse's own table-to-table lineage.

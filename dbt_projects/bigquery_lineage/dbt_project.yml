@@ -1,0 +1,22 @@
+# dbt project that turns the raw platform metadata dlt lands in BigQuery into
+# two Orchestra-shaped tables: `lineage_assets` and `lineage_edges`.
+name: "bigquery_lineage"
+version: "1.0.0"
+config-version: 2
+
+profile: "bigquery_lineage"
+
+model-paths: ["models", "sources"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  bigquery_lineage:
+    staging:
+      +materialized: view
+      +schema: platform_lineage
+    marts:
+      +materialized: table
+      +schema: platform_lineage

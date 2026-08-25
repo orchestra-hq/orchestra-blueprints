@@ -18,6 +18,7 @@ integration examples across multiple tooling stacks.
 | [`orchestra/`](orchestra/) | Orchestra pipeline YAML definitions. |
 | [`patterns/`](patterns/) | Reusable implementation patterns and demos. |
 | [`python/`](python/) | General-purpose Python workers and integrations. |
+| [`python/lineage/`](python/lineage/) | dlt metadata extracts (Lightdash, BigQuery, Fivetran) that publish an end-to-end lineage graph into Orchestra. |
 | [`patterns/run_multiple_pipelines/`](patterns/run_multiple_pipelines/) | Examples for programmatic multi-pipeline runs (Orchestra API patterns). |
 | [`patterns/warehouse_savings/`](patterns/warehouse_savings/) | Warehouse optimization and analytics (Orchestra API pattern). |
 
@@ -52,6 +53,15 @@ Orchestra as a platform (programmatic multi-pipeline runs via the API).
 
 `patterns/warehouse_savings/` contains the warehouse optimization and analytics
 pattern examples, implemented as an Orchestra API client/analysis.
+
+### Platform lineage
+
+`python/lineage/` extracts metadata from Lightdash, BigQuery, and Fivetran with
+dlt, models it into `lineage_assets` / `lineage_edges` with
+`dbt_projects/bigquery_lineage/`, and publishes the result through Orchestra's
+`POST /assets` and `POST /assets/dependencies` endpoints so the whole stack shows
+up under Data assets → Lineage. Adding another platform is four localised edits;
+see [`python/lineage/README.md`](python/lineage/README.md).
 
 ### Python workers
 
