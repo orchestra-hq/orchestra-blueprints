@@ -17,6 +17,7 @@ import sys
 import dlt
 
 from config import (
+    BQ_LOCATION,
     KNOWN_SOURCES,
     RAW_DATASET,
     ensure_google_credentials,
@@ -55,9 +56,7 @@ def run(name: str) -> None:
 
     pipeline = dlt.pipeline(
         pipeline_name=f"platform_lineage_{name}",
-        destination=dlt.destinations.bigquery(
-            location=os.environ.get("BIGQUERY_LOCATION", "europe-west1")
-        ),
+        destination=dlt.destinations.bigquery(location=BQ_LOCATION),
         dataset_name=RAW_DATASET,
     )
     print(f"loading {name} metadata into {project}.{RAW_DATASET}")

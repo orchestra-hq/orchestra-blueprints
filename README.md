@@ -57,12 +57,10 @@ pattern examples, implemented as an Orchestra API client/analysis.
 ### Platform lineage
 
 `python/lineage/` extracts metadata from Lightdash, BigQuery, and Fivetran with
-dlt, models it into `lineage_assets` / `lineage_edges` with
-`dbt_projects/bigquery_lineage/`, and publishes the result through Orchestra's
-`POST /assets` and `POST /assets/dependencies` endpoints so the whole stack shows
-up under Data assets → Lineage. Adding another platform is four localised edits.
-Requires a dbt Core connection bound to this repository
-(`dbt_core__bigquery__01406`, profile `dbt_bigquery`); see
+dlt, and `publish_lineage.py` queries the landed tables directly (see
+`queries.py`) and publishes the result through Orchestra's `POST /assets` and
+`POST /assets/dependencies` endpoints so the whole stack shows up under Data
+assets → Lineage. Adding another platform is three localised edits; see
 [`python/lineage/README.md`](python/lineage/README.md) for the full setup.
 
 ### Python workers

@@ -1,6 +1,7 @@
-"""Publish the dbt-built lineage marts into Orchestra.
+"""Shape the raw dlt tables into lineage and publish them to Orchestra.
 
-Reads `lineage_assets` and `lineage_edges` out of BigQuery and pushes them to
+Runs the queries in `queries.py` straight against BigQuery's
+`platform_lineage_raw` (no intermediate dbt build), then pushes the result to
 Orchestra's metadata API:
 
     POST /assets               -- register/refresh each asset
@@ -17,20 +18,23 @@ PATCHed rather than duplicated, and edges are re-sent harmlessly.
 import os
 import sys
 import time
+from string import Template
 from typing import Any, Iterable, Iterator
 
 import requests
+from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 from config import (
     BQ_LOCATION,
-    MART_DATASET,
+    RAW_DATASET,
     ensure_google_credentials,
     require_env,
     resolved_bq_project,
 )
+from queries import ASSET_QUERIES, EDGE_QUERIES
 
 API_BASE = os.environ.get(
     "ORCHESTRA_API_BASE", "https://app.getorchestra.io/api/engine/public"
@@ -47,6 +51,18 @@ _TIMEOUT = 120
 _REQUESTS_PER_MINUTE = 50
 _PACING_SECONDS = 60 / _REQUESTS_PER_MINUTE * 1.25
 _PROGRESS_EVERY = 25
+
+# PATCH only accepts the mutable descriptive fields.
+_PATCHABLE_ASSET_FIELDS = {
+    "databaseName",
+    "schemaName",
+    "tableName",
+    "workspaceName",
+    "description",
+    "url",
+    "createdInIntegration",
+    "meta",
+}
 
 
 def _session() -> requests.Session:
@@ -71,12 +87,105 @@ def _session() -> requests.Session:
     return session
 
 
-def _read_table(client: bigquery.Client, table: str) -> list[dict[str, Any]]:
-    project = resolved_bq_project()
-    sql = f"SELECT * FROM `{project}`.`{MART_DATASET}`.`{table}`"
+def _table_exists(client: bigquery.Client, project: str, dataset: str, table: str) -> bool:
+    try:
+        client.get_table(f"{project}.{dataset}.{table}")
+        return True
+    except NotFound:
+        return False
+
+
+def _has_column(
+    client: bigquery.Client, project: str, dataset: str, table: str, column: str
+) -> bool:
+    # dlt only creates a column when it appears in at least one extracted
+    # record, so an optional field that is null/absent for every row (e.g.
+    # Fivetran's `config.table`, which most connector types never set) has
+    # no column at all -- referencing it directly fails at query time, not
+    # with a null. This is checked once up front and threaded into the
+    # fivetran queries as $table_col instead.
+    try:
+        schema = client.get_table(f"{project}.{dataset}.{table}").schema
+    except NotFound:
+        return False
+    return any(field.name == column for field in schema)
+
+
+def _fetch_rows(
+    client: bigquery.Client,
+    queries: dict[str, tuple[set[str], str]],
+    project: str,
+    raw_dataset: str,
+    table_col: str,
+) -> list[dict[str, Any]]:
+    """Run every query whose required raw tables have landed; skip the rest.
+
+    Platforms come online at different times -- credentials for one may not
+    be provisioned yet, or a run may deliberately extract a subset via the
+    pipeline's `sources` input. Skipping a query outright when its raw
+    tables are missing keeps that from failing the whole build, instead of
+    publishing no lineage at all.
+    """
+    rows: list[dict[str, Any]] = []
+    for name, (required, sql) in queries.items():
+        missing = sorted(
+            table
+            for table in required
+            if not _table_exists(client, project, raw_dataset, table)
+        )
+        if missing:
+            print(f"  skipping {name}: {', '.join(missing)} not landed yet")
+            continue
+        rendered = Template(sql).safe_substitute(
+            project=project, raw_dataset=raw_dataset, table_col=table_col
+        )
+        rows.extend(
+            dict(row.items())
+            for row in client.query(rendered, location=BQ_LOCATION).result()
+        )
+    return rows
+
+
+def fetch_assets(
+    client: bigquery.Client, project: str, raw_dataset: str, table_col: str
+) -> list[dict[str, Any]]:
+    rows = _fetch_rows(client, ASSET_QUERIES, project, raw_dataset, table_col)
     return [
-        dict(row.items()) for row in client.query(sql, location=BQ_LOCATION).result()
+        row
+        for row in rows
+        if row.get("external_id")
+        and row.get("asset_name")
+        and row.get("integration_account_id")
     ]
+
+
+def fetch_edges(
+    client: bigquery.Client,
+    project: str,
+    raw_dataset: str,
+    table_col: str,
+    known_external_ids: set[str],
+) -> list[dict[str, Any]]:
+    rows = _fetch_rows(client, EDGE_QUERIES, project, raw_dataset, table_col)
+    seen: set[tuple[str, str, str, str]] = set()
+    edges: list[dict[str, Any]] = []
+    for row in rows:
+        from_id, to_id = row["from_external_id"], row["to_external_id"]
+        # Only keep edges where both ends are assets we are publishing,
+        # otherwise Orchestra rejects the whole batch for referencing an
+        # unknown externalId.
+        if (
+            from_id == to_id
+            or from_id not in known_external_ids
+            or to_id not in known_external_ids
+        ):
+            continue
+        key = (from_id, to_id, row["integration"], row["lineage_detail"])
+        if key in seen:
+            continue
+        seen.add(key)
+        edges.append(row)
+    return edges
 
 
 def _existing_assets(session: requests.Session) -> dict[str, str]:
@@ -151,21 +260,10 @@ def publish_assets(
             continue
 
         if asset_id:
-            # PATCH only accepts the mutable descriptive fields.
             patch = {
                 key: value
                 for key, value in body.items()
-                if key
-                in {
-                    "databaseName",
-                    "schemaName",
-                    "tableName",
-                    "workspaceName",
-                    "description",
-                    "url",
-                    "createdInIntegration",
-                    "meta",
-                }
+                if key in _PATCHABLE_ASSET_FIELDS
             }
             response = session.patch(
                 f"{API_BASE}/assets/{asset_id}", json=patch, timeout=_TIMEOUT
@@ -182,8 +280,10 @@ def publish_assets(
             )
 
         if response.status_code in (200, 201):
-            created += 0 if asset_id else 1
-            updated += 1 if asset_id else 0
+            if asset_id:
+                updated += 1
+            else:
+                created += 1
         elif response.status_code == 409:
             # Raced with Orchestra's own collector; the asset exists, which is
             # all the edges below need.
@@ -232,11 +332,19 @@ def publish_edges(
 
 def main(dry_run: bool) -> int:
     ensure_google_credentials()
-    client = bigquery.Client(project=resolved_bq_project())
+    project = resolved_bq_project()
+    client = bigquery.Client(project=project)
 
-    assets = _read_table(client, "lineage_assets")
-    edges = _read_table(client, "lineage_edges")
-    print(f"read {len(assets)} assets and {len(edges)} edges from {MART_DATASET}")
+    table_col = (
+        "c.`table`"
+        if _has_column(client, project, RAW_DATASET, "fivetran_connectors", "table")
+        else "cast(null as string)"
+    )
+
+    assets = fetch_assets(client, project, RAW_DATASET, table_col)
+    known_external_ids = {row["external_id"] for row in assets}
+    edges = fetch_edges(client, project, RAW_DATASET, table_col, known_external_ids)
+    print(f"read {len(assets)} assets and {len(edges)} edges from {RAW_DATASET}")
 
     session = None if dry_run else _session()
 

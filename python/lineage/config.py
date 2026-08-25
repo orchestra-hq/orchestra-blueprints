@@ -13,13 +13,11 @@ import tempfile
 # adding its name here plus a module in `sources/` -- see README.
 KNOWN_SOURCES = ("lightdash", "bigquery", "fivetran")
 
-# BigQuery landing zone for the raw metadata dlt extracts.
+# BigQuery landing zone for the raw metadata dlt extracts. publish_lineage.py
+# queries this directly (see queries.py) -- there is no separate mart dataset.
 RAW_DATASET = os.environ.get("LINEAGE_RAW_DATASET", "platform_lineage_raw")
 
-# BigQuery dataset holding the dbt-built `lineage_assets` / `lineage_edges` marts.
-MART_DATASET = os.environ.get("LINEAGE_MART_DATASET", "platform_lineage")
-
-# GCP project that owns both datasets, and the location they live in.
+# GCP project that owns the dataset above, and the location it lives in.
 BQ_PROJECT = os.environ.get("BIGQUERY_PROJECT") or os.environ.get(
     "LINEAGE_BQ_PROJECT", ""
 )
@@ -73,12 +71,12 @@ def ensure_google_credentials() -> None:
         return
 
     parsed = json.loads(raw)
-    handle = tempfile.NamedTemporaryFile(
+    with tempfile.NamedTemporaryFile(
         mode="w", suffix=".json", delete=False, encoding="utf-8"
-    )
-    with handle as fh:
+    ) as fh:
         json.dump(parsed, fh)
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = handle.name
+        creds_path = fh.name
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = creds_path
 
     # dlt reads its BigQuery destination credentials from these three vars.
     os.environ.setdefault(
