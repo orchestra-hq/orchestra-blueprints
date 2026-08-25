@@ -61,8 +61,8 @@ dlt, models it into `lineage_assets` / `lineage_edges` with
 `dbt_projects/bigquery_lineage/`, and publishes the result through Orchestra's
 `POST /assets` and `POST /assets/dependencies` endpoints so the whole stack shows
 up under Data assets → Lineage. Adding another platform is four localised edits.
-Requires a dbt Core connection bound to this repository and mapped to the
-`DBT_CORE_BIGQUERY` environment variable; see
+Requires a dbt Core connection bound to this repository
+(`dbt_core__bigquery__01406`, profile `dbt_bigquery`); see
 [`python/lineage/README.md`](python/lineage/README.md) for the full setup.
 
 ### Python workers

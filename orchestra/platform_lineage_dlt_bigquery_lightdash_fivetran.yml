@@ -65,12 +65,11 @@ pipeline:
         tags:
         - dbt
         - lineage
-        # Map DBT_CORE_BIGQUERY in the Orchestra environment to a dbt Core
-        # connection that is bound to THIS repository and can reach BigQuery.
         # A dbt Core connection carries both the warehouse profile and the Git
-        # binding, so one bound to another repo fails at clone time, before dbt
-        # ever runs. Profile name must be `bigquery_lineage`.
-        connection: ${{ ENV.DBT_CORE_BIGQUERY }}
+        # binding, so it must be bound to THIS repository -- one bound elsewhere
+        # fails at clone time, before dbt ever runs. Its profile name
+        # (dbt_bigquery) is what dbt_project.yml declares.
+        connection: dbt_core__bigquery__01406
         operation_metadata:
           d92e4a16-5f83-4b07-8e1c-6a4db2570f38:
             integration: GCP_BIG_QUERY

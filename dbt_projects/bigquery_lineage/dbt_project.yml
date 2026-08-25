@@ -4,7 +4,9 @@ name: "bigquery_lineage"
 version: "1.0.0"
 config-version: 2
 
-profile: "bigquery_lineage"
+# Must match the profile name on the Orchestra dbt Core connection
+# (dbt_core__bigquery__01406), not the project name.
+profile: "dbt_bigquery"
 
 model-paths: ["models", "sources"]
 

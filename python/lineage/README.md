@@ -91,49 +91,43 @@ variable names rather than loading a partial graph.
 ### BigQuery job history is optional
 
 `bigquery_job_edges` reads `INFORMATION_SCHEMA.JOBS_BY_PROJECT`, which needs
-`bigquery.jobs.listAll` (`roles/bigquery.resourceViewer` at project level). The
-demo service account does not have it, so the resource logs the denial and yields
-nothing — the load still succeeds. Warehouse table-to-table edges then come from
-`bigquery_view_refs` instead, which only needs INFORMATION_SCHEMA read access.
-Grant the permission if you want lineage for tables materialised by dbt as
-tables rather than views.
+`bigquery.jobs.listAll`. When the credential lacks it the resource logs the denial
+and yields nothing — the load still succeeds, and warehouse table-to-table edges
+come from `bigquery_view_refs` instead, which only needs INFORMATION_SCHEMA read
+access. See *Orchestra setup* above.
 
 ## Orchestra setup
 
 Three things live outside this repo. The pipeline reports each one clearly rather
 than half-working, so you can tell at a glance which is missing.
 
-### 1. The dbt Core connection (required)
+### 1. The dbt Core connection
 
-A dbt Core connection carries **both** the warehouse profile and the Git binding,
-so one bound to a different repository fails at clone time -- before dbt runs --
-with `Failed to find and clone the remote branch`. The connection must be:
+`dbt_core__bigquery__01406`. A dbt Core connection carries **both** the warehouse
+profile and the Git binding, so it has to be bound to this repository -- one bound
+elsewhere fails at clone time, before dbt runs, with `Failed to find and clone the
+remote branch`. Its profile name is `dbt_bigquery`, which is what
+`dbt_project.yml` declares; the models pick their own datasets via `+schema` plus
+the `generate_schema_name` override, so the connection's default dataset does not
+matter.
 
-| Setting | Value |
-| --- | --- |
-| Repository | `orchestra-hq/orchestra-blueprints` |
-| Warehouse | BigQuery, project `reference-baton-392114`, location `europe-west1` |
-| Dataset | anything; the models set their own via `+schema` and the `generate_schema_name` override |
-| Profile name | `bigquery_lineage` (must match `dbt_project.yml`) |
+### 2. Fivetran credentials
 
-Then map `DBT_CORE_BIGQUERY` in the Orchestra environment to that connection --
-the dbt task reads `connection: ${{ ENV.DBT_CORE_BIGQUERY }}`, so attaching it
-needs no change to the YAML.
+`FIVETRAN_API_KEY` and `FIVETRAN_API_SECRET` live in the secret JSON of the Python
+connection the extract runs under (`blueprints__meltano__51199`, which also holds
+the Lightdash PAT and the BigQuery service account). If they are ever removed, the
+Fivetran child fails naming the exact missing variables rather than loading a
+partial graph; trigger with `sources: ["lightdash", "bigquery"]` to skip that leg
+deliberately.
 
-### 2. Fivetran credentials (required for the Fivetran leg)
+### 3. BigQuery job-history IAM
 
-Add `FIVETRAN_API_KEY` and `FIVETRAN_API_SECRET` to the secret JSON of the Python
-connection the extract runs under (`blueprints__meltano__51199`, which already
-holds the Lightdash PAT and the BigQuery service account). Until then, trigger
-with `sources: ["lightdash", "bigquery"]` -- the Fivetran child fails with the
-exact missing variable names, it does not load a partial graph.
-
-### 3. BigQuery job-history IAM (optional, richer graph)
-
-Grant `roles/bigquery.resourceViewer` at project level to the service account the
-extract uses (`dlt-user@reference-baton-392114.iam.gserviceaccount.com`) so
-`bigquery_job_edges` can read `INFORMATION_SCHEMA.JOBS_BY_PROJECT`. Without it the
-warehouse edges come only from `bigquery_view_refs`, which covers views but not
+The extract's service account
+(`dlt-user@reference-baton-392114.iam.gserviceaccount.com`) needs
+`bigquery.jobs.listAll` (`roles/bigquery.resourceViewer` at project level) for
+`bigquery_job_edges` to read `INFORMATION_SCHEMA.JOBS_BY_PROJECT`. Without it the
+resource logs the denial and yields nothing -- the load still succeeds, and
+warehouse edges fall back to `bigquery_view_refs`, which covers views but not
 tables dbt materialises as tables.
 
 ### Testing on a branch
