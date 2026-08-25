@@ -5,6 +5,8 @@
 -- BigQuery dataset each connector feeds.
 {% if source_table_exists('platform_lineage_raw', 'fivetran_connectors') %}
 
+{%- set has_table_col = source_column_exists('platform_lineage_raw', 'fivetran_connectors', 'table') -%}
+
 with connectors as (
     select * from {{ source('platform_lineage_raw', 'fivetran_connectors') }}
 ),
@@ -19,7 +21,7 @@ select
     connectors.group_name,
     connectors.service,
     connectors.connector_schema,
-    connectors.`table` as connector_table,
+    {{ 'connectors.`table`' if has_table_col else 'cast(null as string)' }} as connector_table,
     connectors.setup_state,
     connectors.sync_state,
     connectors.succeeded_at,
@@ -30,7 +32,7 @@ select
     -- `dataset.table` when the connector writes one named table.
     split(connectors.connector_schema, '.')[safe_offset(0)] as target_dataset,
     coalesce(
-        connectors.`table`,
+        {{ 'connectors.`table`' if has_table_col else 'cast(null as string)' }},
         split(connectors.connector_schema, '.')[safe_offset(1)]
     ) as target_table,
     concat('fivetran.', connectors.group_id, '.', connectors.connector_id)
