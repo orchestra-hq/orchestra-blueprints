@@ -7,12 +7,12 @@ Fivetran asset into a BigQuery one.
 """
 
 import base64
-from typing import Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 
 import dlt
-from dlt.sources.helpers import requests
-
 from config import is_skippable, require_env
+from dlt.sources.helpers import requests
 
 _BASE_URL = "https://api.fivetran.com/v1"
 _TIMEOUT = 60

@@ -7,12 +7,12 @@ join a chart's `metricQuery.exploreName` to the explore's base table
 `externalId` of the chart asset.
 """
 
-from typing import Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 
 import dlt
-from dlt.sources.helpers import requests
-
 from config import is_skippable, require_env
+from dlt.sources.helpers import requests
 
 # Lightdash wraps every response as {"status": "ok", "results": ...}.
 _TIMEOUT = 60

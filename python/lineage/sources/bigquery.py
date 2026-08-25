@@ -17,12 +17,12 @@ Two resources:
 
 import os
 import re
-from typing import Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 
 import dlt
+from config import BQ_LOCATION, resolved_bq_project
 from google.cloud import bigquery
-
-from config import resolved_bq_project, BQ_LOCATION
 
 # INFORMATION_SCHEMA is region-scoped: one query covers every dataset in the
 # region, which beats iterating datasets one at a time.

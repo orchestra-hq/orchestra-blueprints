@@ -18,15 +18,11 @@ PATCHed rather than duplicated, and edges are re-sent harmlessly.
 import os
 import sys
 import time
+from collections.abc import Iterable, Iterator
 from string import Template
-from typing import Any, Iterable, Iterator
+from typing import Any
 
 import requests
-from google.api_core.exceptions import NotFound
-from google.cloud import bigquery
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
-
 from config import (
     BQ_LOCATION,
     RAW_DATASET,
@@ -34,7 +30,11 @@ from config import (
     require_env,
     resolved_bq_project,
 )
+from google.api_core.exceptions import NotFound
+from google.cloud import bigquery
 from queries import ASSET_QUERIES, EDGE_QUERIES
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 API_BASE = os.environ.get(
     "ORCHESTRA_API_BASE", "https://app.getorchestra.io/api/engine/public"
@@ -87,7 +87,9 @@ def _session() -> requests.Session:
     return session
 
 
-def _table_exists(client: bigquery.Client, project: str, dataset: str, table: str) -> bool:
+def _table_exists(
+    client: bigquery.Client, project: str, dataset: str, table: str
+) -> bool:
     try:
         client.get_table(f"{project}.{dataset}.{table}")
         return True

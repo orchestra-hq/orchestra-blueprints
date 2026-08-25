@@ -15,7 +15,6 @@ import os
 import sys
 
 import dlt
-
 from config import (
     BQ_LOCATION,
     KNOWN_SOURCES,
