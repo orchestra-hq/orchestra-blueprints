@@ -8,10 +8,8 @@ pipeline:
         integration_job: SNOWFLAKE_ANOMALY_DETECTION
         parameters:
           model_name: volume_anomalies
-          train_sql_statement: SELECT updated_at::timestamp_ntz as timestamp_col,
-            incremental_rows as target_col, table_name as series_col FROM FIVETRAN.FIVETRAN_METADATA.INCREMENTAL_MAR
-            WHERE SCHEMA_NAME = 'fivetran_metadata' AND MEASURED_DATE < CURRENT_DATE()
-            - 1;
+          train_sql_statement: >-
+            SELECT updated_at::timestamp_ntz as timestamp_col, incremental_rows as target_col, table_name as series_col FROM FIVETRAN.FIVETRAN_METADATA.INCREMENTAL_MAR WHERE SCHEMA_NAME = 'fivetran_metadata' AND MEASURED_DATE < (SELECT MAX(MEASURED_DATE) FROM FIVETRAN.FIVETRAN_METADATA.INCREMENTAL_MAR WHERE SCHEMA_NAME = 'fivetran_metadata') - 1;
           predict_sql_statement: SELECT * FROM FIVETRAN.TEST.TEST_DATA;
           timestamp_colname: timestamp_col
           target_colname: target_col
@@ -28,21 +26,25 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
-          statement: "BEGIN\n    CALL TEST.ROW_COUNT_MONITORING.volume_anomalies!DETECT_ANOMALIES(\n\
-            \        INPUT_DATA => SYSTEM$QUERY_REFERENCE('SELECT * FROM FIVETRAN.TEST.TEST_DATA;'),\n\
-            \        TIMESTAMP_COLNAME => 'timestamp_col',\n        SERIES_COLNAME\
-            \ => 'series_col',\n        TARGET_COLNAME => 'target_col'\n    );\n \
-            \   LET x := SQLID;\n    CREATE OR REPLACE TEMPORARY TABLE my_anomalies\
-            \ AS SELECT * FROM TABLE(RESULT_SCAN(:x));\nEND;\nSELECT * FROM my_anomalies\
-            \ WHERE IS_ANOMALY = TRUE"
+          statement: |-
+            BEGIN
+                CALL TEST.ROW_COUNT_MONITORING.volume_anomalies!DETECT_ANOMALIES(
+                    INPUT_DATA => SYSTEM$QUERY_REFERENCE('SELECT * FROM FIVETRAN.TEST.TEST_DATA;'),
+                    TIMESTAMP_COLNAME => 'timestamp_col',
+                    SERIES_COLNAME => 'series_col',
+                    TARGET_COLNAME => 'target_col'
+                );
+                LET x := SQLID;
+                CREATE OR REPLACE TEMPORARY TABLE my_anomalies AS SELECT * FROM TABLE(RESULT_SCAN(:x));
+            END;
+            SELECT * FROM my_anomalies WHERE IS_ANOMALY = TRUE
           set_outputs: true
         depends_on: []
         name: Retrieve Anomalies
         connection: snowflake_anomaly_user_81552
     depends_on:
     - 8d985a98-55d3-42fc-8e4e-aa64540783ad
-    condition: ${{ task_groups['8d985a98-55d3-42fc-8e4e-aa64540783ad'].any().status
-      == 'FAILED' }}
+    condition: ${{ task_groups['8d985a98-55d3-42fc-8e4e-aa64540783ad'].any().status == 'FAILED' }}
     name: group
   45f26ae8-b839-4ae8-94cb-82d5a5ded470:
     tasks:
@@ -50,13 +52,14 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
-          statement: "CREATE OR REPLACE SNOWFLAKE.ML.ANOMALY_DETECTION TEST.ROW_COUNT_MONITORING.VOLUME_ANOMALIES(\n\
-            \    INPUT_DATA => SYSTEM$QUERY_REFERENCE('SELECT updated_at::timestamp_ntz\
-            \ as timestamp_col, incremental_rows as target_col, table_name as series_col\
-            \ FROM FIVETRAN.FIVETRAN_METADATA.INCREMENTAL_MAR WHERE SCHEMA_NAME =\
-            \ \\'fivetran_metadata\\' AND MEASURED_DATE < CURRENT_DATE() - 1;'),\n\
-            \    TIMESTAMP_COLNAME => 'timestamp_col',\n    TARGET_COLNAME => 'target_col',\n\
-            \    SERIES_COLNAME => 'series_col',\n    label_colname => ''\n)"
+          statement: |-
+            CREATE OR REPLACE SNOWFLAKE.ML.ANOMALY_DETECTION TEST.ROW_COUNT_MONITORING.VOLUME_ANOMALIES(
+                INPUT_DATA => SYSTEM$QUERY_REFERENCE('SELECT updated_at::timestamp_ntz as timestamp_col, incremental_rows as target_col, table_name as series_col FROM FIVETRAN.FIVETRAN_METADATA.INCREMENTAL_MAR WHERE SCHEMA_NAME = \'fivetran_metadata\' AND MEASURED_DATE < (SELECT MAX(MEASURED_DATE) FROM FIVETRAN.FIVETRAN_METADATA.INCREMENTAL_MAR WHERE SCHEMA_NAME = \'fivetran_metadata\') - 1;'),
+                TIMESTAMP_COLNAME => 'timestamp_col',
+                TARGET_COLNAME => 'target_col',
+                SERIES_COLNAME => 'series_col',
+                label_colname => ''
+            )
           set_outputs: true
         depends_on: []
         name: Train Model
@@ -69,12 +72,17 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
-          statement: "BEGIN\n    CALL TEST.ROW_COUNT_MONITORING.volume_anomalies!DETECT_ANOMALIES(\n\
-            \        INPUT_DATA => SYSTEM$QUERY_REFERENCE('SELECT * FROM FIVETRAN.TEST.TEST_DATA;'),\n\
-            \        TIMESTAMP_COLNAME => 'timestamp_col',\n        SERIES_COLNAME\
-            \ => 'series_col',\n        TARGET_COLNAME => 'target_col'\n    );\n \
-            \   LET x := SQLID;\n    CREATE OR REPLACE TABLE my_anomalies AS SELECT\
-            \ * FROM TABLE(RESULT_SCAN(:x));\nEND"
+          statement: |-
+            BEGIN
+                CALL TEST.ROW_COUNT_MONITORING.volume_anomalies!DETECT_ANOMALIES(
+                    INPUT_DATA => SYSTEM$QUERY_REFERENCE('SELECT * FROM FIVETRAN.TEST.TEST_DATA;'),
+                    TIMESTAMP_COLNAME => 'timestamp_col',
+                    SERIES_COLNAME => 'series_col',
+                    TARGET_COLNAME => 'target_col'
+                );
+                LET x := SQLID;
+                CREATE OR REPLACE TABLE my_anomalies AS SELECT * FROM TABLE(RESULT_SCAN(:x));
+            END
           set_outputs: true
         depends_on: []
         name: Run Inference
@@ -88,9 +96,8 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
-          statement: 'SELECT * FROM my_anomalies WHERE IS_ANOMALY = TRUE
-
-            '
+          statement: |
+            SELECT * FROM my_anomalies WHERE IS_ANOMALY = TRUE
           set_outputs: true
         depends_on: []
         name: Retrieve Anomalies
