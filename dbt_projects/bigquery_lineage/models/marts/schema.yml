@@ -14,7 +14,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["GCP_BIG_QUERY", "LIGHTDASH", "FIVETRAN"]
+              arguments:
+                values: ["GCP_BIG_QUERY", "LIGHTDASH", "FIVETRAN"]
       - name: asset_name
         tests: [not_null]
       - name: integration_account_id
