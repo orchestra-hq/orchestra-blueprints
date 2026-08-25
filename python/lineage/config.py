@@ -30,6 +30,19 @@ class MissingCredentials(RuntimeError):
     """Raised when a source is asked to run without the secrets it needs."""
 
 
+# Statuses that mean "this one object is not available to us" rather than "the
+# credential is wrong". Skipping these keeps one inaccessible object from
+# emptying the whole graph, while 401s and 5xxs still fail the load -- silently
+# publishing an empty lineage graph is worse than failing.
+SKIPPABLE_STATUSES = (403, 404)
+
+
+def is_skippable(error: Exception) -> bool:
+    """True when an HTTP error refers to one missing/forbidden object."""
+    response = getattr(error, "response", None)
+    return getattr(response, "status_code", None) in SKIPPABLE_STATUSES
+
+
 def require_env(*names: str) -> list[str]:
     """Return the values of `names`, or raise listing every one that is unset."""
     missing = [name for name in names if not os.environ.get(name)]

@@ -12,7 +12,7 @@ from typing import Any, Iterator
 import dlt
 from dlt.sources.helpers import requests
 
-from config import require_env
+from config import is_skippable, require_env
 
 _BASE_URL = "https://api.fivetran.com/v1"
 _TIMEOUT = 60
@@ -57,7 +57,18 @@ def fivetran_source() -> Any:
     def destinations() -> Iterator[dict[str, Any]]:
         """Where each group lands. `config.project_id` is the BigQuery project."""
         for group in groups:
-            destination = _get(f"destinations/{group['id']}")
+            # A group without a configured destination 404s here. Keep the row so
+            # the group is still recorded; the null warehouse fields mean it
+            # simply contributes no edge.
+            try:
+                destination = _get(f"destinations/{group['id']}")
+            except requests.HTTPError as exc:
+                if not is_skippable(exc):
+                    raise
+                print(
+                    f"fivetran_destinations: no destination for {group['id']} ({exc})"
+                )
+                destination = {}
             config = destination.get("config") or {}
             yield {
                 "group_id": group["id"],
@@ -74,7 +85,14 @@ def fivetran_source() -> Any:
     @dlt.resource(name="fivetran_connectors", write_disposition="replace")
     def connectors() -> Iterator[dict[str, Any]]:
         for group in groups:
-            for connector in _paginate(f"groups/{group['id']}/connectors"):
+            try:
+                group_connectors = list(_paginate(f"groups/{group['id']}/connectors"))
+            except requests.HTTPError as exc:
+                if not is_skippable(exc):
+                    raise
+                print(f"fivetran_connectors: cannot list group {group['id']} ({exc})")
+                continue
+            for connector in group_connectors:
                 config = connector.get("config") or {}
                 status = connector.get("status") or {}
                 yield {

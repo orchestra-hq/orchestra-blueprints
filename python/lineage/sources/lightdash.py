@@ -12,7 +12,7 @@ from typing import Any, Iterator
 import dlt
 from dlt.sources.helpers import requests
 
-from config import require_env
+from config import is_skippable, require_env
 
 # Lightdash wraps every response as {"status": "ok", "results": ...}.
 _TIMEOUT = 60
@@ -69,7 +69,9 @@ def lightdash_source(project_uuids: list[str] | None = None) -> Any:
                     continue
                 try:
                     detail = _get(f"projects/{project_uuid}/explores/{name}")
-                except requests.HTTPError:
+                except requests.HTTPError as exc:
+                    if not is_skippable(exc):
+                        raise
                     detail = None
                 base_table = (detail or {}).get("baseTable")
                 table = ((detail or {}).get("tables") or {}).get(base_table) or {}
