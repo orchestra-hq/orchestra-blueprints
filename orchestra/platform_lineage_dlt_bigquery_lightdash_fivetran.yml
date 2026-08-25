@@ -1,0 +1,119 @@
+version: v1
+name: 'Platform lineage graph #dlt #bigquery #lightdash #fivetran #metaengine #python'
+pipeline:
+  # --- 1. Extract -------------------------------------------------------------
+  # One MetaEngine child per platform. Each runs the same script with a different
+  # LINEAGE_SOURCE, so the extracts are sibling task runs in parallel and adding
+  # a platform is a one-line change to the `sources` input.
+  8f2a1c74-3b6d-4e51-9a02-c7d84f5b1e63:
+    tasks:
+      1d5e93b8-6c47-4a29-8f13-5b0e7a2d94c1:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          source: GIT
+          branch: ${{ inputs.branch }}
+          command: python -m load_source
+          project_dir: python/lineage
+          shallow_clone_dirs: python/lineage
+          set_outputs: false
+          environment_variables: '{
+            "LINEAGE_SOURCE": "${{ MATRIX.source }}",
+            "LINEAGE_RAW_DATASET": "${{ inputs.raw_dataset }}",
+            "BIGQUERY_PROJECT": "${{ inputs.bq_project }}",
+            "BIGQUERY_LOCATION": "${{ inputs.bq_location }}",
+            "LINEAGE_BQ_LOOKBACK_DAYS": "${{ inputs.bq_lookback_days }}"
+            }'
+        depends_on: []
+        name: dlt extract
+        tags:
+        - dlt
+        - lineage
+        connection: blueprints__meltano__51199
+        operation_metadata:
+          3a7f0e51-8d24-4c96-b1e7-2f5a6c8b30d9:
+            integration: GCP_BIG_QUERY
+            connection: dbt_bigquery_24777
+    depends_on: []
+    name: Extract platform metadata
+    matrix:
+      inputs:
+        # Driven by an input so a single source can be run in isolation (handy
+        # when a platform's credentials are not provisioned yet) and so adding a
+        # platform needs no YAML change here.
+        source: ${{ inputs.sources }}
+
+  # --- 2. Publish ---------------------------------------------------------------
+  # Shape the raw metadata into asset/edge rows (python/lineage/queries.py) and
+  # push them into Orchestra via POST /assets and POST /assets/dependencies.
+  # This is the step that makes the graph appear under Data assets > Lineage.
+  c07d5138-9b64-4a72-8e51-3f28d6017ba4:
+    tasks:
+      2b93f60e-4d17-4c85-a239-7e51c8b04df6:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          source: GIT
+          branch: ${{ inputs.branch }}
+          command: python -m publish_lineage
+          project_dir: python/lineage
+          shallow_clone_dirs: python/lineage
+          set_outputs: false
+          environment_variables: '{
+            "LINEAGE_RAW_DATASET": "${{ inputs.raw_dataset }}",
+            "BIGQUERY_PROJECT": "${{ inputs.bq_project }}",
+            "BIGQUERY_LOCATION": "${{ inputs.bq_location }}"
+            }'
+        depends_on: []
+        name: Publish lineage to Orchestra
+        tags:
+        - lineage
+        connection: blueprints__meltano__51199
+        operation_metadata:
+          d92e4a16-5f83-4b07-8e1c-6a4db2570f38:
+            integration: GCP_BIG_QUERY
+            connection: dbt_bigquery_24777
+    depends_on:
+    - 8f2a1c74-3b6d-4e51-9a02-c7d84f5b1e63
+    name: Publish lineage
+schedule:
+- name: Daily at 6am
+  cron: 0 6 * * ? *
+  timezone: Europe/London
+webhook:
+  enabled: false
+inputs:
+  branch:
+    type: string
+    default: main
+  sources:
+    type: list
+    default:
+    - lightdash
+    - bigquery
+    - fivetran
+  raw_dataset:
+    type: string
+    default: platform_lineage_raw
+  bq_project:
+    type: string
+    default: reference-baton-392114
+  bq_location:
+    type: string
+    default: europe-west1
+  bq_lookback_days:
+    type: string
+    default: '7'
+alerts:
+- name: Failures
+  statuses:
+  - FAILED
+  destinations:
+  - integration: SLACK
+    destination: alert-demos

@@ -1,0 +1,4 @@
+dlt==1.16.0
+dlt[bigquery]==1.16.0
+google-cloud-bigquery==3.27.0
+requests==2.32.3
