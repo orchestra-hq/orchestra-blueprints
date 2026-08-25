@@ -40,7 +40,7 @@ bigquery_views as (
         from_external_id,
         to_external_id,
         'GCP_BIG_QUERY' as integration,
-        'Table referenced by this view''s SQL' as lineage_detail
+        'Table referenced by this view\'s SQL' as lineage_detail
     from {{ ref('stg_bigquery__view_refs') }}
 ),
 
