@@ -60,8 +60,10 @@ pattern examples, implemented as an Orchestra API client/analysis.
 dlt, models it into `lineage_assets` / `lineage_edges` with
 `dbt_projects/bigquery_lineage/`, and publishes the result through Orchestra's
 `POST /assets` and `POST /assets/dependencies` endpoints so the whole stack shows
-up under Data assets → Lineage. Adding another platform is four localised edits;
-see [`python/lineage/README.md`](python/lineage/README.md).
+up under Data assets → Lineage. Adding another platform is four localised edits.
+Requires a dbt Core connection bound to this repository and mapped to the
+`DBT_CORE_BIGQUERY` environment variable; see
+[`python/lineage/README.md`](python/lineage/README.md) for the full setup.
 
 ### Python workers
 

@@ -98,6 +98,55 @@ nothing — the load still succeeds. Warehouse table-to-table edges then come fr
 Grant the permission if you want lineage for tables materialised by dbt as
 tables rather than views.
 
+## Orchestra setup
+
+Three things live outside this repo. The pipeline reports each one clearly rather
+than half-working, so you can tell at a glance which is missing.
+
+### 1. The dbt Core connection (required)
+
+A dbt Core connection carries **both** the warehouse profile and the Git binding,
+so one bound to a different repository fails at clone time -- before dbt runs --
+with `Failed to find and clone the remote branch`. The connection must be:
+
+| Setting | Value |
+| --- | --- |
+| Repository | `orchestra-hq/orchestra-blueprints` |
+| Warehouse | BigQuery, project `reference-baton-392114`, location `europe-west1` |
+| Dataset | anything; the models set their own via `+schema` and the `generate_schema_name` override |
+| Profile name | `bigquery_lineage` (must match `dbt_project.yml`) |
+
+Then map `DBT_CORE_BIGQUERY` in the Orchestra environment to that connection --
+the dbt task reads `connection: ${{ ENV.DBT_CORE_BIGQUERY }}`, so attaching it
+needs no change to the YAML.
+
+### 2. Fivetran credentials (required for the Fivetran leg)
+
+Add `FIVETRAN_API_KEY` and `FIVETRAN_API_SECRET` to the secret JSON of the Python
+connection the extract runs under (`blueprints__meltano__51199`, which already
+holds the Lightdash PAT and the BigQuery service account). Until then, trigger
+with `sources: ["lightdash", "bigquery"]` -- the Fivetran child fails with the
+exact missing variable names, it does not load a partial graph.
+
+### 3. BigQuery job-history IAM (optional, richer graph)
+
+Grant `roles/bigquery.resourceViewer` at project level to the service account the
+extract uses (`dlt-user@reference-baton-392114.iam.gserviceaccount.com`) so
+`bigquery_job_edges` can read `INFORMATION_SCHEMA.JOBS_BY_PROJECT`. Without it the
+warehouse edges come only from `bigquery_view_refs`, which covers views but not
+tables dbt materialises as tables.
+
+### Testing on a branch
+
+Orchestra pins a run to the last commit that touched the **pipeline YAML**, so a
+commit that only changes Python or dbt files is not picked up. Pass the commit
+explicitly when iterating:
+
+```
+start_pipeline(branch="<feature-branch>", commit="<sha>",
+               runInputs={"branch": "<feature-branch>", "sources": [...]})
+```
+
 ## Adding another platform
 
 Four edits, no changes to the publisher or the API contract:
