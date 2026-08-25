@@ -2,6 +2,8 @@
 
 -- Deduplicate BigQuery's job history into distinct table-to-table edges: the
 -- same dbt model rebuilt nightly produces one job per run but only one edge.
+{% if source_table_exists('platform_lineage_raw', 'bigquery_job_edges') %}
+
 select distinct
     concat(source_project, '.', source_dataset, '.', source_table) as from_external_id,
     concat(destination_project, '.', destination_dataset, '.', destination_table)
@@ -15,3 +17,14 @@ where source_table is not null
   -- a lineage edge.
   and concat(source_project, '.', source_dataset, '.', source_table)
       != concat(destination_project, '.', destination_dataset, '.', destination_table)
+
+{% else %}
+
+-- No readable job history (the credential lacks bigquery.jobs.listAll), so
+-- warehouse edges come from stg_bigquery__view_refs instead.
+select
+    cast(null as string) as from_external_id,
+    cast(null as string) as to_external_id
+limit 0
+
+{% endif %}

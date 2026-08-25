@@ -108,7 +108,10 @@ Four edits, no changes to the publisher or the API contract:
 2. **Matrix** — add the platform to `matrix.inputs.source` in the pipeline YAML.
    That is the only orchestration change; it becomes another parallel child.
 3. **Staging model** — add `dbt_projects/bigquery_lineage/models/staging/stg_<platform>__*.sql`
-   and declare the raw tables in `sources/platform_lineage_raw.yml`.
+   and declare the raw tables in `sources/platform_lineage_raw.yml`. Wrap the
+   body in `{% if source_table_exists(...) %}` with a typed `limit 0` fallback,
+   like the existing ones: platforms come online at different times, and a build
+   that hard-fails on one missing table publishes no lineage at all.
 4. **Marts** — add one `union all` block to `lineage_assets.sql` (using the
    integration's real `externalId` convention) and one to `lineage_edges.sql`
    for the edges into or out of the existing platforms.
