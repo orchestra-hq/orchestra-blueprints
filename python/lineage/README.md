@@ -148,6 +148,30 @@ start_pipeline(branch="<feature-branch>", commit="<sha>",
                runInputs={"branch": "<feature-branch>", "sources": [...]})
 ```
 
+## Scale
+
+BigQuery `INFORMATION_SCHEMA.TABLES` and `stg_bigquery__tables` filter out
+dlt/BigQuery bookkeeping, dbt's temp/backup tables, and (notably) GA4's
+BigQuery Export -- a table *per day*, which alone was 20k+ rows on the account
+this was built against. Without that filter the publisher's single-row
+`POST /assets` calls (there is no bulk-upsert endpoint) blow through
+Orchestra's 50-requests/minute limit by orders of magnitude. If a warehouse has
+another high-cardinality sharded pattern, add it to that filter rather than
+letting it reach the publisher.
+
+The publisher paces its own writes to stay under the limit (`_PACING_SECONDS`
+in `publish_lineage.py`) and retries 429/5xx with backoff as a safety net, not
+the primary plan -- a workspace with a few hundred assets still takes minutes
+by design, and progress prints every 25 assets so a long run isn't silent.
+
+The Lightdash extract only pulls `DEFAULT`-type projects; `PREVIEW` projects
+(ephemeral CI/PR environments) are skipped unless `LIGHTDASH_PROJECT_UUIDS`
+names them explicitly, since they multiplied dashboard/chart calls, produced
+assets for environments that expire in days, and caused the API 422
+`workspace_name is required when asset_type indicates a dashboard` (their
+name and thus `workspace_name` isn't reliably set the way a `DEFAULT`
+project's is).
+
 ## Adding another platform
 
 Four edits, no changes to the publisher or the API contract:

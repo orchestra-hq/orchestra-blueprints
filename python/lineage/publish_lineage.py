@@ -16,10 +16,13 @@ PATCHed rather than duplicated, and edges are re-sent harmlessly.
 
 import os
 import sys
+import time
 from typing import Any, Iterable, Iterator
 
 import requests
 from google.cloud import bigquery
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from config import (
     BQ_LOCATION,
@@ -37,6 +40,14 @@ API_BASE = os.environ.get(
 EDGE_BATCH_SIZE = 100
 _TIMEOUT = 120
 
+# Orchestra's metadata API allows 50 requests/minute. Assets are written one at
+# a time (there's no bulk-upsert endpoint), so a workspace with a few hundred
+# assets already takes minutes; pacing calls at a safe fraction of the limit
+# converges without burning most of them on 429s and their retries.
+_REQUESTS_PER_MINUTE = 50
+_PACING_SECONDS = 60 / _REQUESTS_PER_MINUTE * 1.25
+_PROGRESS_EVERY = 25
+
 
 def _session() -> requests.Session:
     (api_key,) = require_env("ORCHESTRA_API_KEY")
@@ -44,6 +55,19 @@ def _session() -> requests.Session:
     session.headers.update(
         {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     )
+    # Safety net under the pacing above: a burst from another concurrent job
+    # against the same API key can still trip the limit. Retry 429s and 5xxs
+    # with backoff; honour Retry-After when Orchestra sends one.
+    retry = Retry(
+        total=5,
+        backoff_factor=2,
+        status_forcelist=(429, 500, 502, 503, 504),
+        allowed_methods=frozenset({"GET", "POST", "PATCH"}),
+        respect_retry_after_header=True,
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
     return session
 
 
@@ -95,6 +119,7 @@ def _asset_body(row: dict[str, Any]) -> dict[str, Any]:
         "databaseName": row.get("database_name"),
         "schemaName": row.get("schema_name"),
         "tableName": row.get("table_name"),
+        "workspaceName": row.get("workspace_name"),
         "description": row.get("description"),
         "url": row.get("url"),
         "createdInIntegration": _iso(row.get("created_in_integration")),
@@ -115,7 +140,7 @@ def publish_assets(
     existing = {} if dry_run else _existing_assets(session)
     created = updated = failed = 0
 
-    for row in rows:
+    for index, row in enumerate(rows, start=1):
         body = _asset_body(row)
         external_id = body["externalId"]
         asset_id = existing.get(external_id)
@@ -135,6 +160,7 @@ def publish_assets(
                     "databaseName",
                     "schemaName",
                     "tableName",
+                    "workspaceName",
                     "description",
                     "url",
                     "createdInIntegration",
@@ -146,6 +172,14 @@ def publish_assets(
             )
         else:
             response = session.post(f"{API_BASE}/assets", json=body, timeout=_TIMEOUT)
+
+        # Stay under the 50/minute limit rather than lean on the retry adapter
+        # for the common case -- it exists as a safety net, not the plan.
+        time.sleep(_PACING_SECONDS)
+        if index % _PROGRESS_EVERY == 0:
+            print(
+                f"  ...{index} assets processed (created={created} updated={updated} failed={failed})"
+            )
 
         if response.status_code in (200, 201):
             created += 0 if asset_id else 1

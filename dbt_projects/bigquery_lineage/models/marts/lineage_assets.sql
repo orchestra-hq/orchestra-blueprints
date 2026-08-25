@@ -21,6 +21,7 @@ with bigquery_assets as (
         project_id as database_name,
         dataset_id as schema_name,
         table_name,
+        cast(null as string) as workspace_name,
         cast(null as string) as description,
         cast(null as string) as url,
         safe_cast(creation_time as timestamp) as created_in_integration
@@ -37,6 +38,7 @@ lightdash_charts as (
         cast(null as string) as database_name,
         space_name as schema_name,
         cast(null as string) as table_name,
+        cast(null as string) as workspace_name,
         description,
         cast(null as string) as url,
         cast(null as timestamp) as created_in_integration
@@ -53,6 +55,8 @@ lightdash_dashboards as (
         cast(null as string) as database_name,
         cast(null as string) as schema_name,
         cast(null as string) as table_name,
+        -- required by Orchestra's asset API for DASHBOARD-type assets
+        workspace_name,
         description,
         cast(null as string) as url,
         cast(null as timestamp) as created_in_integration
@@ -69,6 +73,7 @@ fivetran_assets as (
         warehouse_project as database_name,
         target_dataset as schema_name,
         target_table as table_name,
+        cast(null as string) as workspace_name,
         concat(
             'Fivetran ', service, " connector '", connector_id,
             "' in group ", group_name, ' syncing into ', connector_schema, '.'
@@ -97,6 +102,7 @@ select
     database_name,
     schema_name,
     table_name,
+    workspace_name,
     description,
     url,
     created_in_integration

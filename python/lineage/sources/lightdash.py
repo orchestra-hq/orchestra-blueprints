@@ -42,11 +42,21 @@ def lightdash_source(project_uuids: list[str] | None = None) -> Any:
 
     # Fetched once and shared by every resource below: the org rarely has more
     # than a handful of projects, and each resource needs the same list.
-    selected = [
-        project
-        for project in _get("org/projects") or []
-        if not project_uuids or project["projectUuid"] in project_uuids
-    ]
+    #
+    # PREVIEW projects are ephemeral CI/PR environments -- the account this was
+    # built against has a dozen-plus expiring "PR-123" projects alongside the
+    # two real ones, and pulling every explore/chart/dashboard out of each one
+    # both wastes most of the extract's runtime and produces dashboard assets
+    # for a project that no longer exists a day later. Skip them unless the
+    # caller named specific project UUIDs, in which case respect that choice.
+    all_projects = _get("org/projects") or []
+    if project_uuids:
+        selected = [p for p in all_projects if p["projectUuid"] in project_uuids]
+    else:
+        selected = [p for p in all_projects if p.get("type", "DEFAULT") == "DEFAULT"]
+        skipped = len(all_projects) - len(selected)
+        if skipped:
+            print(f"lightdash: skipping {skipped} non-DEFAULT (preview) project(s)")
 
     @dlt.resource(name="lightdash_projects", write_disposition="replace")
     def projects() -> Iterator[dict[str, Any]]:
