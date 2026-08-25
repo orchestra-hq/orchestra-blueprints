@@ -111,6 +111,13 @@ remote branch`. Its profile name is `dbt_bigquery`, which is what
 the `generate_schema_name` override, so the connection's default dataset does not
 matter.
 
+If `dbt debug` reports `invalid_grant: Invalid JWT Signature`, the profile
+resolved fine and only the service-account key is wrong -- usually a `private_key`
+pasted with literal `\n` sequences instead of real newlines, or a key that has
+since been rotated or deleted in GCP. The key already working for the extract
+tasks (`dlt-user@reference-baton-392114.iam.gserviceaccount.com`) is a known-good
+one to reuse.
+
 ### 2. Fivetran credentials
 
 `FIVETRAN_API_KEY` and `FIVETRAN_API_SECRET` live in the secret JSON of the Python
