@@ -32,4 +32,9 @@ sources:
       - name: bigquery_job_edges
         description: >
           One row per (destination table, referenced table) pair from BigQuery
-          job history -- the warehouse's own table-to-table lineage.
+          job history -- the warehouse's own table-to-table lineage. Empty when
+          the credential cannot list jobs.
+      - name: bigquery_view_refs
+        description: >
+          One row per (view, table it selects from), parsed from view SQL. The
+          no-extra-IAM fallback for bigquery_job_edges.

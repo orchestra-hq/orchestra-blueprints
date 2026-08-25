@@ -3,15 +3,20 @@
 Two resources:
 
 * `bigquery_tables`  -- the asset inventory (every table and view in the project).
-* `bigquery_job_edges` -- real table-to-table lineage. BigQuery records the
-  `referenced_tables` and `destination_table` of every query job, so dbt/dlt/etc.
-  writes become edges without anyone parsing SQL. This needs
-  `bigquery.jobs.listAll`; when the credential lacks it we fall back to the
-  caller's own jobs, and if that fails too the resource yields nothing rather
-  than failing the load (the inventory is still worth having).
+* `bigquery_job_edges` -- table-to-table lineage from job history. BigQuery
+  records the `referenced_tables` and `destination_table` of every query job, so
+  dbt/dlt/etc. writes become edges without anyone parsing SQL. This is the best
+  source of warehouse lineage but it needs `bigquery.jobs.listAll`; when the
+  credential lacks it we fall back to the caller's own jobs, and if that fails
+  too the resource yields nothing rather than failing the load.
+* `bigquery_view_refs` -- the fallback for the above. Every table a view selects
+  from, taken from the view's own SQL. It needs no extra IAM beyond reading
+  INFORMATION_SCHEMA, so the graph still has warehouse edges on a credential
+  that cannot list jobs.
 """
 
 import os
+import re
 from typing import Any, Iterator
 
 import dlt
@@ -55,6 +60,24 @@ WHERE job_type = 'QUERY'
 """
 
 
+_VIEWS_SQL = """
+SELECT
+  table_catalog,
+  table_schema,
+  table_name,
+  view_definition
+FROM `{project}`.`region-{location}`.INFORMATION_SCHEMA.VIEWS
+WHERE view_definition IS NOT NULL
+"""
+
+# BigQuery view SQL refers to tables as `project.dataset.table` (or
+# `project`.`dataset`.`table`), so the fully-qualified backticked reference is a
+# reliable thing to pull out -- no general SQL parsing required.
+_REFERENCE_PATTERN = re.compile(
+    r"`(?P<project>[\w-]+)`?\.`?(?P<dataset>\w+)`?\.`?(?P<table>\w+)`"
+)
+
+
 def _rows(client: bigquery.Client, sql: str) -> Iterator[dict[str, Any]]:
     for row in client.query(sql, location=BQ_LOCATION).result():
         yield dict(row.items())
@@ -90,4 +113,28 @@ def bigquery_source() -> Any:
                 print(f"bigquery_job_edges: {view} unavailable ({exc})")
         print("bigquery_job_edges: no job history readable, yielding no edges")
 
-    return tables, job_edges
+    @dlt.resource(name="bigquery_view_refs", write_disposition="replace")
+    def view_refs() -> Iterator[dict[str, Any]]:
+        for view in _rows(
+            client, _VIEWS_SQL.format(project=project, location=BQ_LOCATION)
+        ):
+            seen: set[tuple[str, str, str]] = set()
+            for match in _REFERENCE_PATTERN.finditer(view["view_definition"]):
+                reference = (
+                    match.group("project"),
+                    match.group("dataset"),
+                    match.group("table"),
+                )
+                if reference in seen:
+                    continue
+                seen.add(reference)
+                yield {
+                    "view_project": view["table_catalog"],
+                    "view_dataset": view["table_schema"],
+                    "view_name": view["table_name"],
+                    "source_project": reference[0],
+                    "source_dataset": reference[1],
+                    "source_table": reference[2],
+                }
+
+    return tables, job_edges, view_refs

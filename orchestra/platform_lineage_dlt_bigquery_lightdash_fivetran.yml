@@ -3,8 +3,8 @@ name: 'Platform lineage graph #dlt #bigquery #lightdash #fivetran #dbt #metaengi
 pipeline:
   # --- 1. Extract -------------------------------------------------------------
   # One MetaEngine child per platform. Each runs the same script with a different
-  # LINEAGE_SOURCE, so the three extracts are sibling task runs in parallel and
-  # adding a platform is a one-line change to the matrix below.
+  # LINEAGE_SOURCE, so the extracts are sibling task runs in parallel and adding
+  # a platform is a one-line change to the `sources` input.
   8f2a1c74-3b6d-4e51-9a02-c7d84f5b1e63:
     tasks:
       1d5e93b8-6c47-4a29-8f13-5b0e7a2d94c1:
@@ -41,10 +41,10 @@ pipeline:
     name: Extract platform metadata
     matrix:
       inputs:
-        source:
-        - lightdash
-        - bigquery
-        - fivetran
+        # Driven by an input so a single source can be run in isolation (handy
+        # when a platform's credentials are not provisioned yet) and so adding a
+        # platform needs no YAML change here.
+        source: ${{ inputs.sources }}
 
   # --- 2. Transform -----------------------------------------------------------
   # Small dbt Core project that unions the raw metadata into two Orchestra-shaped
@@ -135,6 +135,12 @@ inputs:
   branch:
     type: string
     default: main
+  sources:
+    type: list
+    default:
+    - lightdash
+    - bigquery
+    - fivetran
   dbt_command:
     type: string
     default: build

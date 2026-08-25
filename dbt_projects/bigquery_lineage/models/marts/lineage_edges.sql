@@ -4,8 +4,9 @@
 -- `POST /assets/dependencies`. Three kinds of edge stitch the stack together:
 --
 --   FIVETRAN       connector      -> BigQuery table it lands
---   GCP_BIG_QUERY  BigQuery table -> BigQuery table (from job history, so dbt
---                                    and dlt writes both show up)
+--   GCP_BIG_QUERY  BigQuery table -> BigQuery table, from job history (so dbt
+--                                    and dlt writes both show up) and from view
+--                                    SQL (the fallback when jobs are unreadable)
 --   LIGHTDASH      BigQuery table -> chart built on it
 --
 -- Adding a platform means adding one more `union all` block with the same four
@@ -34,6 +35,15 @@ bigquery_to_bigquery as (
     from {{ ref('stg_bigquery__edges') }}
 ),
 
+bigquery_views as (
+    select
+        from_external_id,
+        to_external_id,
+        'GCP_BIG_QUERY' as integration,
+        'Table referenced by this view''s SQL' as lineage_detail
+    from {{ ref('stg_bigquery__view_refs') }}
+),
+
 bigquery_to_lightdash as (
     select
         warehouse_external_id as from_external_id,
@@ -48,6 +58,8 @@ unioned as (
     select * from fivetran_to_bigquery
     union all
     select * from bigquery_to_bigquery
+    union all
+    select * from bigquery_views
     union all
     select * from bigquery_to_lightdash
 ),

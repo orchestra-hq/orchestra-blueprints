@@ -88,6 +88,16 @@ the pipeline's `environment_variables`. Nothing is read from `secrets.toml`.
 The Lightdash and Fivetran extracts fail loudly with the exact list of missing
 variable names rather than loading a partial graph.
 
+### BigQuery job history is optional
+
+`bigquery_job_edges` reads `INFORMATION_SCHEMA.JOBS_BY_PROJECT`, which needs
+`bigquery.jobs.listAll` (`roles/bigquery.resourceViewer` at project level). The
+demo service account does not have it, so the resource logs the denial and yields
+nothing — the load still succeeds. Warehouse table-to-table edges then come from
+`bigquery_view_refs` instead, which only needs INFORMATION_SCHEMA read access.
+Grant the permission if you want lineage for tables materialised by dbt as
+tables rather than views.
+
 ## Adding another platform
 
 Four edits, no changes to the publisher or the API contract:

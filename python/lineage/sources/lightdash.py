@@ -90,7 +90,18 @@ def lightdash_source(project_uuids: list[str] | None = None) -> Any:
             project_uuid = project["projectUuid"]
             for chart in _get(f"projects/{project_uuid}/charts") or []:
                 chart_uuid = chart.get("uuid")
-                detail = _get(f"saved/{chart_uuid}") if chart_uuid else None
+                # The list endpoint can include charts the token cannot open
+                # (deleted, or in a space it has no access to); `saved/{uuid}`
+                # then 404s. Keep the chart as an asset, just without its
+                # explore, rather than failing the whole extract.
+                detail = None
+                if chart_uuid:
+                    try:
+                        detail = _get(f"saved/{chart_uuid}")
+                    except requests.HTTPError as exc:
+                        print(
+                            f"lightdash_charts: skipping detail for {chart_uuid} ({exc})"
+                        )
                 metric_query = (detail or {}).get("metricQuery") or {}
                 yield {
                     "project_uuid": project_uuid,
@@ -102,7 +113,8 @@ def lightdash_source(project_uuids: list[str] | None = None) -> Any:
                     "updated_at": chart.get("updatedAt"),
                     # `tableName` is the explore the chart is built on.
                     "explore_name": (detail or {}).get("tableName")
-                    or metric_query.get("exploreName"),
+                    or metric_query.get("exploreName")
+                    or chart.get("tableName"),
                     "slug": (detail or {}).get("slug"),
                 }
 
