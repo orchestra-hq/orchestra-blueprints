@@ -5,6 +5,18 @@ You can easily extract all the metadata from Orchestra into your warehouse. We w
 1. Copy this `metadata_api` folder to your repo. You will need the `.dlt` folder, `requirements.txt`, and `run.py` files.
 2. Create a [Python integration](https://docs.getorchestra.io/docs/integrations/python/) to execute the dlt script. Ensure you have secrets provisioned - they should follow the dlt schema for adding secrets.
 
+## Backfilling history
+
+By default, `run.py` loads `pipeline_runs`, `task_runs`, and `operations` for the last 7 days (the Orchestra API's default window when no time filter is given), plus a full snapshot of `assets`. To load older history, pass `--backfill-days`:
+
+```bash
+python run.py snowflake --backfill-days 90
+```
+
+This backfills the last 90 days of `pipeline_runs`/`task_runs`/`operations` before running the standard load. The Orchestra API caps each request's `time_from`/`time_to` window to 7 days (and `time_from` can't be earlier than 2023-01-01), so the script automatically chunks the backfill into consecutive 7-day requests. Every load uses `write_disposition="merge"`, so re-running a backfill (or the standard load) is safe and idempotent.
+
+In the included `orchestra_pipeline.yaml`, this is exposed as the `backfill_days` pipeline input (default `"0"`, meaning no backfill) - set it when triggering a run to backfill on demand.
+
 Examples for Snowflake, BigQuery, MySQL, and MotherDuck are below. Do not forget to add your Orchestra API Token to the `secrets.json` section of the credential as well.
 
 Snowflake:
