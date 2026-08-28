@@ -7,7 +7,7 @@ pipeline:
         integration: PYTHON
         integration_job: PYTHON_EXECUTE_SCRIPT
         parameters:
-          command: python run.py ${{ inputs.warehouse }}
+          command: python run.py ${{ inputs.warehouse }} --backfill-days ${{ inputs.backfill_days }}
           package_manager: PIP
           python_version: "3.12"
           build_command: pip install -r requirements.txt
@@ -66,3 +66,6 @@ inputs:
   warehouse:
     type: string
     default: "snowflake"
+  backfill_days:
+    type: string
+    default: "0"
