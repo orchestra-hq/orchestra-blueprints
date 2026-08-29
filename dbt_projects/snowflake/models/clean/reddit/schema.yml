@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: reddit_leads_clean
+    description: >
+      Cleaned and de-duplicated Reddit leads, one row per lead_id. Intent is
+      normalised and a qualification flag is derived.
+    config:
+      tags: ['reddit_leads']
+    columns:
+      - name: lead_id
+        description: "Primary key — deterministic hash of subreddit + post id."
+        tests:
+          - unique
+          - not_null
+      - name: post_id
+        description: "Reddit post id."
+        tests:
+          - not_null
+      - name: subreddit
+        description: "Lower-cased subreddit name."
+        tests:
+          - not_null
+      - name: intent
+        description: "Normalised purchase-intent classification."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['high', 'medium', 'low', 'unknown']
+      - name: is_qualified
+        description: "True when intent = high."
+        tests:
+          - not_null
+      - name: posted_at
+        description: "When the Reddit post was created (UTC)."
