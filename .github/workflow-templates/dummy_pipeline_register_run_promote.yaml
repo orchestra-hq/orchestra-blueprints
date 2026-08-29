@@ -1,0 +1,161 @@
+# Register -> run -> promote, for the dummy Python pipeline.
+#
+# This is the reference CI/CD shape for shipping a git-backed Orchestra pipeline
+# through two workspaces:
+#
+#   1. register  - make sure `orchestra/dummy_python_pipeline.yml` exists as a
+#                  git-backed pipeline in the SOURCE (dev/staging) workspace.
+#   2. run       - trigger it against this branch/commit and block until the run
+#                  reaches a terminal state.
+#   3. promote   - only if the run succeeded, register the same YAML in the
+#                  TARGET (production) workspace.
+#
+# Workspaces in Orchestra are fully isolated, so "pushing to another workspace"
+# means importing the same YAML there with that workspace's own API key. The
+# target workspace needs its own git connection to this repo, and the
+# connections/environment variables the pipeline references must exist there too.
+#
+# Required secrets (on the `production` GitHub environment):
+#   ORCHESTRA_API_KEY         - standard key for the SOURCE workspace
+#   ORCHESTRA_TARGET_API_KEY  - standard key for the TARGET workspace
+name: Dummy Pipeline - Register, Run, Promote
+
+on:
+  # Manual runs are the normal way to exercise this end to end.
+  workflow_dispatch:
+    inputs:
+      promote:
+        description: Promote to the target workspace when the run succeeds
+        type: boolean
+        required: false
+        default: true
+  push:
+    branches:
+      - main
+    paths:
+      - orchestra/dummy_python_pipeline.yml
+      - python/dummy_pipeline/**
+      - .github/workflows/dummy_pipeline_register_run_promote.yaml
+
+env:
+  PIPELINE_YAML: orchestra/dummy_python_pipeline.yml
+  # Aliases are the unique identifier Orchestra resolves a pipeline by, so they
+  # must stay stable across runs - a changing alias creates duplicate pipelines.
+  PIPELINE_ALIAS: dummy-python-pipeline
+
+# Never let two runs register/promote the same alias at the same time.
+concurrency:
+  group: dummy-pipeline-register-run-promote
+  cancel-in-progress: false
+
+jobs:
+  quality-gates:
+    uses: ./.github/workflows/reusable-quality-gates.yml
+    with:
+      run_ruff_format: true
+
+  register-and-run:
+    name: Register and run in the source workspace
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          # orchestra import infers the provider, default branch and repo-relative
+          # YAML path from git, so it needs real git history and an origin remote.
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Orchestra CLI
+        run: |
+          python -m pip install --upgrade pip
+          pip install orchestra-cli
+
+      - name: Validate pipeline YAML
+        run: orchestra validate "$PIPELINE_YAML"
+
+      - name: Register pipeline in source workspace
+        env:
+          ORCHESTRA_API_KEY: ${{ secrets.ORCHESTRA_API_KEY }}
+        run: |
+          bash scripts/orchestra_register_pipeline.sh \
+            --alias "$PIPELINE_ALIAS" \
+            --path "$PIPELINE_YAML" \
+            --working-branch "${{ github.ref_name }}" \
+            --workspace-label "source"
+
+      - name: Run pipeline and wait for completion
+        env:
+          ORCHESTRA_API_KEY: ${{ secrets.ORCHESTRA_API_KEY }}
+        run: |
+          # --force skips the interactive git-state confirmation prompt.
+          # The CLI polls until a terminal state and exits non-zero on
+          # FAILED/CANCELLED, which is what gates the promote job below.
+          orchestra run \
+            --alias "$PIPELINE_ALIAS" \
+            --branch "${{ github.ref_name }}" \
+            --commit "${{ github.sha }}" \
+            --wait \
+            --force | tee run.log
+          {
+            echo "### Dummy pipeline run (source workspace)"
+            echo ''
+            echo '```'
+            cat run.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  promote:
+    name: Promote to the target workspace
+    needs: register-and-run
+    # needs.* already implies success, but being explicit documents the gate:
+    # the pipeline is only registered in the target workspace once it has
+    # actually run green in the source workspace.
+    if: >-
+      success() &&
+      (github.event_name != 'workflow_dispatch' || inputs.promote)
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Orchestra CLI
+        run: |
+          python -m pip install --upgrade pip
+          pip install orchestra-cli
+
+      - name: Register pipeline in target workspace
+        env:
+          # Different workspace => different API key. Everything else (repo,
+          # YAML path, alias) is identical, so the two workspaces stay in sync
+          # from one source of truth.
+          ORCHESTRA_API_KEY: ${{ secrets.ORCHESTRA_TARGET_API_KEY }}
+        run: |
+          bash scripts/orchestra_register_pipeline.sh \
+            --alias "$PIPELINE_ALIAS" \
+            --path "$PIPELINE_YAML" \
+            --working-branch main \
+            --workspace-label "target"
+
+      - name: Summarise promotion
+        run: |
+          {
+            echo "### Promoted \`$PIPELINE_ALIAS\` to the target workspace"
+            echo ''
+            echo "- YAML: \`$PIPELINE_YAML\`"
+            echo "- Commit: \`${{ github.sha }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
