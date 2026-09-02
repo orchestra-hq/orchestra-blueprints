@@ -42,8 +42,8 @@ pipeline:
         integration: DATABRICKS
         integration_job: DATABRICKS_EXECUTE_STATEMENT
         parameters:
-          statement: DROP TABLE IF EXISTS orchestra_demo_2.default.orders;
           warehouse_id: 86c2feabe2d36412
+          statement: DROP TABLE IF EXISTS `hive_metastore`.`default`.`orders`;
           set_outputs: false
         depends_on: []
         name: drop orders (Databricks)
@@ -248,8 +248,8 @@ pipeline:
         integration: DATABRICKS
         integration_job: DATABRICKS_EXECUTE_STATEMENT
         parameters:
-          statement: SELECT COUNT(*) FROM orchestra_demo_2.default.orders;
           warehouse_id: 86c2feabe2d36412
+          statement: SELECT COUNT(*) FROM `hive_metastore`.`default`.`orders`;
           set_outputs: false
         depends_on: []
         name: Query orders (Databricks)
@@ -265,8 +265,8 @@ pipeline:
         integration: DATABRICKS
         integration_job: DATABRICKS_EXECUTE_STATEMENT
         parameters:
-          statement: SELECT COUNT(*) FROM orchestra_demo_2.default.orders;
           warehouse_id: 86c2feabe2d36412
+          statement: SELECT COUNT(*) FROM `hive_metastore`.`default`.`orders`;
           set_outputs: false
         depends_on: []
         name: Query orders (Databricks)
