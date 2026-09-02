@@ -34,8 +34,8 @@ pipeline:
         name: dbt build (Snowflake)
         connection: dbt_snowflake_blueprints_prod_07025
     depends_on:
-    - 232f1037-3f80-49b5-a7e6-c33f9d4140f7
-    condition: ${{ task_groups['232f1037-3f80-49b5-a7e6-c33f9d4140f7'].all().status in ['SUCCEEDED', 'SKIPPED'] }}
+    - b696d26d-0d9b-4c26-b250-bee03aeacfea
+    condition: ${{ task_groups['b696d26d-0d9b-4c26-b250-bee03aeacfea'].any().status == 'FAILED' }}
     name: dbt build (Snowflake)
     paused: true
   0620dce6-f7c3-465a-89f8-d85fde236feb:
@@ -72,8 +72,8 @@ pipeline:
         name: dbt build (Databricks)
         connection: dbt_databricks_demo_54814
     depends_on:
-    - 0620dce6-f7c3-465a-89f8-d85fde236feb
-    condition: ${{ task_groups['0620dce6-f7c3-465a-89f8-d85fde236feb'].all().status in ['SUCCEEDED', 'SKIPPED'] }}
+    - b812552f-e8fa-43e7-8bec-e7b0d0ea5410
+    condition: ${{ task_groups['b812552f-e8fa-43e7-8bec-e7b0d0ea5410'].any().status == 'FAILED' }}
     name: dbt build (Databricks)
     paused: true
   c6e8b9f0-ac81-4628-8f04-bf948c214dc1:
@@ -131,7 +131,8 @@ pipeline:
         connection: dbt_core__bigquery__01406
     depends_on:
     - c6e8b9f0-ac81-4628-8f04-bf948c214dc1
-    condition: ${{ task_groups['c6e8b9f0-ac81-4628-8f04-bf948c214dc1'].all().status in ['SUCCEEDED', 'SKIPPED'] }}
+    condition: ${{ task_groups['c6e8b9f0-ac81-4628-8f04-bf948c214dc1'].all().status in ['SUCCEEDED', 'SKIPPED']
+      }}
     name: '[COPY] dbt build (BigQuery)'
   97ff2780-3902-49fa-aaaf-c22142d09493:
     tasks:
@@ -148,8 +149,8 @@ pipeline:
         connection: dbt_bigquery_24777
     depends_on:
     - c070257d-01c8-49a6-8ac2-5b65615119fd
-    condition: >-
-      ${{ task_groups['c070257d-01c8-49a6-8ac2-5b65615119fd'].all().status in ['SUCCEEDED', 'WARNING'] and inputs.drop_mid_model == True }}
+    condition: ${{ task_groups['c070257d-01c8-49a6-8ac2-5b65615119fd'].all().status in ['SUCCEEDED', 'WARNING']
+      and inputs.drop_mid_model == True }}
     name: '[COPY] drop mid-DAG model (BigQuery)'
   14e5eeff-6fd8-42be-a835-f906f81b0557:
     tasks:
@@ -166,9 +167,125 @@ pipeline:
         connection: dbt_bigquery_24777
     depends_on:
     - 9dee97cb-0c7b-4f6a-9112-e83c2322ba68
-    condition: >-
-      ${{ task_groups['9dee97cb-0c7b-4f6a-9112-e83c2322ba68'].all().status in ['SUCCEEDED', 'WARNING'] and inputs.drop_mid_model == True }}
+    condition: ${{ task_groups['9dee97cb-0c7b-4f6a-9112-e83c2322ba68'].all().status in ['SUCCEEDED', 'WARNING']
+      and inputs.drop_mid_model == True }}
     name: '[COPY] [COPY] drop mid-DAG model (BigQuery)'
+  aae4b4d1-cc58-4d35-b3e6-9183a5e8b044:
+    tasks:
+      8de3bd57-28ab-4d3a-9ac8-30f48ebf72df:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: main
+          production_run_identifier: main
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
+        depends_on: []
+        name: '[MAIN] dbt build (Snowflake)'
+        connection: dbt_snowflake_blueprints_prod_07025
+    depends_on:
+    - 232f1037-3f80-49b5-a7e6-c33f9d4140f7
+    condition: ${{ task_groups['232f1037-3f80-49b5-a7e6-c33f9d4140f7'].all().status in ['SUCCEEDED', 'SKIPPED']
+      }}
+    name: '[MAIN] dbt build (Snowflake)'
+    paused: true
+  b696d26d-0d9b-4c26-b250-bee03aeacfea:
+    tasks:
+      a0c55580-a8b0-44e4-9f7b-ba9c9062dd4e:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: SELECT COUNT(*) FROM SNOWFLAKE_WORKING.PUBLIC_CLEAN.CUSTOMERS_CLEAN;
+          set_outputs: false
+        depends_on: []
+        name: Query CUSTOMERS_CLEAN (Snowflake)
+        connection: snowflake_db_user_72601
+    depends_on:
+    - aae4b4d1-cc58-4d35-b3e6-9183a5e8b044
+    condition: ${{ task_groups['aae4b4d1-cc58-4d35-b3e6-9183a5e8b044'].all().status in ['SUCCEEDED', 'WARNING']
+      and inputs.drop_mid_model == True }}
+    name: query mid-DAG model (Snowflake)
+    paused: true
+  bc4ff3fe-7036-4141-85c0-fb86928b6816:
+    tasks:
+      3b4c1126-f7a9-456a-bf95-12364d54dfbb:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: SELECT COUNT(*) FROM SNOWFLAKE_WORKING.PUBLIC_CLEAN.CUSTOMERS_CLEAN;
+          set_outputs: false
+        depends_on: []
+        name: Query CUSTOMERS_CLEAN (Snowflake)
+        connection: snowflake_db_user_72601
+    depends_on:
+    - e5a94087-65a1-4189-833b-5b050893fbb9
+    condition: ${{ task_groups['e5a94087-65a1-4189-833b-5b050893fbb9'].all().status in ['SUCCEEDED', 'WARNING']
+      and inputs.drop_mid_model == True }}
+    name: query mid-DAG model after rebuild (Snowflake)
+    paused: true
+  517a6384-47af-4993-b642-50475b2197f7:
+    tasks:
+      e1a2ebed-3c4d-4958-9fda-5a1666c8ff35:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: main
+          production_run_identifier: main
+          project_dir: dbt_projects/databricks
+          shallow_clone_dirs: dbt_projects/databricks
+        depends_on: []
+        name: '[MAIN] dbt build (Databricks)'
+        connection: dbt_databricks_demo_54814
+    depends_on:
+    - 0620dce6-f7c3-465a-89f8-d85fde236feb
+    condition: ${{ task_groups['0620dce6-f7c3-465a-89f8-d85fde236feb'].all().status in ['SUCCEEDED', 'SKIPPED']
+      }}
+    name: '[MAIN] dbt build (Databricks)'
+    paused: true
+  b812552f-e8fa-43e7-8bec-e7b0d0ea5410:
+    tasks:
+      bcac2e26-219f-46df-9b2c-7970499de059:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_EXECUTE_STATEMENT
+        parameters:
+          statement: SELECT COUNT(*) FROM orchestra_demo_2.default.orders;
+          warehouse_id: 86c2feabe2d36412
+          set_outputs: false
+        depends_on: []
+        name: Query orders (Databricks)
+        connection: databricks__prod__39884
+    depends_on:
+    - 517a6384-47af-4993-b642-50475b2197f7
+    condition: ${{ task_groups['517a6384-47af-4993-b642-50475b2197f7'].all().status in ['SUCCEEDED', 'WARNING']
+      and inputs.drop_mid_model == True }}
+    name: query mid-DAG model (Databricks)
+    paused: true
+  d0a50496-84b1-49e0-83be-10a38e1635b4:
+    tasks:
+      915fa046-4256-4cdf-8dba-2006295b3627:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_EXECUTE_STATEMENT
+        parameters:
+          statement: SELECT COUNT(*) FROM orchestra_demo_2.default.orders;
+          warehouse_id: 86c2feabe2d36412
+          set_outputs: false
+        depends_on: []
+        name: Query orders (Databricks)
+        connection: databricks__prod__39884
+    depends_on:
+    - 9cde83f3-db88-477e-8d21-23ee57b5b28e
+    condition: ${{ task_groups['9cde83f3-db88-477e-8d21-23ee57b5b28e'].all().status in ['SUCCEEDED', 'WARNING']
+      and inputs.drop_mid_model == True }}
+    name: query mid-DAG model after rebuild (Databricks)
+    paused: true
 webhook:
   enabled: false
 inputs:
