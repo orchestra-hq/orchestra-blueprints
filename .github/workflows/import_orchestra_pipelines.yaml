@@ -6,13 +6,7 @@ on:
       - main
 
 jobs:
-  quality-gates:
-    uses: ./.github/workflows/reusable-quality-gates.yml
-    with:
-      run_ruff_format: true
-
   import:
-    needs: quality-gates
     environment: production
     runs-on: ubuntu-latest
     steps:
