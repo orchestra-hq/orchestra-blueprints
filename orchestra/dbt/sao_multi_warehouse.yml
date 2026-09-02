@@ -109,8 +109,8 @@ pipeline:
         name: dbt build (BigQuery)
         connection: dbt_core__bigquery__01406
     depends_on:
-    - c070257d-01c8-49a6-8ac2-5b65615119fd
-    condition: ${{ task_groups['c070257d-01c8-49a6-8ac2-5b65615119fd'].any().status == 'FAILED' }}
+    - 97ff2780-3902-49fa-aaaf-c22142d09493
+    condition: ${{ task_groups['97ff2780-3902-49fa-aaaf-c22142d09493'].any().status == 'FAILED' }}
     name: dbt build (BigQuery)
   c070257d-01c8-49a6-8ac2-5b65615119fd:
     tasks:
