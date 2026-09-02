@@ -1,2 +1,16 @@
-
 version: 2
+
+sources:
+  - name: raw
+    description: >
+      Standing tables in the seed schema. `orders_raw` was originally loaded by
+      a dbt seed; the project now reads it as a source rather than owning it, so
+      state-aware orchestration can judge its freshness and reuse the models
+      downstream of it (a seed is always treated as dirty).
+    schema: default_seed_data
+    loaded_at_field: "cast(order_date as timestamp)"
+    freshness:
+      warn_after: {count: 365, period: day}
+    tables:
+      - name: orders_raw
+        description: "One row per order: id, customer, date, amount, status."
