@@ -151,6 +151,24 @@ pipeline:
     condition: >-
       ${{ task_groups['c070257d-01c8-49a6-8ac2-5b65615119fd'].all().status in ['SUCCEEDED', 'WARNING'] and inputs.drop_mid_model == True }}
     name: '[COPY] drop mid-DAG model (BigQuery)'
+  14e5eeff-6fd8-42be-a835-f906f81b0557:
+    tasks:
+      12353961-9fcc-4764-87e7-c00641901934:
+        integration: GCP_BIG_QUERY
+        integration_job: GCP_BQ_RUN_QUERY_JOB
+        parameters:
+          query: SELECT COUNT(*) FROM `reference-baton-392114.dbt_sao_demo.stg_orders`
+          set_outputs: false
+          enable_drive_scope: false
+          location: europe-west1
+        depends_on: []
+        name: Query stg_orders (BigQuery)
+        connection: dbt_bigquery_24777
+    depends_on:
+    - 9dee97cb-0c7b-4f6a-9112-e83c2322ba68
+    condition: >-
+      ${{ task_groups['9dee97cb-0c7b-4f6a-9112-e83c2322ba68'].all().status in ['SUCCEEDED', 'WARNING'] and inputs.drop_mid_model == True }}
+    name: '[COPY] [COPY] drop mid-DAG model (BigQuery)'
 webhook:
   enabled: false
 inputs:
