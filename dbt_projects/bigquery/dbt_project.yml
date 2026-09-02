@@ -1,0 +1,28 @@
+name: "bigquery_sao_demo"
+version: "1.0.0"
+config-version: 2
+
+# Must match the profile name on the Orchestra dbt Core connection
+# (dbt_core__bigquery__01406), not the project name.
+profile: "dbt_bigquery"
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  bigquery_sao_demo:
+    staging:
+      +materialized: view
+      +schema: dbt_sao_demo
+    marts:
+      +materialized: table
+      +schema: dbt_sao_demo
+
+seeds:
+  bigquery_sao_demo:
+    +schema: dbt_sao_demo
