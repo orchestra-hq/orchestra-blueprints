@@ -11,6 +11,7 @@ This directory contains standalone dbt blueprint examples.
 ## Current subprojects
 
 - `azure_fabric` - UNUSED
+- `bigquery` - Small seed -> staging -> mart project for the BigQuery demo connection
 - `clickhouse` - Sample ClickHouse integration
 - `databricks`
 - `duckdb_example` - UNUSED
