@@ -7,7 +7,6 @@ config-version: 2
 profile: "dbt_bigquery"
 
 model-paths: ["models"]
-seed-paths: ["seeds"]
 macro-paths: ["macros"]
 
 clean-targets:
@@ -22,7 +21,3 @@ models:
     marts:
       +materialized: table
       +schema: dbt_sao_demo
-
-seeds:
-  bigquery_sao_demo:
-    +schema: dbt_sao_demo

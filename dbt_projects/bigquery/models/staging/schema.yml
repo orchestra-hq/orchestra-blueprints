@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: stg_orders
-    description: "Typed view over the raw_orders seed."
+    description: "Typed view over the raw.raw_orders source."
     columns:
       - name: order_id
         description: "Primary key."
