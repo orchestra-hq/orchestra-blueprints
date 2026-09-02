@@ -1,0 +1,144 @@
+version: v1
+name: 'dbt Core SAO - Snowflake, Databricks, BigQuery #dbt #sao #snowflake #databricks #bigquery'
+pipeline:
+  232f1037-3f80-49b5-a7e6-c33f9d4140f7:
+    tasks:
+      c26aa031-790c-4f89-b2ac-b3ccb98f351f:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: DROP TABLE IF EXISTS SNOWFLAKE_WORKING.PUBLIC_CLEAN.CUSTOMERS_CLEAN;
+          set_outputs: false
+        depends_on: []
+        name: drop CUSTOMERS_CLEAN (Snowflake)
+        connection: snowflake_db_user_72601
+    depends_on: []
+    condition: ${{ inputs.drop_mid_model == True }}
+    name: drop mid-DAG model (Snowflake)
+    paused: true
+  e5a94087-65a1-4189-833b-5b050893fbb9:
+    tasks:
+      41689b0a-2c9f-4e30-99dd-e8a23659e26c:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: ${{ inputs.dbt_branch }}
+          production_run_identifier: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
+        depends_on: []
+        name: dbt build (Snowflake)
+        connection: dbt_snowflake_blueprints_prod_07025
+    depends_on:
+    - 232f1037-3f80-49b5-a7e6-c33f9d4140f7
+    condition: ${{ task_groups['232f1037-3f80-49b5-a7e6-c33f9d4140f7'].all().status in ['SUCCEEDED', 'SKIPPED'] }}
+    name: dbt build (Snowflake)
+    paused: true
+  0620dce6-f7c3-465a-89f8-d85fde236feb:
+    tasks:
+      12c2276f-a3f8-46bc-b8cf-26ceeabc2e24:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_EXECUTE_STATEMENT
+        parameters:
+          statement: DROP TABLE IF EXISTS orchestra_demo_2.default.orders;
+          warehouse_id: 86c2feabe2d36412
+          set_outputs: false
+        depends_on: []
+        name: drop orders (Databricks)
+        connection: databricks__prod__39884
+    depends_on: []
+    condition: ${{ inputs.drop_mid_model == True }}
+    name: drop mid-DAG model (Databricks)
+    paused: true
+  9cde83f3-db88-477e-8d21-23ee57b5b28e:
+    tasks:
+      55ada35e-a0fc-4cb1-aefb-19361536500f:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: ${{ inputs.dbt_branch }}
+          production_run_identifier: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/databricks
+          shallow_clone_dirs: dbt_projects/databricks
+        depends_on: []
+        name: dbt build (Databricks)
+        connection: dbt_databricks_demo_54814
+    depends_on:
+    - 0620dce6-f7c3-465a-89f8-d85fde236feb
+    condition: ${{ task_groups['0620dce6-f7c3-465a-89f8-d85fde236feb'].all().status in ['SUCCEEDED', 'SKIPPED'] }}
+    name: dbt build (Databricks)
+    paused: true
+  c6e8b9f0-ac81-4628-8f04-bf948c214dc1:
+    tasks:
+      9184fd5d-95e0-4132-a710-f1a885e19691:
+        integration: GCP_BIG_QUERY
+        integration_job: GCP_BQ_RUN_QUERY_JOB
+        parameters:
+          query: DROP VIEW IF EXISTS `reference-baton-392114.dbt_sao_demo.stg_orders`
+          location: europe-west1
+          set_outputs: false
+        depends_on: []
+        name: drop stg_orders (BigQuery)
+        connection: dbt_bigquery_24777
+    depends_on: []
+    condition: ${{ inputs.drop_mid_model == True }}
+    name: drop mid-DAG model (BigQuery)
+  9dee97cb-0c7b-4f6a-9112-e83c2322ba68:
+    tasks:
+      80793bfa-ef3c-4c71-923b-af650fb5d15a:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: ${{ inputs.dbt_branch }}
+          production_run_identifier: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/bigquery
+          shallow_clone_dirs: dbt_projects/bigquery
+        depends_on: []
+        name: dbt build (BigQuery)
+        connection: dbt_core__bigquery__01406
+    depends_on:
+    - c070257d-01c8-49a6-8ac2-5b65615119fd
+    condition: ${{ task_groups['c070257d-01c8-49a6-8ac2-5b65615119fd'].any().status == 'FAILED' }}
+    name: dbt build (BigQuery)
+  c070257d-01c8-49a6-8ac2-5b65615119fd:
+    tasks:
+      e94a46a4-4355-46bc-ad7d-168f9425358f:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: main
+          production_run_identifier: main
+          project_dir: dbt_projects/bigquery
+          shallow_clone_dirs: dbt_projects/bigquery
+        depends_on: []
+        name: '[MAIN] dbt build (BigQuery)'
+        connection: dbt_core__bigquery__01406
+    depends_on:
+    - c6e8b9f0-ac81-4628-8f04-bf948c214dc1
+    condition: ${{ task_groups['c6e8b9f0-ac81-4628-8f04-bf948c214dc1'].all().status in ['SUCCEEDED', 'SKIPPED'] }}
+    name: '[COPY] dbt build (BigQuery)'
+webhook:
+  enabled: false
+inputs:
+  dbt_branch:
+    type: string
+    default: claude/dbt-sao-three-warehouses
+  drop_mid_model:
+    type: boolean
+    default: false
