@@ -11,7 +11,7 @@ pipeline:
           set_outputs: false
         depends_on: []
         name: drop CUSTOMERS_CLEAN (Snowflake)
-        connection: snowflake_db_user_72601
+        connection: snowflake__prod__80122
     depends_on: []
     condition: ${{ inputs.drop_mid_model == True and inputs.warehouse == 'snowflake' }}
     name: drop mid-DAG model (Snowflake)
@@ -198,7 +198,7 @@ pipeline:
           set_outputs: false
         depends_on: []
         name: Query CUSTOMERS_CLEAN (Snowflake)
-        connection: snowflake_db_user_72601
+        connection: snowflake__prod__80122
     depends_on:
     - aae4b4d1-cc58-4d35-b3e6-9183a5e8b044
     condition: >-
@@ -214,7 +214,7 @@ pipeline:
           set_outputs: false
         depends_on: []
         name: Query CUSTOMERS_CLEAN (Snowflake)
-        connection: snowflake_db_user_72601
+        connection: snowflake__prod__80122
     depends_on:
     - e5a94087-65a1-4189-833b-5b050893fbb9
     condition: >-
