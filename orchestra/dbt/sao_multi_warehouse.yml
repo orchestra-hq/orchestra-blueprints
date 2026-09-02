@@ -133,6 +133,24 @@ pipeline:
     - c6e8b9f0-ac81-4628-8f04-bf948c214dc1
     condition: ${{ task_groups['c6e8b9f0-ac81-4628-8f04-bf948c214dc1'].all().status in ['SUCCEEDED', 'SKIPPED'] }}
     name: '[COPY] dbt build (BigQuery)'
+  97ff2780-3902-49fa-aaaf-c22142d09493:
+    tasks:
+      1fe72955-c08b-4828-8ce2-cf4b0fbe978a:
+        integration: GCP_BIG_QUERY
+        integration_job: GCP_BQ_RUN_QUERY_JOB
+        parameters:
+          query: SELECT COUNT(*) FROM `reference-baton-392114.dbt_sao_demo.stg_orders`
+          set_outputs: false
+          enable_drive_scope: false
+          location: europe-west1
+        depends_on: []
+        name: Query stg_orders (BigQuery)
+        connection: dbt_bigquery_24777
+    depends_on:
+    - c070257d-01c8-49a6-8ac2-5b65615119fd
+    condition: >-
+      ${{ task_groups['c070257d-01c8-49a6-8ac2-5b65615119fd'].all().status in ['SUCCEEDED', 'WARNING'] and inputs.drop_mid_model == True }}
+    name: '[COPY] drop mid-DAG model (BigQuery)'
 webhook:
   enabled: false
 inputs:
