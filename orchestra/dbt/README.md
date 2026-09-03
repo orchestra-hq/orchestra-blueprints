@@ -9,7 +9,7 @@ Each lane is a chain of task groups, all gated on `inputs.warehouse`:
 
 | # | Group | Fires when |
 |---|---|---|
-| 0 | `seed raw_orders (X)` | the lane is selected — creates the source table if absent and resets its rows. Only on the four newer lanes; see below |
+| 0 | `seed raw_orders (X)` | the lane is selected — creates the source table if absent and resets its rows. On every lane except Snowflake and BigQuery; see below |
 | 1 | `drop mid-DAG model (X)` | `drop_mid_model == True` — removes a relation dbt owns, using the warehouse's own connection |
 | 2 | `[MAIN] dbt build (X)` | group 1 succeeded or skipped — builds from `main`, i.e. the **released** `dbt-orchestra` |
 | 3 | `query mid-DAG model (X)` | group 2 succeeded — **expected to fail** if SAO reused the dropped node instead of rebuilding it |
@@ -19,21 +19,20 @@ Each lane is a chain of task groups, all gated on `inputs.warehouse`:
 So a green group 5 after a red group 3 is the whole point: the released build
 reused a node whose relation no longer existed, the candidate build did not.
 
-Group 0 exists only on the Postgres, Redshift, MotherDuck and Fabric lanes,
-whose source tables nothing else in the account maintains. It is idempotent
+Group 0 exists on the Postgres, Redshift, MotherDuck, Fabric and Databricks
+lanes, whose source tables nothing else in the account maintains. It is idempotent
 (create-if-absent, then delete and re-insert) and safe to re-run: the rows are
 constant, so `max(order_date)` — and therefore the source freshness SAO reads —
-does not move between runs. The Snowflake, Databricks and BigQuery lanes read
-standing tables instead and have no group 0. Only MotherDuck's group 0 has
-actually been exercised; the other three are written to their warehouse's
-dialect but have not run yet.
+does not move between runs. The Snowflake and BigQuery lanes read standing
+tables instead and have no group 0. MotherDuck's group 0 is exercised; Postgres,
+Redshift and Fabric are written to their dialect but have not run.
 
 ### The lanes
 
 | `warehouse` | dbt project | dbt Core connection | Warehouse connection | Mid-DAG relation |
 |---|---|---|---|---|
 | `snowflake` | `dbt_projects/snowflake` | `dbt_snowflake_blueprints_prod_07025` | `snowflake_db_user_72601` | `SNOWFLAKE_WORKING.PUBLIC_CLEAN.CUSTOMERS_CLEAN` |
-| `databricks` | `dbt_projects/databricks` | `dbt_databricks_demo_54814` | `databricks__prod__39884` | `hive_metastore.default.orders` |
+| `databricks` | `dbt_projects/databricks_sao` | `dbt_databricks_demo_54814` | `databricks__prod__39884` | `` `main`.`dbt_sao_demo`.`stg-orders-clean` `` |
 | `bigquery` | `dbt_projects/bigquery` | `dbt_core__bigquery__01406` | `dbt_bigquery_24777` | `` `…dbt_sao_demo.Stg Orders Clean` `` |
 | `postgres` | `dbt_projects/postgres_sao` | `${{ ENV.DBT_CORE_POSTGRES }}` | `postgres__prod__15825` | `dbt_sao_demo."Stg Orders Clean"` |
 | `redshift` | `dbt_projects/redshift_sao` | `${{ ENV.DBT_CORE_REDSHIFT }}` | `redshift_prod_02183` | `dbt_sao_demo."stg orders clean"` |
@@ -61,6 +60,7 @@ What each platform actually enforces, and so what its name tests:
 | `motherduck` | `my_db.dbt_sao_demo."Stg Orders Clean"` | quoted, **required** | preserved but matched case-insensitively |
 | `fabric` | `dbt_sao_demo.[Stg Orders Clean]` | bracketed | **enforced** — warehouses default to the case-sensitive `Latin1_General_100_BIN2_UTF8` collation |
 | `bigquery` | `` `…dbt_sao_demo.Stg Orders Clean` `` | backticked path | **enforced** — table names are case-sensitive and may contain Unicode `Zs` |
+| `databricks` | `` `main`.`dbt_sao_demo`.`stg-orders-clean` `` | not allowed by Unity Catalog — the hyphen carries the test instead, and Databricks SQL requires backticks for it | not testable — UC stores object names lowercased and matches case-insensitively |
 
 Verified on MotherDuck in run f514af36, which is the lane behaving exactly as
 designed:
@@ -88,33 +88,27 @@ Two things follow from that run:
   relation `my_db.dbt_sao_demo.stg_orders` is still there and no longer managed
   by dbt. Worth dropping once, or it will keep showing up in these hints.
 
-**Snowflake and Databricks are deliberately left on plain names:**
+Databricks reaches this through Unity Catalog rather than whitespace. It used to
+build into `hive_metastore`, whose table names allow only alphanumeric ASCII and
+underscores — nothing to quote. `dbt_projects/databricks_sao` builds into the UC
+catalog `main` instead, where a hyphen is legal and Databricks SQL requires
+backticks to resolve it. No connection change was needed: the project sets
+`+database: main`, which dbt-core's own `generate_database_name` honours, so the
+profile's default catalog is overridden per project rather than per connection.
 
-- Databricks cannot do it *on this lane*, which is a narrower claim than it
-  first looks. The lane builds into `hive_metastore` — the drop targets
-  ``hive_metastore`.`default`.`orders``, and dbt-orchestra reported that exact
-  relation as `deleted from the warehouse` in the 13:12 run on 2026-09-03 — and
-  `hive_metastore` table names allow only alphanumeric ASCII and underscores.
-  Nothing to quote, so nothing to test.
+Its seed is two tasks rather than one, because the Databricks statement API takes
+a single statement per request — `CREATE SCHEMA IF NOT EXISTS`, then
+`CREATE OR REPLACE TABLE … FROM VALUES`.
 
-  **Unity Catalog is a different story.** UC bars spaces, `.`, `/` and control
-  characters, but permits other special characters, and Databricks SQL requires
-  backtick delimiters for them — so a UC relation named `stg-orders-clean` is a
-  real quoting test, just not a whitespace one. Case still is not testable: UC
-  stores object names lowercased and matches case-insensitively.
+**Snowflake is the one lane deliberately left on a plain name:**
 
-  Making the Databricks lane meaningful therefore means pointing it at a UC
-  catalog, which is a change to the `profiles.yml` on the dbt Core connection
-  rather than anything in this repo. The tidiest version would be a purpose-built
-  `databricks_sao` project on a UC catalog, mirroring the other five, so the
-  shared `dbt_projects/databricks` is left alone.
-- Snowflake could, but not cheaply. dbt's Snowflake relations default to
+- Snowflake could do it, but not cheaply. dbt's Snowflake relations default to
   `quote_policy.identifier = False`, so an aliased name with a space compiles
   unquoted and fails; fixing it means turning on `quoting` for
   `dbt_projects/snowflake`, a project of ~30 models shared with other pipelines,
-  and renaming a physical table other consumers may read by name. Both lanes
-  drop models from those shared projects rather than purpose-built ones, which is
-  the same reason.
+  and renaming a physical table other consumers may read by name. It is also the
+  only lane still dropping a model from a shared project rather than a
+  purpose-built one, which is the deeper reason to leave it be.
 
 ### Before a new lane can run
 

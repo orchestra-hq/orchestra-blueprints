@@ -45,13 +45,15 @@ pipeline:
         integration_job: DATABRICKS_EXECUTE_STATEMENT
         parameters:
           warehouse_id: 86c2feabe2d36412
-          statement: DROP TABLE IF EXISTS `hive_metastore`.`default`.`orders`;
+          statement: DROP VIEW IF EXISTS `main`.`dbt_sao_demo`.`stg-orders-clean`;
           set_outputs: false
         depends_on: []
-        name: drop orders (Databricks)
+        name: drop stg-orders-clean (Databricks)
         connection: databricks__prod__39884
-    depends_on: []
-    condition: ${{ inputs.drop_mid_model == True and inputs.warehouse == 'databricks' }}
+    depends_on:
+    - bfc915d1-db02-4fc9-aebd-fc10c809e8c2
+    condition: >-
+      ${{ task_groups['bfc915d1-db02-4fc9-aebd-fc10c809e8c2'].all().status in ['SUCCEEDED', 'WARNING'] and inputs.drop_mid_model == True and inputs.warehouse == 'databricks' }}
     name: drop mid-DAG model (Databricks)
   9cde83f3-db88-477e-8d21-23ee57b5b28e:
     tasks:
@@ -65,8 +67,8 @@ pipeline:
           use_state_orchestration: true
           branch: ${{ inputs.dbt_branch }}
           production_run_identifier: ${{ inputs.dbt_branch }}
-          project_dir: dbt_projects/databricks
-          shallow_clone_dirs: dbt_projects/databricks
+          project_dir: dbt_projects/databricks_sao
+          shallow_clone_dirs: dbt_projects/databricks_sao
           environment_variables: >-
             {"ORCHESTRA_VERIFY_RELATIONS_EXIST": "true"}
         depends_on: []
@@ -238,8 +240,8 @@ pipeline:
           use_state_orchestration: true
           branch: main
           production_run_identifier: main
-          project_dir: dbt_projects/databricks
-          shallow_clone_dirs: dbt_projects/databricks
+          project_dir: dbt_projects/databricks_sao
+          shallow_clone_dirs: dbt_projects/databricks_sao
         depends_on: []
         name: '[MAIN] dbt build (Databricks)'
         connection: dbt_databricks_demo_54814
@@ -255,10 +257,10 @@ pipeline:
         integration_job: DATABRICKS_EXECUTE_STATEMENT
         parameters:
           warehouse_id: 86c2feabe2d36412
-          statement: SELECT COUNT(*) FROM `hive_metastore`.`default`.`orders`;
+          statement: SELECT COUNT(*) FROM `main`.`dbt_sao_demo`.`stg-orders-clean`;
           set_outputs: false
         depends_on: []
-        name: Query orders (Databricks)
+        name: Query stg-orders-clean (Databricks)
         connection: databricks__prod__39884
     depends_on:
     - 517a6384-47af-4993-b642-50475b2197f7
@@ -272,10 +274,10 @@ pipeline:
         integration_job: DATABRICKS_EXECUTE_STATEMENT
         parameters:
           warehouse_id: 86c2feabe2d36412
-          statement: SELECT COUNT(*) FROM `hive_metastore`.`default`.`orders`;
+          statement: SELECT COUNT(*) FROM `main`.`dbt_sao_demo`.`stg-orders-clean`;
           set_outputs: false
         depends_on: []
-        name: Query orders (Databricks)
+        name: Query stg-orders-clean (Databricks)
         connection: databricks__prod__39884
     depends_on:
     - 9cde83f3-db88-477e-8d21-23ee57b5b28e
@@ -780,6 +782,49 @@ pipeline:
     depends_on: []
     condition: ${{ inputs.warehouse == 'fabric' }}
     name: seed raw_orders (Fabric)
+  bfc915d1-db02-4fc9-aebd-fc10c809e8c2:
+    tasks:
+      ff0a25c7-e068-4890-a0d8-c303edebd08f:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_EXECUTE_STATEMENT
+        parameters:
+          warehouse_id: 86c2feabe2d36412
+          statement: CREATE SCHEMA IF NOT EXISTS `main`.`dbt_sao_demo`;
+          set_outputs: false
+        depends_on: []
+        name: create dbt_sao_demo schema (Databricks)
+        connection: databricks__prod__39884
+      b867f3ec-052e-42d0-8d90-2c39b026af8e:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_EXECUTE_STATEMENT
+        parameters:
+          warehouse_id: 86c2feabe2d36412
+          statement: |-
+            CREATE OR REPLACE TABLE `main`.`dbt_sao_demo`.`raw_orders` AS
+            SELECT
+                CAST(order_id    AS BIGINT)         AS order_id,
+                CAST(customer_id AS BIGINT)         AS customer_id,
+                CAST(order_date  AS DATE)           AS order_date,
+                CAST(status      AS STRING)         AS status,
+                CAST(amount      AS DECIMAL(10, 2)) AS amount
+            FROM VALUES
+              (1, 101, '2026-08-01', 'completed', 120.50),
+              (2, 102, '2026-08-01', 'completed', 75.00),
+              (3, 101, '2026-08-02', 'returned', 120.50),
+              (4, 103, '2026-08-02', 'completed', 240.00),
+              (5, 104, '2026-08-03', 'pending', 18.99),
+              (6, 102, '2026-08-03', 'completed', 64.25),
+              (7, 105, '2026-08-04', 'completed', 310.10),
+              (8, 103, '2026-08-04', 'pending', 45.00)
+            AS t(order_id, customer_id, order_date, status, amount)
+          set_outputs: false
+        depends_on:
+        - ff0a25c7-e068-4890-a0d8-c303edebd08f
+        name: seed raw_orders (Databricks)
+        connection: databricks__prod__39884
+    depends_on: []
+    condition: ${{ inputs.warehouse == 'databricks' }}
+    name: seed raw_orders (Databricks)
 webhook:
   enabled: false
 inputs:

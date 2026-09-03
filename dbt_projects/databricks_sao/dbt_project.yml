@@ -1,0 +1,28 @@
+name: "databricks_sao_demo"
+version: "1.0.0"
+config-version: 2
+
+# Must match the profile name on the Orchestra dbt Core connection for
+# Databricks (dbt_databricks_demo_54814), which the shared
+# dbt_projects/databricks also uses.
+profile: "orchestra_dbt_databricks"
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  databricks_sao_demo:
+    # The connection's profile points at the lakehouse the shared project uses;
+    # +database redirects this project to a Unity Catalog catalog instead, which
+    # is what makes a delimited relation name possible at all.
+    +database: main
+    staging:
+      +materialized: view
+      +schema: dbt_sao_demo
+    marts:
+      +materialized: table
+      +schema: dbt_sao_demo
