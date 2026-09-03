@@ -71,10 +71,24 @@ for them yet.
 
 **Snowflake and Databricks are deliberately left on plain names:**
 
-- Databricks cannot do it. Table names in `hive_metastore` allow only
-  alphanumeric ASCII and underscores, Unity Catalog disallows spaces outright,
-  and its identifiers are case-insensitive — so there is nothing that platform
-  supports here.
+- Databricks cannot do it *on this lane*, which is a narrower claim than it
+  first looks. The lane builds into `hive_metastore` — the drop targets
+  ``hive_metastore`.`default`.`orders``, and dbt-orchestra reported that exact
+  relation as `deleted from the warehouse` in the 13:12 run on 2026-09-03 — and
+  `hive_metastore` table names allow only alphanumeric ASCII and underscores.
+  Nothing to quote, so nothing to test.
+
+  **Unity Catalog is a different story.** UC bars spaces, `.`, `/` and control
+  characters, but permits other special characters, and Databricks SQL requires
+  backtick delimiters for them — so a UC relation named `stg-orders-clean` is a
+  real quoting test, just not a whitespace one. Case still is not testable: UC
+  stores object names lowercased and matches case-insensitively.
+
+  Making the Databricks lane meaningful therefore means pointing it at a UC
+  catalog, which is a change to the `profiles.yml` on the dbt Core connection
+  rather than anything in this repo. The tidiest version would be a purpose-built
+  `databricks_sao` project on a UC catalog, mirroring the other five, so the
+  shared `dbt_projects/databricks` is left alone.
 - Snowflake could, but not cheaply. dbt's Snowflake relations default to
   `quote_policy.identifier = False`, so an aliased name with a space compiles
   unquoted and fails; fixing it means turning on `quoting` for
