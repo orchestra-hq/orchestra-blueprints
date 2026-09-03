@@ -1,3 +1,5 @@
+{{ config(alias='Stg Orders Clean') }}
+
 select
     cast(order_id as int64) as order_id,
     cast(customer_id as int64) as customer_id,

@@ -9,8 +9,10 @@ target that is cheap to build and safe to drop.
 - **Output dataset:** everything lands in `dbt_sao_demo`, pinned by the
   `generate_schema_name` macro so it never inherits the connection's default
   dataset (the prod `core_*` datasets live in the same project).
-- **Lineage:** `raw.raw_orders` (source) → `stg_orders` (view) → `orders_daily`
-  (table).
+- **Lineage:** `raw.raw_orders` (source) → `Stg Orders Clean` (view) →
+  `orders_daily` (table). The staging model is still named `stg_orders` in dbt;
+  only its `alias` carries the awkward relation name, which BigQuery permits
+  because table names may contain Unicode `Zs` spaces and are case-sensitive.
 
 ## The source
 

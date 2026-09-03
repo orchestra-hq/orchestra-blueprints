@@ -10,9 +10,10 @@ cheap to build and safe to drop.
 - **Output schema:** everything lands in `dbt_sao_demo`, pinned by the
   `generate_schema_name` macro so it never inherits the connection's default
   schema.
-- **Lineage:** `raw.raw_orders` (source) → `stg_orders` (view) → `orders_daily`
-  (table).
-- **Mid-DAG model:** `stg_orders` — the relation
+- **Lineage:** `raw.raw_orders` (source) → `Stg Orders Clean` (view) → `orders_daily`
+  (table). The staging model is still named `stg_orders` in dbt; only its
+  `alias` carries the awkward relation name.
+- **Mid-DAG model:** `my_db.dbt_sao_demo."Stg Orders Clean"` — the relation
   [`orchestra/dbt/sao_multi_warehouse.yml`](../../orchestra/dbt/sao_multi_warehouse.yml)
   drops and then queries to exercise state-aware orchestration's reuse path.
 
@@ -49,6 +50,18 @@ FROM (VALUES
 build; a bare `dbt-duckdb` can resolve a `duckdb` the MotherDuck service
 rejects. The database is `my_db`, so relations are three-part
 (`my_db.dbt_sao_demo.stg_orders`) in the pipeline's drop and query steps.
+
+## The awkward relation name
+
+`stg_orders` is aliased to `Stg Orders Clean`, so the relation the pipeline drops and
+queries needs quoting to resolve at all. That is deliberate: it makes the lane a
+test of whether state-aware orchestration resolves a non-trivial identifier, not
+just a well-behaved one.
+
+DuckDB stores the name case-preserved and *requires* the quotes for the spaces, but matches identifiers case-insensitively -- so the whitespace is the part under test and the casing only proves preservation.
+
+Aliasing rather than renaming keeps `ref('stg_orders')` and the `schema.yml`
+tests working untouched.
 
 ## Running it
 
