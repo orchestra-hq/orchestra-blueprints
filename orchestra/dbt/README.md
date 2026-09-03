@@ -116,28 +116,38 @@ at the same database before trusting a lane: the Snowflake lane already straddle
 two accounts (`JH88529.UK-SOUTH.AZURE` for dbt, `NOEPBEQ-WP69376` for the
 `SNOWFLAKE` connection) with identically-named objects in both.
 
-### Which `dbt-orchestra` is under test
+### What actually switches the behaviour under test
 
-The intent is that `main` installs the released `dbt-orchestra` and the test
-branch installs the candidate via a git URL in each project's
-`requirements.txt`, making group 2 and group 4 a fair comparison.
+The lever is an **environment variable on the candidate task**, not the installed
+package:
 
-**As of run f8c34b1f that is not what happens.** Evidence from that run's two
-MotherDuck legs:
+```yaml
+environment_variables: >-
+  {"ORCHESTRA_VERIFY_RELATIONS_EXIST": "true"}
+```
+
+Every lane's group 4 (`dbt build (X)`) carries it; group 2 (`[MAIN] dbt build`)
+does not. So the A/B is check-off versus check-on within the same
+`dbt-orchestra`, which is a cleaner comparison than swapping package versions.
+
+This matters because the `requirements.txt` git pin does **not** select the
+version. Evidence from run f8c34b1f's two MotherDuck legs:
 
 - `main`'s `dbt_projects/motherduck_sao/requirements.txt` names no
   `dbt-orchestra` at all, yet the `[MAIN]` leg still logged
-  `[dbt-orchestra] Version: 1.2.0. Stateful orchestration enabled.` So the task
+  `[dbt-orchestra] Version: 1.2.0. Stateful orchestration enabled.` — the task
   supplies the package itself when `use_state_orchestration: true`.
 - The candidate leg cloned the branch, whose `requirements.txt` *does* carry
   `dbt-orchestra @ git+…@claude/warehouse-schema-existence-checks-2d3f0a`, but
-  its pip step downloaded the same six wheels as the `main` leg and performed no
-  git clone.
-- The two legs' `dbt build` logs are byte-identical (1363 bytes): same version
-  line, same `2 node(s) to be reused`, same reuse reasons, same `Nothing to do`.
+  its pip step downloaded the same six wheels as the `main` leg and ran no git
+  clone.
+- Both legs' `dbt build` logs were byte-identical (1363 bytes), down to the
+  reuse reasons.
 
-So both legs run the same `dbt-orchestra`, and the A/B currently proves nothing
-about the candidate. The likely mechanism — inferred, not confirmed — is that the
-task installs its own pinned `dbt-orchestra` after the `requirements.txt` step,
-overwriting the git version. Until that is settled, treat a failing group 5 as
-"the candidate was never exercised" rather than "the candidate does not fix it".
+That makes the git pin in the seven `requirements.txt` files — the only
+difference between `main` and the test branch — most likely redundant. Worth
+deciding whether to drop it, which would collapse the branch into `main`.
+
+Run f8c34b1f is the pre-env-var baseline: it showed group 3 failing (the drop
+was not noticed) *and* group 5 failing, because neither leg had the check on.
+With the variable in place, group 5 is the one expected to pass.
