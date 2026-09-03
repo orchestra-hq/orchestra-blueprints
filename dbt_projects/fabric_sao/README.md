@@ -10,9 +10,10 @@ cheap to build and safe to drop.
 - **Output schema:** everything lands in `dbt_sao_demo`, pinned by the
   `generate_schema_name` macro so it never inherits the connection's default
   schema.
-- **Lineage:** `raw.raw_orders` (source) → `stg_orders` (view) → `orders_daily`
-  (table).
-- **Mid-DAG model:** `stg_orders` — the relation
+- **Lineage:** `raw.raw_orders` (source) → `Stg Orders Clean` (view) → `orders_daily`
+  (table). The staging model is still named `stg_orders` in dbt; only its
+  `alias` carries the awkward relation name.
+- **Mid-DAG model:** `dbt_sao_demo.[Stg Orders Clean]` — the relation
   [`orchestra/dbt/sao_multi_warehouse.yml`](../../orchestra/dbt/sao_multi_warehouse.yml)
   drops and then queries to exercise state-aware orchestration's reuse path.
 
@@ -58,6 +59,18 @@ source's `loaded_at_field`. `dbt-fabric` talks ODBC: it needs
 `Microsoft ODBC Driver 18 for SQL Server` present in whatever runtime executes
 the task, which is the one prerequisite here that a `requirements.txt` cannot
 satisfy on its own.
+
+## The awkward relation name
+
+`stg_orders` is aliased to `Stg Orders Clean`, so the relation the pipeline drops and
+queries needs quoting to resolve at all. That is deliberate: it makes the lane a
+test of whether state-aware orchestration resolves a non-trivial identifier, not
+just a well-behaved one.
+
+Fabric warehouses default to the `Latin1_General_100_BIN2_UTF8` collation, which is case-sensitive for object names, and brackets carry the spaces -- so both halves of the name matter. Unverified: this lane has not run.
+
+Aliasing rather than renaming keeps `ref('stg_orders')` and the `schema.yml`
+tests working untouched.
 
 ## Running it
 

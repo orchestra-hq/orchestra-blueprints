@@ -78,7 +78,7 @@ pipeline:
         integration: GCP_BIG_QUERY
         integration_job: GCP_BQ_RUN_QUERY_JOB
         parameters:
-          query: DROP VIEW IF EXISTS `reference-baton-392114.dbt_sao_demo.stg_orders`
+          query: DROP VIEW IF EXISTS `reference-baton-392114.dbt_sao_demo.Stg Orders Clean`
           location: europe-west1
           set_outputs: false
         depends_on: []
@@ -136,7 +136,7 @@ pipeline:
         integration: GCP_BIG_QUERY
         integration_job: GCP_BQ_RUN_QUERY_JOB
         parameters:
-          query: SELECT COUNT(*) FROM `reference-baton-392114.dbt_sao_demo.stg_orders`
+          query: SELECT COUNT(*) FROM `reference-baton-392114.dbt_sao_demo.Stg Orders Clean`
           set_outputs: false
           enable_drive_scope: false
           location: europe-west1
@@ -154,7 +154,7 @@ pipeline:
         integration: GCP_BIG_QUERY
         integration_job: GCP_BQ_RUN_QUERY_JOB
         parameters:
-          query: SELECT COUNT(*) FROM `reference-baton-392114.dbt_sao_demo.stg_orders`
+          query: SELECT COUNT(*) FROM `reference-baton-392114.dbt_sao_demo.Stg Orders Clean`
           set_outputs: false
           enable_drive_scope: false
           location: europe-west1
@@ -282,7 +282,7 @@ pipeline:
         integration: POSTGRES
         integration_job: POSTGRES_RUN_QUERY
         parameters:
-          statement: DROP VIEW IF EXISTS dbt_sao_demo.stg_orders;
+          statement: DROP VIEW IF EXISTS dbt_sao_demo."Stg Orders Clean";
           set_outputs: false
         depends_on: []
         name: drop stg_orders (Postgres)
@@ -319,7 +319,7 @@ pipeline:
         integration: POSTGRES
         integration_job: POSTGRES_RUN_QUERY
         parameters:
-          statement: SELECT COUNT(*) FROM dbt_sao_demo.stg_orders;
+          statement: SELECT COUNT(*) FROM dbt_sao_demo."Stg Orders Clean";
           set_outputs: false
         depends_on: []
         name: Query stg_orders (Postgres)
@@ -356,7 +356,7 @@ pipeline:
         integration: POSTGRES
         integration_job: POSTGRES_RUN_QUERY
         parameters:
-          statement: SELECT COUNT(*) FROM dbt_sao_demo.stg_orders;
+          statement: SELECT COUNT(*) FROM dbt_sao_demo."Stg Orders Clean";
           set_outputs: false
         depends_on: []
         name: Query stg_orders (Postgres)
@@ -372,7 +372,7 @@ pipeline:
         integration: AWS_REDSHIFT
         integration_job: AWS_REDSHIFT_EXECUTE_STATEMENT
         parameters:
-          statement: DROP VIEW IF EXISTS dbt_sao_demo.stg_orders;
+          statement: DROP VIEW IF EXISTS dbt_sao_demo."stg orders clean";
         depends_on: []
         name: drop stg_orders (Redshift)
         connection: redshift_prod_02183
@@ -408,7 +408,7 @@ pipeline:
         integration: AWS_REDSHIFT
         integration_job: AWS_REDSHIFT_EXECUTE_STATEMENT
         parameters:
-          statement: SELECT COUNT(*) FROM dbt_sao_demo.stg_orders;
+          statement: SELECT COUNT(*) FROM dbt_sao_demo."stg orders clean";
         depends_on: []
         name: Query stg_orders (Redshift)
         connection: redshift_prod_02183
@@ -444,7 +444,7 @@ pipeline:
         integration: AWS_REDSHIFT
         integration_job: AWS_REDSHIFT_EXECUTE_STATEMENT
         parameters:
-          statement: SELECT COUNT(*) FROM dbt_sao_demo.stg_orders;
+          statement: SELECT COUNT(*) FROM dbt_sao_demo."stg orders clean";
         depends_on: []
         name: Query stg_orders (Redshift)
         connection: redshift_prod_02183
@@ -459,7 +459,7 @@ pipeline:
         integration: MOTHERDUCK
         integration_job: MOTHERDUCK_EXECUTE_QUERY
         parameters:
-          query: DROP VIEW IF EXISTS my_db.dbt_sao_demo.stg_orders;
+          query: DROP VIEW IF EXISTS my_db.dbt_sao_demo."Stg Orders Clean";
           set_outputs: false
         depends_on: []
         name: drop stg_orders (MotherDuck)
@@ -496,7 +496,7 @@ pipeline:
         integration: MOTHERDUCK
         integration_job: MOTHERDUCK_EXECUTE_QUERY
         parameters:
-          query: SELECT COUNT(*) FROM my_db.dbt_sao_demo.stg_orders;
+          query: SELECT COUNT(*) FROM my_db.dbt_sao_demo."Stg Orders Clean";
           set_outputs: false
         depends_on: []
         name: Query stg_orders (MotherDuck)
@@ -533,7 +533,7 @@ pipeline:
         integration: MOTHERDUCK
         integration_job: MOTHERDUCK_EXECUTE_QUERY
         parameters:
-          query: SELECT COUNT(*) FROM my_db.dbt_sao_demo.stg_orders;
+          query: SELECT COUNT(*) FROM my_db.dbt_sao_demo."Stg Orders Clean";
           set_outputs: false
         depends_on: []
         name: Query stg_orders (MotherDuck)
@@ -549,7 +549,7 @@ pipeline:
         integration: FABRIC_SYNAPSE
         integration_job: FABRIC_SYNAPSE_RUN_QUERY
         parameters:
-          statement: DROP VIEW IF EXISTS dbt_sao_demo.stg_orders;
+          statement: DROP VIEW IF EXISTS dbt_sao_demo.[Stg Orders Clean];
           set_outputs: false
         depends_on: []
         name: drop stg_orders (Fabric)
@@ -586,7 +586,7 @@ pipeline:
         integration: FABRIC_SYNAPSE
         integration_job: FABRIC_SYNAPSE_RUN_QUERY
         parameters:
-          statement: SELECT COUNT(*) FROM dbt_sao_demo.stg_orders;
+          statement: SELECT COUNT(*) FROM dbt_sao_demo.[Stg Orders Clean];
           set_outputs: false
         depends_on: []
         name: Query stg_orders (Fabric)
@@ -623,7 +623,7 @@ pipeline:
         integration: FABRIC_SYNAPSE
         integration_job: FABRIC_SYNAPSE_RUN_QUERY
         parameters:
-          statement: SELECT COUNT(*) FROM dbt_sao_demo.stg_orders;
+          statement: SELECT COUNT(*) FROM dbt_sao_demo.[Stg Orders Clean];
           set_outputs: false
         depends_on: []
         name: Query stg_orders (Fabric)

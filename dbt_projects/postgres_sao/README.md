@@ -10,9 +10,10 @@ cheap to build and safe to drop.
 - **Output schema:** everything lands in `dbt_sao_demo`, pinned by the
   `generate_schema_name` macro so it never inherits the connection's default
   schema.
-- **Lineage:** `raw.raw_orders` (source) → `stg_orders` (view) → `orders_daily`
-  (table).
-- **Mid-DAG model:** `stg_orders` — the relation
+- **Lineage:** `raw.raw_orders` (source) → `Stg Orders Clean` (view) → `orders_daily`
+  (table). The staging model is still named `stg_orders` in dbt; only its
+  `alias` carries the awkward relation name.
+- **Mid-DAG model:** `dbt_sao_demo."Stg Orders Clean"` — the relation
   [`orchestra/dbt/sao_multi_warehouse.yml`](../../orchestra/dbt/sao_multi_warehouse.yml)
   drops and then queries to exercise state-aware orchestration's reuse path.
 
@@ -54,6 +55,18 @@ INSERT INTO dbt_sao_demo.raw_orders VALUES
 `count(*) filter (where ...)` is Postgres-native; the Redshift twin of this
 project spells the same thing as a `sum(case when ...)` because Redshift has no
 `FILTER` clause.
+
+## The awkward relation name
+
+`stg_orders` is aliased to `Stg Orders Clean`, so the relation the pipeline drops and
+queries needs quoting to resolve at all. That is deliberate: it makes the lane a
+test of whether state-aware orchestration resolves a non-trivial identifier, not
+just a well-behaved one.
+
+Postgres keeps the case of a double-quoted identifier and compares it case-sensitively, so the name exercises both quoting and case.
+
+Aliasing rather than renaming keeps `ref('stg_orders')` and the `schema.yml`
+tests working untouched.
 
 ## Running it
 

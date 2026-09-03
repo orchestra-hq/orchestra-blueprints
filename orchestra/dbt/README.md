@@ -34,14 +34,54 @@ dialect but have not run yet.
 |---|---|---|---|---|
 | `snowflake` | `dbt_projects/snowflake` | `dbt_snowflake_blueprints_prod_07025` | `snowflake_db_user_72601` | `SNOWFLAKE_WORKING.PUBLIC_CLEAN.CUSTOMERS_CLEAN` |
 | `databricks` | `dbt_projects/databricks` | `dbt_databricks_demo_54814` | `databricks__prod__39884` | `hive_metastore.default.orders` |
-| `bigquery` | `dbt_projects/bigquery` | `dbt_core__bigquery__01406` | `dbt_bigquery_24777` | `dbt_sao_demo.stg_orders` |
-| `postgres` | `dbt_projects/postgres_sao` | `${{ ENV.DBT_CORE_POSTGRES }}` | `postgres__prod__15825` | `dbt_sao_demo.stg_orders` |
-| `redshift` | `dbt_projects/redshift_sao` | `${{ ENV.DBT_CORE_REDSHIFT }}` | `redshift_prod_02183` | `dbt_sao_demo.stg_orders` |
-| `motherduck` | `dbt_projects/motherduck_sao` | `dbt_motherduck__prod__39243` | `md_my_db_09250` | `my_db.dbt_sao_demo.stg_orders` |
-| `fabric` | `dbt_projects/fabric_sao` | `${{ ENV.DBT_CORE_FABRIC }}` | `fabric_prod_sql__workspace_identity___93745` | `dbt_sao_demo.stg_orders` |
+| `bigquery` | `dbt_projects/bigquery` | `dbt_core__bigquery__01406` | `dbt_bigquery_24777` | `` `…dbt_sao_demo.Stg Orders Clean` `` |
+| `postgres` | `dbt_projects/postgres_sao` | `${{ ENV.DBT_CORE_POSTGRES }}` | `postgres__prod__15825` | `dbt_sao_demo."Stg Orders Clean"` |
+| `redshift` | `dbt_projects/redshift_sao` | `${{ ENV.DBT_CORE_REDSHIFT }}` | `redshift_prod_02183` | `dbt_sao_demo."stg orders clean"` |
+| `motherduck` | `dbt_projects/motherduck_sao` | `dbt_motherduck__prod__39243` | `md_my_db_09250` | `my_db.dbt_sao_demo."Stg Orders Clean"` |
+| `fabric` | `dbt_projects/fabric_sao` | `${{ ENV.DBT_CORE_FABRIC }}` | `fabric_prod_sql__workspace_identity___93745` | `dbt_sao_demo.[Stg Orders Clean]` |
 
 Fabric's own integration only exposes data-pipeline and notebook jobs, so its
 drop and query steps go through `FABRIC_SYNAPSE` / `FABRIC_SYNAPSE_RUN_QUERY`.
+
+### Awkward identifiers are the point
+
+Five lanes drop a relation whose name needs quoting to resolve: whitespace plus,
+where the platform enforces it, case. The dbt model is still `stg_orders` in
+every project — only its `alias` carries the name, which keeps `ref()` and the
+`schema.yml` tests untouched. A relation-existence check that normalises or
+unquotes identifiers will resolve these wrongly, which is what makes them worth
+dropping.
+
+What each platform actually enforces, and so what its name tests:
+
+| Lane | Relation | Whitespace | Case |
+|---|---|---|---|
+| `postgres` | `dbt_sao_demo."Stg Orders Clean"` | quoted | **enforced** — quoted identifiers keep case |
+| `redshift` | `dbt_sao_demo."stg orders clean"` | quoted | not testable — quoted mixed case is folded to lowercase unless `enable_case_sensitive_identifier` is on, so the alias is lowercase on purpose |
+| `motherduck` | `my_db.dbt_sao_demo."Stg Orders Clean"` | quoted, **required** | preserved but matched case-insensitively |
+| `fabric` | `dbt_sao_demo.[Stg Orders Clean]` | bracketed | **enforced** — warehouses default to the case-sensitive `Latin1_General_100_BIN2_UTF8` collation |
+| `bigquery` | `` `…dbt_sao_demo.Stg Orders Clean` `` | backticked path | **enforced** — table names are case-sensitive and may contain Unicode `Zs` |
+
+Verified on MotherDuck by running the pipeline's own statements against a local
+DuckDB: the build creates `Stg Orders Clean`, the query returns 8, the drop
+succeeds, the query then fails with `Catalog Error: Table with name Stg Orders
+Clean does not exist!`, and the rebuild restores it. Postgres, Redshift and
+Fabric are written to their dialect but unrun — no dbt Core connection exists
+for them yet.
+
+**Snowflake and Databricks are deliberately left on plain names:**
+
+- Databricks cannot do it. Table names in `hive_metastore` allow only
+  alphanumeric ASCII and underscores, Unity Catalog disallows spaces outright,
+  and its identifiers are case-insensitive — so there is nothing that platform
+  supports here.
+- Snowflake could, but not cheaply. dbt's Snowflake relations default to
+  `quote_policy.identifier = False`, so an aliased name with a space compiles
+  unquoted and fails; fixing it means turning on `quoting` for
+  `dbt_projects/snowflake`, a project of ~30 models shared with other pipelines,
+  and renaming a physical table other consumers may read by name. Both lanes
+  drop models from those shared projects rather than purpose-built ones, which is
+  the same reason.
 
 ### Before a new lane can run
 
