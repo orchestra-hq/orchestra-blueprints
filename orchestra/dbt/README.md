@@ -78,9 +78,26 @@ two accounts (`JH88529.UK-SOUTH.AZURE` for dbt, `NOEPBEQ-WP69376` for the
 
 ### Which `dbt-orchestra` is under test
 
-`DBT_CORE_EXECUTE` has no parameter for installing a specific `dbt-orchestra`
-ref — its build step is just the package manager at the project root — so the
-candidate is pinned by a git URL in each project's `requirements.txt` on the test
-branch. `main` carries no such pin and so installs the released build, and that
-difference is the only one between the two: it is what makes group 2 and group 4
-a fair comparison rather than two runs of the same code.
+The intent is that `main` installs the released `dbt-orchestra` and the test
+branch installs the candidate via a git URL in each project's
+`requirements.txt`, making group 2 and group 4 a fair comparison.
+
+**As of run f8c34b1f that is not what happens.** Evidence from that run's two
+MotherDuck legs:
+
+- `main`'s `dbt_projects/motherduck_sao/requirements.txt` names no
+  `dbt-orchestra` at all, yet the `[MAIN]` leg still logged
+  `[dbt-orchestra] Version: 1.2.0. Stateful orchestration enabled.` So the task
+  supplies the package itself when `use_state_orchestration: true`.
+- The candidate leg cloned the branch, whose `requirements.txt` *does* carry
+  `dbt-orchestra @ git+…@claude/warehouse-schema-existence-checks-2d3f0a`, but
+  its pip step downloaded the same six wheels as the `main` leg and performed no
+  git clone.
+- The two legs' `dbt build` logs are byte-identical (1363 bytes): same version
+  line, same `2 node(s) to be reused`, same reuse reasons, same `Nothing to do`.
+
+So both legs run the same `dbt-orchestra`, and the A/B currently proves nothing
+about the candidate. The likely mechanism — inferred, not confirmed — is that the
+task installs its own pinned `dbt-orchestra` after the `requirements.txt` step,
+overwriting the git version. Until that is settled, treat a failing group 5 as
+"the candidate was never exercised" rather than "the candidate does not fix it".
