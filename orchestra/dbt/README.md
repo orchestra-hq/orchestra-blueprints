@@ -24,8 +24,9 @@ lanes, whose source tables nothing else in the account maintains. It is idempote
 (create-if-absent, then delete and re-insert) and safe to re-run: the rows are
 constant, so `max(order_date)` — and therefore the source freshness SAO reads —
 does not move between runs. The Snowflake and BigQuery lanes read standing
-tables instead and have no group 0. MotherDuck's group 0 is exercised; Postgres,
-Redshift and Fabric are written to their dialect but have not run.
+tables instead and have no group 0. MotherDuck's and Databricks' group 0
+are exercised; Postgres, Redshift and Fabric are written to their dialect but
+have not run.
 
 ### The lanes
 
@@ -75,9 +76,10 @@ designed:
 | `query` (group 5) | SUCCEEDED — `{"count_star()": 8}` |
 
 So the candidate resolves a quoted, space-containing, mixed-case relation
-correctly through both the reuse and the rebuild path. Postgres, Redshift and
-Fabric are written to their dialect but unrun — no dbt Core connection exists
-for them yet.
+correctly through both the reuse and the rebuild path. Databricks is verified
+too, on a delimited Unity Catalog name — see below. Postgres, Redshift and
+Fabric are written to their dialect but unrun; no dbt Core connection exists for
+them yet.
 
 Two things follow from that run:
 
@@ -99,6 +101,28 @@ profile's default catalog is overridden per project rather than per connection.
 Its seed is two tasks rather than one, because the Databricks statement API takes
 a single statement per request — `CREATE SCHEMA IF NOT EXISTS`, then
 `CREATE OR REPLACE TABLE … FROM VALUES`.
+
+Verified in runs 03b4b44b (baseline) and ee455511 (the A/B). The baseline proved
+the catalog override lands:
+
+```
+1 of 7 OK created sql view model main.dbt_sao_demo.stg-orders-clean ... [OK in 1.26s]
+```
+
+and the A/B's candidate leg proved the check resolves the delimited name rather
+than skipping past it:
+
+```
+[dbt-orchestra] State loaded (Orchestra HTTP). Retrieved 19 items.
+[dbt-orchestra] model.databricks_sao_demo.stg_orders was deleted from the warehouse hence rerun.
+[dbt-orchestra] 1 node(s) will be rerun because their relation is missing.
+```
+
+The `State loaded … 19 items` line matters: the rerun is attributed to the
+missing relation, not to an empty state, which is the failure mode to watch for
+when a lane's `production_run_identifier` is new. Group 3 failed in that run with
+`[TABLE_OR_VIEW_NOT_FOUND] … main.dbt_sao_demo.stg-orders-clean` and group 5
+returned a row.
 
 **Snowflake is the one lane deliberately left on a plain name:**
 
