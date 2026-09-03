@@ -45,15 +45,9 @@ FROM (VALUES
 
 ## MotherDuck specifics
 
-The pins match `motherduck_s3` and `motherduck_oil` — `duckdb==1.5.2` with
-`dbt-duckdb==1.10.1` — because those are the versions this account's MotherDuck
-instance is known to work with, and because they install from prebuilt wheels.
-Do **not** use `dbt-duckdb[md]`: the `md` extra pins `duckdb==1.5.5`, which has
-no wheel for the aarch64 runtime Orchestra's dbt Core task uses, so pip falls
-back to building DuckDB from source and the task sits in "Installing Python
-dependencies" for tens of minutes.
-
-The database is `my_db`, so relations are three-part
+`dbt-duckdb[md]` is the extra that pins the MotherDuck-compatible `duckdb`
+build; a bare `dbt-duckdb` can resolve a `duckdb` the MotherDuck service
+rejects. The database is `my_db`, so relations are three-part
 (`my_db.dbt_sao_demo.stg_orders`) in the pipeline's drop and query steps.
 
 ## Running it
