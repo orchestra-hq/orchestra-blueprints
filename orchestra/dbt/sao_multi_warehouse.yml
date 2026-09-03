@@ -499,7 +499,7 @@ pipeline:
           shallow_clone_dirs: dbt_projects/motherduck_sao
         depends_on: []
         name: '[MAIN] dbt build (MotherDuck)'
-        connection: dbt_motherduck__prod__39243
+        connection: ${{ inputs.md_dbt_connection }}
     depends_on:
     - 4e1f3a71-89ec-4b08-8d28-2e965bfb05d5
     condition: >-
@@ -539,7 +539,7 @@ pipeline:
             {"ORCHESTRA_VERIFY_RELATIONS_EXIST": "true"}
         depends_on: []
         name: dbt build (MotherDuck)
-        connection: dbt_motherduck__prod__39243
+        connection: ${{ inputs.md_dbt_connection }}
     depends_on:
     - af7db643-6b21-40c5-a3c6-f84e0b8e00ba
     condition: ${{ task_groups['af7db643-6b21-40c5-a3c6-f84e0b8e00ba'].any().status == 'FAILED' }}
@@ -837,3 +837,6 @@ inputs:
   warehouse:
     type: string
     default: bigquery
+  md_dbt_connection:
+    type: string
+    default: dbt_motherduck__prod__39243
