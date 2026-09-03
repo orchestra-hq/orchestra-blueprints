@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  - name: raw
+    description: >
+      Standing tables in the sandbox schema. `raw_orders` is read but not owned
+      by this project -- see the README for the DDL that creates it.
+    schema: dbt_sao_demo
+    # Static demo data, so an explicit loaded_at_field is the only way state-aware
+    # orchestration can judge freshness.
+    loaded_at_field: "cast(order_date as datetime2)"
+    freshness:
+      warn_after: {count: 365, period: day}
+    tables:
+      - name: raw_orders
+        description: "One row per order: id, customer, date, status, amount."

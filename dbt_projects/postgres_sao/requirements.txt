@@ -1,0 +1,7 @@
+dbt-core==1.11.7
+dbt-postgres==1.11.0
+# State Aware Orchestration, pinned to the branch behind
+# https://github.com/orchestra-hq/sao-paolo/pull/73 (relation-existence checks
+# before a node is reused). This pin is the only thing this branch adds on top
+# of main; drop it and the branch once that PR is released.
+dbt-orchestra @ git+https://github.com/orchestra-hq/sao-paolo.git@claude/warehouse-schema-existence-checks-2d3f0a

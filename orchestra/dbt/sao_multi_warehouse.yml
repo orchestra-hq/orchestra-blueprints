@@ -1,5 +1,5 @@
 version: v1
-name: 'dbt Core SAO - Snowflake, Databricks, BigQuery #dbt #sao #snowflake #databricks #bigquery'
+name: 'dbt Core SAO #dbt #sao #snowflake #databricks #bigquery #postgres #redshift #motherduck #fabric'
 pipeline:
   232f1037-3f80-49b5-a7e6-c33f9d4140f7:
     tasks:
@@ -276,6 +276,359 @@ pipeline:
     condition: >-
       ${{ task_groups['9cde83f3-db88-477e-8d21-23ee57b5b28e'].all().status in ['SUCCEEDED', 'WARNING'] and inputs.drop_mid_model == True }}
     name: query mid-DAG model after rebuild (Databricks)
+  daaeec4a-0a53-4254-adeb-b617bdb61b66:
+    tasks:
+      52ca8beb-8733-4e28-8518-05ff8e929a88:
+        integration: POSTGRES
+        integration_job: POSTGRES_RUN_QUERY
+        parameters:
+          statement: DROP VIEW IF EXISTS dbt_sao_demo.stg_orders;
+          set_outputs: false
+        depends_on: []
+        name: drop stg_orders (Postgres)
+        connection: postgres__prod__15825
+    depends_on: []
+    condition: ${{ inputs.drop_mid_model == True and inputs.warehouse == 'postgres' }}
+    name: drop mid-DAG model (Postgres)
+  a88f010d-0883-416e-a249-69c36dffaa90:
+    tasks:
+      6344754e-99fc-4bab-9b59-6319bc790bd5:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: main
+          production_run_identifier: main
+          project_dir: dbt_projects/postgres_sao
+          shallow_clone_dirs: dbt_projects/postgres_sao
+        depends_on: []
+        name: '[MAIN] dbt build (Postgres)'
+        connection: ${{ ENV.DBT_CORE_POSTGRES }}
+    depends_on:
+    - daaeec4a-0a53-4254-adeb-b617bdb61b66
+    condition: >-
+      ${{ task_groups['daaeec4a-0a53-4254-adeb-b617bdb61b66'].all().status in ['SUCCEEDED', 'SKIPPED'] and inputs.warehouse == 'postgres' }}
+    name: '[MAIN] dbt build (Postgres)'
+  5a1df1f4-7721-4a13-b4a5-cd72d2fe2e73:
+    tasks:
+      dba6bf86-4749-499f-8659-66f224ab2df6:
+        integration: POSTGRES
+        integration_job: POSTGRES_RUN_QUERY
+        parameters:
+          statement: SELECT COUNT(*) FROM dbt_sao_demo.stg_orders;
+          set_outputs: false
+        depends_on: []
+        name: Query stg_orders (Postgres)
+        connection: postgres__prod__15825
+    depends_on:
+    - a88f010d-0883-416e-a249-69c36dffaa90
+    condition: >-
+      ${{ task_groups['a88f010d-0883-416e-a249-69c36dffaa90'].all().status in ['SUCCEEDED', 'WARNING'] and inputs.drop_mid_model == True }}
+    name: query mid-DAG model (Postgres)
+  bb74a764-ead4-467c-8887-5b872ba57be7:
+    tasks:
+      9b885093-1a38-4fc8-ae5c-333c392b00ef:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: ${{ inputs.dbt_branch }}
+          production_run_identifier: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/postgres_sao
+          shallow_clone_dirs: dbt_projects/postgres_sao
+        depends_on: []
+        name: dbt build (Postgres)
+        connection: ${{ ENV.DBT_CORE_POSTGRES }}
+    depends_on:
+    - 5a1df1f4-7721-4a13-b4a5-cd72d2fe2e73
+    condition: ${{ task_groups['5a1df1f4-7721-4a13-b4a5-cd72d2fe2e73'].any().status == 'FAILED' }}
+    name: dbt build (Postgres)
+  27d787a5-b3de-47d2-972d-914a8676bfc9:
+    tasks:
+      279d32d6-ac74-4db0-a011-e7f7eae561fc:
+        integration: POSTGRES
+        integration_job: POSTGRES_RUN_QUERY
+        parameters:
+          statement: SELECT COUNT(*) FROM dbt_sao_demo.stg_orders;
+          set_outputs: false
+        depends_on: []
+        name: Query stg_orders (Postgres)
+        connection: postgres__prod__15825
+    depends_on:
+    - bb74a764-ead4-467c-8887-5b872ba57be7
+    condition: >-
+      ${{ task_groups['bb74a764-ead4-467c-8887-5b872ba57be7'].all().status in ['SUCCEEDED', 'WARNING'] and inputs.drop_mid_model == True }}
+    name: query mid-DAG model after rebuild (Postgres)
+  5ba1ee48-dd5d-4830-9663-49ce38bc00a5:
+    tasks:
+      15ae9b4d-60be-4854-af7d-43fecce19114:
+        integration: AWS_REDSHIFT
+        integration_job: AWS_REDSHIFT_EXECUTE_STATEMENT
+        parameters:
+          statement: DROP VIEW IF EXISTS dbt_sao_demo.stg_orders;
+        depends_on: []
+        name: drop stg_orders (Redshift)
+        connection: redshift_prod_02183
+    depends_on: []
+    condition: ${{ inputs.drop_mid_model == True and inputs.warehouse == 'redshift' }}
+    name: drop mid-DAG model (Redshift)
+  72da0a1c-d1e1-42e8-966d-3e9512ce1f14:
+    tasks:
+      5120989f-ded0-414e-ac32-2907d9e2fec7:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: main
+          production_run_identifier: main
+          project_dir: dbt_projects/redshift_sao
+          shallow_clone_dirs: dbt_projects/redshift_sao
+        depends_on: []
+        name: '[MAIN] dbt build (Redshift)'
+        connection: ${{ ENV.DBT_CORE_REDSHIFT }}
+    depends_on:
+    - 5ba1ee48-dd5d-4830-9663-49ce38bc00a5
+    condition: >-
+      ${{ task_groups['5ba1ee48-dd5d-4830-9663-49ce38bc00a5'].all().status in ['SUCCEEDED', 'SKIPPED'] and inputs.warehouse == 'redshift' }}
+    name: '[MAIN] dbt build (Redshift)'
+  36fc7c02-c753-4e09-a77c-68ee586965fd:
+    tasks:
+      1dec2dc0-ac48-4f00-9b30-731a6ccefe8b:
+        integration: AWS_REDSHIFT
+        integration_job: AWS_REDSHIFT_EXECUTE_STATEMENT
+        parameters:
+          statement: SELECT COUNT(*) FROM dbt_sao_demo.stg_orders;
+        depends_on: []
+        name: Query stg_orders (Redshift)
+        connection: redshift_prod_02183
+    depends_on:
+    - 72da0a1c-d1e1-42e8-966d-3e9512ce1f14
+    condition: >-
+      ${{ task_groups['72da0a1c-d1e1-42e8-966d-3e9512ce1f14'].all().status in ['SUCCEEDED', 'WARNING'] and inputs.drop_mid_model == True }}
+    name: query mid-DAG model (Redshift)
+  0da8f1fe-dbcc-4e52-83f5-3a3b5b06a087:
+    tasks:
+      946da733-8b6e-47ae-ad17-9536a6dffcc1:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: ${{ inputs.dbt_branch }}
+          production_run_identifier: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/redshift_sao
+          shallow_clone_dirs: dbt_projects/redshift_sao
+        depends_on: []
+        name: dbt build (Redshift)
+        connection: ${{ ENV.DBT_CORE_REDSHIFT }}
+    depends_on:
+    - 36fc7c02-c753-4e09-a77c-68ee586965fd
+    condition: ${{ task_groups['36fc7c02-c753-4e09-a77c-68ee586965fd'].any().status == 'FAILED' }}
+    name: dbt build (Redshift)
+  724f4e07-858c-4fea-a7f5-3c2296a635e5:
+    tasks:
+      01ec9851-be1e-42af-b892-5f8519a18604:
+        integration: AWS_REDSHIFT
+        integration_job: AWS_REDSHIFT_EXECUTE_STATEMENT
+        parameters:
+          statement: SELECT COUNT(*) FROM dbt_sao_demo.stg_orders;
+        depends_on: []
+        name: Query stg_orders (Redshift)
+        connection: redshift_prod_02183
+    depends_on:
+    - 0da8f1fe-dbcc-4e52-83f5-3a3b5b06a087
+    condition: >-
+      ${{ task_groups['0da8f1fe-dbcc-4e52-83f5-3a3b5b06a087'].all().status in ['SUCCEEDED', 'WARNING'] and inputs.drop_mid_model == True }}
+    name: query mid-DAG model after rebuild (Redshift)
+  4e1f3a71-89ec-4b08-8d28-2e965bfb05d5:
+    tasks:
+      14f29169-1156-4d11-8f8a-0e816c42e1fe:
+        integration: MOTHERDUCK
+        integration_job: MOTHERDUCK_EXECUTE_QUERY
+        parameters:
+          query: DROP VIEW IF EXISTS my_db.dbt_sao_demo.stg_orders;
+          set_outputs: false
+        depends_on: []
+        name: drop stg_orders (MotherDuck)
+        connection: md_my_db_09250
+    depends_on: []
+    condition: ${{ inputs.drop_mid_model == True and inputs.warehouse == 'motherduck' }}
+    name: drop mid-DAG model (MotherDuck)
+  a63c1d53-9690-469f-b23f-7685653b0a2c:
+    tasks:
+      95484bd3-0f66-44d2-9faa-e735ec9352c0:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: main
+          production_run_identifier: main
+          project_dir: dbt_projects/motherduck_sao
+          shallow_clone_dirs: dbt_projects/motherduck_sao
+        depends_on: []
+        name: '[MAIN] dbt build (MotherDuck)'
+        connection: dbt_motherduck__prod__39243
+    depends_on:
+    - 4e1f3a71-89ec-4b08-8d28-2e965bfb05d5
+    condition: >-
+      ${{ task_groups['4e1f3a71-89ec-4b08-8d28-2e965bfb05d5'].all().status in ['SUCCEEDED', 'SKIPPED'] and inputs.warehouse == 'motherduck' }}
+    name: '[MAIN] dbt build (MotherDuck)'
+  af7db643-6b21-40c5-a3c6-f84e0b8e00ba:
+    tasks:
+      5dbb1572-928f-4fcf-96cc-e55815b92fe1:
+        integration: MOTHERDUCK
+        integration_job: MOTHERDUCK_EXECUTE_QUERY
+        parameters:
+          query: SELECT COUNT(*) FROM my_db.dbt_sao_demo.stg_orders;
+          set_outputs: false
+        depends_on: []
+        name: Query stg_orders (MotherDuck)
+        connection: md_my_db_09250
+    depends_on:
+    - a63c1d53-9690-469f-b23f-7685653b0a2c
+    condition: >-
+      ${{ task_groups['a63c1d53-9690-469f-b23f-7685653b0a2c'].all().status in ['SUCCEEDED', 'WARNING'] and inputs.drop_mid_model == True }}
+    name: query mid-DAG model (MotherDuck)
+  89de6c1f-bfa9-4d79-b30a-e82406246e5e:
+    tasks:
+      d82740a5-fb11-401e-bb4a-1995380828f5:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: ${{ inputs.dbt_branch }}
+          production_run_identifier: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/motherduck_sao
+          shallow_clone_dirs: dbt_projects/motherduck_sao
+        depends_on: []
+        name: dbt build (MotherDuck)
+        connection: dbt_motherduck__prod__39243
+    depends_on:
+    - af7db643-6b21-40c5-a3c6-f84e0b8e00ba
+    condition: ${{ task_groups['af7db643-6b21-40c5-a3c6-f84e0b8e00ba'].any().status == 'FAILED' }}
+    name: dbt build (MotherDuck)
+  579e5442-f462-44c2-9187-d755c3b6657b:
+    tasks:
+      a7b143e6-e73b-4672-8851-80704ebcd452:
+        integration: MOTHERDUCK
+        integration_job: MOTHERDUCK_EXECUTE_QUERY
+        parameters:
+          query: SELECT COUNT(*) FROM my_db.dbt_sao_demo.stg_orders;
+          set_outputs: false
+        depends_on: []
+        name: Query stg_orders (MotherDuck)
+        connection: md_my_db_09250
+    depends_on:
+    - 89de6c1f-bfa9-4d79-b30a-e82406246e5e
+    condition: >-
+      ${{ task_groups['89de6c1f-bfa9-4d79-b30a-e82406246e5e'].all().status in ['SUCCEEDED', 'WARNING'] and inputs.drop_mid_model == True }}
+    name: query mid-DAG model after rebuild (MotherDuck)
+  6e003c20-a3a5-4212-91fb-5f0eb57b7676:
+    tasks:
+      ea5b8e71-769a-45f1-8e57-755f4f22c9c0:
+        integration: FABRIC_SYNAPSE
+        integration_job: FABRIC_SYNAPSE_RUN_QUERY
+        parameters:
+          statement: DROP VIEW IF EXISTS dbt_sao_demo.stg_orders;
+          set_outputs: false
+        depends_on: []
+        name: drop stg_orders (Fabric)
+        connection: fabric_prod_sql__workspace_identity___93745
+    depends_on: []
+    condition: ${{ inputs.drop_mid_model == True and inputs.warehouse == 'fabric' }}
+    name: drop mid-DAG model (Fabric)
+  df04e8eb-72dc-498a-bc05-fda9d93cfe3c:
+    tasks:
+      44c11f9c-e7d6-49f1-88e3-812cc61db5bd:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: main
+          production_run_identifier: main
+          project_dir: dbt_projects/fabric_sao
+          shallow_clone_dirs: dbt_projects/fabric_sao
+        depends_on: []
+        name: '[MAIN] dbt build (Fabric)'
+        connection: ${{ ENV.DBT_CORE_FABRIC }}
+    depends_on:
+    - 6e003c20-a3a5-4212-91fb-5f0eb57b7676
+    condition: >-
+      ${{ task_groups['6e003c20-a3a5-4212-91fb-5f0eb57b7676'].all().status in ['SUCCEEDED', 'SKIPPED'] and inputs.warehouse == 'fabric' }}
+    name: '[MAIN] dbt build (Fabric)'
+  8f78da0c-00dc-4c2b-a183-916f35d38c5f:
+    tasks:
+      3ecc8a69-31de-4061-b69f-d19035e94071:
+        integration: FABRIC_SYNAPSE
+        integration_job: FABRIC_SYNAPSE_RUN_QUERY
+        parameters:
+          statement: SELECT COUNT(*) FROM dbt_sao_demo.stg_orders;
+          set_outputs: false
+        depends_on: []
+        name: Query stg_orders (Fabric)
+        connection: fabric_prod_sql__workspace_identity___93745
+    depends_on:
+    - df04e8eb-72dc-498a-bc05-fda9d93cfe3c
+    condition: >-
+      ${{ task_groups['df04e8eb-72dc-498a-bc05-fda9d93cfe3c'].all().status in ['SUCCEEDED', 'WARNING'] and inputs.drop_mid_model == True }}
+    name: query mid-DAG model (Fabric)
+  2094a797-4a13-4ce9-8ed1-96000fcb1be5:
+    tasks:
+      c300da6e-4611-468c-ba9b-7605aee31806:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: ${{ inputs.dbt_branch }}
+          production_run_identifier: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/fabric_sao
+          shallow_clone_dirs: dbt_projects/fabric_sao
+        depends_on: []
+        name: dbt build (Fabric)
+        connection: ${{ ENV.DBT_CORE_FABRIC }}
+    depends_on:
+    - 8f78da0c-00dc-4c2b-a183-916f35d38c5f
+    condition: ${{ task_groups['8f78da0c-00dc-4c2b-a183-916f35d38c5f'].any().status == 'FAILED' }}
+    name: dbt build (Fabric)
+  ec84a974-fbb8-42b5-afd0-f288f1deab40:
+    tasks:
+      68d5050f-d3c6-47f4-b94b-b66a2adf8fb6:
+        integration: FABRIC_SYNAPSE
+        integration_job: FABRIC_SYNAPSE_RUN_QUERY
+        parameters:
+          statement: SELECT COUNT(*) FROM dbt_sao_demo.stg_orders;
+          set_outputs: false
+        depends_on: []
+        name: Query stg_orders (Fabric)
+        connection: fabric_prod_sql__workspace_identity___93745
+    depends_on:
+    - 2094a797-4a13-4ce9-8ed1-96000fcb1be5
+    condition: >-
+      ${{ task_groups['2094a797-4a13-4ce9-8ed1-96000fcb1be5'].all().status in ['SUCCEEDED', 'WARNING'] and inputs.drop_mid_model == True }}
+    name: query mid-DAG model after rebuild (Fabric)
 webhook:
   enabled: false
 inputs:
