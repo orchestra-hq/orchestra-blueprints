@@ -22,7 +22,9 @@ cheap to build and safe to drop.
 reads but does not own. It carries an explicit `loaded_at_field`, because
 without one everything downstream of the source rebuilds on every run.
 
-Create it (or recreate it, if the schema is ever wiped) with:
+The pipeline's `seed raw_orders` step creates it and resets its rows, so there
+is nothing to run by hand. The equivalent DDL, for a local build or a manual
+reset:
 
 ```sql
 -- Fabric Warehouse has no CREATE SCHEMA IF NOT EXISTS; run this once and

@@ -5,10 +5,11 @@
 One pipeline that runs the same state-aware-orchestration (SAO) A/B test against
 seven warehouses. Pick one with the `warehouse` input; every other lane skips.
 
-Each lane is five task groups, all gated on `inputs.warehouse`:
+Each lane is a chain of task groups, all gated on `inputs.warehouse`:
 
 | # | Group | Fires when |
 |---|---|---|
+| 0 | `seed raw_orders (X)` | the lane is selected — creates the source table if absent and resets its rows. Only on the four newer lanes; see below |
 | 1 | `drop mid-DAG model (X)` | `drop_mid_model == True` — removes a relation dbt owns, using the warehouse's own connection |
 | 2 | `[MAIN] dbt build (X)` | group 1 succeeded or skipped — builds from `main`, i.e. the **released** `dbt-orchestra` |
 | 3 | `query mid-DAG model (X)` | group 2 succeeded — **expected to fail** if SAO reused the dropped node instead of rebuilding it |
@@ -17,6 +18,15 @@ Each lane is five task groups, all gated on `inputs.warehouse`:
 
 So a green group 5 after a red group 3 is the whole point: the released build
 reused a node whose relation no longer existed, the candidate build did not.
+
+Group 0 exists only on the Postgres, Redshift, MotherDuck and Fabric lanes,
+whose source tables nothing else in the account maintains. It is idempotent
+(create-if-absent, then delete and re-insert) and safe to re-run: the rows are
+constant, so `max(order_date)` — and therefore the source freshness SAO reads —
+does not move between runs. The Snowflake, Databricks and BigQuery lanes read
+standing tables instead and have no group 0. Only MotherDuck's group 0 has
+actually been exercised; the other three are written to their warehouse's
+dialect but have not run yet.
 
 ### The lanes
 
@@ -44,15 +54,21 @@ drop and query steps go through `FABRIC_SYNAPSE` / `FABRIC_SYNAPSE_RUN_QUERY`.
    MotherDuck reuses the existing `dbt_motherduck__prod__39243`, whose
    `profiles.yml` already defines the `motherduck` profile every MotherDuck
    project in this repo expects.
-2. **Create the `raw_orders` source table** in each warehouse's `dbt_sao_demo`
-   schema. The DDL is in each project's README; the pipeline reads that table but
-   does not own it.
+2. **Nothing to do for `raw_orders`** — group 0 creates it. The equivalent DDL is
+   in each project's README if you would rather create it by hand.
 3. **Merge the dbt projects to `main`.** Group 2 clones `main` by design, so
    until `dbt_projects/*_sao` exists there, the `[MAIN]` leg of a new lane fails
    at clone time rather than testing anything.
 4. **Fabric only:** `dbt-fabric` talks ODBC, so the runtime needs
    `Microsoft ODBC Driver 18 for SQL Server`. That is the one prerequisite a
    `requirements.txt` cannot satisfy.
+
+If a `DBT_CORE_*` environment variable is unset, the task does **not** fail with
+a missing-connection error. Orchestra resolves the reference to empty and falls
+back to the workspace's default dbt Core connection, which here is the Snowflake
+one — so the symptom is `dbt debug` reporting
+`Could not find profile named 'dbt_postgres'`, several steps removed from the
+actual cause.
 
 The drop step uses the warehouse's own connection while dbt builds through the
 dbt Core connection's `profiles.yml` — two separate credentials. Check they point
