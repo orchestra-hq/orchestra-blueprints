@@ -14,6 +14,7 @@ This directory contains standalone dbt blueprint examples.
 - `bigquery` - Small source -> staging -> mart project for the BigQuery demo connection
 - `clickhouse` - Sample ClickHouse integration
 - `databricks`
+- `databricks_sao` - `bigquery` mirrored onto Databricks Unity Catalog, for the multi-warehouse SAO demo
 - `duckdb_example` - UNUSED
 - `fabric_sao` - `bigquery` mirrored onto Fabric, for the multi-warehouse SAO demo
 - `motherduck_postgres` - UNUSED
