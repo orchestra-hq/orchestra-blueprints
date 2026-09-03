@@ -62,12 +62,31 @@ What each platform actually enforces, and so what its name tests:
 | `fabric` | `dbt_sao_demo.[Stg Orders Clean]` | bracketed | **enforced** — warehouses default to the case-sensitive `Latin1_General_100_BIN2_UTF8` collation |
 | `bigquery` | `` `…dbt_sao_demo.Stg Orders Clean` `` | backticked path | **enforced** — table names are case-sensitive and may contain Unicode `Zs` |
 
-Verified on MotherDuck by running the pipeline's own statements against a local
-DuckDB: the build creates `Stg Orders Clean`, the query returns 8, the drop
-succeeds, the query then fails with `Catalog Error: Table with name Stg Orders
-Clean does not exist!`, and the rebuild restores it. Postgres, Redshift and
+Verified on MotherDuck in run f514af36, which is the lane behaving exactly as
+designed:
+
+| Step | Result |
+|---|---|
+| `seed raw_orders` | SUCCEEDED — `{"Count": 8}` |
+| `drop stg_orders` | SUCCEEDED — dropped `my_db.dbt_sao_demo."Stg Orders Clean"` |
+| `[MAIN] dbt build` (check off) | SUCCEEDED — reused the node whose relation was gone |
+| `query` (group 3) | **FAILED** — `Catalog Error: Table with name Stg Orders Clean does not exist!` |
+| `dbt build` (check on) | SUCCEEDED |
+| `query` (group 5) | SUCCEEDED — `{"count_star()": 8}` |
+
+So the candidate resolves a quoted, space-containing, mixed-case relation
+correctly through both the reuse and the rebuild path. Postgres, Redshift and
 Fabric are written to their dialect but unrun — no dbt Core connection exists
 for them yet.
+
+Two things follow from that run:
+
+- **A working demo reports the pipeline run as FAILED**, because group 3 failing
+  is the point. Add `treat_failure_as_warning: true` to group 3's task if a green
+  run is wanted for the lanes that are behaving.
+- The MotherDuck error said `Did you mean "stg_orders"?`, so the pre-alias
+  relation `my_db.dbt_sao_demo.stg_orders` is still there and no longer managed
+  by dbt. Worth dropping once, or it will keep showing up in these hints.
 
 **Snowflake and Databricks are deliberately left on plain names:**
 
