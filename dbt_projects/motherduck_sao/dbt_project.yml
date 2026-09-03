@@ -1,0 +1,23 @@
+name: "motherduck_sao_demo"
+version: "1.0.0"
+config-version: 2
+
+# Must match the profile name on the Orchestra dbt Core connection for
+# MotherDuck, not the project name.
+profile: "motherduck"
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  motherduck_sao_demo:
+    staging:
+      +materialized: view
+      +schema: dbt_sao_demo
+    marts:
+      +materialized: table
+      +schema: dbt_sao_demo

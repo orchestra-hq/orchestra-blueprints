@@ -1,0 +1,23 @@
+name: "postgres_sao_demo"
+version: "1.0.0"
+config-version: 2
+
+# Must match the profile name on the Orchestra dbt Core connection for
+# Postgres, not the project name.
+profile: "dbt_postgres"
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  postgres_sao_demo:
+    staging:
+      +materialized: view
+      +schema: dbt_sao_demo
+    marts:
+      +materialized: table
+      +schema: dbt_sao_demo

@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: orders_daily
+    description: "One row per order date, with gross and net amounts."
+    columns:
+      - name: order_date
+        tests:
+          - unique
+          - not_null

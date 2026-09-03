@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: "Typed view over the raw.raw_orders source."
+    columns:
+      - name: order_id
+        description: "Primary key."
+        tests:
+          - unique
+          - not_null
+      - name: order_date
+        tests:
+          - not_null
