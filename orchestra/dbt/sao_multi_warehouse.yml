@@ -287,7 +287,8 @@ pipeline:
         depends_on: []
         name: drop stg_orders (Postgres)
         connection: postgres__prod__15825
-    depends_on: []
+    depends_on:
+    - 51e32aae-0782-4e79-bb13-448be488b042
     condition: ${{ inputs.drop_mid_model == True and inputs.warehouse == 'postgres' }}
     name: drop mid-DAG model (Postgres)
   a88f010d-0883-416e-a249-69c36dffaa90:
@@ -375,7 +376,8 @@ pipeline:
         depends_on: []
         name: drop stg_orders (Redshift)
         connection: redshift_prod_02183
-    depends_on: []
+    depends_on:
+    - f8cbbbe7-a651-4ef7-b0c6-8028e59161fb
     condition: ${{ inputs.drop_mid_model == True and inputs.warehouse == 'redshift' }}
     name: drop mid-DAG model (Redshift)
   72da0a1c-d1e1-42e8-966d-3e9512ce1f14:
@@ -462,7 +464,8 @@ pipeline:
         depends_on: []
         name: drop stg_orders (MotherDuck)
         connection: md_my_db_09250
-    depends_on: []
+    depends_on:
+    - 090a4673-cc29-44d0-8206-edf04d3f1d6f
     condition: ${{ inputs.drop_mid_model == True and inputs.warehouse == 'motherduck' }}
     name: drop mid-DAG model (MotherDuck)
   a63c1d53-9690-469f-b23f-7685653b0a2c:
@@ -551,7 +554,8 @@ pipeline:
         depends_on: []
         name: drop stg_orders (Fabric)
         connection: fabric_prod_sql__workspace_identity___93745
-    depends_on: []
+    depends_on:
+    - 6ec7eeed-669a-4c7c-ab6b-66a00aa0714b
     condition: ${{ inputs.drop_mid_model == True and inputs.warehouse == 'fabric' }}
     name: drop mid-DAG model (Fabric)
   df04e8eb-72dc-498a-bc05-fda9d93cfe3c:
@@ -629,6 +633,135 @@ pipeline:
     condition: >-
       ${{ task_groups['2094a797-4a13-4ce9-8ed1-96000fcb1be5'].all().status in ['SUCCEEDED', 'WARNING'] and inputs.drop_mid_model == True }}
     name: query mid-DAG model after rebuild (Fabric)
+  51e32aae-0782-4e79-bb13-448be488b042:
+    tasks:
+      d5961017-c570-4ed4-9b1f-5365b0319197:
+        integration: POSTGRES
+        integration_job: POSTGRES_RUN_QUERY
+        parameters:
+          statement: |-
+            CREATE SCHEMA IF NOT EXISTS dbt_sao_demo;
+            CREATE TABLE IF NOT EXISTS dbt_sao_demo.raw_orders (
+                order_id    integer,
+                customer_id integer,
+                order_date  date,
+                status      text,
+                amount      numeric(10, 2)
+            );
+            DELETE FROM dbt_sao_demo.raw_orders;
+            INSERT INTO dbt_sao_demo.raw_orders VALUES
+              (1, 101, DATE '2026-08-01', 'completed', 120.50),
+              (2, 102, DATE '2026-08-01', 'completed', 75.00),
+              (3, 101, DATE '2026-08-02', 'returned', 120.50),
+              (4, 103, DATE '2026-08-02', 'completed', 240.00),
+              (5, 104, DATE '2026-08-03', 'pending', 18.99),
+              (6, 102, DATE '2026-08-03', 'completed', 64.25),
+              (7, 105, DATE '2026-08-04', 'completed', 310.10),
+              (8, 103, DATE '2026-08-04', 'pending', 45.00);
+          set_outputs: false
+        depends_on: []
+        name: seed raw_orders (Postgres)
+        connection: postgres__prod__15825
+    depends_on: []
+    condition: ${{ inputs.warehouse == 'postgres' }}
+    name: seed raw_orders (Postgres)
+  f8cbbbe7-a651-4ef7-b0c6-8028e59161fb:
+    tasks:
+      752060c4-692c-49b7-91fe-f8094794c4aa:
+        integration: AWS_REDSHIFT
+        integration_job: AWS_REDSHIFT_EXECUTE_STATEMENT
+        parameters:
+          statement: |-
+            CREATE SCHEMA IF NOT EXISTS dbt_sao_demo;
+            CREATE TABLE IF NOT EXISTS dbt_sao_demo.raw_orders (
+                order_id    integer,
+                customer_id integer,
+                order_date  date,
+                status      varchar(32),
+                amount      numeric(10, 2)
+            );
+            DELETE FROM dbt_sao_demo.raw_orders;
+            INSERT INTO dbt_sao_demo.raw_orders VALUES
+              (1, 101, DATE '2026-08-01', 'completed', 120.50),
+              (2, 102, DATE '2026-08-01', 'completed', 75.00),
+              (3, 101, DATE '2026-08-02', 'returned', 120.50),
+              (4, 103, DATE '2026-08-02', 'completed', 240.00),
+              (5, 104, DATE '2026-08-03', 'pending', 18.99),
+              (6, 102, DATE '2026-08-03', 'completed', 64.25),
+              (7, 105, DATE '2026-08-04', 'completed', 310.10),
+              (8, 103, DATE '2026-08-04', 'pending', 45.00);
+        depends_on: []
+        name: seed raw_orders (Redshift)
+        connection: redshift_prod_02183
+    depends_on: []
+    condition: ${{ inputs.warehouse == 'redshift' }}
+    name: seed raw_orders (Redshift)
+  090a4673-cc29-44d0-8206-edf04d3f1d6f:
+    tasks:
+      b24097af-c12f-4351-afe1-73ac252fd9e5:
+        integration: MOTHERDUCK
+        integration_job: MOTHERDUCK_EXECUTE_QUERY
+        parameters:
+          query: |-
+            CREATE SCHEMA IF NOT EXISTS my_db.dbt_sao_demo;
+            CREATE TABLE IF NOT EXISTS my_db.dbt_sao_demo.raw_orders (
+                order_id    BIGINT,
+                customer_id BIGINT,
+                order_date  DATE,
+                status      VARCHAR,
+                amount      DECIMAL(10, 2)
+            );
+            DELETE FROM my_db.dbt_sao_demo.raw_orders;
+            INSERT INTO my_db.dbt_sao_demo.raw_orders VALUES
+              (1, 101, DATE '2026-08-01', 'completed', 120.50),
+              (2, 102, DATE '2026-08-01', 'completed', 75.00),
+              (3, 101, DATE '2026-08-02', 'returned', 120.50),
+              (4, 103, DATE '2026-08-02', 'completed', 240.00),
+              (5, 104, DATE '2026-08-03', 'pending', 18.99),
+              (6, 102, DATE '2026-08-03', 'completed', 64.25),
+              (7, 105, DATE '2026-08-04', 'completed', 310.10),
+              (8, 103, DATE '2026-08-04', 'pending', 45.00);
+          set_outputs: false
+        depends_on: []
+        name: seed raw_orders (MotherDuck)
+        connection: md_my_db_09250
+    depends_on: []
+    condition: ${{ inputs.warehouse == 'motherduck' }}
+    name: seed raw_orders (MotherDuck)
+  6ec7eeed-669a-4c7c-ab6b-66a00aa0714b:
+    tasks:
+      c7ac1996-db19-4d82-99c3-3747ab934e05:
+        integration: FABRIC_SYNAPSE
+        integration_job: FABRIC_SYNAPSE_RUN_QUERY
+        parameters:
+          statement: |-
+            IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'dbt_sao_demo')
+                EXEC('CREATE SCHEMA dbt_sao_demo');
+            IF OBJECT_ID('dbt_sao_demo.raw_orders', 'U') IS NULL
+                CREATE TABLE dbt_sao_demo.raw_orders (
+                    order_id    int,
+                    customer_id int,
+                    order_date  date,
+                    status      varchar(32),
+                    amount      decimal(10, 2)
+                );
+            DELETE FROM dbt_sao_demo.raw_orders;
+            INSERT INTO dbt_sao_demo.raw_orders VALUES
+              (1, 101, '2026-08-01', 'completed', 120.50),
+              (2, 102, '2026-08-01', 'completed', 75.00),
+              (3, 101, '2026-08-02', 'returned', 120.50),
+              (4, 103, '2026-08-02', 'completed', 240.00),
+              (5, 104, '2026-08-03', 'pending', 18.99),
+              (6, 102, '2026-08-03', 'completed', 64.25),
+              (7, 105, '2026-08-04', 'completed', 310.10),
+              (8, 103, '2026-08-04', 'pending', 45.00);
+          set_outputs: false
+        depends_on: []
+        name: seed raw_orders (Fabric)
+        connection: fabric_prod_sql__workspace_identity___93745
+    depends_on: []
+    condition: ${{ inputs.warehouse == 'fabric' }}
+    name: seed raw_orders (Fabric)
 webhook:
   enabled: false
 inputs:
