@@ -257,7 +257,7 @@ pipeline:
     depends_on:
     - 517a6384-47af-4993-b642-50475b2197f7
     condition: >-
-      ${{ task_groups['517a6384-47af-4993-b642-50475b2197f7'].all().status in ['SUCCEEDED', 'WARNING'] and inputs.drop_mid_model == True }}
+      ${{ task_groups['517a6384-47af-4993-b642-50475b2197f7'].all().status == 'COMPLETED' and inputs.drop_mid_model == True }}
     name: query mid-DAG model (Databricks)
   d0a50496-84b1-49e0-83be-10a38e1635b4:
     tasks:
