@@ -1,0 +1,53 @@
+version: 2
+
+semantic_models:
+  - name: snowflake_orders
+    description: "Semantic model over the customer-level order summary table, used to power order volume and cost metrics."
+    model: ref('snowflake_orders')
+    defaults:
+      agg_time_dimension: ship_date
+    entities:
+      - name: order
+        type: primary
+        expr: _pk
+    dimensions:
+      - name: ship_date
+        type: time
+        type_params:
+          time_granularity: day
+    measures:
+      - name: total_orders
+        description: "Sum of distinct orders per customer/ship-date grouping."
+        agg: sum
+        expr: orders
+      - name: total_quantity
+        description: "Sum of line-item quantity across orders."
+        agg: sum
+        expr: quantity
+      - name: total_cost
+        description: "Sum of order cost."
+        agg: sum
+        expr: cost
+
+metrics:
+  - name: total_orders
+    label: "Total Orders"
+    description: "Total count of orders."
+    type: simple
+    type_params:
+      measure: total_orders
+
+  - name: total_quantity
+    label: "Total Quantity"
+    description: "Total quantity of items ordered."
+    type: simple
+    type_params:
+      measure: total_quantity
+
+  - name: average_order_cost
+    label: "Average Order Cost"
+    description: "Average cost per order (total cost divided by total orders)."
+    type: ratio
+    type_params:
+      numerator: total_cost
+      denominator: total_orders
