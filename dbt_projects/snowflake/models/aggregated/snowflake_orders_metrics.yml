@@ -44,10 +44,9 @@ metrics:
     type_params:
       measure: total_quantity
 
-  - name: average_order_cost
-    label: "Average Order Cost"
-    description: "Average cost per order (total cost divided by total orders)."
-    type: ratio
+  - name: total_cost
+    label: "Total Cost"
+    description: "Total cost across all orders."
+    type: simple
     type_params:
-      numerator: total_cost
-      denominator: total_orders
+      measure: total_cost
