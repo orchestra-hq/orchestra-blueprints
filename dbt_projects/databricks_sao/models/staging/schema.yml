@@ -12,3 +12,6 @@ models:
       - name: order_date
         tests:
           - not_null
+
+  - name: stg_unused_events
+    description: "Typed view over raw_unused.raw_events -- not part of the demo's --select, on purpose."

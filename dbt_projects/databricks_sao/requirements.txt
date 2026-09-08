@@ -1,2 +1,5 @@
 dbt-core==1.10.9
 dbt-databricks==1.10.10
+# Demo of scope_source_freshness_to_selection, unreleased on this branch:
+# https://github.com/orchestra-hq/sao-paolo/pull/23
+dbt-orchestra @ git+https://github.com/orchestra-hq/sao-paolo.git@feat/select-sources

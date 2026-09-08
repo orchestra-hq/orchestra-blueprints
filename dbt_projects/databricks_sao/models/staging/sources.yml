@@ -15,3 +15,15 @@ sources:
     tables:
       - name: raw_orders
         description: "One row per order: id, customer, date, status, amount."
+
+  - name: raw_unused
+    description: >
+      A second, unrelated source with no explicit loaded_at_field/loaded_at_query
+      -- on Databricks this is exactly the shape that falls back to `DESCRIBE
+      HISTORY`. Nothing in this pipeline's `--select` touches it; it exists so
+      scope_source_freshness_to_selection has something observable to skip.
+    database: main
+    schema: dbt_sao_demo
+    tables:
+      - name: raw_events
+        description: "Unused by the demo's selection on purpose."
