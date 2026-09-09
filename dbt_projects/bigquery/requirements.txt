@@ -1,2 +1,9 @@
 dbt-core==1.11.7
 dbt-bigquery==1.11.3
+# State Aware Orchestration, pinned to the branch behind
+# https://github.com/orchestra-hq/sao-paolo `feat/select-sources`, which scopes
+# source freshness to the current selection (so `dbt build --select
+# source:raw.raw_orders+` stops polling freshness for out-of-scope sources).
+# This pin is the only thing this branch adds on top of main; drop it and the
+# branch once that work is released.
+dbt-orchestra @ git+https://github.com/orchestra-hq/sao-paolo.git@feat/select-sources
