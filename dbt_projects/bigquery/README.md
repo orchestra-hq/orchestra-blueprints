@@ -38,6 +38,25 @@ SELECT * FROM UNNEST([
 ]);
 ```
 
+## The second source
+
+`crm.raw_customers` has no models downstream of it. It exists so that a
+selection like `source:raw.raw_orders+` leaves a source out of scope, which is
+the only way to see source-freshness scoping work: unscoped, a run collects
+freshness for both sources; scoped, only for `raw`. With one source the two are
+indistinguishable.
+
+```sql
+CREATE OR REPLACE TABLE `dbt_sao_demo.raw_customers` AS
+SELECT * FROM UNNEST([
+  STRUCT(101 AS customer_id, 'Acme Ltd' AS customer_name, DATE '2026-07-02' AS signup_date, TIMESTAMP '2026-08-01 09:00:00' AS updated_at),
+  (102, 'Bramble & Co',  DATE '2026-07-11', TIMESTAMP '2026-08-01 09:00:00'),
+  (103, 'Corvid Data',   DATE '2026-07-19', TIMESTAMP '2026-08-02 09:00:00'),
+  (104, 'Dunlin Retail', DATE '2026-07-28', TIMESTAMP '2026-08-03 09:00:00'),
+  (105, 'Everly Foods',  DATE '2026-08-01', TIMESTAMP '2026-08-04 09:00:00')
+]);
+```
+
 ## Running it
 
 ```bash

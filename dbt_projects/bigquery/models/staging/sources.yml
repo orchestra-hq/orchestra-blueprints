@@ -14,3 +14,18 @@ sources:
     tables:
       - name: raw_orders
         description: "One row per order: id, customer, date, status, amount."
+
+  - name: crm
+    description: >
+      A second source with no models downstream of it, so that a selection like
+      `source:raw.raw_orders+` leaves it entirely out of scope. That is what
+      makes source-freshness scoping observable: unscoped, a run collects
+      freshness for both sources; scoped, only for `raw`. Like `raw`, it is read
+      but not owned by this project.
+    schema: dbt_sao_demo
+    loaded_at_field: "cast(updated_at as timestamp)"
+    freshness:
+      warn_after: {count: 365, period: day}
+    tables:
+      - name: raw_customers
+        description: "One row per customer: id, name, signup date, updated_at."
