@@ -19,4 +19,4 @@ webhook:
   enabled: false
 configuration:
   concurrency:
-    max_active: ${{ ENV.DBT_CONCURRENCY }}
+    max_active: ${{ int(ENV.DBT_CONCURRENCY) }}
