@@ -1,3 +1,3 @@
 dbt-core==1.10.9
 dbt-databricks==1.10.10
-dbt-orchestra==1.3.0
+git+https://github.com/orchestra-hq/sao-paolo.git@5a67a2f
