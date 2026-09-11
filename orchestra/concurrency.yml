@@ -17,3 +17,6 @@ pipeline:
     name: group
 webhook:
   enabled: false
+configuration:
+  concurrency:
+    max_active: 1
