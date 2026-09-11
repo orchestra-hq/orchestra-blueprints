@@ -70,7 +70,7 @@ pipeline:
           project_dir: dbt_projects/databricks_sao
           shallow_clone_dirs: dbt_projects/databricks_sao
           environment_variables: >-
-            {"ORCHESTRA_VERIFY_RELATIONS_EXIST": "true"}
+            {"ORCHESTRA_VERIFY_RELATIONS_EXIST": "true", "DBT_ORCHESTRA_VERSION": "1.3.0"}
         depends_on: []
         name: dbt build (Databricks)
         connection: dbt_databricks_demo_54814
