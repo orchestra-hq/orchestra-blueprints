@@ -19,4 +19,4 @@ webhook:
   enabled: false
 configuration:
   concurrency:
-    max_active: ${{ int(ENV.DBT_CONCURRENCY) }}
+    max_active: 1 if ${{ ENV.ENV_NAME }} == 'Production' else 20
