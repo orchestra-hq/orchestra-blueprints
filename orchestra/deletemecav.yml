@@ -1,5 +1,5 @@
 version: v1
-name: "ELT Starter \u2014 Fivetran to dbt to Power BI"
+name: ELT Starter — Fivetran to dbt to Power BI
 pipeline:
   ingest:
     tasks:
@@ -7,7 +7,7 @@ pipeline:
         integration: FIVETRAN
         integration_job: FIVETRAN_SYNC_ALL
         parameters:
-          connector_id: REPLACE_fivetran_connector_id
+          connector_id: faithfulness_coal
           resync: false
         depends_on: []
         name: Fivetran sync
@@ -68,8 +68,8 @@ inputs:
     type: string
     default: manual
 meta:
-  notes: 'Canonical ELT starter: Fivetran sync -> dbt build -> Power BI refresh. Parameterised
-    dbt command/branch, daily schedule and Slack failure alerts.'
+  notes: >-
+    Canonical ELT starter: Fivetran sync -> dbt build -> Power BI refresh. Parameterised dbt command/branch, daily schedule and Slack failure alerts.
 alerts:
 - name: Failures to Slack
   statuses:
