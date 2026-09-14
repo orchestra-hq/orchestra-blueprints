@@ -38,8 +38,7 @@ pipeline:
         integration: POWER_BI
         integration_job: POWER_BI_REFRESH_DATASET
         parameters:
-          dataset_id: REPLACE_powerbi_dataset_id
-          workspace_id: REPLACE_powerbi_workspace_id
+          dataset_id: 5e83dd8a-2c30-44ec-8f53-e5e751ae515d
           refresh_type: Full
           apply_refresh_policy: false
         depends_on: []
