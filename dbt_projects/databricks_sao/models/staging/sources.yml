@@ -5,13 +5,12 @@ sources:
     description: >
       Standing tables in the sandbox schema. `raw_orders` is read but not owned
       by this project -- the pipeline's `seed raw_orders` step creates it.
+      `loaded_at_field` is set but there is no `freshness` block, to test
+      whether SAO still collects/uses freshness for a real, existing table
+      when nothing defines what counts as stale.
     database: main
     schema: dbt_sao_demo
-    # Static demo data, so an explicit loaded_at_field is the only way state-aware
-    # orchestration can judge freshness.
     loaded_at_field: "cast(order_date as timestamp)"
-    freshness:
-      warn_after: {count: 365, period: day}
     tables:
       - name: raw_orders
         description: "One row per order: id, customer, date, status, amount."
