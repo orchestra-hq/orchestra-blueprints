@@ -73,3 +73,23 @@ sources:
     tables:
       - name: audit
         description: "Unity Catalog audit log -- one row per auditable event."
+
+  - name: samples_uc
+    description: >
+      Databricks' built-in `samples` catalog -- present by default in
+      Unity-Catalog-enabled workspaces, delivered as a genuine read-only Delta
+      Share (unlike `system_uc`, which is a foreign/system catalog but not
+      actually Delta Sharing). This is the closest available analog to the 374
+      of 768 real sources living in `oenz_data_prod_kraken_source_share`: same
+      config shape (`loaded_at_field` set, no `freshness` block) as most of the
+      real project's sources, but backed by an actual share rather than a
+      managed table. Referenced by `stg_samples_check` so it stays in scope.
+      If Delta Sharing specifically (not just an inaccessible/foreign catalog
+      in general, which `system_uc` already rules out) is what silently zeroes
+      out the whole collection, this is the source that would show it.
+    database: samples
+    schema: nyctaxi
+    loaded_at_field: "tpep_pickup_datetime"
+    tables:
+      - name: trips
+        description: "NYC taxi trips sample dataset, shared via Delta Sharing."

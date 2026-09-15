@@ -25,3 +25,9 @@ models:
       Exists only to reference `system_uc.audit` (Databricks' built-in Unity
       Catalog system catalog) so it stays in scope for source-freshness
       collection.
+
+  - name: stg_samples_check
+    description: >
+      Exists only to reference `samples_uc.trips` (Databricks' built-in
+      `samples` catalog, delivered via Delta Sharing) so it stays in scope for
+      source-freshness collection.
