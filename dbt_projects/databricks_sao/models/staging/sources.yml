@@ -38,10 +38,33 @@ sources:
       warehouse. Exercises how SAO's source-freshness collection handles a
       source dbt considers freshness-eligible (`loaded_at_field` present) but
       that has nothing to check freshness against, and one that would error if
-      actually queried.
+      actually queried. Referenced by `stg_audit_check` so it stays in scope
+      even when `ORCHESTRA_SCOPE_SOURCE_FRESHNESS_TO_SELECTION` is on -- an
+      unreferenced source (like `crm`) would just be scoped out, which doesn't
+      exercise this path.
     database: main
     schema: dbt_sao_demo
     loaded_at_field: "cast(logged_at as timestamp)"
     tables:
       - name: raw_audit_log
         description: "Not seeded by any pipeline step -- intentionally absent from the warehouse."
+
+  - name: system_uc
+    description: >
+      Databricks' built-in Unity Catalog `system` catalog -- present (if UC is
+      enabled) in every workspace, but read access is governed separately from
+      normal managed tables and is often not granted to the service principal
+      running dbt. `loaded_at_field` is set but there is no `freshness` block,
+      matching the shape of the real project this is modelling (16 of 768
+      sources live in `system`, alongside 374 in a Delta Share catalog -- this
+      is the closest analog buildable without a real share). Referenced by
+      `stg_system_audit_check` so it stays in scope for source-freshness
+      collection. If a permission/listing failure on this one source is
+      capable of silently zeroing out the *entire* collection (the "Collected
+      0 source(s)" bug), it should show up here.
+    database: system
+    schema: access
+    loaded_at_field: "event_time"
+    tables:
+      - name: audit
+        description: "Unity Catalog audit log -- one row per auditable event."
