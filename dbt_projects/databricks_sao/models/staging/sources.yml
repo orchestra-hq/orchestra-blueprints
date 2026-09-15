@@ -31,3 +31,18 @@ sources:
     tables:
       - name: raw_customers
         description: "One row per customer: id, name, signup date, updated_at."
+
+  - name: audit
+    description: >
+      A third source: `loaded_at_field` is set but there is no `freshness`
+      block, and the table itself is never seeded, so it does not exist in the
+      warehouse. Exercises how SAO's source-freshness collection handles a
+      source dbt considers freshness-eligible (`loaded_at_field` present) but
+      that has nothing to check freshness against, and one that would error if
+      actually queried.
+    database: main
+    schema: dbt_sao_demo
+    loaded_at_field: "cast(logged_at as timestamp)"
+    tables:
+      - name: raw_audit_log
+        description: "Not seeded by any pipeline step -- intentionally absent from the warehouse."
