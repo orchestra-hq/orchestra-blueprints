@@ -36,24 +36,6 @@ sources:
       - name: raw_customers
         description: "One row per customer: id, name, signup date, updated_at."
 
-  - name: audit
-    description: >
-      A third source: `loaded_at_field` is set but there is no `freshness`
-      block, and the table itself is never seeded, so it does not exist in the
-      warehouse. Exercises how SAO's source-freshness collection handles a
-      source dbt considers freshness-eligible (`loaded_at_field` present) but
-      that has nothing to check freshness against, and one that would error if
-      actually queried. Referenced by `stg_audit_check` so it stays in scope
-      even when `ORCHESTRA_SCOPE_SOURCE_FRESHNESS_TO_SELECTION` is on -- an
-      unreferenced source (like `crm`) would just be scoped out, which doesn't
-      exercise this path.
-    database: main
-    schema: dbt_sao_demo
-    loaded_at_field: "cast(logged_at as timestamp)"
-    tables:
-      - name: raw_audit_log
-        description: "Not seeded by any pipeline step -- intentionally absent from the warehouse."
-
   - name: system_uc
     description: >
       Databricks' built-in Unity Catalog `system` catalog -- present (if UC is

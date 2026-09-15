@@ -13,13 +13,6 @@ models:
         tests:
           - not_null
 
-  - name: stg_audit_check
-    description: >
-      Exists only to reference `audit.raw_audit_log` so it stays in scope for
-      source-freshness collection. Expected to fail to build (the source
-      table doesn't exist) -- that failure is orthogonal to what this model
-      tests.
-
   - name: stg_system_audit_check
     description: >
       Exists only to reference `system_uc.audit` (Databricks' built-in Unity
