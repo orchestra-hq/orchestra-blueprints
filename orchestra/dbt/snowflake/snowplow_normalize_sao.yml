@@ -7,18 +7,15 @@ pipeline:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
         parameters:
-          commands: dbt run --selector snowplow_normalize
+          commands: dbt build
           package_manager: PIP
           python_version: '3.12'
           use_state_orchestration: true
           project_dir: dbt_projects/snowplow_snowflake_sao
           shallow_clone_dirs: dbt_projects/snowplow_snowflake_sao
         depends_on: []
-        name: dbt run snowplow_normalize
-        # MANUAL: set to the Snowflake dbt Core connection once it exists in
-        # Orchestra. null falls back to the workspace default dbt Core
-        # connection, which is not the Snowplow one.
-        connection: null
+        name: dbt Build
+        connection: ${{ ENV.DBT_CORE_SNOWFLAKE }}
     depends_on: []
     name: ''
 webhook:
