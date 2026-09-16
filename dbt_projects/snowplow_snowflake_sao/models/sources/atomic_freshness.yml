@@ -1,0 +1,24 @@
+version: 2
+
+sources:
+  # Overrides the `atomic` source that snowplow_normalize ships, purely to add
+  # freshness. dbt does not let the root project set loaded_at_field/freshness
+  # on a package's source through dbt_project.yml `sources:` config — that path
+  # silently does not apply — so `overrides:` is the supported mechanism.
+  #
+  # database/schema are restated because an override replaces the source's
+  # properties; these expressions are copied from the package's src_base.yml so
+  # the relation still resolves to SNOWPLOW_TRACKING.ATOMIC.EVENTS.
+  - name: atomic
+    overrides: snowplow_normalize
+    database: "{{ var('snowplow__database', target.database) }}"
+    schema: "{{ var('snowplow__atomic_schema', 'atomic') }}"
+    loaded_at_field: collector_tstamp
+    # Loose on purpose: WARN after a day with no new events, ERROR only after a
+    # week. `dbt source freshness` returning an error would fail the Orchestra
+    # task, and the Lightdash refresh is gated on it succeeding.
+    freshness:
+      warn_after: {count: 24, period: hour}
+      error_after: {count: 7, period: day}
+    tables:
+      - name: events

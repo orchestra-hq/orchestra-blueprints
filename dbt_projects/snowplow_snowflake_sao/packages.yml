@@ -1,3 +1,7 @@
 packages:
   - package: snowplow/snowplow_normalize
     version: 1.0.0
+  # Already present transitively via snowplow_utils; declared explicitly
+  # because this project uses dbt_utils.recency directly.
+  - package: dbt-labs/dbt_utils
+    version: [">=1.0.0", "<2.0.0"]

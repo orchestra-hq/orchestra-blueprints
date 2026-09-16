@@ -275,6 +275,18 @@ models:
       - name: unique_id
         data_type: varchar
         description: event_id concatenated with event_table_name.
+    data_tests:
+      # Fails if no event has been modelled in the last 3 days. severity: warn
+      # on purpose — an error would fail `dbt build`, and the Lightdash refresh
+      # task is gated on that task succeeding, so a stale warehouse would also
+      # stop the dashboard from refreshing.
+      - dbt_utils.recency:
+          arguments:
+            datepart: day
+            field: collector_tstamp
+            interval: 3
+          config:
+            severity: warn
     config:
       meta:
         metrics:

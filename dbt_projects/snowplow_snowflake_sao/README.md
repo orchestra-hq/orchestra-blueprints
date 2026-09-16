@@ -42,6 +42,32 @@ That needs a `config.json` listing the events to normalize plus an Iglu
 `snowplow_normalize_incremental`, which `selectors.yml` already picks up — so no
 pipeline change is needed once they exist.
 
+## Freshness tests
+
+Two, deliberately both non-fatal:
+
+| Check | Fires when | Severity |
+| --- | --- | --- |
+| `dbt source freshness` on `atomic.events` | no new `collector_tstamp` for 24h | warn (errors after 7 days) |
+| `dbt_utils.recency` on `snowplow_events_normalized` | nothing modelled in the last 3 days | warn |
+
+Both warn rather than error on purpose. `dbt build` failing would fail the
+Orchestra task, and the Lightdash refresh task is gated on that task
+succeeding — so a hard failure on stale data would also stop the dashboard
+from refreshing, which is the opposite of what you want when investigating
+staleness.
+
+The source freshness block lives in `models/sources/atomic_freshness.yml` as a
+dbt **source override**, not in `dbt_project.yml`. The root project cannot set
+`loaded_at_field` or `freshness` on a package's source through the
+`sources:` config path — dbt silently ignores it and warns that the
+configuration path does not apply to any resource. `overrides:` is the
+supported route, and it replaces properties rather than merging them, which is
+why `database` and `schema` are restated from the package's `src_base.yml`.
+
+Orchestra's state-aware orchestration already calculates source freshness on
+every run; before this, it had no `loaded_at_field` to read.
+
 ## Gotchas worth knowing
 
 - **`selectors.yml` must live here, not in the package.** dbt only reads
