@@ -1,5 +1,5 @@
 version: v1
-name: 'dbt Snowflake SAO - Snowplow normalize #dbt #sao #snowflake #snowplow'
+name: Efficient Snowplow Event Processing with Orchestra and dbt
 pipeline:
   e2867f57-90d5-4e8a-a2fa-b0ae504d50f2:
     tasks:
