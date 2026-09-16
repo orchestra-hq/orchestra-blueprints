@@ -4,8 +4,8 @@ config-version: 2
 
 # Must match the profile name on the Orchestra dbt Core connection for this
 # project. The connection holds the profiles.yml contents; the profile it
-# defines has to be called 'dev'.
-profile: 'dev'
+# defines has to be called 'snowflake_airflow_dbt'.
+profile: 'snowflake_airflow_dbt'
 
 model-paths: ["models"]
 macro-paths: ["macros"]
