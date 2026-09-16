@@ -1,0 +1,384 @@
+version: 2
+
+models:
+  - name: page_events_1
+    description: >
+      Normalized Snowplow events: page_view, page_ping.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: app_id
+        description: Atomic events column app_id.
+      - name: domain_sessionid
+        description: Atomic events column domain_sessionid.
+      - name: domain_sessionidx
+        description: Atomic events column domain_sessionidx.
+      - name: domain_userid
+        description: Atomic events column domain_userid.
+      - name: geo_city
+        description: Atomic events column geo_city.
+      - name: geo_country
+        description: Atomic events column geo_country.
+      - name: geo_region
+        description: Atomic events column geo_region.
+      - name: page_title
+        description: Atomic events column page_title.
+      - name: page_url
+        description: Atomic events column page_url.
+      - name: platform
+        description: Atomic events column platform.
+      - name: refr_urlhost
+        description: Atomic events column refr_urlhost.
+
+  - name: snowplow_ad_interaction_1
+    description: >
+      Normalized Snowplow events: ad_interaction.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: app_id
+        description: Atomic events column app_id.
+      - name: domain_userid
+        description: Atomic events column domain_userid.
+      - name: geo_country
+        description: Atomic events column geo_country.
+      - name: page_url
+        description: Atomic events column page_url.
+
+  - name: snowplow_application_error_1
+    description: >
+      Normalized Snowplow events: application_error.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: app_id
+        description: Atomic events column app_id.
+      - name: domain_userid
+        description: Atomic events column domain_userid.
+      - name: page_url
+        description: Atomic events column page_url.
+      - name: platform
+        description: Atomic events column platform.
+      - name: error_programming_language
+        description: Self-describing event field programmingLanguage.
+      - name: error_message
+        description: Self-describing event field message.
+      - name: error_thread_name
+        description: Self-describing event field threadName.
+      - name: error_thread_id
+        description: Self-describing event field threadId.
+      - name: error_stack_trace
+        description: Self-describing event field stackTrace.
+      - name: error_cause_stack_trace
+        description: Self-describing event field causeStackTrace.
+      - name: error_line_number
+        description: Self-describing event field lineNumber.
+      - name: error_class_name
+        description: Self-describing event field className.
+      - name: error_exception_name
+        description: Self-describing event field exceptionName.
+      - name: error_is_fatal
+        description: Self-describing event field isFatal.
+      - name: error_line_column
+        description: Self-describing event field lineColumn.
+      - name: error_file_name
+        description: Self-describing event field fileName.
+
+  - name: snowplow_article_interaction_1
+    description: >
+      Normalized Snowplow events: article_interaction.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: app_id
+        description: Atomic events column app_id.
+      - name: domain_userid
+        description: Atomic events column domain_userid.
+      - name: page_title
+        description: Atomic events column page_title.
+      - name: page_url
+        description: Atomic events column page_url.
+
+  - name: snowplow_assessment_completed_1
+    description: >
+      Normalized Snowplow events: assessment_completed.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: app_id
+        description: Atomic events column app_id.
+      - name: domain_userid
+        description: Atomic events column domain_userid.
+      - name: user_id
+        description: Atomic events column user_id.
+
+  - name: snowplow_cmp_visible_1
+    description: >
+      Normalized Snowplow events: cmp_visible.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: app_id
+        description: Atomic events column app_id.
+      - name: domain_userid
+        description: Atomic events column domain_userid.
+      - name: page_url
+        description: Atomic events column page_url.
+
+  - name: snowplow_consent_preferences_1
+    description: >
+      Normalized Snowplow events: consent_preferences.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: app_id
+        description: Atomic events column app_id.
+      - name: domain_userid
+        description: Atomic events column domain_userid.
+      - name: page_url
+        description: Atomic events column page_url.
+      - name: consent_event_type
+        description: Self-describing event field eventType.
+      - name: consent_basis_for_processing
+        description: Self-describing event field basisForProcessing.
+      - name: consent_consent_url
+        description: Self-describing event field consentUrl.
+      - name: consent_consent_version
+        description: Self-describing event field consentVersion.
+      - name: consent_consent_scopes
+        description: Self-describing event field consentScopes.
+      - name: consent_domains_applied
+        description: Self-describing event field domainsApplied.
+      - name: consent_gdpr_applies
+        description: Self-describing event field gdprApplies.
+
+  - name: snowplow_cta_clicked_1
+    description: >
+      Normalized Snowplow events: cta_clicked.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: app_id
+        description: Atomic events column app_id.
+      - name: domain_userid
+        description: Atomic events column domain_userid.
+      - name: page_title
+        description: Atomic events column page_title.
+      - name: page_url
+        description: Atomic events column page_url.
+
+  - name: snowplow_events_normalized
+    description: >
+      Lookup mapping every modelled event_id to the normalized table it landed in.
+      One row per event per destination table.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: event_name
+        description: Snowplow event name.
+      - name: event_table_name
+        description: Normalized table this event was written to.
+      - name: unique_id
+        description: event_id concatenated with event_table_name.
+  - name: snowplow_frontpage_composed_1
+    description: >
+      Normalized Snowplow events: frontpage_composed.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: app_id
+        description: Atomic events column app_id.
+      - name: domain_userid
+        description: Atomic events column domain_userid.
+      - name: page_url
+        description: Atomic events column page_url.
+
+  - name: snowplow_frontpage_slot_interaction_1
+    description: >
+      Normalized Snowplow events: frontpage_slot_interaction.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: app_id
+        description: Atomic events column app_id.
+      - name: domain_userid
+        description: Atomic events column domain_userid.
+      - name: page_url
+        description: Atomic events column page_url.
+
+  - name: snowplow_identity_merge_1
+    description: >
+      Normalized Snowplow events: identity_merge.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: app_id
+        description: Atomic events column app_id.
+      - name: domain_userid
+        description: Atomic events column domain_userid.
+      - name: network_userid
+        description: Atomic events column network_userid.
+      - name: user_id
+        description: Atomic events column user_id.
+
+  - name: snowplow_intervention_handle_1
+    description: >
+      Normalized Snowplow events: intervention_handle.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: app_id
+        description: Atomic events column app_id.
+      - name: domain_userid
+        description: Atomic events column domain_userid.
+      - name: user_id
+        description: Atomic events column user_id.
+
+  - name: snowplow_intervention_receive_1
+    description: >
+      Normalized Snowplow events: intervention_receive.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: app_id
+        description: Atomic events column app_id.
+      - name: domain_userid
+        description: Atomic events column domain_userid.
+      - name: user_id
+        description: Atomic events column user_id.
+
+  - name: snowplow_link_click_1
+    description: >
+      Normalized Snowplow events: link_click.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: app_id
+        description: Atomic events column app_id.
+      - name: domain_userid
+        description: Atomic events column domain_userid.
+      - name: page_url
+        description: Atomic events column page_url.
+      - name: refr_urlhost
+        description: Atomic events column refr_urlhost.
+      - name: click_element_id
+        description: Self-describing event field elementId.
+      - name: click_element_classes
+        description: Self-describing event field elementClasses.
+      - name: click_element_target
+        description: Self-describing event field elementTarget.
+      - name: click_target_url
+        description: Self-describing event field targetUrl.
+      - name: click_element_content
+        description: Self-describing event field elementContent.
+
+  - name: snowplow_package_configured_1
+    description: >
+      Normalized Snowplow events: package_configured.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: app_id
+        description: Atomic events column app_id.
+      - name: domain_userid
+        description: Atomic events column domain_userid.
+      - name: user_id
+        description: Atomic events column user_id.
+
+  - name: snowplow_percent_progress_event_1
+    description: >
+      Normalized Snowplow events: percent_progress_event.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: app_id
+        description: Atomic events column app_id.
+      - name: domain_userid
+        description: Atomic events column domain_userid.
+      - name: page_url
+        description: Atomic events column page_url.
+
+  - name: snowplow_play_event_1
+    description: >
+      Normalized Snowplow events: play_event.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: app_id
+        description: Atomic events column app_id.
+      - name: domain_userid
+        description: Atomic events column domain_userid.
+      - name: page_url
+        description: Atomic events column page_url.
+
+  - name: snowplow_quote_requested_1
+    description: >
+      Normalized Snowplow events: quote_requested.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: app_id
+        description: Atomic events column app_id.
+      - name: domain_userid
+        description: Atomic events column domain_userid.
+      - name: geo_country
+        description: Atomic events column geo_country.
+      - name: page_url
+        description: Atomic events column page_url.
+      - name: user_id
+        description: Atomic events column user_id.
+
+  - name: snowplow_user_identified_1
+    description: >
+      Normalized Snowplow events: user_identified.
+    columns:
+      - name: event_id
+        description: Snowplow event UUID.
+      - name: collector_tstamp
+        description: Time the collector received the event.
+      - name: app_id
+        description: Atomic events column app_id.
+      - name: domain_userid
+        description: Atomic events column domain_userid.
+      - name: network_userid
+        description: Atomic events column network_userid.
+      - name: user_id
+        description: Atomic events column user_id.
