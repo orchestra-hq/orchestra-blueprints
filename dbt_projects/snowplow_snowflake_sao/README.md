@@ -61,12 +61,12 @@ pipeline change is needed once they exist.
 ## Connection
 
 The Orchestra dbt Core connection for this project must define a profile named
-**`snowplow_snowflake`** (that is what `dbt_project.yml` points at) with access to
+**`dev`** (that is what `dbt_project.yml` points at) with access to
 `SNOWPLOW_TRACKING.ATOMIC.EVENTS`.
 
 The task in the pipeline YAML currently has `connection: null`. Orchestra falls
 back to the workspace default dbt Core connection when this is null, which today
 is `dbt_snowflake_blueprints_prod_07025` ("dbt-snowflake (Prod)") — whose profile
-is `snowflake_airflow_dbt`, not `snowplow_snowflake`. So until the real connection
-is set the run fails fast on a missing profile rather than quietly running against
-the wrong credentials.
+is `snowflake_airflow_dbt`, not `dev`. So until the real connection is set the run
+fails fast on a missing profile rather than quietly running against the wrong
+credentials.
