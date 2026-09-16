@@ -46,6 +46,13 @@ vars:
     # Empty list = model every app_id present in the events table.
     snowplow__app_id: []
 
+    # -1 disables the late-arriving-data filter. That filter is the only thing
+    # in the package's base models referencing dvce_sent_tstamp /
+    # dvce_created_tstamp, neither of which exists in
+    # SNOWPLOW_TRACKING.ATOMIC.EVENTS — with the default of 3 the run fails on
+    # an invalid identifier. Set this back to 3 if those columns are ever added.
+    snowplow__days_late_allowed: -1
+
 flags:
   # The package's schema YAML uses the `arguments:` property for generic tests,
   # which dbt 1.10+ only parses with this flag on.
