@@ -46,12 +46,16 @@ vars:
   snowplow__partition_tstamp: collector_tstamp
   snowplow__session_timestamp: collector_tstamp
 
-  # Package default. The package backfills forward from here in
-  # snowplow__backfill_limit_days chunks, so a 2020 start date means many
-  # runs before it reaches present day — raise this to the earliest event
-  # you actually want modelled.
+  # The package walks forward from start_date (or, once the manifest has
+  # entries, from the last processed timestamp) in backfill_limit_days chunks.
+  # The first run modelled 2020-01-01 to 2020-01-31 and found nothing, because
+  # the events are far more recent — at 30 days a run it would take ~80 runs to
+  # reach them. 3000 days lets a single run catch up from where the manifest
+  # currently sits all the way past today.
+  # Drop this back to 30 once caught up; leaving it high makes each run scan a
+  # needlessly wide window.
   snowplow__start_date: '2020-01-01'
-  snowplow__backfill_limit_days: 30
+  snowplow__backfill_limit_days: 3000
 
   # Empty list = model every app_id present in the events table.
   snowplow__app_id: []
