@@ -4,6 +4,17 @@ models:
   - name: page_events_1
     description: >
       Normalized Snowplow events: page_view, page_ping.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
     columns:
       - name: event_id
         data_type: varchar
@@ -48,6 +59,17 @@ models:
   - name: snowplow_ad_interaction_1
     description: >
       Normalized Snowplow events: ad_interaction.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
     columns:
       - name: event_id
         data_type: varchar
@@ -71,6 +93,17 @@ models:
   - name: snowplow_application_error_1
     description: >
       Normalized Snowplow events: application_error.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
     columns:
       - name: event_id
         data_type: varchar
@@ -130,6 +163,17 @@ models:
   - name: snowplow_article_interaction_1
     description: >
       Normalized Snowplow events: article_interaction.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
     columns:
       - name: event_id
         data_type: varchar
@@ -153,6 +197,17 @@ models:
   - name: snowplow_assessment_completed_1
     description: >
       Normalized Snowplow events: assessment_completed.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
     columns:
       - name: event_id
         data_type: varchar
@@ -173,6 +228,17 @@ models:
   - name: snowplow_cmp_visible_1
     description: >
       Normalized Snowplow events: cmp_visible.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
     columns:
       - name: event_id
         data_type: varchar
@@ -193,6 +259,17 @@ models:
   - name: snowplow_consent_preferences_1
     description: >
       Normalized Snowplow events: consent_preferences.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
     columns:
       - name: event_id
         data_type: varchar
@@ -234,6 +311,17 @@ models:
   - name: snowplow_cta_clicked_1
     description: >
       Normalized Snowplow events: cta_clicked.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
     columns:
       - name: event_id
         data_type: varchar
@@ -259,6 +347,39 @@ models:
       Lookup mapping every modelled event_id to the normalized table it landed in.
       One row per event per destination table. This is the table the summary
       dashboard is built on.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
+      meta:
+        metrics:
+          total_events:
+            label: Total events
+            type: count_distinct
+            sql: event_id
+            description: Distinct Snowplow events modelled.
+          latest_event_at:
+            label: Latest event
+            type: max
+            sql: collector_tstamp
+            description: Collector timestamp of the most recent modelled event.
+    data_tests:
+      # Warns, never errors: an error fails dbt build, and the Lightdash
+      # refresh task is gated on that task succeeding.
+      - dbt_utils.recency:
+          arguments:
+            datepart: day
+            field: collector_tstamp
+            interval: 3
+          config:
+            severity: warn
     columns:
       - name: event_id
         data_type: varchar
@@ -275,35 +396,21 @@ models:
       - name: unique_id
         data_type: varchar
         description: event_id concatenated with event_table_name.
-    data_tests:
-      # Fails if no event has been modelled in the last 3 days. severity: warn
-      # on purpose — an error would fail `dbt build`, and the Lightdash refresh
-      # task is gated on that task succeeding, so a stale warehouse would also
-      # stop the dashboard from refreshing.
-      - dbt_utils.recency:
-          arguments:
-            datepart: day
-            field: collector_tstamp
-            interval: 3
-          config:
-            severity: warn
-    config:
-      meta:
-        metrics:
-          total_events:
-            label: Total events
-            type: count_distinct
-            sql: event_id
-            description: Distinct Snowplow events modelled.
-          latest_event_at:
-            label: Latest event
-            type: max
-            sql: collector_tstamp
-            description: Collector timestamp of the most recent modelled event.
 
   - name: snowplow_frontpage_composed_1
     description: >
       Normalized Snowplow events: frontpage_composed.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
     columns:
       - name: event_id
         data_type: varchar
@@ -324,6 +431,17 @@ models:
   - name: snowplow_frontpage_slot_interaction_1
     description: >
       Normalized Snowplow events: frontpage_slot_interaction.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
     columns:
       - name: event_id
         data_type: varchar
@@ -344,6 +462,17 @@ models:
   - name: snowplow_identity_merge_1
     description: >
       Normalized Snowplow events: identity_merge.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
     columns:
       - name: event_id
         data_type: varchar
@@ -367,6 +496,17 @@ models:
   - name: snowplow_intervention_handle_1
     description: >
       Normalized Snowplow events: intervention_handle.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
     columns:
       - name: event_id
         data_type: varchar
@@ -387,6 +527,17 @@ models:
   - name: snowplow_intervention_receive_1
     description: >
       Normalized Snowplow events: intervention_receive.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
     columns:
       - name: event_id
         data_type: varchar
@@ -407,6 +558,17 @@ models:
   - name: snowplow_link_click_1
     description: >
       Normalized Snowplow events: link_click.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
     columns:
       - name: event_id
         data_type: varchar
@@ -445,6 +607,17 @@ models:
   - name: snowplow_package_configured_1
     description: >
       Normalized Snowplow events: package_configured.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
     columns:
       - name: event_id
         data_type: varchar
@@ -465,6 +638,17 @@ models:
   - name: snowplow_percent_progress_event_1
     description: >
       Normalized Snowplow events: percent_progress_event.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
     columns:
       - name: event_id
         data_type: varchar
@@ -485,6 +669,17 @@ models:
   - name: snowplow_play_event_1
     description: >
       Normalized Snowplow events: play_event.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
     columns:
       - name: event_id
         data_type: varchar
@@ -505,6 +700,17 @@ models:
   - name: snowplow_quote_requested_1
     description: >
       Normalized Snowplow events: quote_requested.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
     columns:
       - name: event_id
         data_type: varchar
@@ -531,6 +737,17 @@ models:
   - name: snowplow_user_identified_1
     description: >
       Normalized Snowplow events: user_identified.
+    config:
+      # Rebuild only when EVERY upstream has new data (Orchestra default: any).
+      # count/period are required alongside updates_on, and kept at 1 minute on
+      # purpose: build_after also suppresses a rebuild if the model was built
+      # inside that window, so a longer value would stop a re-run from picking
+      # up data you just loaded.
+      freshness:
+        build_after:
+          count: 1
+          period: minute
+          updates_on: all
     columns:
       - name: event_id
         data_type: varchar

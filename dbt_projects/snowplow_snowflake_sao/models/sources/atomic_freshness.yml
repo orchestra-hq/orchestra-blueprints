@@ -13,12 +13,13 @@ sources:
     overrides: snowplow_normalize
     database: "{{ var('snowplow__database', target.database) }}"
     schema: "{{ var('snowplow__atomic_schema', 'atomic') }}"
-    loaded_at_field: collector_tstamp
+    config:
+      loaded_at_field: collector_tstamp
     # Loose on purpose: WARN after a day with no new events, ERROR only after a
     # week. `dbt source freshness` returning an error would fail the Orchestra
     # task, and the Lightdash refresh is gated on it succeeding.
-    freshness:
-      warn_after: {count: 24, period: hour}
-      error_after: {count: 7, period: day}
+      freshness:
+        warn_after: {count: 24, period: hour}
+        error_after: {count: 7, period: day}
     tables:
       - name: events

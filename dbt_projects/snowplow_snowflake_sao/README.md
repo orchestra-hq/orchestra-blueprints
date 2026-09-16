@@ -70,6 +70,31 @@ configuration path does not apply to any resource. `overrides:` is the
 supported route, and it replaces properties rather than merging them, which is
 why `database` and `schema` are restated from the package's `src_base.yml`.
 
+## State-aware orchestration
+
+Every normalized model carries:
+
+```yaml
+config:
+  freshness:
+    build_after: {count: 1, period: minute, updates_on: all}
+```
+
+`updates_on: all` is the point — Orchestra rebuilds the model only when *every*
+upstream has new data, rather than the default `any`. Orchestra propagates
+`build_after` up to parent models (taking the minimum), so the three
+`snowplow_normalize` base models inherit it without being configured directly.
+
+`count`/`period` are required whenever a model freshness config is set, and are
+deliberately 1 minute. `build_after` also suppresses a rebuild if the model was
+built inside that window, so a longer value would stop a re-run from picking up
+data you had just loaded — the opposite of what this project is for. Raise it
+if you want a genuine minimum rebuild interval.
+
+**This only works per-model in `schema.yml`.** Setting `+freshness` under
+`models:` in `dbt_project.yml` is silently ignored — dbt drops it with no
+warning and `config.freshness` stays null in the manifest.
+
 ## Gotchas worth knowing
 
 - **`selectors.yml` must live here, not in the package.** dbt only reads
