@@ -15,7 +15,7 @@ pipeline:
           shallow_clone_dirs: dbt_projects/snowplow_snowflake_sao
         depends_on: []
         name: dbt Build
-        connection: ${{ ENV.DBT_CORE_SNOWFLAKE }}
+        connection: dbt_snowflake_blueprints_prod_07025
     depends_on: []
     name: ''
 webhook:
