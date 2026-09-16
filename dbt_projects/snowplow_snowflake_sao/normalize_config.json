@@ -1,0 +1,51 @@
+{
+  "config": {
+    "resolver_file_path": "default",
+    "filtered_events_table_name": "snowplow_events_normalized",
+    "validate_schemas": true,
+    "overwrite": true,
+    "models_folder": "snowplow_normalized_events",
+    "models_prefix": "snowplow"
+  },
+  "events": [
+    {
+      "event_names": ["page_view", "page_ping"],
+      "event_columns": ["app_id", "platform", "domain_userid", "domain_sessionid", "domain_sessionidx", "page_url", "page_title", "refr_urlhost", "geo_country", "geo_region", "geo_city"],
+      "table_name": "page_events",
+      "version": "1"
+    },
+    {
+      "event_names": ["link_click"],
+      "self_describing_event_schemas": ["iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1"],
+      "self_describing_event_aliases": ["click"],
+      "event_columns": ["app_id", "domain_userid", "page_url", "refr_urlhost"]
+    },
+    {
+      "event_names": ["application_error"],
+      "self_describing_event_schemas": ["iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-2"],
+      "self_describing_event_aliases": ["error"],
+      "event_columns": ["app_id", "platform", "domain_userid", "page_url"]
+    },
+    {
+      "event_names": ["consent_preferences"],
+      "self_describing_event_schemas": ["iglu:com.snowplowanalytics.snowplow/consent_preferences/jsonschema/1-0-0"],
+      "self_describing_event_aliases": ["consent"],
+      "event_columns": ["app_id", "domain_userid", "page_url"]
+    },
+    { "event_names": ["cmp_visible"], "event_columns": ["app_id", "domain_userid", "page_url"] },
+    { "event_names": ["quote_requested"], "event_columns": ["app_id", "domain_userid", "user_id", "page_url", "geo_country"] },
+    { "event_names": ["article_interaction"], "event_columns": ["app_id", "domain_userid", "page_url", "page_title"] },
+    { "event_names": ["user_identified"], "event_columns": ["app_id", "domain_userid", "user_id", "network_userid"] },
+    { "event_names": ["identity_merge"], "event_columns": ["app_id", "domain_userid", "user_id", "network_userid"] },
+    { "event_names": ["percent_progress_event"], "event_columns": ["app_id", "domain_userid", "page_url"] },
+    { "event_names": ["play_event"], "event_columns": ["app_id", "domain_userid", "page_url"] },
+    { "event_names": ["intervention_receive"], "event_columns": ["app_id", "domain_userid", "user_id"] },
+    { "event_names": ["intervention_handle"], "event_columns": ["app_id", "domain_userid", "user_id"] },
+    { "event_names": ["cta_clicked"], "event_columns": ["app_id", "domain_userid", "page_url", "page_title"] },
+    { "event_names": ["assessment_completed"], "event_columns": ["app_id", "domain_userid", "user_id"] },
+    { "event_names": ["frontpage_slot_interaction"], "event_columns": ["app_id", "domain_userid", "page_url"] },
+    { "event_names": ["frontpage_composed"], "event_columns": ["app_id", "domain_userid", "page_url"] },
+    { "event_names": ["package_configured"], "event_columns": ["app_id", "domain_userid", "user_id"] },
+    { "event_names": ["ad_interaction"], "event_columns": ["app_id", "domain_userid", "page_url", "geo_country"] }
+  ]
+}
