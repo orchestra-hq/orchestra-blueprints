@@ -24,16 +24,11 @@ pipeline:
         integration: LIGHTDASH
         integration_job: LIGHTDASH_REFRESH_DASHBOARD
         parameters:
-          dashboard_id: c7bff878-07c4-4a8b-bf32-177f51fc40ef
+          dashboard_id: snowplow-event-summary
           invalidate_cache: true
         depends_on: []
-        name: Refresh Snowplow event summary
-        # MANUAL: needs a Lightdash connection scoped to project
-        # 65f33047-cab6-4200-9332-d5442c9f561b (Orchestra Snowflake Snowplow).
-        # An Orchestra Lightdash connection stores one project UUID, and
-        # neither existing connection points at that project — null falls back
-        # to lightdash__prod__23382, which is a different project.
-        connection: null
+        name: Refresh Lightdash Dashboard
+        connection: lightdash__snowplow__79073
     depends_on:
     - e2867f57-90d5-4e8a-a2fa-b0ae504d50f2
     name: refresh dashboard
