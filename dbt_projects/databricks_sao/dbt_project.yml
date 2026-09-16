@@ -14,6 +14,20 @@ clean-targets:
   - "target"
   - "dbt_packages"
 
+# Elementary's on-run-start hook runs during `dbt build`, matching the real
+# project's setup. source_freshness_run_project_hooks makes it (and this
+# project's own hook, if one is added) also run during `dbt source freshness`
+# -- the invocation ORCHESTRA_SCOPE_SOURCE_FRESHNESS_TO_SELECTION triggers --
+# which is one candidate for what's behind the real project's "Collected 0
+# source(s)" run: a hook failure there is invisible to us (quiet invocation,
+# no result surfaced), unlike a hook failure during the build itself.
+flags:
+  require_explicit_package_overrides_for_builtin_materializations: false
+  source_freshness_run_project_hooks: true
+
+on-run-start:
+  - "{{ elementary.on_run_start() }}"
+
 models:
   databricks_sao_demo:
     # The connection's profile points at the lakehouse the shared project uses;
@@ -26,3 +40,5 @@ models:
     marts:
       +materialized: table
       +schema: dbt_sao_demo
+  elementary:
+    +schema: "elementary"
