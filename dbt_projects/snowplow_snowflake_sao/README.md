@@ -53,10 +53,20 @@ pipeline change is needed once they exist.
   compiler error. It is set `true` here, which asserts acceptance of the
   [Snowplow Personal and Academic License v1.0](https://docs.snowplow.io/personal-and-academic-license-1.0)
   (or an existing commercial agreement).
-- **Backfill is incremental from `snowplow__start_date`.** It is at the package
-  default of `2020-01-01`, advancing `snowplow__backfill_limit_days` (30) per
-  run — so it takes many runs to reach present day. Raise the start date to the
-  earliest event you actually care about.
+- **Backfill is incremental from `snowplow__start_date`.** The package advances
+  `snowplow__backfill_limit_days` per run from the last timestamp in the
+  manifest. The initial catch-up from `2020-01-01` is done — it was run once
+  with the limit raised to 3000 days, which covered the whole range in one go
+  and modelled 1903 events — and the limit is back to the default 30. If the
+  manifest is ever reset, raise the limit temporarily rather than running the
+  pipeline ~80 times.
+- **The events table is a slim 19-column subset**, so
+  `snowplow__days_late_allowed` is `-1`. See the var comment in
+  `dbt_project.yml`.
+- **Vars are global, not scoped under `snowplow_normalize:`.** The generated
+  event models live in this project rather than the package, so package-scoped
+  vars are invisible to them. `dbt parse` does *not* catch this — it passes
+  either way; the failure only shows at run time.
 
 ## Connection
 
