@@ -6,30 +6,43 @@ models:
       Normalized Snowplow events: page_view, page_ping.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: app_id
+        data_type: varchar
         description: Atomic events column app_id.
       - name: domain_sessionid
+        data_type: varchar
         description: Atomic events column domain_sessionid.
       - name: domain_sessionidx
+        data_type: number
         description: Atomic events column domain_sessionidx.
       - name: domain_userid
+        data_type: varchar
         description: Atomic events column domain_userid.
       - name: geo_city
+        data_type: varchar
         description: Atomic events column geo_city.
       - name: geo_country
+        data_type: varchar
         description: Atomic events column geo_country.
       - name: geo_region
+        data_type: varchar
         description: Atomic events column geo_region.
       - name: page_title
+        data_type: varchar
         description: Atomic events column page_title.
       - name: page_url
+        data_type: varchar
         description: Atomic events column page_url.
       - name: platform
+        data_type: varchar
         description: Atomic events column platform.
       - name: refr_urlhost
+        data_type: varchar
         description: Atomic events column refr_urlhost.
 
   - name: snowplow_ad_interaction_1
@@ -37,16 +50,22 @@ models:
       Normalized Snowplow events: ad_interaction.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: app_id
+        data_type: varchar
         description: Atomic events column app_id.
       - name: domain_userid
+        data_type: varchar
         description: Atomic events column domain_userid.
       - name: geo_country
+        data_type: varchar
         description: Atomic events column geo_country.
       - name: page_url
+        data_type: varchar
         description: Atomic events column page_url.
 
   - name: snowplow_application_error_1
@@ -54,57 +73,81 @@ models:
       Normalized Snowplow events: application_error.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: app_id
+        data_type: varchar
         description: Atomic events column app_id.
       - name: domain_userid
+        data_type: varchar
         description: Atomic events column domain_userid.
       - name: page_url
+        data_type: varchar
         description: Atomic events column page_url.
       - name: platform
+        data_type: varchar
         description: Atomic events column platform.
       - name: error_programming_language
-        description: Self-describing event field programmingLanguage.
+        data_type: varchar
+        description: Self-describing event field programmingLanguage (string).
       - name: error_message
-        description: Self-describing event field message.
+        data_type: varchar
+        description: Self-describing event field message (string).
       - name: error_thread_name
-        description: Self-describing event field threadName.
+        data_type: varchar
+        description: Self-describing event field threadName (string).
       - name: error_thread_id
-        description: Self-describing event field threadId.
+        data_type: number
+        description: Self-describing event field threadId (integer).
       - name: error_stack_trace
-        description: Self-describing event field stackTrace.
+        data_type: varchar
+        description: Self-describing event field stackTrace (string).
       - name: error_cause_stack_trace
-        description: Self-describing event field causeStackTrace.
+        data_type: varchar
+        description: Self-describing event field causeStackTrace (string).
       - name: error_line_number
-        description: Self-describing event field lineNumber.
+        data_type: number
+        description: Self-describing event field lineNumber (integer).
       - name: error_class_name
-        description: Self-describing event field className.
+        data_type: varchar
+        description: Self-describing event field className (string).
       - name: error_exception_name
-        description: Self-describing event field exceptionName.
+        data_type: varchar
+        description: Self-describing event field exceptionName (string).
       - name: error_is_fatal
-        description: Self-describing event field isFatal.
+        data_type: boolean
+        description: Self-describing event field isFatal (boolean).
       - name: error_line_column
-        description: Self-describing event field lineColumn.
+        data_type: number
+        description: Self-describing event field lineColumn (integer).
       - name: error_file_name
-        description: Self-describing event field fileName.
+        data_type: varchar
+        description: Self-describing event field fileName (string).
 
   - name: snowplow_article_interaction_1
     description: >
       Normalized Snowplow events: article_interaction.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: app_id
+        data_type: varchar
         description: Atomic events column app_id.
       - name: domain_userid
+        data_type: varchar
         description: Atomic events column domain_userid.
       - name: page_title
+        data_type: varchar
         description: Atomic events column page_title.
       - name: page_url
+        data_type: varchar
         description: Atomic events column page_url.
 
   - name: snowplow_assessment_completed_1
@@ -112,14 +155,19 @@ models:
       Normalized Snowplow events: assessment_completed.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: app_id
+        data_type: varchar
         description: Atomic events column app_id.
       - name: domain_userid
+        data_type: varchar
         description: Atomic events column domain_userid.
       - name: user_id
+        data_type: varchar
         description: Atomic events column user_id.
 
   - name: snowplow_cmp_visible_1
@@ -127,14 +175,19 @@ models:
       Normalized Snowplow events: cmp_visible.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: app_id
+        data_type: varchar
         description: Atomic events column app_id.
       - name: domain_userid
+        data_type: varchar
         description: Atomic events column domain_userid.
       - name: page_url
+        data_type: varchar
         description: Atomic events column page_url.
 
   - name: snowplow_consent_preferences_1
@@ -142,75 +195,118 @@ models:
       Normalized Snowplow events: consent_preferences.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: app_id
+        data_type: varchar
         description: Atomic events column app_id.
       - name: domain_userid
+        data_type: varchar
         description: Atomic events column domain_userid.
       - name: page_url
+        data_type: varchar
         description: Atomic events column page_url.
       - name: consent_event_type
-        description: Self-describing event field eventType.
+        data_type: varchar
+        description: Self-describing event field eventType (string).
       - name: consent_basis_for_processing
-        description: Self-describing event field basisForProcessing.
+        data_type: varchar
+        description: Self-describing event field basisForProcessing (string).
       - name: consent_consent_url
-        description: Self-describing event field consentUrl.
+        data_type: varchar
+        description: Self-describing event field consentUrl (string).
       - name: consent_consent_version
-        description: Self-describing event field consentVersion.
+        data_type: varchar
+        description: Self-describing event field consentVersion (string).
       - name: consent_consent_scopes
-        description: Self-describing event field consentScopes.
+        data_type: array
+        description: Self-describing event field consentScopes (array).
       - name: consent_domains_applied
-        description: Self-describing event field domainsApplied.
+        data_type: array
+        description: Self-describing event field domainsApplied (array).
       - name: consent_gdpr_applies
-        description: Self-describing event field gdprApplies.
+        data_type: boolean
+        description: Self-describing event field gdprApplies (boolean).
 
   - name: snowplow_cta_clicked_1
     description: >
       Normalized Snowplow events: cta_clicked.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: app_id
+        data_type: varchar
         description: Atomic events column app_id.
       - name: domain_userid
+        data_type: varchar
         description: Atomic events column domain_userid.
       - name: page_title
+        data_type: varchar
         description: Atomic events column page_title.
       - name: page_url
+        data_type: varchar
         description: Atomic events column page_url.
 
   - name: snowplow_events_normalized
     description: >
       Lookup mapping every modelled event_id to the normalized table it landed in.
-      One row per event per destination table.
+      One row per event per destination table. This is the table the summary
+      dashboard is built on.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: event_name
+        data_type: varchar
         description: Snowplow event name.
       - name: event_table_name
+        data_type: varchar
         description: Normalized table this event was written to.
       - name: unique_id
+        data_type: varchar
         description: event_id concatenated with event_table_name.
+    config:
+      meta:
+        metrics:
+          total_events:
+            label: Total events
+            type: count_distinct
+            sql: event_id
+            description: Distinct Snowplow events modelled.
+          latest_event_at:
+            label: Latest event
+            type: max
+            sql: collector_tstamp
+            description: Collector timestamp of the most recent modelled event.
+
   - name: snowplow_frontpage_composed_1
     description: >
       Normalized Snowplow events: frontpage_composed.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: app_id
+        data_type: varchar
         description: Atomic events column app_id.
       - name: domain_userid
+        data_type: varchar
         description: Atomic events column domain_userid.
       - name: page_url
+        data_type: varchar
         description: Atomic events column page_url.
 
   - name: snowplow_frontpage_slot_interaction_1
@@ -218,14 +314,19 @@ models:
       Normalized Snowplow events: frontpage_slot_interaction.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: app_id
+        data_type: varchar
         description: Atomic events column app_id.
       - name: domain_userid
+        data_type: varchar
         description: Atomic events column domain_userid.
       - name: page_url
+        data_type: varchar
         description: Atomic events column page_url.
 
   - name: snowplow_identity_merge_1
@@ -233,16 +334,22 @@ models:
       Normalized Snowplow events: identity_merge.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: app_id
+        data_type: varchar
         description: Atomic events column app_id.
       - name: domain_userid
+        data_type: varchar
         description: Atomic events column domain_userid.
       - name: network_userid
+        data_type: varchar
         description: Atomic events column network_userid.
       - name: user_id
+        data_type: varchar
         description: Atomic events column user_id.
 
   - name: snowplow_intervention_handle_1
@@ -250,14 +357,19 @@ models:
       Normalized Snowplow events: intervention_handle.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: app_id
+        data_type: varchar
         description: Atomic events column app_id.
       - name: domain_userid
+        data_type: varchar
         description: Atomic events column domain_userid.
       - name: user_id
+        data_type: varchar
         description: Atomic events column user_id.
 
   - name: snowplow_intervention_receive_1
@@ -265,14 +377,19 @@ models:
       Normalized Snowplow events: intervention_receive.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: app_id
+        data_type: varchar
         description: Atomic events column app_id.
       - name: domain_userid
+        data_type: varchar
         description: Atomic events column domain_userid.
       - name: user_id
+        data_type: varchar
         description: Atomic events column user_id.
 
   - name: snowplow_link_click_1
@@ -280,41 +397,57 @@ models:
       Normalized Snowplow events: link_click.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: app_id
+        data_type: varchar
         description: Atomic events column app_id.
       - name: domain_userid
+        data_type: varchar
         description: Atomic events column domain_userid.
       - name: page_url
+        data_type: varchar
         description: Atomic events column page_url.
       - name: refr_urlhost
+        data_type: varchar
         description: Atomic events column refr_urlhost.
       - name: click_element_id
-        description: Self-describing event field elementId.
+        data_type: varchar
+        description: Self-describing event field elementId (string).
       - name: click_element_classes
-        description: Self-describing event field elementClasses.
+        data_type: array
+        description: Self-describing event field elementClasses (array).
       - name: click_element_target
-        description: Self-describing event field elementTarget.
+        data_type: varchar
+        description: Self-describing event field elementTarget (string).
       - name: click_target_url
-        description: Self-describing event field targetUrl.
+        data_type: varchar
+        description: Self-describing event field targetUrl (string).
       - name: click_element_content
-        description: Self-describing event field elementContent.
+        data_type: varchar
+        description: Self-describing event field elementContent (string).
 
   - name: snowplow_package_configured_1
     description: >
       Normalized Snowplow events: package_configured.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: app_id
+        data_type: varchar
         description: Atomic events column app_id.
       - name: domain_userid
+        data_type: varchar
         description: Atomic events column domain_userid.
       - name: user_id
+        data_type: varchar
         description: Atomic events column user_id.
 
   - name: snowplow_percent_progress_event_1
@@ -322,14 +455,19 @@ models:
       Normalized Snowplow events: percent_progress_event.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: app_id
+        data_type: varchar
         description: Atomic events column app_id.
       - name: domain_userid
+        data_type: varchar
         description: Atomic events column domain_userid.
       - name: page_url
+        data_type: varchar
         description: Atomic events column page_url.
 
   - name: snowplow_play_event_1
@@ -337,14 +475,19 @@ models:
       Normalized Snowplow events: play_event.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: app_id
+        data_type: varchar
         description: Atomic events column app_id.
       - name: domain_userid
+        data_type: varchar
         description: Atomic events column domain_userid.
       - name: page_url
+        data_type: varchar
         description: Atomic events column page_url.
 
   - name: snowplow_quote_requested_1
@@ -352,18 +495,25 @@ models:
       Normalized Snowplow events: quote_requested.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: app_id
+        data_type: varchar
         description: Atomic events column app_id.
       - name: domain_userid
+        data_type: varchar
         description: Atomic events column domain_userid.
       - name: geo_country
+        data_type: varchar
         description: Atomic events column geo_country.
       - name: page_url
+        data_type: varchar
         description: Atomic events column page_url.
       - name: user_id
+        data_type: varchar
         description: Atomic events column user_id.
 
   - name: snowplow_user_identified_1
@@ -371,14 +521,20 @@ models:
       Normalized Snowplow events: user_identified.
     columns:
       - name: event_id
+        data_type: varchar
         description: Snowplow event UUID.
       - name: collector_tstamp
+        data_type: timestamp_ntz
         description: Time the collector received the event.
       - name: app_id
+        data_type: varchar
         description: Atomic events column app_id.
       - name: domain_userid
+        data_type: varchar
         description: Atomic events column domain_userid.
       - name: network_userid
+        data_type: varchar
         description: Atomic events column network_userid.
       - name: user_id
+        data_type: varchar
         description: Atomic events column user_id.
