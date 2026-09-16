@@ -22,36 +22,46 @@ dispatch:
     search_order: ['snowplow_utils', 'dbt']
 
 vars:
-  snowplow_normalize:
-    # Asserts acceptance of the Snowplow Personal and Academic License v1.0
-    # (or an existing commercial agreement with Snowplow). Checked at run start
-    # by snowplow_utils.license_check(); false by default, and the run aborts
-    # with a compiler error until it is set true.
-    # https://docs.snowplow.io/personal-and-academic-license-1.0
-    snowplow__license_accepted: true
+  # These are deliberately GLOBAL (not nested under `snowplow_normalize:`).
+  # Package-scoped vars are only visible to models inside that package, and the
+  # generated event models live in THIS project — scoping them to the package
+  # makes every generated model fail with
+  # "Required var 'snowplow__partition_tstamp' not found in config".
+  # Global vars are visible to the package and to this project alike.
 
-    # Points the package's `atomic.events` source at
-    # SNOWPLOW_TRACKING.ATOMIC.EVENTS. Without snowplow__database the source
-    # falls back to target.database.
-    snowplow__database: SNOWPLOW_TRACKING
-    snowplow__atomic_schema: ATOMIC
+  # Asserts acceptance of the Snowplow Personal and Academic License v1.0
+  # (or an existing commercial agreement). Checked at run start by
+  # snowplow_utils.license_check(); false by default, and the run aborts
+  # with a compiler error until it is set true.
+  # https://docs.snowplow.io/personal-and-academic-license-1.0
+  snowplow__license_accepted: true
 
-    # Package default. The package backfills forward from here in
-    # snowplow__backfill_limit_days chunks, so a 2020 start date means many
-    # runs before it reaches present day — raise this to the earliest event
-    # you actually want modelled.
-    snowplow__start_date: '2020-01-01'
-    snowplow__backfill_limit_days: 30
+  # Points the package's `atomic.events` source at
+  # SNOWPLOW_TRACKING.ATOMIC.EVENTS. Without snowplow__database the source
+  # falls back to target.database.
+  snowplow__database: SNOWPLOW_TRACKING
+  snowplow__atomic_schema: ATOMIC
 
-    # Empty list = model every app_id present in the events table.
-    snowplow__app_id: []
+  # Required by the generated models with no default of their own.
+  snowplow__partition_tstamp: collector_tstamp
+  snowplow__session_timestamp: collector_tstamp
 
-    # -1 disables the late-arriving-data filter. That filter is the only thing
-    # in the package's base models referencing dvce_sent_tstamp /
-    # dvce_created_tstamp, neither of which exists in
-    # SNOWPLOW_TRACKING.ATOMIC.EVENTS — with the default of 3 the run fails on
-    # an invalid identifier. Set this back to 3 if those columns are ever added.
-    snowplow__days_late_allowed: -1
+  # Package default. The package backfills forward from here in
+  # snowplow__backfill_limit_days chunks, so a 2020 start date means many
+  # runs before it reaches present day — raise this to the earliest event
+  # you actually want modelled.
+  snowplow__start_date: '2020-01-01'
+  snowplow__backfill_limit_days: 30
+
+  # Empty list = model every app_id present in the events table.
+  snowplow__app_id: []
+
+  # -1 disables the late-arriving-data filter. That filter is the only thing
+  # in the package's base models referencing dvce_sent_tstamp /
+  # dvce_created_tstamp, neither of which exists in
+  # SNOWPLOW_TRACKING.ATOMIC.EVENTS — with the default of 3 the run fails on
+  # an invalid identifier. Set this back to 3 if those columns are ever added.
+  snowplow__days_late_allowed: -1
 
 flags:
   # The package's schema YAML uses the `arguments:` property for generic tests,
