@@ -1,0 +1,25 @@
+version: v1
+name: 'dbt Snowflake SAO - Snowplow normalize #dbt #sao #snowflake #snowplow'
+pipeline:
+  e2867f57-90d5-4e8a-a2fa-b0ae504d50f2:
+    tasks:
+      dddc7650-8669-415d-8ac3-fd10119d68ff:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt run --selector snowplow_normalize
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          project_dir: dbt_projects/snowplow_snowflake_sao
+          shallow_clone_dirs: dbt_projects/snowplow_snowflake_sao
+        depends_on: []
+        name: dbt run snowplow_normalize
+        # MANUAL: set to the Snowflake dbt Core connection once it exists in
+        # Orchestra. null falls back to the workspace default dbt Core
+        # connection, which is not the Snowplow one.
+        connection: null
+    depends_on: []
+    name: ''
+webhook:
+  enabled: false

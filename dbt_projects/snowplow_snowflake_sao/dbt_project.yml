@@ -1,0 +1,52 @@
+name: 'snowplow_snowflake_sao'
+version: '1.0.0'
+config-version: 2
+
+# Must match the profile name on the Orchestra dbt Core connection for this
+# project. The connection holds the profiles.yml contents; the profile it
+# defines has to be called 'snowplow_snowflake'.
+profile: 'snowplow_snowflake'
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# snowplow_utils shadows a handful of dbt built-in macros. dbt only honours
+# `dispatch` from the root project, so the package's own copy of this block is
+# not enough — it has to be repeated here or the package fails to compile.
+dispatch:
+  - macro_namespace: dbt
+    search_order: ['snowplow_utils', 'dbt']
+
+vars:
+  snowplow_normalize:
+    # Asserts acceptance of the Snowplow Personal and Academic License v1.0
+    # (or an existing commercial agreement with Snowplow). Checked at run start
+    # by snowplow_utils.license_check(); false by default, and the run aborts
+    # with a compiler error until it is set true.
+    # https://docs.snowplow.io/personal-and-academic-license-1.0
+    snowplow__license_accepted: true
+
+    # Points the package's `atomic.events` source at
+    # SNOWPLOW_TRACKING.ATOMIC.EVENTS. Without snowplow__database the source
+    # falls back to target.database.
+    snowplow__database: SNOWPLOW_TRACKING
+    snowplow__atomic_schema: ATOMIC
+
+    # Package default. The package backfills forward from here in
+    # snowplow__backfill_limit_days chunks, so a 2020 start date means many
+    # runs before it reaches present day — raise this to the earliest event
+    # you actually want modelled.
+    snowplow__start_date: '2020-01-01'
+    snowplow__backfill_limit_days: 30
+
+    # Empty list = model every app_id present in the events table.
+    snowplow__app_id: []
+
+flags:
+  # The package's schema YAML uses the `arguments:` property for generic tests,
+  # which dbt 1.10+ only parses with this flag on.
+  require_generic_test_arguments_property: true
