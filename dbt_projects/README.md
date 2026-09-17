@@ -12,7 +12,7 @@ This directory contains standalone dbt blueprint examples.
 
 - `azure_fabric` - UNUSED
 - `bigquery` - Small source -> staging -> mart project for the BigQuery demo connection
-- `bigquery_packages` - `bigquery` plus a dbt_utils dependency, pinned to dbt 2.x, for package and SAO checks
+- `bigquery_packages` - `bigquery` plus a dbt_utils dependency, for package and SAO checks
 - `clickhouse` - Sample ClickHouse integration
 - `databricks`
 - `databricks_sao` - `bigquery` mirrored onto Databricks Unity Catalog, for the multi-warehouse SAO demo

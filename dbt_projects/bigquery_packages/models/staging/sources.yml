@@ -7,8 +7,8 @@ sources:
       blueprint. Read here, owned by neither project.
     schema: dbt_sao_demo
     config:
-      # dbt 2.x only accepts these under `config:`; at source level they raise
-      # UnusedConfigKey (dbt1060) and the build fails.
+      # Nested under `config:` because that is the shape dbt 2.x requires;
+      # 1.10+ accepts it too, so the project moves versions without an edit.
       loaded_at_field: "cast(order_date as timestamp)"
       freshness:
         warn_after: {count: 365, period: day}

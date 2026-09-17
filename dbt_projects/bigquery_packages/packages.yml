@@ -1,5 +1,5 @@
 packages:
-  # 1.4.1 is the first release whose require-dbt-version allows dbt 2.x; the
-  # 1.1.0 pinned elsewhere in this repo caps at <2.0.0 and fails `dbt deps`.
+  # Latest release; its require-dbt-version spans 1.x and 2.x, unlike the 1.1.0
+  # pinned elsewhere in this repo, which caps at <2.0.0.
   - package: dbt-labs/dbt_utils
     version: 1.4.1
