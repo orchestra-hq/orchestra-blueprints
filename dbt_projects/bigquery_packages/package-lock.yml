@@ -1,0 +1,9 @@
+packages:
+  - git: https://github.com/orchestra-hq/orchestra-blueprints.git
+    name: orders_pkg
+    revision: b985238f126015918eb05546df26346a8444ccdb
+    subdirectory: dbt_projects/bigquery_packages/package_src/orders_pkg
+  - name: dbt_utils
+    package: dbt-labs/dbt_utils
+    version: 1.4.1
+sha1_hash: 3541170fa70aba04cb29aeeba631e4f7d0143afd

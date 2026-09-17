@@ -31,10 +31,22 @@ silently selects zero nodes.
 
 Two, for different reasons:
 
-- **`orders_pkg`** (`vendor/orders_pkg`, installed as a `local:` package) holds
-  the entire DAG — both models, both sources. `models/` in the root project is
-  empty and must stay that way; a model added there stops this being a
-  package-only project.
+- **`orders_pkg`** holds the entire DAG — both models, both sources. `models/`
+  in the root project is empty and must stay that way; a model added there stops
+  this being a package-only project.
+
+  Its source lives in `package_src/orders_pkg`, but it installs over https from
+  this same repo (`git:` + `subdirectory:`), not as a `local:` path, so the
+  install is a real remote package fetch. dbt never reads `package_src/`
+  directly — only `dbt_packages/orders_pkg`, which `dbt deps` clones.
+
+  Two consequences of that:
+
+  - `revision:` tracks the branch `claude/bigquery-packages-blueprint`. **On
+    merge, change it to `main`** or `dbt deps` keeps pulling the branch.
+  - `package-lock.yml` pins the resolved commit, so an edit under
+    `package_src/orders_pkg` is invisible to a build until it is pushed *and*
+    `dbt deps --upgrade` refreshes the lock.
 - **`dbt-labs/dbt_utils`** at **1.4.1** supplies a macro to call. 1.4.1 rather
   than the 1.1.0 pinned in `azure_fabric` and `databricks`: that release caps
   `require-dbt-version` at `<2.0.0`, so it cannot follow this project onto
