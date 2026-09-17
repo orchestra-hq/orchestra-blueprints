@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: >-
+      Eight orders, generated inline so the project has nothing to load and
+      nothing to drop.
+    config:
+      meta:
+        # Opts back out of the project-wide default in dbt_project.yml: a view
+        # this small has no baseline worth watching. A model-level `meta` under
+        # `config:` wins over a `+meta:` set higher up.
+        orchestra_anomaly_detection: false
+    columns:
+      - name: order_id
+        data_tests:
+          - unique
+          - not_null
+
+  - name: stg_customers
+    description: "Five customers, likewise generated inline."
+    config:
+      meta:
+        orchestra_anomaly_detection: false
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null

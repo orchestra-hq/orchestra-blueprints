@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: >-
+      The model the demo makes slow. Opted in on its own, with thresholds that
+      override both the folder-level `+meta` and the Orchestra Task.
+    config:
+      meta:
+        orchestra_anomaly_detection: true
+        orchestra_anomaly_percentage_above_baseline: 50
+        orchestra_anomaly_percentage_below_baseline: 60
+        # The Task sets this too; 0 here keeps a ~2 second baseline in scope,
+        # which a real mart would not need.
+        orchestra_anomaly_min_baseline_seconds: 0
+        channel: "#alert-demos"
+    columns:
+      - name: order_date
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_customers
+    description: >-
+      Monitored purely by the project- and folder-level `+meta` in
+      dbt_project.yml — nothing here overrides it, so it inherits the Task's
+      own percentage.
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null

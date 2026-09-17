@@ -24,6 +24,7 @@ This directory contains standalone dbt blueprint examples.
 - `postgres_sao` - `bigquery` mirrored onto Postgres, for the multi-warehouse SAO demo
 - `redshift_sao` - `bigquery` mirrored onto Redshift, for the multi-warehouse SAO demo
 - `snowflake`
+- `snowflake_anomaly` - Four models with a dialable delay, for the node-level anomaly detection demo
 - `state_management` - UNUSED
 
 The four `*_sao` projects and `bigquery` are all the same three-node DAG

@@ -1,0 +1,35 @@
+name: "snowflake_anomaly_demo"
+version: "1.0.0"
+config-version: 2
+
+# Must match the profile name on the Orchestra dbt Core connection
+# (dbt_snowflake_blueprints_prod_07025), not the project name.
+profile: "snowflake_airflow_dbt"
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+vars:
+  # Seconds each model pauses for. Dialled up from the Orchestra pipeline's
+  # inputs to push a model past its own baseline.
+  fct_orders_seconds: 2
+  dim_customers_seconds: 0
+
+models:
+  snowflake_anomaly_demo:
+    # Project-wide opt-in: every model here is monitored unless it says otherwise.
+    +meta:
+      orchestra_anomaly_detection: true
+    staging:
+      +materialized: view
+      +schema: anomaly_demo
+    marts:
+      +materialized: table
+      +schema: anomaly_demo
+      # Folder-level override of the percentage set on the Orchestra Task.
+      +meta:
+        orchestra_anomaly_percentage_above_baseline: 30

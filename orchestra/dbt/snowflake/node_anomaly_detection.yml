@@ -1,0 +1,59 @@
+version: v1
+name: 'dbt node-level anomaly detection #dbt #snowflake #anomalies'
+pipeline:
+  bad6154d-48d0-47e6-ad4a-3ce12946dea0:
+    name: build
+    depends_on: []
+    tasks:
+      a7826147-6635-4de4-9d90-f26a20eca6df:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        name: dbt build
+        depends_on: []
+        connection: dbt_snowflake_blueprints_prod_07025
+        parameters:
+          commands: >-
+            dbt build --vars '{"fct_orders_seconds": ${{ inputs.fct_orders_seconds
+            }}, "dim_customers_seconds": ${{ inputs.dim_customers_seconds }}}'
+          package_manager: PIP
+          python_version: '3.12'
+          project_dir: dbt_projects/snowflake_anomaly
+          shallow_clone_dirs: dbt_projects/snowflake_anomaly
+        anomalies:
+        - type: operation_duration_above_baseline
+          percentage_above_baseline: 30
+          operation_types:
+          - MATERIALISATION
+          min_baseline_seconds: 0
+          max_anomalies: 5
+          destinations:
+          - integration: SLACK
+            destination: alert-demos
+            connection_id: default_00000
+        - type: operation_duration_below_baseline
+          percentage_below_baseline: 60
+          operation_types:
+          - MATERIALISATION
+          min_baseline_seconds: 0
+          max_anomalies: 5
+          destinations:
+          - integration: SLACK
+            destination: alert-demos
+            connection_id: default_00000
+        alerts:
+        - name: dbt build failed
+          statuses:
+          - FAILED
+          destinations:
+          - integration: SLACK
+            destination: alert-demos
+            connection_id: default_00000
+inputs:
+  fct_orders_seconds:
+    type: string
+    default: '2'
+  dim_customers_seconds:
+    type: string
+    default: '0'
+webhook:
+  enabled: false
