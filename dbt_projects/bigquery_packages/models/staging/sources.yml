@@ -6,11 +6,12 @@ sources:
       Standing tables in the sandbox dataset, shared with the `bigquery`
       blueprint. Read here, owned by neither project.
     schema: dbt_sao_demo
-    # BigQuery has no implicit freshness fallback in state-aware orchestration,
-    # so without an explicit loaded_at_field everything downstream rebuilds.
-    loaded_at_field: "cast(order_date as timestamp)"
-    freshness:
-      warn_after: {count: 365, period: day}
+    config:
+      # dbt 2.x only accepts these under `config:`; at source level they raise
+      # UnusedConfigKey (dbt1060) and the build fails.
+      loaded_at_field: "cast(order_date as timestamp)"
+      freshness:
+        warn_after: {count: 365, period: day}
     tables:
       - name: raw_orders
         description: "One row per order: id, customer, date, status, amount."
@@ -20,9 +21,10 @@ sources:
       A second source with no models downstream of it, so a selection like
       `source:raw.raw_orders+` leaves it out of scope.
     schema: dbt_sao_demo
-    loaded_at_field: "cast(updated_at as timestamp)"
-    freshness:
-      warn_after: {count: 365, period: day}
+    config:
+      loaded_at_field: "cast(updated_at as timestamp)"
+      freshness:
+        warn_after: {count: 365, period: day}
     tables:
       - name: raw_customers
         description: "One row per customer: id, name, signup date, updated_at."
