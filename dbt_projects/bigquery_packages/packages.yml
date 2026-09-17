@@ -1,0 +1,12 @@
+packages:
+  # Every model in this project lives in orders_pkg; the root owns none.
+  # Installed from this same repo over https -- the source sits in
+  # package_src/orders_pkg, which dbt never reads directly.
+  - git: "https://github.com/orchestra-hq/orchestra-blueprints.git"
+    subdirectory: "dbt_projects/bigquery_packages/package_src/orders_pkg"
+    revision: claude/bigquery-packages-blueprint
+    warn-unpinned: false
+  # Latest release; its require-dbt-version spans 1.x and 2.x, unlike the 1.1.0
+  # pinned elsewhere in this repo, which caps at <2.0.0.
+  - package: dbt-labs/dbt_utils
+    version: 1.4.1

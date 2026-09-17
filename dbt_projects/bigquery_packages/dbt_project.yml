@@ -1,0 +1,24 @@
+name: "bigquery_packages_demo"
+version: "1.0.0"
+config-version: 2
+
+# Must match the profile name on the Orchestra dbt Core connection
+# (dbt_core__bigquery__01406), not the project name.
+profile: "dbt_bigquery"
+
+# Deliberately empty -- every model belongs to the orders_pkg package.
+model-paths: ["models"]
+macro-paths: ["macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  orders_pkg:
+    staging:
+      +materialized: view
+      +schema: dbt_sao_demo
+    marts:
+      +materialized: table
+      +schema: dbt_sao_demo
