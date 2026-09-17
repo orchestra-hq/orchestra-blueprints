@@ -6,6 +6,7 @@ config-version: 2
 # (dbt_core__bigquery__01406), not the project name.
 profile: "dbt_bigquery"
 
+# Deliberately empty -- every model belongs to the orders_pkg package.
 model-paths: ["models"]
 macro-paths: ["macros"]
 
@@ -14,7 +15,7 @@ clean-targets:
   - "dbt_packages"
 
 models:
-  bigquery_packages_demo:
+  orders_pkg:
     staging:
       +materialized: view
       +schema: dbt_sao_demo

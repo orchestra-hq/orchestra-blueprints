@@ -1,8 +1,16 @@
 # bigquery_packages
 
-The `bigquery` blueprint plus a package dependency. It exists so a dbt Core task
-can exercise `dbt deps` and a package macro against real sources without
-touching any production dataset.
+The `bigquery` blueprint restructured so that **the root project owns no models
+at all** — every model and every source belongs to the installed `orders_pkg`
+package. It exists so a dbt Core task can exercise `dbt deps` and a
+package-owned DAG against real sources without touching any production dataset.
+
+This is the shape that breaks source-freshness scoping: `dbt ls --output path`
+reports a node's `original_file_path` relative to the package that owns it
+(`models/staging/stg_orders_pkg.sql`), but the file actually sits at
+`dbt_packages/orders_pkg/models/staging/stg_orders_pkg.sql`, so a
+`--select +path:...` criterion globs from the project root, matches nothing, and
+silently selects zero nodes.
 
 - **dbt version:** dbt-core 1.12.5 / dbt-bigquery 1.12.1 — the latest 1.x.
   State-aware orchestration is fully functional here; on dbt 2.x it silently
@@ -17,14 +25,20 @@ touching any production dataset.
   there is nothing to load before a first run. See that project's README for the
   `CREATE OR REPLACE TABLE` statements if the dataset is ever wiped.
 - **Lineage:** `raw.raw_orders` → `stg_orders_pkg` (view) → `orders_daily_pkg`
-  (table).
+  (table), all owned by `orders_pkg`.
 
-## The package
+## The packages
 
-`dbt-labs/dbt_utils` at **1.4.1** — any package would do; this one is small and
-already used elsewhere in the repo. 1.4.1 rather than the 1.1.0 pinned in
-`azure_fabric` and `databricks`: that release caps `require-dbt-version` at
-`<2.0.0`, so it cannot follow this project onto dbt 2.x later.
+Two, for different reasons:
+
+- **`orders_pkg`** (`vendor/orders_pkg`, installed as a `local:` package) holds
+  the entire DAG — both models, both sources. `models/` in the root project is
+  empty and must stay that way; a model added there stops this being a
+  package-only project.
+- **`dbt-labs/dbt_utils`** at **1.4.1** supplies a macro to call. 1.4.1 rather
+  than the 1.1.0 pinned in `azure_fabric` and `databricks`: that release caps
+  `require-dbt-version` at `<2.0.0`, so it cannot follow this project onto
+  dbt 2.x later.
 
 `stg_orders_pkg` calls `dbt_utils.generate_surrogate_key`, so a run proves the
 package resolved *and* that its macros execute on this dbt version — a
