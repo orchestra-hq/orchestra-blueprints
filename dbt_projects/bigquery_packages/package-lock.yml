@@ -1,7 +1,0 @@
-packages:
-  - local: vendor/orders_pkg
-    name: orders_pkg
-  - name: dbt_utils
-    package: dbt-labs/dbt_utils
-    version: 1.4.1
-sha1_hash: ce7bc7956028e068d4bd458602949e2a674400a9
