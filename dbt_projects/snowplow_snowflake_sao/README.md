@@ -42,6 +42,12 @@ That needs a `config.json` listing the events to normalize plus an Iglu
 `snowplow_normalize_incremental`, which `selectors.yml` already picks up — so no
 pipeline change is needed once they exist.
 
+**Always follow it with `python scripts/gen_schema_yml.py`.** The generator emits
+only `.sql`; without a matching `schema.yml` Lightdash builds no explores for
+these models and types every column as a string. The script derives column names
+from the same rules the `normalize_events` macro uses, so it stays in step with
+whatever the generator produced.
+
 ## Freshness tests
 
 | Check | Fires when | Severity | Runs in the pipeline? |
