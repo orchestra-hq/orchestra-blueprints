@@ -57,7 +57,7 @@ webhook:
 inputs:
   oil_data_connector_id:
     type: string
-    default: REPLACE_ME_fivetran_connector_id
+    default: oil_data
   dbt_command:
     type: string
     default: dbt build
@@ -66,7 +66,14 @@ inputs:
     default: main
   lightdash_dashboard_id:
     type: string
-    default: REPLACE_ME_lightdash_dashboard_uuid_or_slug
+    default: oil-data
 meta:
   notes: >-
     ELT for the oil_data spreadsheet: Fivetran syncs the source into Snowflake, a state-aware dbt build transforms it, then the Lightdash dashboard is refreshed. Runs weekday mornings in Production and Sunday nights in Dev.
+alerts:
+- name: Pipeline Failed
+  statuses:
+  - FAILED
+  destinations:
+  - integration: EMAIL
+    destination: test@getorchestra.io
