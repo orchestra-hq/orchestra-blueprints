@@ -27,6 +27,11 @@ pipeline:
         name: Execute parallel dlt
         connection: python__production__blueprints__19239
         treat_failure_as_warning: true
+        anomalies:
+        - type: task_duration_above_baseline
+          percentage_above_baseline: 35
+        - type: task_duration_below_baseline
+          percentage_below_baseline: 60
       00a86786-65c4-48df-8074-a2dfdd4e7dbb:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_TEST
@@ -79,6 +84,11 @@ pipeline:
         depends_on: []
         name: run dbt
         connection: dbt_snowflake_blueprints_prod_07025
+        anomalies:
+        - type: task_duration_above_baseline
+          percentage_above_baseline: 30
+        - type: task_duration_below_baseline
+          percentage_below_baseline: 60
     depends_on:
     - 3459fb19-f081-43ca-8997-f7f2d54d331d
     name: group
@@ -102,3 +112,8 @@ alerts:
   destinations:
   - integration: SLACK
     destination: alert-testing
+anomalies:
+- type: pipeline_duration_above_baseline
+  percentage_above_baseline: 30
+- type: pipeline_duration_below_baseline
+  percentage_below_baseline: 60
