@@ -4,8 +4,9 @@
 Run this as a Python task downstream of the tasks you want in Datadog:
 
 * its own ``logging`` output is shipped live by :class:`DatadogHandler`
-* every other task run in the same pipeline run (dbt Core included) has its
-  log files pulled from the Orchestra API and forwarded line by line
+* every other non-Python task run in the same pipeline run (dbt Core included)
+  has its log files pulled from the Orchestra API and forwarded line by line;
+  Python tasks are skipped because they ship their own logs live
 
 Stdlib only, so the task needs no build command.
 
@@ -137,6 +138,13 @@ class DatadogHandler(logging.handlers.BufferingHandler):
             self.release()
 
 
+def setup_logging(name: str = "orchestra") -> logging.Logger:
+    """Log to stdout (so Orchestra shows it) and to Datadog. Use from any Python task."""
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    logging.getLogger().addHandler(DatadogHandler())
+    return logging.getLogger(name)
+
+
 def orchestra_get(path: str, **params: str):
     """GET an Orchestra API path, returning parsed JSON (or raw bytes for logs)."""
     url = f"{ORCHESTRA_API}{path}"
@@ -203,8 +211,7 @@ def ship_task_run(pipeline_run_id: str, task_run: dict) -> tuple[int, int]:
 
 
 def main() -> None:
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    logging.getLogger().addHandler(DatadogHandler())
+    setup_logging()
 
     pipeline_run_id = os.environ.get("ORCHESTRA_PIPELINE_RUN_ID", "")
     self_task_run_id = os.environ.get("ORCHESTRA_TASK_RUN_ID", "")
@@ -216,6 +223,8 @@ def main() -> None:
     for task_run in task_runs(pipeline_run_id):
         if task_run["id"] == self_task_run_id or task_run.get("matrixParent"):
             continue
+        if task_run.get("integration") == "PYTHON":
+            continue  # Python tasks ship their own logs live via setup_logging()
         lines, sent = ship_task_run(pipeline_run_id, task_run)
         found, accepted = found + lines, accepted + sent
         log.info("Task '%s': %s log lines, %s accepted", task_run.get("taskName"), lines, sent)

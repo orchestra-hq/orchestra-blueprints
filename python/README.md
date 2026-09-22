@@ -61,10 +61,15 @@ It does two things in one task:
 
 * its own `logging` output goes to Datadog through `DatadogHandler`, a
   `BufferingHandler` that flushes batches to the intake (`ddsource:python`)
-* every other task run in the same pipeline run has its log files pulled from
-  the [Orchestra API](https://docs.getorchestra.io/api/logs/list-task-run-logs)
+* every other non-Python task run in the same pipeline run has its log files
+  pulled from the [Orchestra API](https://docs.getorchestra.io/api/logs/list-task-run-logs)
   and forwarded line by line, so a dbt Core task's output lands in Datadog as
-  `ddsource:dbt`
+  `ddsource:dbt`. Python tasks are skipped - they ship their own logs live via
+  `setup_logging()`, so forwarding them would duplicate every line
+
+`datadog_python_job.py` is the live half of the demo: an ordinary Python task
+that calls `setup_logging()` and logs INFO, WARNING and a traceback, all of
+which reach Datadog as `ddsource:python` while the task runs.
 
 Stdlib only — no build command needed.
 
