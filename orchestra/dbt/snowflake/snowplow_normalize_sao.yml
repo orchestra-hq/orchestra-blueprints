@@ -32,56 +32,14 @@ pipeline:
     depends_on:
     - e2867f57-90d5-4e8a-a2fa-b0ae504d50f2
     name: refresh dashboard
-  fe836689-7298-4f9f-86a4-a47553e832c8:
-    tasks:
-      b2d247a7-beee-462d-bd46-8860f364386f:
-        integration: ORCHESTRA
-        integration_job: RUN_AGENT
-        parameters:
-          # MANUAL: replace with the ID of an agent that has Git access and a
-          # PAT with pull-request scope in its secrets. The workspace Git
-          # connection alone cannot open PRs.
-          agent_id: REPLACE_WITH_AGENT_ID
-          prompt: >-
-            In dbt_projects/snowplow_snowflake_sao, regenerate the Snowplow
-            normalize models and open a pull request if anything changed.
-
-            Steps:
-            1. dbt deps
-            2. pip install -r dbt_packages/snowplow_normalize/utils/requirements.txt
-            3. python dbt_packages/snowplow_normalize/utils/snowplow_normalize_model_gen.py normalize_config.json
-            4. python scripts/gen_schema_yml.py
-            5. If git reports no changes, stop and report that the models are
-               already up to date. Do not open an empty PR.
-            6. Otherwise open a PR against main describing which models changed
-               and why.
-
-            Step 4 is not optional. The model generator emits only .sql; without
-            a regenerated schema.yml, Lightdash builds no explores for these
-            models and types every column as a string.
-
-            Do not edit normalize_config.json. Adding a new event type is a
-            human decision - the unmodelled_event_names dbt test is what
-            surfaces that need.
-        depends_on: []
-        name: Regenerate normalize models
-    depends_on: []
-    # Only on the weekly trigger. Orchestra has no per-task schedule, so the
-    # trigger sets trigger_name and this gates on it - the documented pattern
-    # for running one task on a different cadence within a pipeline.
-    condition: inputs.trigger_name == 'weekly'
-    name: regenerate models
 schedule:
 - name: Daily build
-  cron: '0 6 * * ? *'
+  cron: 0 6 * * ? *
   timezone: UTC
   run_inputs:
     trigger_name: daily
-- name: Weekly model regeneration
-  cron: '0 5 ? * 1 *'
-  timezone: UTC
-  run_inputs:
-    trigger_name: weekly
+webhook:
+  enabled: false
 inputs:
   trigger_name:
     type: string
@@ -89,5 +47,3 @@ inputs:
     options:
     - daily
     - weekly
-webhook:
-  enabled: false
