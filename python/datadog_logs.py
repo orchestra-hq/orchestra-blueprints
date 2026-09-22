@@ -71,12 +71,17 @@ def chunks(items: list, size: int = BATCH_SIZE):
         yield items[start : start + size]
 
 
-def send(events: list) -> None:
-    """POST log events to the Datadog HTTP intake, in batches."""
+def send(events: list) -> int:
+    """POST log events to the Datadog HTTP intake, in batches.
+
+    Returns the number of events the intake accepted, so a 403 or an outage is
+    never reported as a successful ship.
+    """
     key = api_key()
     if not key:
         print("No Datadog API key set; skipping Datadog send")
-        return
+        return 0
+    delivered = 0
     url = f"https://http-intake.logs.{site()}/api/v2/logs"
     for batch in chunks(events):
         request = urllib.request.Request(
@@ -88,11 +93,13 @@ def send(events: list) -> None:
         try:
             with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
                 response.read()
+            delivered += len(batch)
         except urllib.error.HTTPError as exc:
             # Never fail the pipeline because log shipping failed.
             print(f"Datadog intake returned {exc.code}: {exc.read()[:500]!r}")
         except urllib.error.URLError as exc:
             print(f"Datadog intake unreachable: {exc}")
+    return delivered
 
 
 class DatadogHandler(logging.handlers.BufferingHandler):
@@ -159,8 +166,8 @@ def task_runs(pipeline_run_id: str) -> list:
         page += 1
 
 
-def ship_task_run(pipeline_run_id: str, task_run: dict) -> int:
-    """Forward one task run's log files to Datadog. Returns lines shipped."""
+def ship_task_run(pipeline_run_id: str, task_run: dict) -> tuple[int, int]:
+    """Forward one task run's log files. Returns (lines found, lines accepted)."""
     task_run_id = task_run["id"]
     listing = orchestra_get(f"/pipeline_runs/{pipeline_run_id}/task_runs/{task_run_id}/logs")
     integration = (task_run.get("integration") or "unknown").lower()
@@ -192,8 +199,7 @@ def ship_task_run(pipeline_run_id: str, task_run: dict) -> int:
                     ),
                 }
             )
-    send(events)
-    return len(events)
+    return len(events), send(events)
 
 
 def main() -> None:
@@ -206,15 +212,17 @@ def main() -> None:
         raise SystemExit("No Datadog API key - add DD_API_KEY or API_KEY to the Python connection's Secret JSON")
     log.info("Shipping logs for pipeline run %s to Datadog (%s)", pipeline_run_id, site())
 
-    shipped = 0
+    found = accepted = 0
     for task_run in task_runs(pipeline_run_id):
         if task_run["id"] == self_task_run_id or task_run.get("matrixParent"):
             continue
-        lines = ship_task_run(pipeline_run_id, task_run)
-        shipped += lines
-        log.info("Shipped %s log lines from task '%s'", lines, task_run.get("taskName"))
+        lines, sent = ship_task_run(pipeline_run_id, task_run)
+        found, accepted = found + lines, accepted + sent
+        log.info("Task '%s': %s log lines, %s accepted", task_run.get("taskName"), lines, sent)
 
-    log.info("Done - %s log lines sent to Datadog", shipped)
+    if accepted < found:
+        raise SystemExit(f"Datadog accepted {accepted} of {found} log lines - see the errors above")
+    log.info("Done - %s log lines sent to Datadog", accepted)
     logging.shutdown()
 
 
