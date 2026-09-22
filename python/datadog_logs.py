@@ -9,7 +9,7 @@ Run this as a Python task downstream of the tasks you want in Datadog:
 
 Stdlib only, so the task needs no build command.
 
-Connection secret required: ``DD_API_KEY``.
+Connection secret required: ``DD_API_KEY`` (or ``API_KEY``).
 Optional env vars: ``DD_SITE`` (default ``datadoghq.eu``), ``DD_SERVICE``, ``DD_ENV``.
 ``ORCHESTRA_API_KEY``, ``ORCHESTRA_PIPELINE_RUN_ID`` and ``ORCHESTRA_TASK_RUN_ID``
 are injected by Orchestra.
@@ -31,6 +31,11 @@ TIMEOUT = 30
 
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 log = logging.getLogger("orchestra.datadog")
+
+
+def api_key() -> str:
+    """Datadog API key from the Python connection's secrets."""
+    return os.environ.get("DD_API_KEY") or os.environ.get("API_KEY", "")
 
 
 def site() -> str:
@@ -68,16 +73,16 @@ def chunks(items: list, size: int = BATCH_SIZE):
 
 def send(events: list) -> None:
     """POST log events to the Datadog HTTP intake, in batches."""
-    api_key = os.environ.get("DD_API_KEY", "")
-    if not api_key:
-        print("DD_API_KEY not set; skipping Datadog send")
+    key = api_key()
+    if not key:
+        print("No Datadog API key set; skipping Datadog send")
         return
     url = f"https://http-intake.logs.{site()}/api/v2/logs"
     for batch in chunks(events):
         request = urllib.request.Request(
             url,
             data=json.dumps(batch).encode(),
-            headers={"DD-API-KEY": api_key, "Content-Type": "application/json"},
+            headers={"DD-API-KEY": key, "Content-Type": "application/json"},
             method="POST",
         )
         try:
@@ -197,8 +202,8 @@ def main() -> None:
 
     pipeline_run_id = os.environ.get("ORCHESTRA_PIPELINE_RUN_ID", "")
     self_task_run_id = os.environ.get("ORCHESTRA_TASK_RUN_ID", "")
-    if not os.environ.get("DD_API_KEY"):
-        raise SystemExit("DD_API_KEY is missing - add it to the Python connection's Secret JSON")
+    if not api_key():
+        raise SystemExit("No Datadog API key - add DD_API_KEY or API_KEY to the Python connection's Secret JSON")
     log.info("Shipping logs for pipeline run %s to Datadog (%s)", pipeline_run_id, site())
 
     shipped = 0

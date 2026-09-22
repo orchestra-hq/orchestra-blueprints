@@ -15,6 +15,16 @@ def test_status_of():
     assert dd.status_of("12:00:01 OK created sql table model dim_customers") == "info"
 
 
+def test_api_key_falls_back_to_API_KEY():
+    import os
+
+    os.environ.pop("DD_API_KEY", None)
+    os.environ["API_KEY"] = "from-connection"
+    assert dd.api_key() == "from-connection"
+    os.environ["DD_API_KEY"] = "explicit"
+    assert dd.api_key() == "explicit"
+
+
 def test_chunks():
     assert list(dd.chunks([1, 2, 3], 2)) == [[1, 2], [3]]
     assert list(dd.chunks([], 2)) == []

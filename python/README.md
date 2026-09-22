@@ -70,7 +70,7 @@ Stdlib only — no build command needed.
 
 ### Usage
 
-* Python connection: store `DD_API_KEY` in Secret JSON.
+* Python connection: store the Datadog API key in Secret JSON as `DD_API_KEY` (or `API_KEY`).
 * Task: command `python datadog_logs.py`, project dir and shallow clone dirs
   `python`, and `depends_on` the tasks whose logs you want shipped (they must
   have finished before this task runs).
