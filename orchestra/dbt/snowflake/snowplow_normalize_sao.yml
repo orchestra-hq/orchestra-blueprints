@@ -38,10 +38,8 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
-          statement: >-
-            select distinct e.event_name
-            from SNOWPLOW_TRACKING.ATOMIC.EVENTS e
-            where e.collector_tstamp >= dateadd(day, -7, current_timestamp())
+          statement: |-
+            select distinct e.event_name from SNOWPLOW_TRACKING.ATOMIC.EVENTS e where e.collector_tstamp >= dateadd(day, -7, current_timestamp())
               and e.event_name not in (
                 select distinct event_name
                 from SNOWFLAKE_WORKING.PUBLIC.SNOWPLOW_EVENTS_NORMALIZED
@@ -50,9 +48,6 @@ pipeline:
           set_outputs: true
         depends_on: []
         name: Find unmodelled event names
-        # MANUAL: this role needs SELECT on SNOWPLOW_TRACKING.ATOMIC.EVENTS.
-        # LIGHTDASH_ROLE cannot read that schema; the dbt Core connection's
-        # role can, so match that one if the default fails.
         connection: snowflake__prod__80122
     depends_on:
     - e2867f57-90d5-4e8a-a2fa-b0ae504d50f2
@@ -63,21 +58,11 @@ pipeline:
         integration: ORCHESTRA
         integration_job: RUN_AGENT
         parameters:
-          # MANUAL: an agent with Git access and a PAT carrying pull-request
-          # scope in its secrets. The workspace Git connection cannot open PRs.
-          agent_id: REPLACE_WITH_AGENT_ID
-          prompt: >-
-            These Snowplow event names are present in
-            SNOWPLOW_TRACKING.ATOMIC.EVENTS but no normalized dbt model covers
-            them, so they never reach the dashboard:
-
-            ${{ ORCHESTRA.PIPELINE_RUN_TASKS['c1e9841e-352a-47ef-b8ae-9f612a4ce3c4'].OUTPUTS['results']
-            }}
-
-            Work in dbt_projects/snowplow_snowflake_sao. For each event name,
-            decide how it should be modelled and add an entry to
-            normalize_config.json:
-
+          agent_id: a8111d10-8f72-4852-b659-34954bf133bf
+          prompt: |-
+            These Snowplow event names are present in SNOWPLOW_TRACKING.ATOMIC.EVENTS but no normalized dbt model covers them, so they never reach the dashboard:
+            ${{ ORCHESTRA.PIPELINE_RUN_TASKS['c1e9841e-352a-47ef-b8ae-9f612a4ce3c4'].OUTPUTS['results'] }}
+            Work in dbt_projects/snowplow_snowflake_sao. For each event name, decide how it should be modelled and add an entry to normalize_config.json:
             - Check whether an UNSTRUCT_EVENT_* column for it exists on
               SNOWPLOW_TRACKING.ATOMIC.EVENTS. If one does, and the schema
               resolves against Iglu Central, add it under
@@ -88,28 +73,18 @@ pipeline:
               "default", which reaches Iglu Central and nothing else, so a
               custom vendor will not resolve - do not invent one.
             - Only use flat columns that actually exist on the events table.
-
             Then regenerate and open a PR against main:
-
-            1. python dbt_packages/snowplow_normalize/utils/snowplow_normalize_model_gen.py normalize_config.json
-            2. python scripts/gen_schema_yml.py
-            3. Open a PR explaining, per event, how you chose to model it and
+            1. python dbt_packages/snowplow_normalize/utils/snowplow_normalize_model_gen.py normalize_config.json 2. python scripts/gen_schema_yml.py 3. Open a PR explaining, per event, how you chose to model it and
                why.
 
-            Step 2 is not optional. The generator emits only .sql; without a
-            regenerated schema.yml, Lightdash builds no explores for the new
-            models and types every column as a string.
-
-            If an event looks like noise or a one-off rather than something
-            worth modelling, say so in the PR description rather than adding
-            it silently.
+            Step 2 is not optional. The generator emits only .sql; without a regenerated schema.yml, Lightdash builds no explores for the new models and types every column as a string.
+            If an event looks like noise or a one-off rather than something worth modelling, say so in the PR description rather than adding it silently.
         depends_on: []
         name: Propose models for new events
     depends_on:
     - 375c6e84-1068-4d7b-90ed-67e478305d0e
-    # Only when the query actually returned unmodelled events.
-    condition: tasks['c1e9841e-352a-47ef-b8ae-9f612a4ce3c4'].status == 'SUCCEEDED'
-      and len(tasks['c1e9841e-352a-47ef-b8ae-9f612a4ce3c4'].outputs['results']) > 0
+    condition: >-
+      ${{ task_groups['375c6e84-1068-4d7b-90ed-67e478305d0e'].all().status in ['SUCCEEDED', 'WARNING'] and len(tasks['c1e9841e-352a-47ef-b8ae-9f612a4ce3c4'].outputs['results']) > 0 and tasks['c1e9841e-352a-47ef-b8ae-9f612a4ce3c4'].status == 'SUCCEEDED' }}
     name: propose new event models
 schedule:
 - name: Daily build
