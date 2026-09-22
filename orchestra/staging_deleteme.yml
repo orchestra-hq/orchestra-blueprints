@@ -10,8 +10,8 @@ pipeline:
           source_connection_id: python_connector_user_35098
           source_query: SELECT (${{ env.CONDITION_TEST }} * ${{ inputs.test_int }})
           destination_connection_id: python_connector_user_35098
-          destination_query: SELECT ${{ ORCHESTRA.PIPELINE_RUN_TASKS['12b477fa-1b8c-452a-ba5c-e1d682a22b0d'].OUTPUTS['results'][0][0]
-            }}
+          destination_query: >-
+            SELECT ${{ ORCHESTRA.PIPELINE_RUN_TASKS['12b477fa-1b8c-452a-ba5c-e1d682a22b0d'].OUTPUTS['results'][0][0] }}
           source_integration: SNOWFLAKE
           destination_integration: SNOWFLAKE
         depends_on: []
@@ -20,17 +20,30 @@ pipeline:
           48b9324d-c848-4656-870d-036020e1c1b7:
             integration: SNOWFLAKE
             connection: python_connector_user_35098
+        alerts:
+        - name: on task failure
+          statuses:
+          - FAILED
+          destinations:
+          - integration: SLACK
+            destination: staging-alerts
+            connection_id: default_00000
       3333c0cd-344b-4781-bcca-212fb10edad8:
         integration: ORCHESTRA
         integration_job: DATA_RECONCILIATION_MANUAL_QUERY
         parameters:
           source_connection_id: python_connector_user_35098
-          source_query: SELECT '${{ format_date(add_days(ORCHESTRA.CURRENT_TIME, 1),
-            "%A") }}'
+          source_query: SELECT '${{ format_date(add_days(ORCHESTRA.CURRENT_TIME, 1), "%A") }}'
           destination_connection_id: python_connector_user_35098
-          destination_query: "select decode(extract ('dayofweek_iso',current_date()\
-            \ + 1),\n  1, 'Monday',\n  2, 'Tuesday',\n  3, 'Wednesday',\n  4, 'Thursday',\n\
-            \  5, 'Friday',\n  6, 'Saturday',\n  7, 'Sunday');"
+          destination_query: |-
+            select decode(extract ('dayofweek_iso',current_date() + 1),
+              1, 'Monday',
+              2, 'Tuesday',
+              3, 'Wednesday',
+              4, 'Thursday',
+              5, 'Friday',
+              6, 'Saturday',
+              7, 'Sunday');
           source_integration: SNOWFLAKE
           destination_integration: SNOWFLAKE
         depends_on: []
@@ -62,8 +75,8 @@ pipeline:
           custom_message: This is potentially an error in the engine. Please investigate.
     depends_on:
     - fade09b0-23a3-4037-ac0f-b6b415691636
-    condition: ${{ task_groups['fade09b0-23a3-4037-ac0f-b6b415691636'].all().status
-      == 'SUCCEEDED' and inputs.test_int > 3 and inputs.set_to_true is True }}
+    condition: >-
+      ${{ task_groups['fade09b0-23a3-4037-ac0f-b6b415691636'].all().status == 'SUCCEEDED' and inputs.test_int > 3 and inputs.set_to_true is True }}
     name: ''
   fe27f0b7-b9c9-4e91-9c8c-08dae7272c15:
     tasks:
@@ -86,9 +99,8 @@ pipeline:
           custom_message: This is potentially an error in the engine. Please investigate.
     depends_on:
     - fade09b0-23a3-4037-ac0f-b6b415691636
-    condition: ${{ task_groups['fade09b0-23a3-4037-ac0f-b6b415691636'].all().status
-      in ['SUCCEEDED', 'SKIPPED'] and env.ENV_NAME == "Production" or env.ENV_NAME
-      == "Staging" }}
+    condition: >-
+      ${{ task_groups['fade09b0-23a3-4037-ac0f-b6b415691636'].all().status in ['SUCCEEDED', 'SKIPPED'] and env.ENV_NAME == "Production" or env.ENV_NAME == "Staging" }}
     name: ''
   b9e790c8-b4bd-49fd-b3a4-24e9c17bccd0:
     tasks:
@@ -96,8 +108,7 @@ pipeline:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
         parameters:
-          statement: "SELECT \n    CASE \n        WHEN '${{ env.env_name }}' = 'Production'\
-            \ THEN 50 \n        ELSE 100\n    END AS result;"
+          statement: "SELECT \n    CASE \n        WHEN '${{ env.env_name }}' = 'Production' THEN 50 \n        ELSE 100\n    END AS result;"
           set_outputs: true
         depends_on: []
         name: Start
@@ -125,9 +136,8 @@ pipeline:
           custom_message: This is potentially an error in the engine. Please investigate.
     depends_on:
     - fade09b0-23a3-4037-ac0f-b6b415691636
-    condition: ${{ task_groups['fade09b0-23a3-4037-ac0f-b6b415691636'].all().status
-      == 'COMPLETED' and tasks['12b477fa-1b8c-452a-ba5c-e1d682a22b0d'].TASK_RUN_ID
-      != ORCHESTRA.TASK_RUN_ID and 2 in [1, 2, 3] }}
+    condition: >-
+      ${{ task_groups['fade09b0-23a3-4037-ac0f-b6b415691636'].all().status == 'COMPLETED' and tasks['12b477fa-1b8c-452a-ba5c-e1d682a22b0d'].TASK_RUN_ID != ORCHESTRA.TASK_RUN_ID and 2 in [1, 2, 3] }}
     name: ''
 schedule:
 - name: Daily at 8am
