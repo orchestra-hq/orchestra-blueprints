@@ -198,7 +198,7 @@ def main() -> None:
     pipeline_run_id = os.environ.get("ORCHESTRA_PIPELINE_RUN_ID", "")
     self_task_run_id = os.environ.get("ORCHESTRA_TASK_RUN_ID", "")
     if not os.environ.get("DD_API_KEY"):
-        log.error("DD_API_KEY is missing - add it to the Python connection's Secret JSON")
+        raise SystemExit("DD_API_KEY is missing - add it to the Python connection's Secret JSON")
     log.info("Shipping logs for pipeline run %s to Datadog (%s)", pipeline_run_id, site())
 
     shipped = 0

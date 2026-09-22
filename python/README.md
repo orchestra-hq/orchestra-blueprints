@@ -52,3 +52,35 @@ In order to run live dbt alerting for a dbt task:
 ```
 
 That's it! On the next run of your dbt pipeline, Orchestra will spin up a monitoring Python task to parse your dbt failures and alert you in Slack!
+
+## Python and dbt logs to Datadog
+
+`datadog_logs.py` sends logs from an Orchestra pipeline run to the
+[Datadog HTTP log intake](https://docs.datadoghq.com/api/latest/logs/#send-logs).
+It does two things in one task:
+
+* its own `logging` output goes to Datadog through `DatadogHandler`, a
+  `BufferingHandler` that flushes batches to the intake (`ddsource:python`)
+* every other task run in the same pipeline run has its log files pulled from
+  the [Orchestra API](https://docs.getorchestra.io/api/logs/list-task-run-logs)
+  and forwarded line by line, so a dbt Core task's output lands in Datadog as
+  `ddsource:dbt`
+
+Stdlib only — no build command needed.
+
+### Usage
+
+* Python connection: store `DD_API_KEY` in Secret JSON.
+* Task: command `python datadog_logs.py`, project dir and shallow clone dirs
+  `python`, and `depends_on` the tasks whose logs you want shipped (they must
+  have finished before this task runs).
+* Optional task environment variables: `DD_SITE` (default `datadoghq.eu`),
+  `DD_SERVICE` (default `orchestra`), `DD_ENV` (default `prod`).
+
+Every line is tagged with `orchestra_pipeline_run_id`, `orchestra_task_run_id`,
+`task_name`, `integration` and `task_status`, so a Datadog search like
+`source:dbt status:error` narrows straight back to the Orchestra task run.
+
+Log shipping never fails the task: intake errors are printed, not raised.
+
+Self-check: `cd python && python test_datadog_logs.py`.
