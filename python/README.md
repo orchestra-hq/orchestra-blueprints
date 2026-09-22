@@ -68,8 +68,15 @@ It does two things in one task:
   `setup_logging()`, so forwarding them would duplicate every line
 
 `datadog_python_job.py` is the live half of the demo: an ordinary Python task
-that calls `setup_logging()` and logs INFO, WARNING and a traceback, all of
-which reach Datadog as `ddsource:python` while the task runs.
+whose `DatadogLiveHandler` submits each record through the official
+[`datadog-api-client`](https://github.com/DataDog/datadog-api-client-python) as
+it is logged - no buffering, so lines appear in Datadog while the task is still
+running and survive a task that dies partway. It needs a build command of
+`pip install datadog-api-client`, and the handler is attached to the job's own
+logger so the SDK's records cannot feed back into it.
+
+The two scripts differ on purpose: bulk forwarding of a finished task's log
+file batches (stdlib, no build command), a task's own logs stream one by one.
 
 Stdlib only — no build command needed.
 
