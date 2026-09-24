@@ -17,6 +17,11 @@ pipeline:
         depends_on: []
         name: Import Metadata to bigQuery (edited)
         connection: ${{ ENV.PYTHON_CREDENTIAL }}
+        anomalies:
+        - type: task_duration_above_baseline
+          percentage_above_baseline: 40
+        - type: task_duration_below_baseline
+          percentage_below_baseline: 60
     depends_on: []
     name: ''
 schedule:
@@ -37,3 +42,8 @@ alerts:
   - integration: EMAIL
     destination: hugo@getorchestra.io
   custom_message: Hey hugo the biguery internal dlt import is failing xx
+anomalies:
+- type: pipeline_duration_above_baseline
+  percentage_above_baseline: 40
+- type: pipeline_duration_below_baseline
+  percentage_below_baseline: 60

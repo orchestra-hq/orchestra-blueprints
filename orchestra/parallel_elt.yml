@@ -25,6 +25,11 @@ pipeline:
         depends_on: []
         name: Execute parallel dlt_
         connection: python__production__blueprints__19239
+        anomalies:
+        - type: task_duration_above_baseline
+          percentage_above_baseline: 35
+        - type: task_duration_below_baseline
+          percentage_below_baseline: 60
     depends_on: []
     name: ''
     matrix:
@@ -71,6 +76,11 @@ pipeline:
           51750728-23d1-4000-ae6d-b3154ef8f871:
             integration: SNOWFLAKE
             connection: snowflake_tables_24182
+        anomalies:
+        - type: task_duration_above_baseline
+          percentage_above_baseline: 30
+        - type: task_duration_below_baseline
+          percentage_below_baseline: 60
       56504d03-8768-4ed3-a39b-781bc7e7ecd7:
         integration: SNOWFLAKE
         integration_job: SNOWFLAKE_RUN_QUERY
@@ -138,3 +148,8 @@ inputs:
   environment:
     type: string
     default: ${{ ENV.ENV_NAME }}
+anomalies:
+- type: pipeline_duration_above_baseline
+  percentage_above_baseline: 30
+- type: pipeline_duration_below_baseline
+  percentage_below_baseline: 60
