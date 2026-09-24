@@ -13,6 +13,7 @@ pipeline:
           code: |-
             import os
 
+            print("${{ ORCHESTRA.CURRENT_ENV_NAME }}")
             qwvwrv
         depends_on: []
         name: Run
