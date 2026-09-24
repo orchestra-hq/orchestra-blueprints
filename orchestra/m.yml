@@ -1,0 +1,35 @@
+version: v1
+name: ewrgfwer
+pipeline:
+  35adbc76-7689-4e22-b508-5ca34792521d:
+    tasks:
+      ee94a9e3-c798-46e0-b4fc-c6b9fad4f6b8:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          source: INLINE
+          code: |-
+            import os
+
+            qwvwrv
+        depends_on: []
+        name: Run
+        alerts:
+        - name: vwvwe
+          statuses:
+          - FAILED
+          destinations:
+          - integration: SLACK
+            destination: alert-testing
+            connection_id: default_00000
+          custom_message: |-
+            ${{ ORCHESTRA.CURRENT_ENV_NAME }}
+            ${{ ORCHESTRA.TRIGGERED_BY_USER_EMAIL }}
+            ${{ ORCHESTRA.CURRENT_BRANCH }}
+            ${{ ORCHESTRA.CURRENT_TIME }}
+    depends_on: []
+    name: group
+webhook:
+  enabled: false
