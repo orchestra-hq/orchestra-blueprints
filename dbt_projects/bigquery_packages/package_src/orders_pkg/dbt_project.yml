@@ -1,0 +1,6 @@
+name: orders_pkg
+version: "1.0.0"
+config-version: 2
+
+profile: dbt_bigquery
+model-paths: ["models"]

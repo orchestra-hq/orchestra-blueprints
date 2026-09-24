@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: stg_orders_pkg
+    description: "Typed view over raw.raw_orders, keyed with dbt_utils."
+    columns:
+      - name: order_key
+        description: "Surrogate key from dbt_utils.generate_surrogate_key."
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: order_date
+        tests:
+          - not_null

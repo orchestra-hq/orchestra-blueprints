@@ -36,3 +36,5 @@ profiles.yml
 .env
 .env.*
 !.env.example
+dbt_projects/bigquery_packages/dbt_packages
+dbt_projects/bigquery_packages/target
