@@ -1,0 +1,24 @@
+version: v1
+name: 'Dummy Python Pipeline #python #cicd'
+pipeline:
+  dummy_python_group:
+    tasks:
+      run_dummy_script:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          set_outputs: false
+          source: GIT
+          command: python dummy_script.py
+          project_dir: python/dummy_pipeline
+          shallow_clone_dirs: python/dummy_pipeline
+          environment_variables: '{"ROW_COUNT":"5","FAIL_ON_PURPOSE":"false"}'
+        depends_on: []
+        name: Run dummy script
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: Dummy Python
+webhook:
+  enabled: false
