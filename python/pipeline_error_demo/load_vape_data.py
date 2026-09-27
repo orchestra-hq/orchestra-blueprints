@@ -1,14 +1,30 @@
 """
 Script to fetch Vape Data from S3, process it from pivot table format, and upsert into BigQuery.
+
+Only files uploaded to the S3 prefix within the last MAX_FILE_AGE_MINUTES are picked
+up. Files that have already been handled are renamed with a "_processed" suffix and
+are skipped on subsequent runs.
 """
 
 import os
 import json
+import posixpath
 import tempfile
+from datetime import datetime, timedelta, timezone
+
 import pandas as pd
 import boto3
 from google.cloud import bigquery
 from google.oauth2 import service_account
+
+# Only files uploaded within this window are considered for processing.
+MAX_FILE_AGE_MINUTES = 15
+
+# Suffix appended to the filename (before the extension) once a file is processed.
+PROCESSED_SUFFIX = "_processed"
+
+# Extensions this script knows how to read.
+SUPPORTED_EXTENSIONS = (".xlsx", ".xls")
 
 
 def get_bigquery_credentials():
@@ -27,18 +43,101 @@ def get_bigquery_credentials():
     return credentials
 
 
-def fetch_from_s3(bucket: str, key: str) -> bytes:
-    """Download file from S3."""
-    s3_client = boto3.client(
+def get_s3_client():
+    """Build an S3 client from environment credentials."""
+    return boto3.client(
         "s3",
         aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
         aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-        region_name="us-east-1",
+        region_name=os.getenv("AWS_REGION", "eu-west-2"),
     )
 
+
+def is_processed_key(key: str) -> bool:
+    """True if the filename (ignoring its extension) already ends in the processed suffix."""
+    stem, _ = posixpath.splitext(posixpath.basename(key))
+    return stem.endswith(PROCESSED_SUFFIX)
+
+
+def build_processed_key(key: str) -> str:
+    """Insert the processed suffix before the extension: a/b.xlsx -> a/b_processed.xlsx."""
+    directory = posixpath.dirname(key)
+    stem, extension = posixpath.splitext(posixpath.basename(key))
+    return posixpath.join(directory, f"{stem}{PROCESSED_SUFFIX}{extension}")
+
+
+def list_files_to_process(s3_client, bucket: str, prefix: str) -> list:
+    """
+    List keys under the prefix that are eligible for processing.
+
+    A key is eligible when it was last modified within MAX_FILE_AGE_MINUTES, is not a
+    folder placeholder, has a supported extension, and has not already been marked
+    with the processed suffix.
+    """
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=MAX_FILE_AGE_MINUTES)
+    print(
+        f"Listing s3://{bucket}/{prefix} for files modified after "
+        f"{cutoff.isoformat()} ({MAX_FILE_AGE_MINUTES} minute window)..."
+    )
+
+    eligible = []
+    paginator = s3_client.get_paginator("list_objects_v2")
+    for page in paginator.paginate(Bucket=bucket, Prefix=prefix):
+        for obj in page.get("Contents", []):
+            key = obj["Key"]
+
+            # Skip folder placeholders and empty objects.
+            if key.endswith("/") or obj["Size"] == 0:
+                continue
+
+            if not key.lower().endswith(SUPPORTED_EXTENSIONS):
+                print(f"  Skipping {key}: unsupported file type")
+                continue
+
+            if is_processed_key(key):
+                print(f"  Skipping {key}: already processed")
+                continue
+
+            if obj["LastModified"] < cutoff:
+                print(
+                    f"  Skipping {key}: last modified "
+                    f"{obj['LastModified'].isoformat()}, outside window"
+                )
+                continue
+
+            eligible.append(key)
+
+    print(f"Found {len(eligible)} file(s) to process")
+    return sorted(eligible)
+
+
+def fetch_from_s3(s3_client, bucket: str, key: str) -> bytes:
+    """Download file from S3."""
     print(f"Downloading s3://{bucket}/{key}...")
     response = s3_client.get_object(Bucket=bucket, Key=key)
     return response["Body"].read()
+
+
+def mark_as_processed(s3_client, bucket: str, key: str) -> str:
+    """
+    Rename the object in S3 so the filename carries the processed suffix.
+
+    S3 has no native rename, so this copies to the new key and then removes the
+    original. Returns the new key.
+    """
+    new_key = build_processed_key(key)
+
+    if new_key == key:
+        return key
+
+    print(f"Renaming s3://{bucket}/{key} -> s3://{bucket}/{new_key}...")
+    s3_client.copy_object(
+        Bucket=bucket,
+        Key=new_key,
+        CopySource={"Bucket": bucket, "Key": key},
+    )
+    s3_client.delete_object(Bucket=bucket, Key=key)
+    return new_key
 
 
 def process_vape_data(file_path: str) -> pd.DataFrame:
@@ -213,35 +312,63 @@ def main():
     """Main execution function."""
     # S3 parameters
     s3_bucket = "orchestra-demo-account"
-    s3_key = "vape_data_test/Vape Data.xlsx"
+    s3_prefix = "vape_data_test/"
 
     # BigQuery parameters
     bq_project = "reference-baton-392114"
     bq_dataset = "demo"
     bq_table = "Vape_data"
 
-    try:
-        # Fetch from S3
-        file_content = fetch_from_s3(s3_bucket, s3_key)
+    s3_client = get_s3_client()
 
-        # Write to temporary file
-        with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
-            tmp.write(file_content)
-            tmp_path = tmp.name
+    keys = list_files_to_process(s3_client, s3_bucket, s3_prefix)
 
-        # Process data
-        processed_df = process_vape_data(tmp_path)
+    if not keys:
+        print(
+            f"\nNo new files in s3://{s3_bucket}/{s3_prefix} from the last "
+            f"{MAX_FILE_AGE_MINUTES} minutes. Nothing to do."
+        )
+        return
 
-        # Upsert to BigQuery
-        upsert_to_bigquery(processed_df, bq_project, bq_dataset, bq_table)
+    total_rows = 0
 
-        print(f"\n✓ Successfully upserted {len(processed_df)} rows to BigQuery")
+    for key in keys:
+        print(f"\n{'=' * 60}")
+        print(f"Processing s3://{s3_bucket}/{key}")
+        print(f"{'=' * 60}")
+        try:
+            # Fetch from S3
+            file_content = fetch_from_s3(s3_client, s3_bucket, key)
 
-    except Exception as e:
-        print(f"✗ Error: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        raise
+            # Write to temporary file
+            suffix = posixpath.splitext(key)[1] or ".xlsx"
+            with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+                tmp.write(file_content)
+                tmp_path = tmp.name
+
+            # Process data
+            processed_df = process_vape_data(tmp_path)
+
+            # Upsert to BigQuery
+            upsert_to_bigquery(processed_df, bq_project, bq_dataset, bq_table)
+
+            # Only rename once the load has succeeded, so a failure leaves the file
+            # in place to be retried on the next run.
+            new_key = mark_as_processed(s3_client, s3_bucket, key)
+
+            total_rows += len(processed_df)
+            print(f"\n\u2713 Upserted {len(processed_df)} rows from {key}, now at {new_key}")
+
+        except Exception as e:
+            print(f"\u2717 Error processing {key}: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            raise
+
+    print(
+        f"\n\u2713 Successfully upserted {total_rows} rows "
+        f"from {len(keys)} file(s) to BigQuery"
+    )
 
 
 if __name__ == "__main__":
