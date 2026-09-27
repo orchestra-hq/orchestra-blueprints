@@ -191,7 +191,7 @@ def upsert_to_bigquery(df: pd.DataFrame, project_id: str, dataset_id: str, table
     print("Executing MERGE statement...")
     merge_job = client.query(merge_sql)
     merge_job.result()
-    print(f"MERGE completed. Rows affected: {merge_job.total_rows}")
+    print(f"MERGE completed. Rows affected: {merge_job.num_dml_affected_rows }")
 
     # Clean up temporary table
     client.delete_table(temp_table_ref, not_found_ok=True)
