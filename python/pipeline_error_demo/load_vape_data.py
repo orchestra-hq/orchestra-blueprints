@@ -141,8 +141,19 @@ def upsert_to_bigquery(df: pd.DataFrame, project_id: str, dataset_id: str, table
 
     table_ref = f"{project_id}.{dataset_id}.{table_id}"
 
-    # Define primary key columns
-    primary_key_cols = ["Date", "Store", "SKU"]
+    # Define primary key columns.
+    # Location is part of the grain: store names are reused across locations
+    # (e.g. "Store 1" exists in both London and Newcastle), so a
+    # (Date, Store, SKU) key yields multiple source rows per target row and
+    # BigQuery rejects the MERGE.
+    primary_key_cols = ["Date", "Location", "Store", "SKU"]
+
+    duplicate_count = int(df.duplicated(subset=primary_key_cols).sum())
+    if duplicate_count:
+        raise ValueError(
+            f"{duplicate_count} duplicate rows on {primary_key_cols}; "
+            "cannot MERGE - source must have at most one row per key"
+        )
 
     # Convert DataFrame to BigQuery schema
     job_config = bigquery.LoadJobConfig(
