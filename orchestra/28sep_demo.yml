@@ -1,0 +1,42 @@
+version: v1
+name: Python ELT to Databricks
+pipeline:
+  9050fe5d-7bf2-41d8-8c7c-345ca5fc31f4:
+    tasks:
+      83a12ade-036d-4923-882a-487ae4c570e5:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          source: GIT
+          command: python -m load_octo_data
+        depends_on: []
+        name: Python
+    depends_on: []
+    name: group
+  46cbfe91-61be-4b21-b816-d010ea085dcc:
+    tasks:
+      8fa027b7-0e27-424a-9df0-1f5c06f32ebf:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: dbt build
+    depends_on:
+    - 9050fe5d-7bf2-41d8-8c7c-345ca5fc31f4
+    name: group
+webhook:
+  enabled: false
+alerts:
+- name: Failures
+  statuses:
+  - WARNING
+  - FAILED
+  destinations:
+  - integration: SLACK
+    destination: alert-testing
+    connection_id: default_00000
