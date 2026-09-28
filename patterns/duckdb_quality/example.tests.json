@@ -1,0 +1,35 @@
+{
+  "connection_env": {
+    "account": "SNOWFLAKE_ACCOUNT",
+    "user": "SNOWFLAKE_USER",
+    "password": "SNOWFLAKE_PASSWORD",
+    "database": "SNOWFLAKE_DATABASE",
+    "schema": "SNOWFLAKE_SCHEMA",
+    "warehouse": "SNOWFLAKE_WAREHOUSE",
+    "role": "SNOWFLAKE_ROLE"
+  },
+  "suites": [
+    {
+      "table": "SNOWFLAKE_WORKING.PUBLIC_CLEAN.SNOWFLAKE_ORDERS_CLEAN",
+      "criticality": "high",
+      "checks": [
+        { "type": "row_count_min", "min": 1, "severity": "critical" },
+        { "type": "not_null", "column": "ORDER_NUMBER", "max_null_pct": 0, "severity": "critical" },
+        { "type": "not_null", "column": "SOLD_DATE", "max_null_pct": 5, "severity": "critical" },
+        { "type": "not_null", "column": "BILL_CUTOMER_SK_ID", "max_null_pct": 5, "severity": "high" },
+        { "type": "distinct_floor", "column": "ITEM_SK_ID", "min_distinct": 2, "severity": "high" },
+        { "type": "unique", "column": "ORDER_NUMBER", "severity": "high" },
+        { "type": "freshness", "column": "SOLD_DATE", "max_age_hours": 48, "severity": "critical" },
+        { "type": "accepted_range", "column": "QUANTITY", "min": 1, "max": 1000, "severity": "medium" },
+        {
+          "type": "custom_sql",
+          "description": "orders shipped before they were sold",
+          "sql": "SELECT COUNT(*) FROM SNOWFLAKE_WORKING.PUBLIC_CLEAN.SNOWFLAKE_ORDERS_CLEAN WHERE SHIP_DATE < SOLD_DATE",
+          "operator": "<=",
+          "threshold": 0,
+          "severity": "high"
+        }
+      ]
+    }
+  ]
+}
