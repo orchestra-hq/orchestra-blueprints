@@ -10,4 +10,7 @@ platform via Orchestra APIs.
 
 - `run_multiple_pipelines/`: examples for programmatic multi-pipeline runs.
 - `warehouse_savings/`: warehouse optimization and analytics pattern examples.
+- `duckdb_quality/`: declarative data quality tests against Snowflake, run
+  through the DuckDB CLI. Unlike the patterns above this one talks to the
+  warehouse directly rather than to the Orchestra API.
 
