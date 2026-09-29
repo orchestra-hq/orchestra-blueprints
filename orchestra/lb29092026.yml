@@ -1,0 +1,91 @@
+version: v1
+name: Python things
+pipeline:
+  extract_and_deliver:
+    tasks:
+      extract_feed:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          source: GIT
+          command: python -m feeds.extract
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          branch: ${{ inputs.python_branch }}
+          project_dir: python/feeds
+          shallow_clone_dirs: python/feeds
+          environment_variables: >-
+            { "FEED_NAME": "${{ MATRIX.feeds['FEED_NAME'] }}", "SOURCE_TABLE":
+            "${{ MATRIX.feeds['SOURCE_TABLE'] }}", "TARGET_ENVIRONMENT":
+            "${{ inputs.target_environment }}", "RUN_DATE":
+            "${{ inputs.run_date }}" }
+          set_outputs: true
+        depends_on: []
+        name: Extract ${{ MATRIX.feeds['FEED_NAME'] }}
+        connection: python__production__blueprints__19239
+      deliver_feed:
+        integration: SFTP
+        integration_job: SFTP_PUT_FILE
+        parameters:
+          file_path: ${{ inputs.sftp_directory }}/${{ MATRIX.feeds['FEED_NAME'] }}_${{ inputs.run_date }}.csv
+          contents: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['extract_feed'].OUTPUTS['contents'] }}
+          content_format: TEXT
+          overwrite: true
+        depends_on:
+          - extract_feed
+        name: Deliver ${{ MATRIX.feeds['FEED_NAME'] }}
+        connection: sftp__demo__76895
+    depends_on: []
+    name: Extract and deliver feeds
+    matrix:
+      inputs:
+        feeds:
+          - id: orders
+            FEED_NAME: orders
+            SOURCE_TABLE: ANALYTICS.PUBLIC.FCT_ORDERS
+          - id: customers
+            FEED_NAME: customers
+            SOURCE_TABLE: ANALYTICS.PUBLIC.DIM_CUSTOMERS
+          - id: inventory
+            FEED_NAME: inventory
+            SOURCE_TABLE: ANALYTICS.PUBLIC.FCT_INVENTORY
+          - id: payments
+            FEED_NAME: payments
+            SOURCE_TABLE: ANALYTICS.PUBLIC.FCT_PAYMENTS
+schedule:
+  - name: Daily at 6am
+    cron: 0 6 ? * * *
+    timezone: Europe/London
+webhook:
+  enabled: false
+configuration:
+  concurrency:
+    max_active: 10
+inputs:
+  python_branch:
+    type: string
+    default: main
+  target_environment:
+    type: string
+    default: production
+  run_date:
+    type: string
+    default: ''
+  sftp_directory:
+    type: string
+    default: outbound
+meta:
+  notes: >-
+    Horizontal MetaEngine fan-out: one Python extract to SFTP put flow per feed
+    in the matrix. Feed-specific values come from the matrix, run-wide values
+    from pipeline inputs, and both are injected into the Python task as
+    environment variables.
+alerts:
+  - name: Feed delivery failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: alerts-data
+        connection_id: default_00000
