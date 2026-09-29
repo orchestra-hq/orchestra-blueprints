@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: stg_dummy_orders
+    description: >-
+      Dummy orders generated inline. Opted out of anomaly detection — staging
+      views are cheap and their durations are noise.
+    config:
+      meta:
+        orchestra_anomaly_detection: false
+    columns:
+      - name: order_id
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        data_tests:
+          - not_null
+
+  - name: stg_dummy_customers
+    description: Dummy customer dimension source. Not monitored, same reasoning.
+    config:
+      meta:
+        orchestra_anomaly_detection: false
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
