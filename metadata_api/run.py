@@ -20,21 +20,21 @@ WINDOW_OVERLAP = timedelta(minutes=5)
 OPERATIONS_LOOKBACK = timedelta(days=1)
 
 
-def _time_filtered_resource(
-    name: str, time_from: str | None = None, time_to: str | None = None
-) -> dict:
-    endpoint = {"paginator": PageNumberPaginator(base_page=1)}
-    if time_from is not None:
-        endpoint["params"] = {"time_from": time_from, "time_to": time_to}
-    return {"name": name, "endpoint": endpoint}
+def _time_filtered_resource(name: str, time_from: str, time_to: str) -> dict:
+    return {
+        "name": name,
+        "endpoint": {
+            "paginator": PageNumberPaginator(base_page=1),
+            "params": {"time_from": time_from, "time_to": time_to},
+        },
+    }
 
 
 def _orchestra_api_config(
-    include_assets: bool = True,
-    windows: dict[str, tuple[str, str]] | None = None,
+    windows: dict[str, tuple[str, str]], include_assets: bool
 ) -> dict:
     resources = [
-        _time_filtered_resource(name, *(windows or {}).get(name, (None, None)))
+        _time_filtered_resource(name, *windows[name])
         for name in TIME_FILTERED_RESOURCES
     ]
     if include_assets:
@@ -69,17 +69,9 @@ def _orchestra_api_config(
     }
 
 
-def build_orchestra_api_source(
-    include_assets: bool = True,
-    time_from: str | None = None,
-    time_to: str | None = None,
-):
-    windows = (
-        {name: (time_from, time_to) for name in TIME_FILTERED_RESOURCES}
-        if time_from is not None
-        else None
-    )
-    return rest_api_source(_orchestra_api_config(include_assets, windows))
+def build_backfill_source(time_from: str, time_to: str):
+    windows = {name: (time_from, time_to) for name in TIME_FILTERED_RESOURCES}
+    return rest_api_source(_orchestra_api_config(windows, include_assets=False))
 
 
 # Named like rest_api_source so every load shares one dlt schema.
@@ -97,9 +89,12 @@ def orchestra_metadata_since_last_run(backfilled_days: int = 0):
     earliest_time_from = time_to - timedelta(days=MAX_BACKFILL_WINDOW_DAYS)
 
     if "time_to" in state:
-        time_from = datetime.fromisoformat(state["time_to"]) - WINDOW_OVERLAP
+        last_time_to = datetime.fromisoformat(state["time_to"])
+        time_from = last_time_to - WINDOW_OVERLAP
         if time_from < earliest_time_from:
-            if time_from < time_to - timedelta(days=backfilled_days):
+            if last_time_to < min(
+                earliest_time_from, time_to - timedelta(days=backfilled_days)
+            ):
                 print(
                     f"The last successful load ended at {state['time_to']}, more than "
                     f"{MAX_BACKFILL_WINDOW_DAYS} days ago. Loading the last "
@@ -128,7 +123,7 @@ def orchestra_metadata_since_last_run(backfilled_days: int = 0):
         time_to.isoformat(),
     )
     return [
-        *rest_api_resources(_orchestra_api_config(True, windows)),
+        *rest_api_resources(_orchestra_api_config(windows, include_assets=True)),
         advance_load_window,
     ]
 
@@ -159,10 +154,7 @@ def orchestra_metadata_api_dlt_pipeline(warehouse: str, backfill_days: int = 0) 
             print(
                 f"Backfilling pipeline_runs/task_runs/operations: {time_from} -> {time_to}"
             )
-            source = build_orchestra_api_source(
-                include_assets=False, time_from=time_from, time_to=time_to
-            )
-            load_info = pipeline.run(source)
+            load_info = pipeline.run(build_backfill_source(time_from, time_to))
             print(load_info)
 
     # Each Orchestra task runs in a fresh container, so restore the previous run's
