@@ -13,6 +13,9 @@ TIME_FILTERED_RESOURCES = ("pipeline_runs", "task_runs", "operations")
 # Re-read a few minutes before the previous run's cut-off, so a row committed
 # just after that cut-off is not missed. The merge write disposition dedupes it.
 WINDOW_OVERLAP = timedelta(minutes=5)
+# The API filters operations on when they were inserted, but cost figures are
+# written onto an operation after that, so operations are re-read for a day.
+OPERATIONS_LOOKBACK = timedelta(days=1)
 
 
 def _time_filtered_resource(
@@ -26,11 +29,10 @@ def _time_filtered_resource(
 
 def _orchestra_api_config(
     include_assets: bool = True,
-    time_from: str | None = None,
-    time_to: str | None = None,
+    windows: dict[str, tuple[str, str]] | None = None,
 ) -> dict:
     resources = [
-        _time_filtered_resource(name, time_from, time_to)
+        _time_filtered_resource(name, *(windows or {}).get(name, (None, None)))
         for name in TIME_FILTERED_RESOURCES
     ]
     if include_assets:
@@ -70,10 +72,16 @@ def build_orchestra_api_source(
     time_from: str | None = None,
     time_to: str | None = None,
 ):
-    return rest_api_source(_orchestra_api_config(include_assets, time_from, time_to))
+    windows = (
+        {name: (time_from, time_to) for name in TIME_FILTERED_RESOURCES}
+        if time_from is not None
+        else None
+    )
+    return rest_api_source(_orchestra_api_config(include_assets, windows))
 
 
-@dlt.source
+# Named like rest_api_source so every load shares one dlt schema.
+@dlt.source(name="rest_api")
 def orchestra_metadata_since_last_run():
     """pipeline_runs/task_runs/operations changed since the previous successful run,
     plus a full snapshot of assets.
@@ -108,10 +116,16 @@ def orchestra_metadata_since_last_run():
         dlt.current.source_state()["time_to"] = time_to.isoformat()
         yield from ()
 
+    windows = {
+        name: (time_from.isoformat(), time_to.isoformat())
+        for name in TIME_FILTERED_RESOURCES
+    }
+    windows["operations"] = (
+        max(time_from - OPERATIONS_LOOKBACK, earliest_time_from).isoformat(),
+        time_to.isoformat(),
+    )
     return [
-        *rest_api_resources(
-            _orchestra_api_config(True, time_from.isoformat(), time_to.isoformat())
-        ),
+        *rest_api_resources(_orchestra_api_config(True, windows)),
         advance_load_window,
     ]
 

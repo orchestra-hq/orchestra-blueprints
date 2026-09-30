@@ -7,7 +7,7 @@ You can easily extract all the metadata from Orchestra into your warehouse. We w
 
 ## What each run loads
 
-Each run loads the `pipeline_runs`, `task_runs`, and `operations` that changed since the previous successful run, plus a full snapshot of `assets`. The first run loads the last 7 days. The end of each run's window is kept in dlt's pipeline state in your destination, so this works even though every Orchestra task starts in a fresh container. A failed run does not move the window on, so the next run picks up where the last successful one ended.
+Each run loads the `pipeline_runs`, `task_runs`, and `operations` that changed since the previous successful run, plus a full snapshot of `assets`. The first run loads the last 7 days. Operations are re-read for an extra day, because their cost figures are filled in after they first appear. The end of each run's window is kept in dlt's pipeline state in your destination, so this works even though every Orchestra task starts in a fresh container. A failed run does not move the window on, so the next run picks up where the last successful one ended.
 
 This keeps each run small however often it is scheduled, so an hourly schedule costs no more in total than a daily one. If the pipeline does not succeed for more than 7 days, the next run loads the last 7 days only and prints a warning: fill the gap with `--backfill-days`.
 
