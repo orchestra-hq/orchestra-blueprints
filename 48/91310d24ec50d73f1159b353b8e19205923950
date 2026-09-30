@@ -1,0 +1,21 @@
+metadata_api/README.md
+  s_ad5cf11b3c85b7::t_4d6da2f2eed8d2 10
+metadata_api/run.py
+  s_ad5cf11b3c85b7::t_fde6130e1f1be7 16-18,32,35,75-80,83-84,119-126,128
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4891310d24ec50d73f1159b353b8e19205923950",
+  "prompts": {},
+  "sessions": {
+    "s_ad5cf11b3c85b7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c6057303-dc92-4f7f-8599-a4831bac2f6a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Will Davies <42768478+willdavies0@users.noreply.github.com>"
+    }
+  }
+}
