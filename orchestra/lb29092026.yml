@@ -87,5 +87,5 @@ alerts:
       - FAILED
     destinations:
       - integration: SLACK
-        destination: alerts-data
+        destination: alert-testing
         connection_id: default_00000
