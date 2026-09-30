@@ -13,8 +13,10 @@ TIME_FILTERED_RESOURCES = ("pipeline_runs", "task_runs", "operations")
 # Re-read a few minutes before the previous run's cut-off, so a row committed
 # just after that cut-off is not missed. The merge write disposition dedupes it.
 WINDOW_OVERLAP = timedelta(minutes=5)
-# The API filters operations on when they were inserted, but cost figures are
-# written onto an operation after that, so operations are re-read for a day.
+# The API filters pipeline runs and task runs on when they last changed, so a run
+# that finishes later is picked up by the next load. It filters operations on when
+# they were inserted, but cost figures are written onto an operation after that, so
+# operations are re-read for a day.
 OPERATIONS_LOOKBACK = timedelta(days=1)
 
 
@@ -82,7 +84,7 @@ def build_orchestra_api_source(
 
 # Named like rest_api_source so every load shares one dlt schema.
 @dlt.source(name="rest_api")
-def orchestra_metadata_since_last_run():
+def orchestra_metadata_since_last_run(backfilled_days: int = 0):
     """pipeline_runs/task_runs/operations changed since the previous successful run,
     plus a full snapshot of assets.
 
@@ -97,11 +99,12 @@ def orchestra_metadata_since_last_run():
     if "time_to" in state:
         time_from = datetime.fromisoformat(state["time_to"]) - WINDOW_OVERLAP
         if time_from < earliest_time_from:
-            print(
-                f"The last successful load ended at {state['time_to']}, more than "
-                f"{MAX_BACKFILL_WINDOW_DAYS} days ago. Loading the last "
-                f"{MAX_BACKFILL_WINDOW_DAYS} days only; run with --backfill-days to fill the gap."
-            )
+            if time_from < time_to - timedelta(days=backfilled_days):
+                print(
+                    f"The last successful load ended at {state['time_to']}, more than "
+                    f"{MAX_BACKFILL_WINDOW_DAYS} days ago. Loading the last "
+                    f"{MAX_BACKFILL_WINDOW_DAYS} days only; run with --backfill-days to fill the gap."
+                )
             time_from = earliest_time_from
     else:
         time_from = earliest_time_from
@@ -165,7 +168,7 @@ def orchestra_metadata_api_dlt_pipeline(warehouse: str, backfill_days: int = 0) 
     # Each Orchestra task runs in a fresh container, so restore the previous run's
     # state from the destination before reading it.
     pipeline.sync_destination()
-    load_info = pipeline.run(orchestra_metadata_since_last_run())
+    load_info = pipeline.run(orchestra_metadata_since_last_run(backfill_days))
     print(load_info)
 
 
