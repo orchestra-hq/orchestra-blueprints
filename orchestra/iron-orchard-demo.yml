@@ -1,0 +1,190 @@
+version: v1
+name: Iron Orchard Demo
+pipeline:
+  erp_transforms:
+    name: ERP transforms (Fabric)
+    depends_on: []
+    condition: ${{ inputs.trigger_source == "sensor" }}
+    tasks:
+      run_pyspark_notebook:
+        integration: FABRIC
+        integration_job: FABRIC_RUN_NOTEBOOK
+        name: Run PySpark transforms (notebook)
+        parameters:
+          workspace_id: ${{ inputs.fabric_workspace_id }}
+          notebook_id: ${{ inputs.fabric_notebook_id }}
+          execution_data: '{
+            "parameters": {
+              "erp_load_id": {"value": "${{ inputs.erp_load_id }}", "type": "string"}
+            }
+            }'
+          set_outputs: false
+        depends_on: []
+      run_fabric_data_pipeline:
+        integration: FABRIC
+        integration_job: FABRIC_RUN_DATA_PIPELINE
+        name: Run bronze-to-silver data pipeline
+        parameters:
+          workspace_id: ${{ inputs.fabric_workspace_id }}
+          data_pipeline_id: ${{ inputs.fabric_data_pipeline_id }}
+          execution_data: '{
+            "erp_load_id": "${{ inputs.erp_load_id }}"
+            }'
+          set_outputs: false
+        depends_on:
+        - run_pyspark_notebook
+  silver_data_quality:
+    name: Silver layer data quality
+    depends_on:
+    - erp_transforms
+    tasks:
+      dq_row_count:
+        integration: FABRIC_SYNAPSE
+        integration_job: FABRIC_SYNAPSE_RUN_QUERY
+        name: DQ - silver row count
+        parameters:
+          statement: >-
+            SELECT CASE WHEN COUNT_BIG(*) < ${{ inputs.min_silver_row_count }}
+            THEN CAST('DQ FAIL: silver.erp_orders row count below ${{ inputs.min_silver_row_count }} - partial load suspected' AS INT)
+            ELSE 0 END AS dq_row_count_ok
+            FROM [silver].[dbo].[erp_orders];
+          set_outputs: false
+        depends_on: []
+      dq_freshness:
+        integration: FABRIC_SYNAPSE
+        integration_job: FABRIC_SYNAPSE_RUN_QUERY
+        name: DQ - silver freshness
+        parameters:
+          statement: >-
+            SELECT CASE WHEN MAX([loaded_at]) IS NULL
+            OR MAX([loaded_at]) < DATEADD(HOUR, -${{ inputs.silver_freshness_hours }}, SYSUTCDATETIME())
+            THEN CAST('DQ FAIL: silver.erp_orders is stale - nothing loaded in the last ${{ inputs.silver_freshness_hours }}h' AS INT)
+            ELSE 0 END AS dq_freshness_ok
+            FROM [silver].[dbo].[erp_orders];
+          set_outputs: false
+        depends_on: []
+  bi_refresh:
+    name: Power BI refresh
+    depends_on:
+    - silver_data_quality
+    tasks:
+      refresh_exec_dataset:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        name: Refresh ERP exec dataset
+        parameters:
+          workspace_id: ${{ inputs.power_bi_workspace_id }}
+          dataset_id: ${{ inputs.power_bi_dataset_id }}
+          refresh_type: Full
+          apply_refresh_policy: false
+          tables: []
+        depends_on: []
+  late_data_alert:
+    name: ERP data never landed
+    depends_on: []
+    condition: ${{ inputs.trigger_source == "watchdog" }}
+    tasks:
+      notify_teams_no_data:
+        integration: MICROSOFT_TEAMS
+        integration_job: SEND_MICROSOFT_TEAMS_MESSAGE
+        name: Teams - ERP load missed the 04:30 window
+        connection: migrated_teams_66347
+        parameters:
+          content:
+            $schema: http://adaptivecards.io/schemas/adaptive-card.json
+            type: AdaptiveCard
+            version: '1.0'
+            body:
+            - type: TextBlock
+              size: Medium
+              weight: Bolder
+              wrap: true
+              text: Iron Orchard Demo - overnight ERP load did not land
+            - type: TextBlock
+              wrap: true
+              text: >-
+                **Failure point:** sensor timeout (Fabric SQL landing-table check).
+                The landing table had no completed ERP load by the 04:45 timeout, so the
+                Fabric transforms, the silver data quality tests and the Power BI refresh
+                were **not** run. Silver and the dashboard still hold yesterday's data.
+            - type: TextBlock
+              wrap: true
+              isSubtle: true
+              text: 'Pipeline: Iron Orchard Demo | Trigger: watchdog cron (04:50)'
+        depends_on: []
+sensors:
+  erp_landing_sensor:
+    name: ERP landing table sensor
+    cron: 0 4 ? * * *
+    timezone: Europe/London
+    timeout_mins: 45
+    checks:
+      Overnight ERP pull has landed:
+        integration: FABRIC_SYNAPSE
+        sensor_type: FABRIC_SYNAPSE_QUERY
+        parameters:
+          query: >-
+            SELECT TOP (1) [load_id] FROM [landing].[dbo].[erp_daily_load]
+            WHERE [load_date] = CAST(SYSUTCDATETIME() AS DATE) AND [status] = 'COMPLETE'
+        map_outputs:
+          erp_load_id: ${{ outputs.results[0][0] }}
+    run_inputs:
+      trigger_source: sensor
+schedule:
+- name: Watchdog - ERP load missed window
+  cron: 50 4 ? * * *
+  timezone: Europe/London
+  run_inputs:
+    trigger_source: watchdog
+webhook:
+  enabled: false
+inputs:
+  trigger_source:
+    type: string
+    default: sensor
+  erp_load_id:
+    type: string
+    default: ''
+  fabric_workspace_id:
+    type: string
+    default: REPLACE_ME_fabric_workspace_id
+  fabric_notebook_id:
+    type: string
+    default: REPLACE_ME_fabric_notebook_id
+  fabric_data_pipeline_id:
+    type: string
+    default: REPLACE_ME_fabric_data_pipeline_id
+  power_bi_workspace_id:
+    type: string
+    default: REPLACE_ME_power_bi_workspace_id
+  power_bi_dataset_id:
+    type: string
+    default: REPLACE_ME_power_bi_dataset_id
+  min_silver_row_count:
+    type: number
+    default: 1000
+  silver_freshness_hours:
+    type: number
+    default: 6
+configuration:
+  concurrency:
+    max_active: 1
+alerts:
+- name: Teams - any task failure
+  statuses:
+  - FAILED
+  destinations:
+  - integration: MICROSOFT_TEAMS
+    connection_id: migrated_teams_66347
+  custom_message: >-
+    Iron Orchard Demo failed. The task named in this alert is the failure point. If the Power
+    BI refresh did not run, the silver data quality tests blocked it deliberately.
+meta:
+  notes: >-
+    Sensor-triggered ERP pipeline. A Fabric SQL sensor polls the landing table from 04:00
+    and times out at 04:45, just after the 04:30 delivery window. If the rows land the
+    pipeline runs Fabric PySpark transforms, then row-count and freshness tests against the
+    silver layer, then a Power BI refresh that only fires if those tests pass. A sensor
+    timeout is silent by design in Orchestra, so a watchdog cron at 04:50 runs the pipeline
+    down the late_data_alert branch and posts to Teams instead. Any task failure also alerts
+    to Teams with the failing task named.
