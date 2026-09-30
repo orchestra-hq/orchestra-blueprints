@@ -1,0 +1,19 @@
+metadata_api/README.md
+  s_f8f433a4232616::t_94ec187033a267 12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e143d3dc853f9188ec61ccce8d59d343fdc5c225",
+  "prompts": {},
+  "sessions": {
+    "s_f8f433a4232616": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9633ad4d-86e4-43aa-8a78-074546209854",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Will Davies <42768478+willdavies0@users.noreply.github.com>"
+    }
+  }
+}
