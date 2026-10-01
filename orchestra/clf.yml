@@ -1,0 +1,106 @@
+version: v1
+name: Load Vape Data
+pipeline:
+  8375fec1-1872-44e7-a633-145fdc31c2cf:
+    tasks:
+      12a883d7-7993-49d0-b8e2-c7cd3a4a1ba2:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: >-
+            pip install pandas openpyxl boto3 google-cloud-bigquery google-auth
+            pyarrow
+          environment_variables: |-
+            {
+            "new_files":"${{ inputs.new_files }}"
+            }
+          set_outputs: false
+          source: GIT
+          command: python -m load_vape_data
+          branch: main
+          project_dir: python/pipeline_error_demo
+          shallow_clone_dirs: python/pipeline_error_demo
+        depends_on: []
+        name: Load Data from S3
+        connection: python__production__blueprints__19239
+      ab1666a4-b89f-49ac-a81e-dffaae636ebf:
+        integration: ORCHESTRA
+        integration_job: RUN_AGENT
+        parameters:
+          agent_id: ce478d17-fd1e-4767-97ab-81441184a83f
+          prompt: |-
+            Look - you hvae access to this branch and this PR:
+            ${{ inputs.PR_NUMBER}}
+            See if there are any schema changes to core DBs
+            and if there are <<update data loading scripts acoordingly>>
+        depends_on: []
+        name: Assess impact of change
+      388ca556-31ad-459a-aff0-f8dd654aa2bb:
+        integration: AWS_LAMBDA
+        integration_job: AWS_LAMBDA_EXECUTE_ASYNC_FUNCTION
+        parameters:
+          function_name: my_lambda_function
+        depends_on: []
+        name: Trigger Lambda
+    depends_on: []
+    name: group
+  1ec284e2-d1bb-4df6-9afe-c4a4b6bc4f0b:
+    tasks:
+      7d2cd583-e868-4c83-b769-3987c0d57068:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: dbt core
+    depends_on:
+      - 8375fec1-1872-44e7-a633-145fdc31c2cf
+    name: group
+  dc871612-38a1-4d9f-bd06-dcc5cb9e940d:
+    tasks:
+      0f7d423f-1c6f-4767-8e7d-486de31a2f82:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: execute container_job my_job;
+        depends_on: []
+        name: Snowflake container services
+    depends_on:
+      - 1ec284e2-d1bb-4df6-9afe-c4a4b6bc4f0b
+    name: group
+sensors:
+  621b0235-fa9e-4934-ae7d-39d8cd6561a6:
+    name: Check S3
+    cron: '*/5 20-23,14-20 ? * * *'
+    timezone: Europe/London
+    timeout_mins: 5
+    checks:
+      Check S3:
+        integration: AWS_S3
+        connection: hugo_testing_s3__demo__77807
+        sensor_type: AWS_S3_FILE
+        parameters:
+          bucket_name: orchestra-demo-account
+          prefix: vape_data_test
+        map_outputs:
+          new_files: files
+webhook:
+  enabled: true
+  run_inputs:
+    PR_NUMBER: '10'
+inputs:
+  PR_NUMBER:
+    type: string
+    optional: true
+alerts:
+  - name: Failed
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: alert-testing
+        connection_id: tests_02865
