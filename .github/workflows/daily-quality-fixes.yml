@@ -1,8 +1,7 @@
 name: Daily Quality Fixes
 
+# Schedule disabled; run manually via workflow_dispatch.
 "on":
-  schedule:
-    - cron: "23 3 * * *"
   workflow_dispatch:
 
 permissions:

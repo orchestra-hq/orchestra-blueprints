@@ -1,9 +1,7 @@
 name: Repository Quality Gates
 
+# PR trigger disabled; run manually via workflow_dispatch.
 on:
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
