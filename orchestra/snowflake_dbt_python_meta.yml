@@ -39,7 +39,7 @@ pipeline:
           database: BIGQUERY_SAMPLE
           schema: PUBLIC
         depends_on:
-        - c581252f-2975-4af6-8caf-a42e30527088
+          - c581252f-2975-4af6-8caf-a42e30527088
         name: Check data
         connection: snowflake__prod__80122
         treat_failure_as_warning: true
@@ -50,20 +50,15 @@ pipeline:
           statement: execute task ${{ MATRIX.gsheets['TABLE_NAME'] }}_TASK;
           set_outputs: false
         depends_on:
-        - 00a86786-65c4-48df-8074-a2dfdd4e7dbb
+          - 00a86786-65c4-48df-8074-a2dfdd4e7dbb
         name: Insert Data
         treat_failure_as_warning: true
-    depends_on: []
+    depends_on:
+      - ce6fd3ef-a9e0-4cd9-b233-232d6aaeaa4c
     name: ''
     matrix:
       inputs:
-        gsheets:
-        - SHEET_NAME: 1H0UnZ1vJ6WSsZgiVkg96zq52p7qaXkhvodlO1Mzoj6s
-          TABLE_NAME: dbt_leads
-        - SHEET_NAME: 1TMNhQFZbmaBsa1vIehQzh3vdyfc05damwJ_PIKDF14A
-          TABLE_NAME: social_leads
-        - SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ-TB0kk
-          TABLE_NAME: unstructured_feedback
+        gsheets: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['973f96aa-6b92-4900-aa33-a5ea227b4dbb'].OUTPUTS['results'] }}
   e3e7d5bf-8c8c-400e-94d8-28a584fc638e:
     tasks:
       0f480822-0044-49b5-9635-eb9987978eab:
@@ -80,12 +75,24 @@ pipeline:
         name: run dbt
         connection: dbt_snowflake_blueprints_prod_07025
     depends_on:
-    - 3459fb19-f081-43ca-8997-f7f2d54d331d
+      - 3459fb19-f081-43ca-8997-f7f2d54d331d
+    name: group
+  ce6fd3ef-a9e0-4cd9-b233-232d6aaeaa4c:
+    tasks:
+      973f96aa-6b92-4900-aa33-a5ea227b4dbb:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: select * from config
+          set_outputs: true
+        depends_on: []
+        name: Config
+    depends_on: []
     name: group
 schedule:
-- name: Daily at 8am
-  cron: 0 8 ? * * *
-  timezone: Europe/London
+  - name: Daily at 8am
+    cron: 0 8 ? * * *
+    timezone: Europe/London
 webhook:
   enabled: false
 inputs:
@@ -96,9 +103,9 @@ inputs:
     type: string
     default: main
 alerts:
-- name: Failures
-  statuses:
-  - FAILED
-  destinations:
-  - integration: SLACK
-    destination: alert-testing
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: alert-testing
