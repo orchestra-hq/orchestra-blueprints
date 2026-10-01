@@ -5,9 +5,15 @@ You can easily extract all the metadata from Orchestra into your warehouse. We w
 1. Copy this `metadata_api` folder to your repo. You will need the `.dlt` folder, `requirements.txt`, and `run.py` files.
 2. Create a [Python integration](https://docs.getorchestra.io/docs/integrations/python/) to execute the dlt script. Ensure you have secrets provisioned - they should follow the dlt schema for adding secrets.
 
+## What each run loads
+
+Each run loads the `pipeline_runs`, `task_runs`, and `operations` that changed since the previous successful run, plus a full snapshot of `assets`. The first run loads the last 7 days. Operations are re-read for an extra day, because their cost figures are filled in after they first appear. The end of each run's window is kept in dlt's pipeline state in your destination, so this works even though every Orchestra task starts in a fresh container. A failed run does not move the window on, so the next run picks up where the last successful one ended.
+
+Pipeline runs and task runs are read only once, however often the pipeline is scheduled. Operations cost more to re-read on a frequent schedule, since every run re-reads their last day: hourly runs read each operation up to 24 times. Schedule it only as often as you need fresh data. If the pipeline does not succeed for more than 7 days, the next run loads the last 7 days only and prints a warning: fill the gap with `--backfill-days`.
+
 ## Backfilling history
 
-By default, `run.py` loads `pipeline_runs`, `task_runs`, and `operations` for the last 7 days (the Orchestra API's default window when no time filter is given), plus a full snapshot of `assets`. To load older history, pass `--backfill-days`:
+To load older history, pass `--backfill-days`:
 
 ```bash
 python run.py snowflake --backfill-days 90
