@@ -14,13 +14,6 @@ pipeline:
         depends_on: []
         name: Sync Fivetran connector
         connection: h_94547
-        alerts:
-          - name: Failures to Teams
-            statuses:
-              - FAILED
-            destinations:
-              - integration: MICROSOFT_TEAMS
-                connection_id: ${{ inputs.teams }}
     depends_on: []
     name: Ingest
   stage_transform:
@@ -50,6 +43,13 @@ pipeline:
         depends_on: []
         name: Materialize Sigma dashboard dataset
         connection: sigma__prod__46722
+        alerts:
+          - name: Failures to Teams
+            statuses:
+              - ANY_COMPLETED
+            destinations:
+              - integration: MICROSOFT_TEAMS
+                connection_id: ${{ inputs.teams }}
     depends_on:
       - stage_transform
     name: Publish
