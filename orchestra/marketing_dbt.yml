@@ -71,7 +71,7 @@ inputs:
     default: _new_test_channel_89415
   slack:
     type: string
-    default:  ${{ inputs.slack }}
+    default: default_00000
 meta:
   notes: >-
     Daily ELT: Fivetran sync -> dbt build in Snowflake -> Sigma dataset
