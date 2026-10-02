@@ -1,0 +1,38 @@
+name: "dummy_end_to_end"
+version: "1.0.0"
+config-version: 2
+
+# Must match the profile name on the Orchestra dbt Core connection
+# (dbt_motherduck__prod__39243), not the project name.
+profile: "motherduck"
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+vars:
+  # Row count handed over by the upstream Python Task's output. The default
+  # keeps the project runnable on its own.
+  dummy_row_count: 500
+  # Approximate seconds of synthetic work each mart does. Dial up to push a
+  # model past its own duration baseline; 0 issues no hook at all.
+  fct_dummy_orders_seconds: 2
+  dim_dummy_customers_seconds: 0
+
+models:
+  dummy_end_to_end:
+    # Project-wide opt-in: every model here is monitored unless it says otherwise.
+    +meta:
+      orchestra_anomaly_detection: true
+    staging:
+      +materialized: view
+      +schema: dummy_demo
+    marts:
+      +materialized: table
+      +schema: dummy_demo
+      # Folder-level override of the percentage set on the Orchestra Task.
+      +meta:
+        orchestra_anomaly_percentage_above_baseline: 30

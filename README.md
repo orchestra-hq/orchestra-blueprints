@@ -18,6 +18,7 @@ integration examples across multiple tooling stacks.
 | [`orchestra/`](orchestra/) | Orchestra pipeline YAML definitions. |
 | [`patterns/`](patterns/) | Reusable implementation patterns and demos. |
 | [`python/`](python/) | General-purpose Python workers and integrations. |
+| [`python/dummy_pipeline/`](python/dummy_pipeline/) | Dummy end-to-end blueprint: a Python extract feeding a dbt build, with alerts and anomaly detection at pipeline, task and dbt-node level. |
 | [`python/lineage/`](python/lineage/) | dlt metadata extracts (Lightdash, BigQuery, Fivetran) that publish an end-to-end lineage graph into Orchestra. |
 | [`patterns/run_multiple_pipelines/`](patterns/run_multiple_pipelines/) | Examples for programmatic multi-pipeline runs (Orchestra API patterns). |
 | [`patterns/warehouse_savings/`](patterns/warehouse_savings/) | Warehouse optimization and analytics (Orchestra API pattern). |
@@ -63,6 +64,15 @@ dlt, and `publish_lineage.py` queries the landed tables directly (see
 `POST /assets/dependencies` endpoints so the whole stack shows up under Data
 assets → Lineage. Adding another platform is three localised edits; see
 [`python/lineage/README.md`](python/lineage/README.md) for the full setup.
+
+### Dummy end-to-end blueprint
+
+`orchestra/dummy_end_to_end.yml` is the smallest complete example of an
+Orchestra pipeline with monitoring wired all the way through: a Python extract
+([`python/dummy_pipeline/`](python/dummy_pipeline/)) whose Task output feeds a
+dbt Core build ([`dbt_projects/dummy_motherduck/`](dbt_projects/dummy_motherduck/)),
+carrying status `alerts` plus duration `anomalies` at pipeline, Task and dbt-node
+level. Start here when building a new pipeline from scratch.
 
 ### Python workers
 

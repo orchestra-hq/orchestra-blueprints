@@ -1,0 +1,137 @@
+version: v1
+name: 'Dummy end-to-end pipeline #python #dbt #motherduck #anomalies #slack'
+pipeline:
+  extractTaskGroup:
+    name: Extract
+    depends_on: []
+    tasks:
+      extractDummyOrders:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        name: Extract dummy orders
+        depends_on: []
+        connection: python__production__blueprints__19239
+        parameters:
+          source: GIT
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          command: python extract_dummy_orders.py
+          project_dir: python/dummy_pipeline
+          shallow_clone_dirs: python/dummy_pipeline
+          environment_variables: '{"DUMMY_ROW_COUNT": "${{ inputs.row_count }}", "DUMMY_SEED":
+            "42"}'
+          set_outputs: true
+        anomalies:
+        - type: task_duration_above_baseline
+          percentage_above_baseline: 30
+          destinations:
+          - integration: SLACK
+            destination: alert-demos
+            connection_id: default_00000
+        alerts:
+        - name: Extract failed
+          statuses:
+          - FAILED
+          destinations:
+          - integration: SLACK
+            destination: alert-demos
+            connection_id: default_00000
+  transformTaskGroup:
+    name: Transform
+    depends_on:
+    - extractTaskGroup
+    condition: ${{ task_groups['extractTaskGroup'].all().status == 'SUCCEEDED' }}
+    tasks:
+      dbtBuild:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        name: dbt build
+        depends_on: []
+        connection: dbt_motherduck__prod__39243
+        parameters:
+          commands: >-
+            dbt build --vars '{"dummy_row_count": ${{
+            ORCHESTRA.PIPELINE_RUN_TASKS['extractDummyOrders'].OUTPUTS['row_count']
+            }}, "fct_dummy_orders_seconds": ${{ inputs.fct_dummy_orders_seconds }},
+            "dim_dummy_customers_seconds": ${{ inputs.dim_dummy_customers_seconds }}}'
+          package_manager: PIP
+          python_version: '3.12'
+          project_dir: dbt_projects/dummy_motherduck
+          shallow_clone_dirs: dbt_projects/dummy_motherduck
+        anomalies:
+        - type: operation_duration_above_baseline
+          percentage_above_baseline: 30
+          operation_types:
+          - MATERIALISATION
+          min_baseline_seconds: 0
+          max_anomalies: 5
+          destinations:
+          - integration: SLACK
+            destination: alert-demos
+            connection_id: default_00000
+        - type: operation_duration_below_baseline
+          percentage_below_baseline: 60
+          operation_types:
+          - MATERIALISATION
+          min_baseline_seconds: 0
+          max_anomalies: 5
+          destinations:
+          - integration: SLACK
+            destination: alert-demos
+            connection_id: default_00000
+        alerts:
+        - name: dbt build failed
+          statuses:
+          - FAILED
+          - WARNING
+          destinations:
+          - integration: SLACK
+            destination: alert-demos
+            connection_id: default_00000
+anomalies:
+- type: pipeline_duration_above_baseline
+  percentage_above_baseline: 30
+  destinations:
+  - integration: SLACK
+    destination: alert-demos
+    connection_id: default_00000
+- type: pipeline_duration_below_baseline
+  percentage_below_baseline: 60
+  destinations:
+  - integration: SLACK
+    destination: alert-demos
+    connection_id: default_00000
+alerts:
+- name: Failures
+  statuses:
+  - FAILED
+  - WARNING
+  destinations:
+  - integration: SLACK
+    destination: alert-demos
+    connection_id: default_00000
+inputs:
+  row_count:
+    type: string
+    default: '500'
+  fct_dummy_orders_seconds:
+    type: string
+    default: '2'
+  dim_dummy_customers_seconds:
+    type: string
+    default: '0'
+schedule:
+- name: Daily at 7am
+  cron: 0 7 ? * * *
+  timezone: Europe/London
+meta:
+  notes: >-
+    Dummy end-to-end blueprint: a Python extract feeding a dbt Core build, with
+    alerting and anomaly detection wired at all three levels — pipeline
+    duration, Task duration, and dbt node (operation) duration. Every
+    threshold is deliberately loose and every baseline floor is 0 so a
+    few-second demo trips them; a real pipeline would not. See
+    python/dummy_pipeline/README.md for the run sequence.
+webhook:
+  enabled: false
