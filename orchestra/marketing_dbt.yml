@@ -57,6 +57,15 @@ schedule:
   - name: Daily at 6am
     cron: 0 6 ? * * *
     timezone: Europe/London
+  - name: Daily at 11am
+    cron: 0 11 ? * * *
+    timezone: Europe/London
+    environment: dbfb4825-b265-40ac-8d36-18aded5c9487
+    run_inputs:
+      dbt_command: build --select tag:staging
+      dbt_branch: staging
+      teams: _new_test_channel_89415
+      slack: default_00000
 webhook:
   enabled: false
 inputs:
