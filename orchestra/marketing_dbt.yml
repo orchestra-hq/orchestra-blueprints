@@ -68,7 +68,7 @@ inputs:
     default: main
   teams:
     type: string
-    default: migrated_teams_66347
+    default: _new_test_channel_89415
 meta:
   notes: >-
     Daily ELT: Fivetran sync -> dbt build in Snowflake -> Sigma dataset
