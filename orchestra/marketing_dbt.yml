@@ -20,7 +20,7 @@ pipeline:
               - FAILED
             destinations:
               - integration: MICROSOFT_TEAMS
-                connection_id: migrated_teams_66347
+                connection_id: ${{ inputs.teams }}
     depends_on: []
     name: Ingest
   stage_transform:
