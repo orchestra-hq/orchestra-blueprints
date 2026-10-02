@@ -1,0 +1,75 @@
+version: v1
+name: >-
+  Fivetran to dbt (Snowflake) to Sigma ETL #fivetran #dbt #snowflake #sigma
+  #teams
+pipeline:
+  stage_ingest:
+    tasks:
+      task_fivetran_sync:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: REPLACE_WITH_FIVETRAN_CONNECTOR_ID
+          resync: false
+        depends_on: []
+        name: Sync Fivetran connector
+        connection: h_94547
+        alerts:
+          - name: Failures to Teams
+            statuses:
+              - FAILED
+            destinations:
+              - integration: MICROSOFT_TEAMS
+                connection_id: migrated_teams_66347
+    depends_on: []
+    name: Ingest
+  stage_transform:
+    tasks:
+      task_dbt_run:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt ${{ inputs.dbt_command }}
+          package_manager: PIP
+          python_version: '3.12'
+          branch: ${{ inputs.dbt_branch }}
+          project_dir: REPLACE_WITH_DBT_PROJECT_DIR
+        depends_on: []
+        name: Run dbt models in Snowflake
+        connection: dbt_snowflake_blueprints_prod_07025
+    depends_on:
+      - stage_ingest
+    name: Transform
+  stage_publish:
+    tasks:
+      task_sigma_materialize:
+        integration: SIGMA
+        integration_job: SIGMA_DATASET_MATERIALIZATION
+        parameters:
+          dataset_id: REPLACE_WITH_SIGMA_DATASET_ID
+        depends_on: []
+        name: Materialize Sigma dashboard dataset
+        connection: sigma__prod__46722
+    depends_on:
+      - stage_transform
+    name: Publish
+schedule:
+  - name: Daily at 6am
+    cron: 0 6 ? * * *
+    timezone: Europe/London
+webhook:
+  enabled: false
+inputs:
+  dbt_command:
+    type: string
+    default: build
+  dbt_branch:
+    type: string
+    default: main
+  teams:
+    type: string
+    default: migrated_teams_66347
+meta:
+  notes: >-
+    Daily ELT: Fivetran sync -> dbt build in Snowflake -> Sigma dataset
+    materialization. Failure alerts routed to Microsoft Teams.
