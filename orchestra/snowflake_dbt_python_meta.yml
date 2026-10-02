@@ -58,7 +58,13 @@ pipeline:
     name: ''
     matrix:
       inputs:
-        gsheets: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['973f96aa-6b92-4900-aa33-a5ea227b4dbb'].OUTPUTS['results'] }}
+        gsheets:
+        - SHEET_NAME: 1H0UnZ1vJ6WSsZgiVkg96zq52p7qaXkhvodlO1Mzoj6s
+          TABLE_NAME: dbt_leads
+        - SHEET_NAME: 1TMNhQFZbmaBsa1vIehQzh3vdyfc05damwJ_PIKDF14A
+          TABLE_NAME: social_leads
+        - SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ-TB0kk
+          TABLE_NAME: unstructured_feedback
   e3e7d5bf-8c8c-400e-94d8-28a584fc638e:
     tasks:
       0f480822-0044-49b5-9635-eb9987978eab:
