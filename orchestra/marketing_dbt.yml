@@ -49,7 +49,7 @@ pipeline:
               - ANY_COMPLETED
             destinations:
               - integration: MICROSOFT_TEAMS
-                connection_id: ${{ inputs.teams }}
+                connection_id: _new_test_channel_89415
     depends_on:
       - stage_transform
     name: Publish
