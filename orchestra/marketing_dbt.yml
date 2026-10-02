@@ -73,3 +73,11 @@ meta:
   notes: >-
     Daily ELT: Fivetran sync -> dbt build in Snowflake -> Sigma dataset
     materialization. Failure alerts routed to Microsoft Teams.
+alerts:
+  - name: slack
+    statuses:
+      - ANY_COMPLETED
+    destinations:
+      - integration: SLACK
+        destination: alert-testing
+        connection_id: default_00000
