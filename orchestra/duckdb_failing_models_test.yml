@@ -32,6 +32,7 @@ pipeline:
           shallow_clone_dirs: dbt_projects/duckdb_example
         depends_on: []
         name: Runtime error (bad cast)
+        connection: dbt_duckdb_24764
       dbt_run_missing_column:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
@@ -44,6 +45,7 @@ pipeline:
           shallow_clone_dirs: dbt_projects/duckdb_example
         depends_on: []
         name: Compile error (missing column)
+        connection: dbt_duckdb_24764
       dbt_build_test_assertions:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
@@ -56,6 +58,7 @@ pipeline:
           shallow_clone_dirs: dbt_projects/duckdb_example
         depends_on: []
         name: Test failure (not_null and unique)
+        connection: dbt_duckdb_24764
     depends_on:
       - seed_group
     name: Purposefully failing models
