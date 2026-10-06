@@ -67,7 +67,7 @@ webhook:
 inputs:
   dbt_branch:
     type: string
-    default: demo/duckdb-failing-models
+    default: main
 meta:
   notes: >-
     Deliberately broken pipeline used to exercise Orchestra failure handling
