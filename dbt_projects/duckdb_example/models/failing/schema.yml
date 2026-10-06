@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: failing_cast_error
+    description: >-
+      Purposefully failing model. Raises a DuckDB Conversion Error at run time so
+      that `dbt run` fails. Used to exercise Orchestra failure handling.
+  - name: failing_missing_column
+    description: >-
+      Purposefully failing model. References a column that does not exist so that
+      dbt fails at compile/bind time. Used to exercise Orchestra failure handling.
+  - name: failing_test_assertions
+    description: >-
+      Purposefully failing model. Builds successfully but violates its own tests,
+      so `dbt run` passes and `dbt test` fails.
+    columns:
+      - name: store_key
+        description: Always NULL on purpose, so the not_null test fails.
+        tests:
+          - not_null
+      - name: store
+        description: Always duplicated on purpose, so the unique test fails.
+        tests:
+          - unique
