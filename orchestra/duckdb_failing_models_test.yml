@@ -1,0 +1,88 @@
+version: v1
+name: 'DuckDB dbt purposefully failing models #dbt #duckdb #motherduck #testing'
+pipeline:
+  seed_group:
+    tasks:
+      dbt_seed_duckdb:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt deps && dbt seed --select numbers store_sales
+          package_manager: UV
+          python_version: '3.12'
+          branch: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/duckdb_example
+          shallow_clone_dirs: dbt_projects/duckdb_example
+        depends_on: []
+        name: Seed numbers and store_sales
+        connection: dbt_duckdb_24764
+    depends_on: []
+    name: Seed
+  failing_models_group:
+    tasks:
+      dbt_run_cast_error:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt run --select failing_cast_error
+          package_manager: UV
+          python_version: '3.12'
+          branch: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/duckdb_example
+          shallow_clone_dirs: dbt_projects/duckdb_example
+        depends_on: []
+        name: Runtime error (bad cast)
+        connection: dbt_duckdb_24764
+      dbt_run_missing_column:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt run --select failing_missing_column
+          package_manager: UV
+          python_version: '3.12'
+          branch: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/duckdb_example
+          shallow_clone_dirs: dbt_projects/duckdb_example
+        depends_on: []
+        name: Compile error (missing column)
+        connection: dbt_duckdb_24764
+      dbt_build_test_assertions:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build --select failing_test_assertions
+          package_manager: UV
+          python_version: '3.12'
+          branch: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/duckdb_example
+          shallow_clone_dirs: dbt_projects/duckdb_example
+        depends_on: []
+        name: Test failure (not_null and unique)
+        connection: dbt_duckdb_24764
+    depends_on:
+      - seed_group
+    name: Purposefully failing models
+webhook:
+  enabled: true
+inputs:
+  dbt_branch:
+    type: string
+    default: demo/duckdb-failing-models
+meta:
+  notes: >-
+    Deliberately broken pipeline used to exercise Orchestra failure handling
+    against the duckdb_example dbt project. The three tasks in the second stage
+    each fail in a different way: a DuckDB runtime conversion error, a dbt
+    compile/bind error, and a model that builds cleanly but fails its not_null
+    and unique tests. Nothing here is meant to succeed. There is no schedule on
+    purpose - trigger it manually or via webhook so it does not generate noise.
+    Defaults to the demo/duckdb-failing-models branch; override dbt_branch to
+    point it elsewhere.
+alerts:
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: alert-testing
+        connection_id: prod__slack__61364
