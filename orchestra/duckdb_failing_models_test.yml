@@ -15,9 +15,9 @@ pipeline:
           shallow_clone_dirs: dbt_projects/duckdb_example
         depends_on: []
         name: Seed numbers and store_sales
+        connection: dbt_duckdb_24764
     depends_on: []
     name: Seed
-
   failing_models_group:
     tasks:
       dbt_run_cast_error:
@@ -32,7 +32,6 @@ pipeline:
           shallow_clone_dirs: dbt_projects/duckdb_example
         depends_on: []
         name: Runtime error (bad cast)
-
       dbt_run_missing_column:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
@@ -45,7 +44,6 @@ pipeline:
           shallow_clone_dirs: dbt_projects/duckdb_example
         depends_on: []
         name: Compile error (missing column)
-
       dbt_build_test_assertions:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
@@ -58,19 +56,15 @@ pipeline:
           shallow_clone_dirs: dbt_projects/duckdb_example
         depends_on: []
         name: Test failure (not_null and unique)
-        treat_failure_as_warning: false
     depends_on:
-    - seed_group
+      - seed_group
     name: Purposefully failing models
-
 webhook:
   enabled: true
-
 inputs:
   dbt_branch:
     type: string
     default: demo/duckdb-failing-models
-
 meta:
   notes: >-
     Deliberately broken pipeline used to exercise Orchestra failure handling
@@ -81,12 +75,11 @@ meta:
     purpose - trigger it manually or via webhook so it does not generate noise.
     Defaults to the demo/duckdb-failing-models branch; override dbt_branch to
     point it elsewhere.
-
 alerts:
-- name: Failures
-  statuses:
-  - FAILED
-  destinations:
-  - integration: SLACK
-    destination: alert-testing
-    connection_id: prod__slack__61364
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: alert-testing
+        connection_id: prod__slack__61364
