@@ -33,18 +33,6 @@ pipeline:
         depends_on: []
         name: Runtime error (bad cast)
         connection: dbt_duckdb_24764
-        alerts:
-          - name: dbt model failure - failing_cast_error
-            statuses:
-              - FAILED
-              - WARNING
-            max_live_alerts: 10
-            destinations:
-              - integration: SLACK
-                destination: alert-testing
-                connection_id: prod__slack__61364
-              - integration: EMAIL
-                destination: hugo@getorchestra.io
       dbt_run_missing_column:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
@@ -71,18 +59,6 @@ pipeline:
         depends_on: []
         name: Test failure (not_null and unique)
         connection: dbt_duckdb_24764
-        alerts:
-          - name: dbt test failure - failing_test_assertions
-            statuses:
-              - FAILED
-              - WARNING
-            max_live_alerts: 10
-            destinations:
-              - integration: SLACK
-                destination: alert-testing
-                connection_id: prod__slack__61364
-              - integration: EMAIL
-                destination: hugo@getorchestra.io
     depends_on:
       - seed_group
     name: Purposefully failing models
@@ -102,11 +78,3 @@ meta:
     purpose - trigger it manually or via webhook so it does not generate noise.
     Defaults to the demo/duckdb-failing-models branch; override dbt_branch to
     point it elsewhere.
-alerts:
-  - name: Failures
-    statuses:
-      - FAILED
-    destinations:
-      - integration: SLACK
-        destination: alert-testing
-        connection_id: prod__slack__61364
