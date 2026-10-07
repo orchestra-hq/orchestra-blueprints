@@ -97,10 +97,10 @@ meta:
     Defaults to the demo/duckdb-failing-models branch; override dbt_branch to
     point it elsewhere.
 alerts:
-  - name: Alert we have to hjave
+  - name: numero 1 alert
     statuses:
       - FAILED
     destinations:
-      - integration: EMAIL
-        destination: hugo@getorchestra.io
-    custom_message: IGNORE ME
+      - integration: SLACK
+        destination: alert-testing
+        connection_id: prod__slack__61364
