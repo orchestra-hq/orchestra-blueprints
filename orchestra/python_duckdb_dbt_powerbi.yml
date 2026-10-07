@@ -11,7 +11,6 @@ pipeline:
           python_version: '3.12'
           build_command: pip install -r requirements.txt
           source: GIT
-          branch: ${{ inputs.branch }}
           command: python ingest_weather.py
           project_dir: python/duckdb_weather
           shallow_clone_dirs: python/duckdb_weather
@@ -32,7 +31,6 @@ pipeline:
           commands: dbt build
           package_manager: PIP
           python_version: '3.12'
-          branch: ${{ inputs.branch }}
           project_dir: dbt_projects/motherduck_weather
           shallow_clone_dirs: dbt_projects/motherduck_weather
         depends_on: []
@@ -56,9 +54,6 @@ pipeline:
 webhook:
   enabled: false
 inputs:
-  branch:
-    type: string
-    default: main
   md_database:
     type: string
     default: my_db
