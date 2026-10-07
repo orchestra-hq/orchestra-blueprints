@@ -33,6 +33,18 @@ sources:
     +enabled: true
 
 models:
+  # Ownership / alert routing for the purposefully failing models.
+  # Keyed on the dbt project name (`name:` above) so the config actually binds.
+  # Orchestra parses these meta fields and uses them to route dbt Core alerts:
+  # https://docs.getorchestra.io/docs/guides/dbt-core/orchestra-setup
+  duckdb_dbt:
+    failing:
+      +meta:
+        owner: "hugo@getorchestra.io"
+        channel: "#alert-testing"
+        tags: ["failing_demo", "alert-testing"]
+        subscribers:
+          - "hugo@getorchestra.io"
   motherduck:
     # Config indicated by + and applies to all files under models/example/
     clean:
