@@ -62,6 +62,24 @@ pipeline:
     depends_on:
       - seed_group
     name: Purposefully failing models
+  4283b875-c807-45f4-9a6d-9694fa1c93c2:
+    tasks:
+      60ea3074-b3d7-41b2-aea2-a57b1f9f4bf8:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build --select "models/failing/*"
+          package_manager: UV
+          python_version: '3.12'
+          branch: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/duckdb_example
+          shallow_clone_dirs: dbt_projects/duckdb_example
+        depends_on: []
+        name: '[COPY] Run failures'
+        connection: dbt_duckdb_24764
+    depends_on:
+      - seed_group
+    name: '[COPY] Purposefully failing models'
 webhook:
   enabled: true
 inputs:
