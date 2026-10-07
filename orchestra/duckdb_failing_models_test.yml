@@ -96,3 +96,11 @@ meta:
     purpose - trigger it manually or via webhook so it does not generate noise.
     Defaults to the demo/duckdb-failing-models branch; override dbt_branch to
     point it elsewhere.
+alerts:
+  - name: Alert we have to hjave
+    statuses:
+      - FAILED
+    destinations:
+      - integration: EMAIL
+        destination: hugo@getorchestra.io
+    custom_message: IGNORE ME
