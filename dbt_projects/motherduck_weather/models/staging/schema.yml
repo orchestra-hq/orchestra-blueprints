@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: stg_daily_weather
+    description: "One row per city per day, cleaned and renamed"
+    columns:
+      - name: weather_id
+        tests:
+          - unique
+          - not_null
+      - name: city
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["London", "New York", "Berlin", "Singapore", "Sydney"]
+      - name: weather_date
+        tests:
+          - not_null

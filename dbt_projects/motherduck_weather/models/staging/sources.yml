@@ -1,0 +1,19 @@
+version: 2
+
+sources:
+  - name: raw_weather
+    description: "Daily weather loaded by python/duckdb_weather/ingest_weather.py"
+    database: my_db
+    schema: raw_weather
+    tables:
+      - name: daily_weather
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 24, period: hour}
+        columns:
+          - name: city
+            tests:
+              - not_null
+          - name: date
+            tests:
+              - not_null

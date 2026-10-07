@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: city_weather_summary
+    description: "Per-city weather summary feeding the Power BI dataset"
+    columns:
+      - name: city
+        tests:
+          - unique
+          - not_null
+      - name: days_observed
+        tests:
+          - not_null

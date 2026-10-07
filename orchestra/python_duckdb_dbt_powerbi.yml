@@ -1,0 +1,74 @@
+version: v1
+name: 'Python to MotherDuck dbt into Power BI #python #duckdb #motherduck #dbt #powerbi'
+pipeline:
+  ingestGroup:
+    tasks:
+      ingestWeather:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          source: GIT
+          branch: ${{ inputs.branch }}
+          command: python ingest_weather.py
+          project_dir: python/duckdb_weather
+          shallow_clone_dirs: python/duckdb_weather
+          environment_variables: '{ "WEATHER_MD_DATABASE": "${{ inputs.md_database }}",
+            "WEATHER_PAST_DAYS": "${{ inputs.past_days }}" }'
+          set_outputs: false
+        depends_on: []
+        name: Load Open-Meteo weather into MotherDuck
+        connection: python__production__blueprints__19239
+    depends_on: []
+    name: ''
+  dbtGroup:
+    tasks:
+      dbtBuild:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          package_manager: PIP
+          python_version: '3.12'
+          branch: ${{ inputs.branch }}
+          project_dir: dbt_projects/motherduck_weather
+          shallow_clone_dirs: dbt_projects/motherduck_weather
+        depends_on: []
+        name: dbt build weather models
+        connection: dbt_motherduck__prod__39243
+    depends_on:
+    - ingestGroup
+    name: ''
+  powerBiGroup:
+    tasks:
+      refreshDataset:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: 5e83dd8a-2c30-44ec-8f53-e5e751ae515d
+        depends_on: []
+        name: Refresh Power BI dataset
+    depends_on:
+    - dbtGroup
+    name: ''
+webhook:
+  enabled: false
+inputs:
+  branch:
+    type: string
+    default: main
+  md_database:
+    type: string
+    default: my_db
+  past_days:
+    type: string
+    default: '30'
+alerts:
+- name: Failures
+  statuses:
+  - FAILED
+  destinations:
+  - integration: SLACK
+    destination: alert-demos

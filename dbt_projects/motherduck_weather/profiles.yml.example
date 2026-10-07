@@ -1,0 +1,7 @@
+motherduck:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: md:my_db
+      schema: main
