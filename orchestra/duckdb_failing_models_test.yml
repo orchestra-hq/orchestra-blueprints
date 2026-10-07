@@ -57,7 +57,7 @@ pipeline:
           project_dir: dbt_projects/duckdb_example
           shallow_clone_dirs: dbt_projects/duckdb_example
         depends_on: []
-        name: Test failure (not_null and unique)
+        name: Run failures
         connection: dbt_duckdb_24764
     depends_on:
       - seed_group
