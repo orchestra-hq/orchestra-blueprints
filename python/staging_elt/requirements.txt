@@ -1,0 +1,3 @@
+# The Orchestra Python task runtime pre-installs orchestra-sdk, and this worker
+# is otherwise standard-library only. Pin anything extra here if you extend it.
+orchestra-sdk

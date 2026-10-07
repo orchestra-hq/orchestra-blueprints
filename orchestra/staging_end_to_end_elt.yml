@@ -1,0 +1,324 @@
+version: v1
+name: 'Staging end-to-end ELT #python #fivetran #glue #eks #databricks #dbt #snowflake #powerbi #slack'
+pipeline:
+  el_python_landing:
+    tasks:
+      python_extract_load:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          source: GIT
+          command: python extract_load.py
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          branch: ${{ inputs.git_branch }}
+          project_dir: python/staging_elt
+          shallow_clone_dirs: python/staging_elt
+          environment_variables: '{
+            "SOURCE_NAME": "hubspot_contacts",
+            "TARGET_TABLE": "hubspot_contacts_raw",
+            "ENV_NAME": "${{ ENV.ENV_NAME }}",
+            "BATCH_SIZE": "${{ inputs.batch_size }}"
+            }'
+          set_outputs: true
+        depends_on: []
+        name: EL - Python landing (primary source)
+        connection: ${{ ENV.PYTHON_CONNECTION }}
+        tags:
+        - EL
+    depends_on: []
+    name: EL - Python landing
+  el_parallel_sources:
+    tasks:
+      python_extract_load_matrix:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          source: GIT
+          command: python extract_load.py
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          branch: ${{ inputs.git_branch }}
+          project_dir: python/staging_elt
+          shallow_clone_dirs: python/staging_elt
+          environment_variables: '{
+            "SOURCE_NAME": "${{ MATRIX.sources[''SOURCE_NAME''] }}",
+            "TARGET_TABLE": "${{ MATRIX.sources[''TARGET_TABLE''] }}",
+            "ENV_NAME": "${{ ENV.ENV_NAME }}",
+            "BATCH_SIZE": "${{ inputs.batch_size }}"
+            }'
+          set_outputs: false
+        depends_on: []
+        name: EL - Python landing (fan-out)
+        connection: ${{ ENV.PYTHON_CONNECTION }}
+        tags:
+        - EL
+    depends_on: []
+    name: EL - Parallel source loads
+    matrix:
+      inputs:
+        sources:
+        - SOURCE_NAME: salesforce_opportunities
+          TARGET_TABLE: opportunities_raw
+        - SOURCE_NAME: ga_sessions
+          TARGET_TABLE: ga_data_raw
+        - SOURCE_NAME: product_logins
+          TARGET_TABLE: logins_raw
+      continue_on_error: true
+  el_managed_ingest:
+    tasks:
+      fivetran_sync:
+        integration: FIVETRAN
+        integration_job: FIVETRAN_SYNC_ALL
+        parameters:
+          connector_id: ${{ inputs.fivetran_connector_id }}
+        depends_on: []
+        name: EL - Fivetran CRM sync
+        connection: ${{ ENV.FIVETRAN_CONNECTION }}
+        treat_failure_as_warning: true
+        tags:
+        - EL
+      glue_ingest:
+        integration: AWS_GLUE
+        integration_job: AWS_GLUE_RUN_JOB
+        parameters:
+          job_name: ${{ inputs.glue_job_name }}
+          arguments: '{
+            "--ENV": "${{ ENV.ENV_NAME }}"
+            }'
+        depends_on: []
+        name: EL - Glue heavy ingest
+        connection: ${{ ENV.AWS_GLUE_CONNECTION }}
+        treat_failure_as_warning: true
+        tags:
+        - EL
+      databricks_ingest:
+        integration: DATABRICKS
+        integration_job: DATABRICKS_RUN_WORKFLOW
+        parameters:
+          job_id: ${{ inputs.databricks_job_id }}
+          set_outputs: false
+        depends_on: []
+        name: EL - Databricks ingest workflow
+        connection: ${{ ENV.DATABRICKS_CONNECTION }}
+        treat_failure_as_warning: true
+        tags:
+        - EL
+      eks_ingest:
+        integration: AWS_EKS
+        integration_job: AWS_EKS_RUN_JOB
+        parameters:
+          job_manifest: |
+            apiVersion: batch/v1
+            kind: Job
+            metadata:
+              generateName: staging-elt-extract-
+              namespace: default
+            spec:
+              template:
+                spec:
+                  containers:
+                    - name: extract
+                      image: busybox:1.36
+                      command:
+                        - sh
+                        - -c
+                        - 'echo "Staging EL extract starting"; sleep 10; echo "Extract complete"'
+                  restartPolicy: Never
+              backoffLimit: 2
+              ttlSecondsAfterFinished: 120
+        depends_on: []
+        name: EL - EKS batch extract
+        connection: ${{ ENV.AWS_EKS_CONNECTION }}
+        treat_failure_as_warning: true
+        tags:
+        - EL
+    depends_on: []
+    name: EL - Managed ingestion
+  t_dbt_duckdb:
+    tasks:
+      dbt_build_staging:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt deps && dbt seed --select numbers store_sales && dbt run --select
+            store_sales_example && dbt ${{ inputs.dbt_command }} --select seed_clean
+          package_manager: UV
+          python_version: '3.12'
+          branch: ${{ inputs.git_branch }}
+          project_dir: dbt_projects/duckdb_example
+          shallow_clone_dirs: dbt_projects/duckdb_example
+        depends_on: []
+        name: T - dbt build staging models
+        connection: ${{ ENV.DBT_DUCKDB_CONNECTION }}
+        tags:
+        - T
+        alerts:
+        - name: dbt staging build failed
+          statuses:
+          - FAILED
+          - WARNING
+          destinations:
+          - integration: SLACK
+            destination: ${{ ENV.ALERT_SLACK_CHANNEL }}
+            connection_id: prod__slack__61364
+          - integration: EMAIL
+            destination: hugo@getorchestra.io
+        anomalies:
+        - type: task_duration_above_baseline
+          percentage_above_baseline: 50
+          min_baseline_seconds: 60
+          destinations:
+          - integration: SLACK
+            destination: ${{ ENV.ALERT_SLACK_CHANNEL }}
+            connection_id: prod__slack__61364
+    depends_on:
+    - el_python_landing
+    - el_parallel_sources
+    - el_managed_ingest
+    name: T - dbt transformations
+  t_warehouse:
+    tasks:
+      snowflake_staging_check:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_QUERY
+        parameters:
+          statement: select count(*) as staging_row_count from ${{ ENV.STAGING_DATABASE
+            }}.${{ ENV.STAGING_SCHEMA }}.SNOWFLAKE_ORDERS_STAGING;
+          database: ${{ ENV.STAGING_DATABASE }}
+          schema: ${{ ENV.STAGING_SCHEMA }}
+          set_outputs: true
+        depends_on: []
+        name: T - Snowflake staging aggregate
+        connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
+        treat_failure_as_warning: true
+        tags:
+        - T
+    depends_on:
+    - el_python_landing
+    - el_parallel_sources
+    - el_managed_ingest
+    name: T - Warehouse transformations
+  downstream_bi:
+    tasks:
+      power_bi_refresh:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: ${{ inputs.power_bi_dataset_id }}
+        depends_on: []
+        name: Downstream - Refresh Power BI semantic model
+        connection: ${{ ENV.POWER_BI_CONNECTION }}
+        treat_failure_as_warning: true
+        tags:
+        - Downstream
+    depends_on:
+    - t_dbt_duckdb
+    - t_warehouse
+    name: Downstream - BI refresh
+  downstream_notify:
+    tasks:
+      slack_summary:
+        integration: SLACK
+        integration_job: SEND_SLACK_MESSAGE
+        parameters:
+          channel_name: ${{ ENV.ALERT_SLACK_CHANNEL }}
+          text: ':white_check_mark: Staging ELT finished - batch `${{
+            ORCHESTRA.PIPELINE_RUN_TASKS[''python_extract_load''].OUTPUTS[''batch_id'']
+            }}` landed ${{ ORCHESTRA.PIPELINE_RUN_TASKS[''python_extract_load''].OUTPUTS[''rows_loaded'']
+            }} rows into `${{ ORCHESTRA.PIPELINE_RUN_TASKS[''python_extract_load''].OUTPUTS[''target_table'']
+            }}`.'
+        depends_on: []
+        name: Downstream - Slack run summary
+        connection: ${{ ENV.SLACK_CONNECTION }}
+        treat_failure_as_warning: true
+        tags:
+        - Downstream
+      teams_summary:
+        integration: MICROSOFT_TEAMS
+        integration_job: SEND_MICROSOFT_TEAMS_MESSAGE
+        parameters:
+          content:
+            $schema: http://adaptivecards.io/schemas/adaptive-card.json
+            type: AdaptiveCard
+            version: '1.0'
+            body:
+            - type: TextBlock
+              text: Staging ELT pipeline completed in ${{ ENV.ENV_NAME }}.
+              wrap: true
+              horizontalAlignment: left
+        depends_on: []
+        name: Downstream - Teams run summary
+        connection: ${{ ENV.TEAMS_CONNECTION }}
+        treat_failure_as_warning: true
+        tags:
+        - Downstream
+    depends_on:
+    - downstream_bi
+    name: Downstream - Notifications
+schedule:
+- name: Staging daily build
+  cron: 12 6 ? * * *
+  timezone: Europe/London
+webhook:
+  enabled: true
+configuration:
+  retries: 1
+  concurrency:
+    max_active: 1
+inputs:
+  git_branch:
+    type: string
+    default: main
+  dbt_command:
+    type: string
+    default: build
+  batch_size:
+    type: string
+    default: '250'
+  fivetran_connector_id:
+    type: string
+    default: manual_carrier
+  glue_job_name:
+    type: string
+    default: Testing
+  databricks_job_id:
+    type: string
+    default: '884488811150119'
+  power_bi_dataset_id:
+    type: string
+    default: 3a04b7a7-edea-4510-84b9-83a4d92c396e
+meta:
+  notes: >-
+    End-to-end staging ELT blueprint exercising every integration connected to
+    this workspace, categorised per the repo README: EL (Python landing worker,
+    Fivetran, AWS Glue, AWS EKS, Databricks), T (dbt Core on DuckDB, Snowflake)
+    and Downstream (Power BI refresh, Slack and Teams notifications). Runs against
+    the Staging environment, which supplies every connection ID via ENV variables
+    so the same YAML promotes to another environment unchanged. External EL tasks
+    and downstream notifications are failure-tolerant so a single unavailable
+    vendor does not fail the whole staging run; the Python and dbt tasks are not,
+    because they are the contract this blueprint is testing.
+alerts:
+- name: Staging pipeline failures
+  statuses:
+  - FAILED
+  - CANCELLED
+  destinations:
+  - integration: SLACK
+    destination: ${{ ENV.ALERT_SLACK_CHANNEL }}
+    connection_id: prod__slack__61364
+  - integration: MICROSOFT_TEAMS
+    connection_id: teams__production__29358
+  - integration: EMAIL
+    destination: hugo@getorchestra.io
+anomalies:
+- type: pipeline_duration_above_baseline
+  percentage_above_baseline: 50
+  min_baseline_seconds: 60
+  destinations:
+  - integration: SLACK
+    destination: ${{ ENV.ALERT_SLACK_CHANNEL }}
+    connection_id: prod__slack__61364
