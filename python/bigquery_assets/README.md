@@ -9,7 +9,8 @@ configurations are removed.
 Each run:
 
 1. Lists every dataset in the project and fetches each table and view.
-2. Reads the last seven days of query jobs and turns each job's
+2. Reads the last seven days of query jobs, including the statements inside
+   scripts, and turns each one's
    `referenced_tables` → destination table into a lineage edge.
 3. Lists the BigQuery assets Orchestra already has for the project, then
    `POST /assets` for new ones and `PATCH /assets/{assetId}` for ones whose

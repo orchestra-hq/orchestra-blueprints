@@ -1,21 +1,6 @@
-"""Collect BigQuery tables and views into Orchestra through the public asset API.
+"""Write BigQuery tables, views and job-history lineage to Orchestra via the public asset API.
 
-A self-run replacement for Orchestra's BigQuery asset configuration. It scans the
-same metadata the built-in collector does (every dataset and table in the project,
-plus the last seven days of query jobs) and then:
-
-    GET   /assets               -- find the BigQuery assets Orchestra already has
-    POST  /assets               -- create the ones it doesn't
-    PATCH /assets/{assetId}     -- refresh the ones that changed
-    POST  /assets/dependencies  -- write table-to-table lineage from job history
-
-Assets are matched on `externalId` (`<project>.<dataset>.<table>`), the same key
-the built-in collector uses, so existing assets are updated rather than duplicated.
-No metrics (query counts, usage, row counts) are written.
-
-    ORCHESTRA_API_KEY=... BIGQUERY_CREDENTIALS_JSON='{...}' python collect_bigquery_assets.py
-    python collect_bigquery_assets.py --dry-run   # scan BigQuery, print, send nothing
-"""
+See README.md for setup, auth and scheduling."""
 
 import json
 import logging
@@ -42,8 +27,7 @@ SUPPORTED_ASSET_TYPES = {"TABLE", "VIEW"}
 JOB_LOOKBACK = timedelta(days=7)
 LINEAGE_DETAIL = "Derived from BigQuery job history"
 
-# The metadata API allows 50 requests a minute; pacing at 80% of that leaves room
-# for anything else using the same API key. 429s that still happen are retried.
+# 80% of the metadata API's 50/minute limit, leaving room for other users of the key.
 REQUEST_INTERVAL_SECONDS = 60 / 40
 MAX_RETRIES = 6
 TIMEOUT_SECONDS = 60
@@ -52,8 +36,12 @@ PROGRESS_EVERY = 25
 
 # BigQuery names temporary query results `anon` followed by 64 hex characters.
 ANONYMOUS_TABLE = re.compile(r"^anon[0-9a-f]{64}$")
-DATETIME_FIELDS = ("createdInIntegration", "lastUpdatedInIntegration")
-PATCHABLE_FIELDS = ("databaseName", "tableName", *DATETIME_FIELDS)
+PATCHABLE_FIELDS = (
+    "databaseName",
+    "tableName",
+    "createdInIntegration",
+    "lastUpdatedInIntegration",
+)
 
 
 def load_config() -> tuple[str, bigquery.Client, str, set[str]]:
@@ -150,16 +138,24 @@ def collect_edges(client: bigquery.Client, known_ids: set[str]) -> set[tuple[str
         for job in jobs:
             if not isinstance(job, QueryJob) or job.error_result:
                 continue
-            sources, targets = job_tables(job)
-            edges.update(
-                (source, target)
-                for source in sources & known_ids
-                for target in targets & known_ids
-                if source != target
+            # Scripts (e.g. dbt incremental merges) read and write in child jobs.
+            statements = (
+                client.list_jobs(parent_job=job, all_users=True)
+                if job.statement_type == "SCRIPT"
+                else [job]
             )
+            for statement in statements:
+                if not isinstance(statement, QueryJob):
+                    continue
+                sources, targets = job_tables(statement)
+                edges.update(
+                    (source, target)
+                    for source in sources & known_ids
+                    for target in targets & known_ids
+                    if source != target
+                )
     except GoogleAPICallError as exc:
-        # Listing every user's jobs needs bigquery.jobs.listAll. Without it the
-        # assets are still written, just without lineage.
+        # Needs bigquery.jobs.listAll; assets are still worth writing without lineage.
         logger.warning("could not list query jobs, skipping lineage: %s", exc)
     logger.info("found %d lineage edges", len(edges))
     return edges
@@ -174,30 +170,30 @@ class OrchestraClient:
         )
         self._last_request = 0.0
 
+    def _send(self, method: str, path: str, **kwargs: Any) -> httpx.Response:
+        wait = self._last_request + REQUEST_INTERVAL_SECONDS - time.monotonic()
+        if wait > 0:
+            time.sleep(wait)
+        self._last_request = time.monotonic()
+        return self._http.request(method, path, **kwargs)
+
     def request(self, method: str, path: str, **kwargs: Any) -> httpx.Response:
-        for attempt in range(MAX_RETRIES + 1):
-            wait = self._last_request + REQUEST_INTERVAL_SECONDS - time.monotonic()
-            if wait > 0:
-                time.sleep(wait)
-            self._last_request = time.monotonic()
-            response = self._http.request(method, path, **kwargs)
-            if response.status_code != 429 and response.status_code < 500:
-                return response
-            if attempt == MAX_RETRIES:
-                break
-            retry_after = response.headers.get("Retry-After", "")
+        for attempt in range(MAX_RETRIES):
+            try:
+                response = self._send(method, path, **kwargs)
+            except httpx.TransportError as exc:
+                reason, retry_after = str(exc), ""
+            else:
+                if response.status_code != 429 and response.status_code < 500:
+                    return response
+                reason = f"returned {response.status_code}"
+                retry_after = response.headers.get("Retry-After", "")
             backoff = (
                 float(retry_after) if retry_after.isdigit() else 2 ** (attempt + 2)
             )
-            logger.warning(
-                "%s %s returned %d, retrying in %.0fs",
-                method,
-                path,
-                response.status_code,
-                backoff,
-            )
+            logger.warning("%s %s %s, retrying in %.0fs", method, path, reason, backoff)
             time.sleep(backoff)
-        return response
+        return self._send(method, path, **kwargs)
 
     def existing_assets(self, project: str) -> dict[str, dict[str, Any]]:
         assets: dict[str, dict[str, Any]] = {}
@@ -268,8 +264,7 @@ def sync_assets(
         if response.is_success:
             synced.add(external_id)
         elif response.status_code == 409:
-            # Already in Orchestra under another integration account, so it was
-            # not in the listing above. Lineage to it still works.
+            # Exists under another integrationAccountId, so the listing missed it.
             skipped += 1
             synced.add(external_id)
         else:
@@ -344,8 +339,7 @@ def main(dry_run: bool) -> int:
 
     orchestra = OrchestraClient(api_key)
     synced, asset_failures = sync_assets(orchestra, bodies, project)
-    # The dependencies endpoint rejects a whole batch if either end of any edge
-    # is missing, so only send edges whose assets were written.
+    # One edge to a missing asset makes the endpoint reject its whole batch.
     edge_failures = sync_edges(
         orchestra,
         sorted(edge for edge in edges if edge[0] in synced and edge[1] in synced),
