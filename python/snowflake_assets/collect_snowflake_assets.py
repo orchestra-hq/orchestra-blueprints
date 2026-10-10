@@ -13,6 +13,7 @@ from typing import Any
 
 import httpx
 import snowflake.connector
+from cryptography.hazmat.primitives import serialization
 
 logger = logging.getLogger("collect_snowflake_assets")
 
@@ -94,9 +95,6 @@ def connect_to_snowflake(
 
 
 def _private_key_der(pem: str, passphrase: str | None) -> bytes:
-    # cryptography is installed with snowflake-connector-python.
-    from cryptography.hazmat.primitives import serialization
-
     key = serialization.load_pem_private_key(
         pem.encode(), password=passphrase.encode() if passphrase else None
     )
@@ -171,10 +169,7 @@ def fetch_lineage(
     """Upstream edges for each table, from SNOWFLAKE.CORE.GET_LINEAGE."""
     edges = []
     for table in tables:
-        name = ".".join(
-            '"{}"'.format(table[part].replace('"', '""'))
-            for part in ("databaseName", "schemaName", "tableName")
-        )
+        name = "{databaseName}.{schemaName}.{tableName}".format(**table)
         try:
             # Snowflake doesn't document which end of an UPSTREAM row is the queried object.
             cursor.execute(
@@ -184,7 +179,7 @@ def fetch_lineage(
                 " (SNOWFLAKE.CORE.GET_LINEAGE(%s, 'TABLE', 'UPSTREAM', 1));",
                 (name,),
             )
-        except snowflake.connector.errors.ProgrammingError as error:
+        except snowflake.connector.errors.Error as error:
             if LINEAGE_UNAVAILABLE in str(error):
                 logger.warning(
                     "GET_LINEAGE needs Snowflake Enterprise Edition; skipping lineage"
@@ -250,7 +245,7 @@ def _changed_fields(asset: dict[str, Any], current: dict[str, Any]) -> dict[str,
     return {
         field: asset[field]
         for field in PATCHABLE_FIELDS
-        if asset[field] is not None and not _same(asset[field], current.get(field))
+        if not _same(asset[field], current.get(field))
     }
 
 
