@@ -1,0 +1,20 @@
+python/snowflake_assets/collect_snowflake_assets.py
+  s_a58ad417c2a427::t_d4fb3359c5a66d 172,182,248
+  s_a58ad417c2a427::t_1ac0527fd18497 16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b4b09b20436d9b26d2a9d856cf8d2ea1b75b9634",
+  "prompts": {},
+  "sessions": {
+    "s_a58ad417c2a427": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9e32997d-c49c-4e4f-9600-441758b9b292",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Will Davies <42768478+willdavies0@users.noreply.github.com>"
+    }
+  }
+}
