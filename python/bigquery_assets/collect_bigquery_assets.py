@@ -127,9 +127,26 @@ def job_tables(job: QueryJob) -> tuple[set[str], set[str]]:
     return sources, targets
 
 
+def script_statements(
+    client: bigquery.Client, job: QueryJob, seen_scripts: set[str]
+) -> list[QueryJob]:
+    """Child statements of a script, or none if a script with the same SQL was read."""
+    # ponytail: dynamic SQL (EXECUTE IMMEDIATE) can write different tables per run.
+    if job.query in seen_scripts:
+        return []
+    try:
+        children = list(client.list_jobs(parent_job=job, all_users=True))
+    except GoogleAPICallError as exc:
+        logger.warning("could not list statements of script %s: %s", job.job_id, exc)
+        return []
+    seen_scripts.add(job.query)
+    return [child for child in children if isinstance(child, QueryJob)]
+
+
 def collect_edges(client: bigquery.Client, known_ids: set[str]) -> set[tuple[str, str]]:
     """Lineage edges between known assets, from the last week of query jobs."""
     edges = set()
+    seen_scripts: set[str] = set()
     try:
         jobs = client.list_jobs(
             all_users=True,
@@ -138,14 +155,14 @@ def collect_edges(client: bigquery.Client, known_ids: set[str]) -> set[tuple[str
         for job in jobs:
             if not isinstance(job, QueryJob) or job.error_result:
                 continue
-            # Scripts (e.g. dbt incremental merges) read and write in child jobs.
+            # Scripts (e.g. dbt incremental models) read and write in child jobs.
             statements = (
-                client.list_jobs(parent_job=job, all_users=True)
+                script_statements(client, job, seen_scripts)
                 if job.statement_type == "SCRIPT"
                 else [job]
             )
             for statement in statements:
-                if not isinstance(statement, QueryJob):
+                if statement.error_result:
                     continue
                 sources, targets = job_tables(statement)
                 edges.update(

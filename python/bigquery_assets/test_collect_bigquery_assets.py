@@ -1,7 +1,14 @@
 from datetime import UTC, datetime
 from types import SimpleNamespace
 
-from collect_bigquery_assets import asset_body, changed_fields, job_tables
+from google.cloud.bigquery.job import QueryJob
+
+from collect_bigquery_assets import (
+    asset_body,
+    changed_fields,
+    job_tables,
+    script_statements,
+)
 
 CREATED = datetime(2026, 1, 1, tzinfo=UTC)
 
@@ -63,3 +70,20 @@ def test_changed_fields_compares_datetimes_not_strings():
     assert changed_fields(body, {**existing, "databaseName": "old"}) == {
         "databaseName": "ds"
     }
+
+
+def test_script_statements_lists_each_script_once():
+    child = QueryJob.__new__(QueryJob)
+    calls = []
+
+    def list_jobs(**kwargs):
+        calls.append(kwargs["parent_job"])
+        return [child, SimpleNamespace()]
+
+    client = SimpleNamespace(list_jobs=list_jobs)
+    seen: set[str] = set()
+    first = SimpleNamespace(query="BEGIN MERGE ...; END", job_id="a")
+    second = SimpleNamespace(query="BEGIN MERGE ...; END", job_id="b")
+    assert script_statements(client, first, seen) == [child]
+    assert script_statements(client, second, seen) == []
+    assert calls == [first]
