@@ -1,0 +1,33 @@
+python/bigquery_assets/test_collect_bigquery_assets.py
+  s_058ed8c47f848b::t_7589c7438aa4f9 1-6
+  s_058ed8c47f848b::t_31352e66470d17 7-65
+python/bigquery_assets/README.md
+  s_058ed8c47f848b::t_34b547ec5b89b6 1-103,105-118
+  s_058ed8c47f848b::t_6474ff88d847d8 104
+python/bigquery_assets/collect_bigquery_assets.py
+  s_058ed8c47f848b::t_7589c7438aa4f9 26,30,97,103,148,160,189-191
+  s_058ed8c47f848b::t_4011b5035562af 245,248,261-263,265-273,296,343,345,347-348
+  s_058ed8c47f848b::t_597b6d5c8939d7 327
+  s_058ed8c47f848b::t_ab13d916f4eeab 1-8,10-25,27-29,31-96,98-102,104-147,149-159,161-188,192-244,246-247,249-260,264,274-295,297-326,328-342,344,346,349-357
+  s_058ed8c47f848b::t_323c48c6434fae 9
+README.md
+  s_058ed8c47f848b::t_cb88d8d6093c05 21
+python/bigquery_assets/requirements.txt
+  s_058ed8c47f848b::t_f1236275cf0df6 1-2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "10ae92623ce473c29e6994edfeab958e3edd199e",
+  "prompts": {},
+  "sessions": {
+    "s_058ed8c47f848b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0a56bc88-b111-49d0-8551-918a93e45e87",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Will Davies <42768478+willdavies0@users.noreply.github.com>"
+    }
+  }
+}
