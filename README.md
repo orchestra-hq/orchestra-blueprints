@@ -19,6 +19,7 @@ integration examples across multiple tooling stacks.
 | [`patterns/`](patterns/) | Reusable implementation patterns and demos. |
 | [`python/`](python/) | General-purpose Python workers and integrations. |
 | [`python/lineage/`](python/lineage/) | dlt metadata extracts (Lightdash, BigQuery, Fivetran) that publish an end-to-end lineage graph into Orchestra. |
+| [`python/snowflake_assets/`](python/snowflake_assets/) | Self-run Snowflake asset collection into Orchestra through the public asset API, replacing scheduled asset runs. |
 | [`patterns/run_multiple_pipelines/`](patterns/run_multiple_pipelines/) | Examples for programmatic multi-pipeline runs (Orchestra API patterns). |
 | [`patterns/warehouse_savings/`](patterns/warehouse_savings/) | Warehouse optimization and analytics (Orchestra API pattern). |
 | [`patterns/duckdb_quality/`](patterns/duckdb_quality/) | Declarative Snowflake data quality tests driven by the DuckDB CLI. |

@@ -1,0 +1,2 @@
+httpx==0.28.1
+snowflake-connector-python==4.8.0
