@@ -22,7 +22,7 @@ import logging
 import os
 import sys
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 import httpx
@@ -67,6 +67,7 @@ _COMPARED_FIELDS = (
     "createdInIntegration",
     "lastUpdatedInIntegration",
 )
+_TIMESTAMP_FIELDS = {"createdInIntegration", "lastUpdatedInIntegration"}
 
 
 class Databricks:
@@ -203,25 +204,28 @@ def asset_body(row: dict, integration_account_id: str) -> dict:
     return {key: value for key, value in body.items() if value is not None}
 
 
-def _same_value(left: Any, right: Any) -> bool:
-    if isinstance(left, str) and isinstance(right, str):
-        try:
-            return datetime.fromisoformat(left) == datetime.fromisoformat(right)
-        except ValueError:
-            pass
-    return left == right
+def _as_utc(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    parsed = datetime.fromisoformat(value)
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
 
 
 def is_unchanged(body: dict, existing: dict) -> bool:
     return all(
-        _same_value(body.get(field), existing.get(field)) for field in _COMPARED_FIELDS
+        _as_utc(body.get(field)) == _as_utc(existing.get(field))
+        if field in _TIMESTAMP_FIELDS
+        else body.get(field) == existing.get(field)
+        for field in _COMPARED_FIELDS
     )
 
 
 def publish_assets(
     orchestra: Orchestra | None, bodies: list[dict], existing: dict
-) -> int:
-    created = updated = skipped = failed = 0
+) -> set[str]:
+    """Returns the externalIds that failed to publish."""
+    created = updated = skipped = 0
+    failed: set[str] = set()
     for index, body in enumerate(bodies, start=1):
         external_id = body["externalId"]
         current = existing.get(external_id)
@@ -243,13 +247,14 @@ def publish_assets(
             else:
                 response = orchestra.request("POST", "/assets", json=body)
 
-            if response.is_success:
+            # A 409 means a retried POST already landed, or the asset was created concurrently.
+            if response.is_success or response.status_code == 409:
                 if current:
                     updated += 1
                 else:
                     created += 1
             else:
-                failed += 1
+                failed.add(external_id)
                 logger.error(
                     "Failed to publish %s: %s %s",
                     external_id,
@@ -265,7 +270,7 @@ def publish_assets(
                 created,
                 updated,
                 skipped,
-                failed,
+                len(failed),
             )
 
     logger.info(
@@ -273,7 +278,7 @@ def publish_assets(
         created,
         updated,
         skipped,
-        failed,
+        len(failed),
     )
     return failed
 
@@ -430,10 +435,11 @@ def main(argv: list[str]) -> int:
     )
 
     writer = None if args.dry_run else orchestra
-    failures = publish_assets(writer, bodies, existing)
+    failed_ids = publish_assets(writer, bodies, existing)
+    failures = len(failed_ids)
 
     if args.lineage_days > 0:
-        published = {body["externalId"] for body in bodies}
+        published = {body["externalId"] for body in bodies} - failed_ids
         edges = fetch_edges(
             databricks, integration_account_id, published, args.lineage_days
         )
