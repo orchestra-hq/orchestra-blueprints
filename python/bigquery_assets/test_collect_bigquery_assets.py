@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
 from types import SimpleNamespace
 
+import pytest
 from google.cloud.bigquery.job import QueryJob
 
 from collect_bigquery_assets import (
@@ -8,6 +9,7 @@ from collect_bigquery_assets import (
     changed_fields,
     job_tables,
     script_statements,
+    service_account_json,
 )
 
 CREATED = datetime(2026, 1, 1, tzinfo=UTC)
@@ -87,3 +89,16 @@ def test_script_statements_lists_each_script_once():
     assert script_statements(client, first, seen) == [child]
     assert script_statements(client, second, seen) == []
     assert calls == [first]
+
+
+def test_service_account_json_uses_the_linked_connection(monkeypatch):
+    monkeypatch.delenv("BIGQUERY_CREDENTIALS_JSON", raising=False)
+    monkeypatch.setenv("GCP_BIG_QUERY__PROD_12345__SERVICE_ACCOUNT_JSON", "{}")
+    assert service_account_json() == "{}"
+
+    monkeypatch.setenv("GCP_BIG_QUERY__DEV_54321__SERVICE_ACCOUNT_JSON", "{}")
+    with pytest.raises(SystemExit):
+        service_account_json()
+
+    monkeypatch.setenv("BIGQUERY_CREDENTIALS_JSON", '{"explicit": true}')
+    assert service_account_json() == '{"explicit": true}'

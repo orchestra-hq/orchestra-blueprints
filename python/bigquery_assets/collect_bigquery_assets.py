@@ -44,10 +44,28 @@ PATCHABLE_FIELDS = (
 )
 
 
+def service_account_json() -> str | None:
+    """BIGQUERY_CREDENTIALS_JSON, else the one BigQuery connection linked to the task."""
+    if os.environ.get("BIGQUERY_CREDENTIALS_JSON"):
+        return os.environ["BIGQUERY_CREDENTIALS_JSON"]
+    linked = sorted(
+        name
+        for name in os.environ
+        if name.startswith("GCP_BIG_QUERY__")
+        and name.endswith("__SERVICE_ACCOUNT_JSON")
+    )
+    if len(linked) > 1:
+        raise SystemExit(
+            f"several BigQuery connections linked ({', '.join(linked)}); "
+            "set BIGQUERY_CREDENTIALS_JSON to choose one"
+        )
+    return os.environ[linked[0]] if linked else None
+
+
 def load_config() -> tuple[str, bigquery.Client, str, set[str]]:
     api_key = os.environ.get("ORCHESTRA_API_KEY", "")
 
-    raw_credentials = os.environ.get("BIGQUERY_CREDENTIALS_JSON")
+    raw_credentials = service_account_json()
     if raw_credentials:
         info = json.loads(raw_credentials)
         credentials = service_account.Credentials.from_service_account_info(

@@ -45,15 +45,17 @@ connection. It needs:
   query jobs for lineage. Without it the assets are still written and the run
   logs that lineage was skipped.
 
-Pass it as `BIGQUERY_CREDENTIALS_JSON` (the key file's JSON as a string), or
-point `GOOGLE_APPLICATION_CREDENTIALS` at the key file.
+In an Orchestra Python task, link your BigQuery connection to the task and the
+script picks up its `GCP_BIG_QUERY__<CONNECTION>__SERVICE_ACCOUNT_JSON` variable.
+Elsewhere, pass it as `BIGQUERY_CREDENTIALS_JSON` (the key file's JSON as a
+string), or point `GOOGLE_APPLICATION_CREDENTIALS` at the key file.
 
 ## Options
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `ORCHESTRA_API_KEY` | required | Orchestra API key |
-| `BIGQUERY_CREDENTIALS_JSON` | | Service account JSON as a string |
+| `BIGQUERY_CREDENTIALS_JSON` | the linked BigQuery connection's service account | Service account JSON as a string |
 | `GOOGLE_APPLICATION_CREDENTIALS` | | Path to a service account key file, used when the variable above is unset |
 | `BIGQUERY_PROJECT` | the service account's `project_id` | GCP project to collect from |
 | `ASSET_TYPES` | `TABLE,VIEW` | Comma-separated asset types to collect |
@@ -80,9 +82,9 @@ failed, is logged.
 ## Scheduling it in Orchestra
 
 Create a [Python connection](https://docs.getorchestra.io/docs/integrations/python)
-pointing at a repository containing this folder, with
-`BIGQUERY_CREDENTIALS_JSON` in its secrets. Then add a pipeline with one Python
-task and a schedule. Match the cadence of your old asset configuration.
+pointing at a repository containing this folder, with your BigQuery connection
+under **Linked connections**. Then add a pipeline with one Python task and a
+schedule. Match the cadence of your old asset configuration.
 
 ```yaml
 version: v1
