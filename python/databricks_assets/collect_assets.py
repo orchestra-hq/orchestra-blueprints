@@ -9,8 +9,8 @@ collector runs, then publishes each table/view through the public asset API:
     PATCH /assets/{externalId}   -- refresh the ones that changed
     POST  /assets/dependencies   -- table-to-table lineage from system.access.table_lineage
 
-Databricks credentials come from flags or environment variables, else from the
-one Databricks connection linked to the Orchestra Python task.
+Databricks credentials come from the Databricks connection linked to the
+Orchestra Python task, read with the Orchestra SDK.
 
 External IDs follow the built-in collector's format,
 `<workspace>.<catalog>.<schema>.<table>`, so assets it already collected are
@@ -23,13 +23,14 @@ updated in place rather than duplicated.
 import argparse
 import logging
 import os
-import re
 import sys
 import time
 from datetime import UTC, datetime
 from typing import Any
 
 import httpx
+from orchestra_sdk.errors import LinkedConnectionNotFoundError
+from orchestra_sdk.linked_connections import LinkedConnection, get_linked_connection
 
 logger = logging.getLogger("databricks_assets")
 
@@ -70,9 +71,6 @@ _COMPARED_FIELDS = (
 )
 _TIMESTAMP_FIELDS = {"createdInIntegration", "lastUpdatedInIntegration"}
 
-# Orchestra exports each field of a linked connection as DATABRICKS__<CONNECTION>__<FIELD>.
-_LINKED_HOST = re.compile(r"^DATABRICKS__(.+)__DATABRICKS_WORKSPACE_HOST$")
-
 
 def api_base() -> str:
     """Public API root on ORCHESTRA_BASE_URL, which may be a bare host."""
@@ -80,27 +78,6 @@ def api_base() -> str:
     if "://" not in host:
         host = f"https://{host}"
     return f"{host.rstrip('/')}/api/engine/public"
-
-
-def linked_connection() -> tuple[str | None, dict[str, str]]:
-    """Name and fields, keyed by field ID, of the one Databricks connection linked to the task."""
-    connections = sorted(
-        match.group(1) for name in os.environ if (match := _LINKED_HOST.match(name))
-    )
-    if not connections:
-        return None, {}
-    if len(connections) > 1:
-        raise SystemExit(
-            f"several Databricks connections linked ({', '.join(connections)}); "
-            "set DATABRICKS_HOST and DATABRICKS_TOKEN (or DATABRICKS_CLIENT_ID and "
-            "DATABRICKS_CLIENT_SECRET) to choose one"
-        )
-    prefix = f"DATABRICKS__{connections[0]}__"
-    return connections[0], {
-        name.removeprefix(prefix).lower(): value.strip()
-        for name, value in os.environ.items()
-        if name.startswith(prefix)
-    }
 
 
 def check(response: httpx.Response) -> None:
@@ -122,6 +99,25 @@ def oauth_token(host: str, client_id: str, client_secret: str) -> str:
     )
     check(response)
     return response.json()["access_token"]
+
+
+def databricks_token(connection: LinkedConnection, host: str) -> str:
+    if connection.get("use_private_connection", "").lower() == "true":
+        logger.warning(
+            "%s uses a private connection, which this script can't route through; "
+            "Databricks must be reachable directly",
+            connection.connection_id,
+        )
+    # Fields are exported regardless of auth type; an OAuth connection may hold a stale token.
+    if connection.get("databricks_auth_type", "").strip().upper() == "OAUTH":
+        logger.info("Using OAuth client from %s on %s", connection.connection_id, host)
+        return oauth_token(
+            host,
+            connection["databricks_client_id"].strip(),
+            connection["databricks_client_secret"].strip(),
+        )
+    logger.info("Using access token from %s on %s", connection.connection_id, host)
+    return connection["databricks_access_token"].strip()
 
 
 class Databricks:
@@ -404,9 +400,10 @@ def _csv(value: str | None) -> list[str]:
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument(
-        "--host",
-        default=os.environ.get("DATABRICKS_HOST"),
-        help="Workspace host, e.g. dbc-1234.cloud.databricks.com (env DATABRICKS_HOST)",
+        "--connection",
+        default=os.environ.get("DATABRICKS_CONNECTION_ID"),
+        help="Linked Databricks connection to use when several are linked "
+        "(env DATABRICKS_CONNECTION_ID)",
     )
     parser.add_argument(
         "--warehouse-id",
@@ -436,41 +433,11 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     args = parser.parse_args(argv)
 
-    args.token = os.environ.get("DATABRICKS_TOKEN", "").strip()
-    args.client_id = os.environ.get("DATABRICKS_CLIENT_ID", "").strip()
-    args.client_secret = os.environ.get("DATABRICKS_CLIENT_SECRET", "").strip()
-    has_credentials = bool(args.token or (args.client_id and args.client_secret))
-    args.credentials_source = (
-        "DATABRICKS_TOKEN"
-        if args.token
-        else "DATABRICKS_CLIENT_ID and DATABRICKS_CLIENT_SECRET"
-    )
-    if not args.host or not has_credentials:
-        connection, linked = linked_connection()
-        args.host = args.host or linked.get("databricks_workspace_host")
-        if not has_credentials:
-            args.credentials_source = f"linked connection {connection}"
-            # Fields are exported regardless of auth type; an OAuth connection may hold a stale token.
-            if linked.get("databricks_auth_type", "").upper() != "OAUTH":
-                args.token = linked.get("databricks_access_token")
-            if linked.get("use_private_connection", "").lower() == "true":
-                logger.warning(
-                    "%s uses a private connection, which this script can't route "
-                    "through; Databricks must be reachable directly",
-                    connection,
-                )
-            args.client_id = linked.get("databricks_client_id")
-            args.client_secret = linked.get("databricks_client_secret")
     args.api_key = os.environ.get("ORCHESTRA_API_KEY")
     missing = [
         name
         for name, value in (
-            ("--host / DATABRICKS_HOST", args.host),
             ("--warehouse-id / DATABRICKS_WAREHOUSE_ID", args.warehouse_id),
-            (
-                "DATABRICKS_TOKEN or DATABRICKS_CLIENT_ID and DATABRICKS_CLIENT_SECRET",
-                args.token or (args.client_id and args.client_secret),
-            ),
             ("ORCHESTRA_API_KEY", args.api_key),
         )
         if not value
@@ -478,7 +445,16 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     if missing:
         parser.error(f"missing required settings: {', '.join(missing)}")
 
-    args.host = args.host.strip().removeprefix("https://").rstrip("/")
+    try:
+        args.connection = get_linked_connection("DATABRICKS", args.connection)
+    except LinkedConnectionNotFoundError as exc:
+        parser.error(f"{exc} Use --connection or DATABRICKS_CONNECTION_ID.")
+    args.host = (
+        args.connection["databricks_workspace_host"]
+        .strip()
+        .removeprefix("https://")
+        .rstrip("/")
+    )
     args.catalogs = set(_csv(args.catalog))
     args.asset_types = {asset_type.upper() for asset_type in _csv(args.asset_types)}
     unknown = args.asset_types - {"TABLE", "VIEW"}
@@ -496,13 +472,7 @@ def main(argv: list[str]) -> int:
     # Matches the built-in collector's integrationAccountId and externalId prefix.
     integration_account_id = args.host.split(".")[0]
 
-    logger.info(
-        "Using Databricks %s on %s from %s",
-        "access token" if args.token else "OAuth client",
-        args.host,
-        args.credentials_source,
-    )
-    token = args.token or oauth_token(args.host, args.client_id, args.client_secret)
+    token = databricks_token(args.connection, args.host)
     databricks = Databricks(args.host, token, args.warehouse_id)
     orchestra = Orchestra(args.api_key)
 

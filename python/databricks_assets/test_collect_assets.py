@@ -1,6 +1,7 @@
-import pytest
+from orchestra_sdk.linked_connections import get_linked_connection
 
-from collect_assets import api_base, asset_body, is_unchanged, linked_connection
+import collect_assets
+from collect_assets import api_base, asset_body, databricks_token, is_unchanged
 
 ROW = {
     "table_catalog": "main",
@@ -55,17 +56,33 @@ def test_api_base_accepts_bare_host(monkeypatch):
     assert api_base() == "https://app.getorchestra.io/api/engine/public"
 
 
-def test_linked_connection_reads_single_connection(monkeypatch):
-    monkeypatch.setenv("DATABRICKS__PROD_1__DATABRICKS_WORKSPACE_HOST", "dbc-1234")
-    monkeypatch.setenv("DATABRICKS__PROD_1__DATABRICKS_ACCESS_TOKEN", "pat\n")
-    assert linked_connection() == (
-        "PROD_1",
-        {"databricks_workspace_host": "dbc-1234", "databricks_access_token": "pat"},
+PREFIX = "DATABRICKS__DEMO_39533__"
+
+
+def link(monkeypatch, **fields):
+    for name, value in fields.items():
+        monkeypatch.setenv(PREFIX + name.upper(), value)
+    return get_linked_connection("DATABRICKS")
+
+
+def test_pat_connection_uses_its_access_token(monkeypatch):
+    connection = link(
+        monkeypatch, databricks_auth_type="PAT", databricks_access_token="pat\n"
     )
+    assert databricks_token(connection, "dbc-1234") == "pat"
 
 
-def test_linked_connection_refuses_to_guess(monkeypatch):
-    monkeypatch.setenv("DATABRICKS__PROD_1__DATABRICKS_WORKSPACE_HOST", "dbc-1")
-    monkeypatch.setenv("DATABRICKS__DEV_2__DATABRICKS_WORKSPACE_HOST", "dbc-2")
-    with pytest.raises(SystemExit, match="several Databricks connections"):
-        linked_connection()
+def test_oauth_connection_ignores_stale_access_token(monkeypatch):
+    connection = link(
+        monkeypatch,
+        databricks_auth_type="OAUTH",
+        databricks_access_token="stale",
+        databricks_client_id="cid",
+        databricks_client_secret="secret",
+    )
+    monkeypatch.setattr(
+        collect_assets,
+        "oauth_token",
+        lambda host, cid, secret: f"{host}:{cid}:{secret}",
+    )
+    assert databricks_token(connection, "dbc-1234") == "dbc-1234:cid:secret"

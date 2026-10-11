@@ -30,8 +30,11 @@ pip install -r requirements.txt
 
 ### Databricks
 
-You need a SQL warehouse and credentials for a user or service principal: a
-personal access token, or an OAuth client ID and secret. They need:
+The script reads the workspace host and credentials from the Databricks
+connection linked to the Orchestra Python task, using the
+[Orchestra SDK](https://pypi.org/project/orchestra-sdk/). Both personal access
+token and OAuth connections work. The connection's user or service principal
+needs:
 
 - `USE CATALOG` on the `system` catalog and `SELECT` on
   `system.information_schema`, which is the same access the built-in collector needs.
@@ -53,33 +56,34 @@ automatically.
 
 | Flag | Environment variable | Required | Description |
 | --- | --- | --- | --- |
-| `--host` | `DATABRICKS_HOST` | yes* | Workspace host, for example `dbc-1234abcd-5678.cloud.databricks.com` |
 | `--warehouse-id` | `DATABRICKS_WAREHOUSE_ID` | yes | SQL warehouse that runs the metadata queries |
-| | `DATABRICKS_TOKEN` | yes* | Databricks personal access token |
-| | `DATABRICKS_CLIENT_ID`, `DATABRICKS_CLIENT_SECRET` | | OAuth service principal credentials, used instead of `DATABRICKS_TOKEN` |
 | | `ORCHESTRA_API_KEY` | yes | Orchestra API key |
+| `--connection` | `DATABRICKS_CONNECTION_ID` | no | Which linked Databricks connection to use, for example `aws_orchestra_demo_2_39533`. Only needed when several are linked |
 | `--catalog` | `DATABRICKS_CATALOGS` | no | Comma-separated catalogs to collect. Collects every catalog if unset |
 | `--asset-types` | `DATABRICKS_ASSET_TYPES` | no | `TABLE`, `VIEW` or both (default `TABLE,VIEW`) |
 | `--lineage-days` | `DATABRICKS_LINEAGE_DAYS` | no | Days of lineage history to publish (default `30`). `0` turns lineage off |
 | `--dry-run` | | no | Log what would be created or updated without writing anything |
 | | `ORCHESTRA_BASE_URL` | no | Orchestra host, for example `stage.getorchestra.io`. Defaults to `app.getorchestra.io` |
 
-\* Not needed when a Databricks connection is linked to the Orchestra Python
-task. The script reads the host and credentials from the linked connection's
-`DATABRICKS__<CONNECTION>__<FIELD>` variables. If several Databricks connections
-are linked, set the host and credentials explicitly to choose one.
-
 ## Running it
 
+Outside Orchestra, set the variables a linked connection would export,
+`DATABRICKS__<CONNECTION>__<FIELD>`:
+
 ```bash
-export DATABRICKS_HOST=dbc-1234abcd-5678.cloud.databricks.com
+export DATABRICKS__LOCAL__DATABRICKS_WORKSPACE_HOST=dbc-1234abcd-5678.cloud.databricks.com
+export DATABRICKS__LOCAL__DATABRICKS_AUTH_TYPE=PAT
+export DATABRICKS__LOCAL__DATABRICKS_ACCESS_TOKEN=...
 export DATABRICKS_WAREHOUSE_ID=abcdef1234567890
-export DATABRICKS_TOKEN=...
 export ORCHESTRA_API_KEY=...
 
 python collect_assets.py --dry-run
 python collect_assets.py
 ```
+
+For an OAuth service principal, set `..._DATABRICKS_AUTH_TYPE=OAUTH` with
+`..._DATABRICKS_CLIENT_ID` and `..._DATABRICKS_CLIENT_SECRET` instead of the
+access token.
 
 The script logs its progress every 25 assets and ends with created, updated,
 skipped and failed counts. It exits non-zero if any write fails.
