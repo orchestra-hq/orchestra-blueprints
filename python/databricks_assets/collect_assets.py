@@ -103,6 +103,16 @@ def linked_connection() -> dict[str, str]:
     }
 
 
+def check(response: httpx.Response) -> None:
+    """raise_for_status, keeping the response body that says why the call failed."""
+    if response.is_error:
+        raise httpx.HTTPStatusError(
+            f"{response.status_code} from {response.request.url}: {response.text[:500]}",
+            request=response.request,
+            response=response,
+        )
+
+
 def oauth_token(host: str, client_id: str, client_secret: str) -> str:
     response = httpx.post(
         f"https://{host}/oidc/v1/token",
@@ -110,7 +120,7 @@ def oauth_token(host: str, client_id: str, client_secret: str) -> str:
         data={"grant_type": "client_credentials", "scope": "all-apis"},
         timeout=_TIMEOUT,
     )
-    response.raise_for_status()
+    check(response)
     return response.json()["access_token"]
 
 
@@ -136,7 +146,7 @@ class Databricks:
                 "on_wait_timeout": "CONTINUE",
             },
         )
-        response.raise_for_status()
+        check(response)
         payload = response.json()
         statement_id = payload["statement_id"]
 
@@ -144,7 +154,7 @@ class Databricks:
             logger.info("Statement %s is %s", statement_id, payload["status"]["state"])
             time.sleep(10)
             response = self.client.get(f"/api/2.0/sql/statements/{statement_id}")
-            response.raise_for_status()
+            check(response)
             payload = response.json()
 
         if payload["status"]["state"] != "SUCCEEDED":
@@ -163,7 +173,7 @@ class Databricks:
             response = self.client.get(
                 f"/api/2.0/sql/statements/{statement_id}/result/chunks/{next_chunk}"
             )
-            response.raise_for_status()
+            check(response)
             result = response.json()
             rows.extend(result.get("data_array") or [])
         return [dict(zip(columns, row)) for row in rows]
@@ -211,7 +221,7 @@ class Orchestra:
                     "page_size": 100,
                 },
             )
-            response.raise_for_status()
+            check(response)
             payload = response.json()
             results = payload.get("results") or []
             for asset in results:
