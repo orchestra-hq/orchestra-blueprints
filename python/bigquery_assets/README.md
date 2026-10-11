@@ -59,7 +59,7 @@ string), or point `GOOGLE_APPLICATION_CREDENTIALS` at the key file.
 | `GOOGLE_APPLICATION_CREDENTIALS` | | Path to a service account key file, used when the variable above is unset |
 | `BIGQUERY_PROJECT` | the service account's `project_id` | GCP project to collect from |
 | `ASSET_TYPES` | `TABLE,VIEW` | Comma-separated asset types to collect |
-| `ORCHESTRA_API_BASE` | `https://app.getorchestra.io/api/engine/public` | API base URL |
+| `ORCHESTRA_BASE_URL` | `app.getorchestra.io` | Orchestra host, e.g. `stage.getorchestra.io` |
 
 ## Running
 

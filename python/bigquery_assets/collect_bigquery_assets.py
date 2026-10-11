@@ -19,9 +19,6 @@ from google.oauth2 import service_account
 
 logger = logging.getLogger("collect_bigquery_assets")
 
-API_BASE = os.environ.get(
-    "ORCHESTRA_API_BASE", "https://app.getorchestra.io/api/engine/public"
-).rstrip("/")
 INTEGRATION = "GCP_BIG_QUERY"
 SUPPORTED_ASSET_TYPES = {"TABLE", "VIEW"}
 JOB_LOOKBACK = timedelta(days=7)
@@ -42,6 +39,14 @@ PATCHABLE_FIELDS = (
     "createdInIntegration",
     "lastUpdatedInIntegration",
 )
+
+
+def api_base() -> str:
+    """Public API root on ORCHESTRA_BASE_URL, which may be a bare host."""
+    host = os.environ.get("ORCHESTRA_BASE_URL") or "app.getorchestra.io"
+    if "://" not in host:
+        host = f"https://{host}"
+    return f"{host.rstrip('/')}/api/engine/public"
 
 
 def service_account_json() -> str | None:
@@ -153,7 +158,7 @@ def script_statements(
     if job.query in seen_scripts:
         return []
     try:
-        children = list(client.list_jobs(parent_job=job, all_users=True))
+        children = list(client.list_jobs(parent_job=job))
     except GoogleAPICallError as exc:
         logger.warning("could not list statements of script %s: %s", job.job_id, exc)
         return []
@@ -199,7 +204,7 @@ def collect_edges(client: bigquery.Client, known_ids: set[str]) -> set[tuple[str
 class OrchestraClient:
     def __init__(self, api_key: str) -> None:
         self._http = httpx.Client(
-            base_url=API_BASE,
+            base_url=api_base(),
             headers={"Authorization": f"Bearer {api_key}"},
             timeout=TIMEOUT_SECONDS,
         )

@@ -5,6 +5,7 @@ import pytest
 from google.cloud.bigquery.job import QueryJob
 
 from collect_bigquery_assets import (
+    api_base,
     asset_body,
     changed_fields,
     job_tables,
@@ -102,3 +103,12 @@ def test_service_account_json_uses_the_linked_connection(monkeypatch):
 
     monkeypatch.setenv("BIGQUERY_CREDENTIALS_JSON", '{"explicit": true}')
     assert service_account_json() == '{"explicit": true}'
+
+
+def test_api_base_accepts_a_bare_host(monkeypatch):
+    monkeypatch.delenv("ORCHESTRA_BASE_URL", raising=False)
+    assert api_base() == "https://app.getorchestra.io/api/engine/public"
+    monkeypatch.setenv("ORCHESTRA_BASE_URL", "stage.getorchestra.io")
+    assert api_base() == "https://stage.getorchestra.io/api/engine/public"
+    monkeypatch.setenv("ORCHESTRA_BASE_URL", "http://localhost:8000/")
+    assert api_base() == "http://localhost:8000/api/engine/public"
