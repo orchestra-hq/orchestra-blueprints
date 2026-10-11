@@ -3,6 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 from google.cloud.bigquery.job import QueryJob
+from orchestra_sdk.errors import LinkedConnectionNotFoundError
 
 from collect_bigquery_assets import (
     api_base,
@@ -10,7 +11,7 @@ from collect_bigquery_assets import (
     changed_fields,
     job_tables,
     script_statements,
-    service_account_json,
+    service_account_info,
 )
 
 CREATED = datetime(2026, 1, 1, tzinfo=UTC)
@@ -92,17 +93,26 @@ def test_script_statements_lists_each_script_once():
     assert calls == [first]
 
 
-def test_service_account_json_uses_the_linked_connection(monkeypatch):
-    monkeypatch.delenv("BIGQUERY_CREDENTIALS_JSON", raising=False)
-    monkeypatch.setenv("GCP_BIG_QUERY__PROD_12345__SERVICE_ACCOUNT_JSON", "{}")
-    assert service_account_json() == "{}"
+def test_service_account_info_uses_the_linked_connection(monkeypatch):
+    for name in ("BIGQUERY_CREDENTIALS_JSON", "BIGQUERY_CONNECTION_ID"):
+        monkeypatch.delenv(name, raising=False)
+    assert service_account_info() is None
 
-    monkeypatch.setenv("GCP_BIG_QUERY__DEV_54321__SERVICE_ACCOUNT_JSON", "{}")
-    with pytest.raises(SystemExit):
-        service_account_json()
+    monkeypatch.setenv(
+        "GCP_BIG_QUERY__PROD_12345__SERVICE_ACCOUNT_JSON", '{"project_id": "prod"}'
+    )
+    assert service_account_info() == {"project_id": "prod"}
 
-    monkeypatch.setenv("BIGQUERY_CREDENTIALS_JSON", '{"explicit": true}')
-    assert service_account_json() == '{"explicit": true}'
+    monkeypatch.setenv(
+        "GCP_BIG_QUERY__DEV_54321__SERVICE_ACCOUNT_JSON", '{"project_id": "dev"}'
+    )
+    with pytest.raises(LinkedConnectionNotFoundError):
+        service_account_info()
+    monkeypatch.setenv("BIGQUERY_CONNECTION_ID", "dev_54321")
+    assert service_account_info() == {"project_id": "dev"}
+
+    monkeypatch.setenv("BIGQUERY_CREDENTIALS_JSON", '{"project_id": "explicit"}')
+    assert service_account_info() == {"project_id": "explicit"}
 
 
 def test_api_base_accepts_a_bare_host(monkeypatch):

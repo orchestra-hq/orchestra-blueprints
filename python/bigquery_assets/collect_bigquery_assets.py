@@ -16,6 +16,10 @@ from google.api_core.exceptions import GoogleAPICallError
 from google.cloud import bigquery
 from google.cloud.bigquery.job import QueryJob
 from google.oauth2 import service_account
+from orchestra_sdk.linked_connections import (
+    get_linked_connection,
+    list_linked_connections,
+)
 
 logger = logging.getLogger("collect_bigquery_assets")
 
@@ -49,30 +53,25 @@ def api_base() -> str:
     return f"{host.rstrip('/')}/api/engine/public"
 
 
-def service_account_json() -> str | None:
-    """BIGQUERY_CREDENTIALS_JSON, else the one BigQuery connection linked to the task."""
+def service_account_info() -> dict[str, Any] | None:
+    """BIGQUERY_CREDENTIALS_JSON, else the BigQuery connection linked to the task."""
     if os.environ.get("BIGQUERY_CREDENTIALS_JSON"):
-        return os.environ["BIGQUERY_CREDENTIALS_JSON"]
-    linked = sorted(
-        name
-        for name in os.environ
-        if name.startswith("GCP_BIG_QUERY__")
-        and name.endswith("__SERVICE_ACCOUNT_JSON")
-    )
-    if len(linked) > 1:
-        raise SystemExit(
-            f"several BigQuery connections linked ({', '.join(linked)}); "
-            "set BIGQUERY_CREDENTIALS_JSON to choose one"
-        )
-    return os.environ[linked[0]] if linked else None
+        return json.loads(os.environ["BIGQUERY_CREDENTIALS_JSON"])
+    connection_id = os.environ.get("BIGQUERY_CONNECTION_ID")
+    if not connection_id and not any(
+        connection.integration == INTEGRATION
+        for connection in list_linked_connections()
+    ):
+        return None
+    info = get_linked_connection(INTEGRATION, connection_id)["service_account_json"]
+    return info if isinstance(info, dict) else json.loads(info)
 
 
 def load_config() -> tuple[str, bigquery.Client, str, set[str]]:
     api_key = os.environ.get("ORCHESTRA_API_KEY", "")
 
-    raw_credentials = service_account_json()
-    if raw_credentials:
-        info = json.loads(raw_credentials)
+    info = service_account_info()
+    if info:
         credentials = service_account.Credentials.from_service_account_info(
             info, scopes=["https://www.googleapis.com/auth/bigquery"]
         )

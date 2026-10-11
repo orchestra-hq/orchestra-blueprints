@@ -29,7 +29,7 @@ cd python/bigquery_assets
 pip install -r requirements.txt
 ```
 
-The script only depends on `google-cloud-bigquery` and `httpx`.
+The script depends on `google-cloud-bigquery`, `httpx` and `orchestra-sdk`.
 
 ## Auth
 
@@ -45,8 +45,9 @@ connection. It needs:
   query jobs for lineage. Without it the assets are still written and the run
   logs that lineage was skipped.
 
-In an Orchestra Python task, link your BigQuery connection to the task and the
-script picks up its `GCP_BIG_QUERY__<CONNECTION>__SERVICE_ACCOUNT_JSON` variable.
+In an Orchestra Python task, link your BigQuery connection to the task's Python
+connection and the script reads its service account through `orchestra-sdk`. If
+several BigQuery connections are linked, set `BIGQUERY_CONNECTION_ID` to pick one.
 Elsewhere, pass it as `BIGQUERY_CREDENTIALS_JSON` (the key file's JSON as a
 string), or point `GOOGLE_APPLICATION_CREDENTIALS` at the key file.
 
@@ -55,8 +56,9 @@ string), or point `GOOGLE_APPLICATION_CREDENTIALS` at the key file.
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `ORCHESTRA_API_KEY` | required | Orchestra API key |
-| `BIGQUERY_CREDENTIALS_JSON` | the linked BigQuery connection's service account | Service account JSON as a string |
-| `GOOGLE_APPLICATION_CREDENTIALS` | | Path to a service account key file, used when the variable above is unset |
+| `BIGQUERY_CONNECTION_ID` | the only linked BigQuery connection | Which linked BigQuery connection to use |
+| `BIGQUERY_CREDENTIALS_JSON` | | Service account JSON as a string, used instead of a linked connection |
+| `GOOGLE_APPLICATION_CREDENTIALS` | | Path to a service account key file, used when neither of the above applies |
 | `BIGQUERY_PROJECT` | the service account's `project_id` | GCP project to collect from |
 | `ASSET_TYPES` | `TABLE,VIEW` | Comma-separated asset types to collect |
 | `ORCHESTRA_BASE_URL` | `app.getorchestra.io` | Orchestra host, e.g. `stage.getorchestra.io` |
