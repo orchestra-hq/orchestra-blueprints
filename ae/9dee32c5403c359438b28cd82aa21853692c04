@@ -1,0 +1,19 @@
+python/databricks_assets/collect_assets.py
+  s_4efc194e53009d::t_7331b4905b8edd 106-115,123,149,157,176,224
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ae9dee32c5403c359438b28cd82aa21853692c04",
+  "prompts": {},
+  "sessions": {
+    "s_4efc194e53009d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d8ecbc3c-4f65-4e4a-b0c4-8abdd7da2c00",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Will Davies <42768478+willdavies0@users.noreply.github.com>"
+    }
+  }
+}
