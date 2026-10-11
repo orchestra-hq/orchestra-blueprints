@@ -1,0 +1,28 @@
+python/databricks_assets/collect_assets.py
+  s_4efc194e53009d::t_1daaf90c18313f 12-13,32-33,104-110,112-122,403-406,448-450,452-457,475
+  s_4efc194e53009d::t_92a1d13a7e126d 451
+  s_4efc194e53009d::t_8b1a06ac886a79 111
+python/databricks_assets/test_collect_assets.py
+  s_4efc194e53009d::t_8b1a06ac886a79 1,3-4,59-70,72,75-88
+python/databricks_assets/requirements.txt
+  s_4efc194e53009d::t_1daaf90c18313f 2
+python/databricks_assets/README.md
+  s_4efc194e53009d::t_56a671efe0ad03 33-37,61,70-72,74-76
+  s_4efc194e53009d::t_c3d02149d06510 84-87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "21628cc4ec0342f72128ecbe9e79df553f4bab64",
+  "prompts": {},
+  "sessions": {
+    "s_4efc194e53009d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d8ecbc3c-4f65-4e4a-b0c4-8abdd7da2c00",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Will Davies <42768478+willdavies0@users.noreply.github.com>"
+    }
+  }
+}
