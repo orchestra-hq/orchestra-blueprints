@@ -18,6 +18,7 @@ integration examples across multiple tooling stacks.
 | [`orchestra/`](orchestra/) | Orchestra pipeline YAML definitions. |
 | [`patterns/`](patterns/) | Reusable implementation patterns and demos. |
 | [`python/`](python/) | General-purpose Python workers and integrations. |
+| [`python/databricks_assets/`](python/databricks_assets/) | Self-run Databricks Unity Catalog asset collection through Orchestra's public asset API. |
 | [`python/lineage/`](python/lineage/) | dlt metadata extracts (Lightdash, BigQuery, Fivetran) that publish an end-to-end lineage graph into Orchestra. |
 | [`patterns/run_multiple_pipelines/`](patterns/run_multiple_pipelines/) | Examples for programmatic multi-pipeline runs (Orchestra API patterns). |
 | [`patterns/warehouse_savings/`](patterns/warehouse_savings/) | Warehouse optimization and analytics (Orchestra API pattern). |
