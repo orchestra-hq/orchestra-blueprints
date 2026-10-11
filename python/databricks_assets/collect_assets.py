@@ -450,9 +450,15 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         args.host = args.host or linked.get("databricks_workspace_host")
         if not has_credentials:
             args.credentials_source = f"linked connection {connection}"
-            # A connection switched to OAuth can still export its old access token.
-            if linked.get("databricks_auth_type") != "OAUTH":
+            # Fields are exported regardless of auth type; an OAuth connection may hold a stale token.
+            if linked.get("databricks_auth_type", "").upper() != "OAUTH":
                 args.token = linked.get("databricks_access_token")
+            if linked.get("use_private_connection", "").lower() == "true":
+                logger.warning(
+                    "%s uses a private connection, which this script can't route "
+                    "through; Databricks must be reachable directly",
+                    connection,
+                )
             args.client_id = linked.get("databricks_client_id")
             args.client_secret = linked.get("databricks_client_secret")
     args.api_key = os.environ.get("ORCHESTRA_API_KEY")
