@@ -9,6 +9,9 @@ collector runs, then publishes each table/view through the public asset API:
     PATCH /assets/{externalId}   -- refresh the ones that changed
     POST  /assets/dependencies   -- table-to-table lineage from system.access.table_lineage
 
+Databricks credentials come from flags or environment variables, else from the
+one Databricks connection linked to the Orchestra Python task.
+
 External IDs follow the built-in collector's format,
 `<workspace>.<catalog>.<schema>.<table>`, so assets it already collected are
 updated in place rather than duplicated.
@@ -20,6 +23,7 @@ updated in place rather than duplicated.
 import argparse
 import logging
 import os
+import re
 import sys
 import time
 from datetime import UTC, datetime
@@ -29,9 +33,6 @@ import httpx
 
 logger = logging.getLogger("databricks_assets")
 
-ORCHESTRA_API_BASE = os.environ.get(
-    "ORCHESTRA_API_BASE", "https://app.getorchestra.io/api/engine/public"
-).rstrip("/")
 
 # Pace below Orchestra's 50 requests/minute metadata API limit so retries stay the exception.
 _ORCHESTRA_SECONDS_PER_REQUEST = 60 / 50 * 1.25
@@ -68,6 +69,49 @@ _COMPARED_FIELDS = (
     "lastUpdatedInIntegration",
 )
 _TIMESTAMP_FIELDS = {"createdInIntegration", "lastUpdatedInIntegration"}
+
+# Orchestra exports each field of a linked connection as DATABRICKS__<CONNECTION>__<FIELD>.
+_LINKED_HOST = re.compile(r"^DATABRICKS__(.+)__DATABRICKS_WORKSPACE_HOST$")
+
+
+def api_base() -> str:
+    """Public API root on ORCHESTRA_BASE_URL, which may be a bare host."""
+    host = os.environ.get("ORCHESTRA_BASE_URL") or "app.getorchestra.io"
+    if "://" not in host:
+        host = f"https://{host}"
+    return f"{host.rstrip('/')}/api/engine/public"
+
+
+def linked_connection() -> dict[str, str]:
+    """Fields of the one Databricks connection linked to the task, keyed by field ID."""
+    connections = sorted(
+        match.group(1) for name in os.environ if (match := _LINKED_HOST.match(name))
+    )
+    if not connections:
+        return {}
+    if len(connections) > 1:
+        raise SystemExit(
+            f"several Databricks connections linked ({', '.join(connections)}); "
+            "set DATABRICKS_HOST and DATABRICKS_TOKEN (or DATABRICKS_CLIENT_ID and "
+            "DATABRICKS_CLIENT_SECRET) to choose one"
+        )
+    prefix = f"DATABRICKS__{connections[0]}__"
+    return {
+        name.removeprefix(prefix).lower(): value
+        for name, value in os.environ.items()
+        if name.startswith(prefix)
+    }
+
+
+def oauth_token(host: str, client_id: str, client_secret: str) -> str:
+    response = httpx.post(
+        f"https://{host}/oidc/v1/token",
+        auth=(client_id, client_secret),
+        data={"grant_type": "client_credentials", "scope": "all-apis"},
+        timeout=_TIMEOUT,
+    )
+    response.raise_for_status()
+    return response.json()["access_token"]
 
 
 class Databricks:
@@ -130,7 +174,7 @@ class Orchestra:
 
     def __init__(self, api_key: str) -> None:
         self.client = httpx.Client(
-            base_url=ORCHESTRA_API_BASE,
+            base_url=api_base(),
             headers={"Authorization": f"Bearer {api_key}"},
             timeout=_TIMEOUT,
         )
@@ -138,18 +182,17 @@ class Orchestra:
     def request(self, method: str, path: str, **kwargs: Any) -> httpx.Response:
         for attempt in range(1, _MAX_ATTEMPTS):
             time.sleep(_ORCHESTRA_SECONDS_PER_REQUEST)
-            response = self.client.request(method, path, **kwargs)
-            if response.status_code != 429 and response.status_code < 500:
-                return response
-            retry_after = response.headers.get("Retry-After", "")
+            try:
+                response = self.client.request(method, path, **kwargs)
+            except httpx.TransportError as exc:
+                reason, retry_after = str(exc), ""
+            else:
+                if response.status_code != 429 and response.status_code < 500:
+                    return response
+                reason = f"returned {response.status_code}"
+                retry_after = response.headers.get("Retry-After", "")
             delay = float(retry_after) if retry_after.isdigit() else 2**attempt
-            logger.warning(
-                "%s %s returned %s, retrying in %ss",
-                method,
-                path,
-                response.status_code,
-                delay,
-            )
+            logger.warning("%s %s %s, retrying in %ss", method, path, reason, delay)
             time.sleep(delay)
         time.sleep(_ORCHESTRA_SECONDS_PER_REQUEST)
         return self.client.request(method, path, **kwargs)
@@ -286,7 +329,7 @@ def publish_assets(
 def fetch_edges(
     databricks: Databricks,
     integration_account_id: str,
-    published: set[str],
+    known_ids: set[str],
     lookback_days: int,
 ) -> list[dict]:
     try:
@@ -306,7 +349,7 @@ def fetch_edges(
         from_id = f"{integration_account_id}.{row['source_table_full_name']}"
         to_id = f"{integration_account_id}.{row['target_table_full_name']}"
         # Orchestra rejects a whole batch if one edge names an unknown asset.
-        if from_id != to_id and from_id in published and to_id in published:
+        if from_id != to_id and from_id in known_ids and to_id in known_ids:
             edges.append(
                 {
                     "fromId": from_id,
@@ -315,6 +358,7 @@ def fetch_edges(
                     "lineageDetail": "Databricks Unity Catalog table lineage",
                 }
             )
+    logger.info("Found %s lineage edges between collected assets", len(edges))
     return edges
 
 
@@ -383,13 +427,26 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     args = parser.parse_args(argv)
 
     args.token = os.environ.get("DATABRICKS_TOKEN")
+    args.client_id = os.environ.get("DATABRICKS_CLIENT_ID")
+    args.client_secret = os.environ.get("DATABRICKS_CLIENT_SECRET")
+    if not args.host or not (args.token or (args.client_id and args.client_secret)):
+        linked = linked_connection()
+        args.host = args.host or linked.get("databricks_workspace_host")
+        args.token = args.token or linked.get("databricks_access_token")
+        args.client_id = args.client_id or linked.get("databricks_client_id")
+        args.client_secret = args.client_secret or linked.get(
+            "databricks_client_secret"
+        )
     args.api_key = os.environ.get("ORCHESTRA_API_KEY")
     missing = [
         name
         for name, value in (
             ("--host / DATABRICKS_HOST", args.host),
             ("--warehouse-id / DATABRICKS_WAREHOUSE_ID", args.warehouse_id),
-            ("DATABRICKS_TOKEN", args.token),
+            (
+                "DATABRICKS_TOKEN or DATABRICKS_CLIENT_ID and DATABRICKS_CLIENT_SECRET",
+                args.token or (args.client_id and args.client_secret),
+            ),
             ("ORCHESTRA_API_KEY", args.api_key),
         )
         if not value
@@ -397,7 +454,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     if missing:
         parser.error(f"missing required settings: {', '.join(missing)}")
 
-    args.host = args.host.removeprefix("https://").rstrip("/")
+    args.host = args.host.strip().removeprefix("https://").rstrip("/")
     args.catalogs = set(_csv(args.catalog))
     args.asset_types = {asset_type.upper() for asset_type in _csv(args.asset_types)}
     unknown = args.asset_types - {"TABLE", "VIEW"}
@@ -415,7 +472,8 @@ def main(argv: list[str]) -> int:
     # Matches the built-in collector's integrationAccountId and externalId prefix.
     integration_account_id = args.host.split(".")[0]
 
-    databricks = Databricks(args.host, args.token, args.warehouse_id)
+    token = args.token or oauth_token(args.host, args.client_id, args.client_secret)
+    databricks = Databricks(args.host, token, args.warehouse_id)
     orchestra = Orchestra(args.api_key)
 
     rows = databricks.query(_TABLES_SQL)
@@ -429,6 +487,14 @@ def main(argv: list[str]) -> int:
         "Found %s Databricks assets (%s before filters)", len(bodies), len(rows)
     )
 
+    # Read lineage before the slow, paced writes, while an OAuth token is still fresh.
+    edges = []
+    if args.lineage_days > 0:
+        known = {body["externalId"] for body in bodies}
+        edges = fetch_edges(
+            databricks, integration_account_id, known, args.lineage_days
+        )
+
     existing = orchestra.existing_assets(integration_account_id)
     logger.info(
         "Orchestra already has %s assets for %s", len(existing), integration_account_id
@@ -438,13 +504,14 @@ def main(argv: list[str]) -> int:
     failed_ids = publish_assets(writer, bodies, existing)
     failures = len(failed_ids)
 
-    if args.lineage_days > 0:
-        published = {body["externalId"] for body in bodies} - failed_ids
-        edges = fetch_edges(
-            databricks, integration_account_id, published, args.lineage_days
-        )
-        logger.info("Found %s lineage edges between published assets", len(edges))
-        failures += publish_edges(writer, edges)
+    if edges:
+        published_edges = [
+            edge
+            for edge in edges
+            if edge["fromId"] not in failed_ids and edge["toId"] not in failed_ids
+        ]
+        logger.info("Publishing %s lineage edges", len(published_edges))
+        failures += publish_edges(writer, published_edges)
 
     if failures:
         logger.error("%s writes failed, see the errors above", failures)

@@ -17,9 +17,9 @@ created are updated in place, not duplicated. On each run the script:
 4. Reads table-to-table lineage from `system.access.table_lineage` and writes it
    with `POST /assets/dependencies`.
 
-It doesn't write metrics, column-level schemas or asset status, and it never
-deletes assets. A table dropped in Databricks stays in Orchestra until you
-delete it.
+It doesn't write metrics, column-level schemas or asset status. Like the
+built-in asset runs, it never deletes assets: a table dropped in Databricks stays
+in Orchestra until you delete it.
 
 ## Setup
 
@@ -30,7 +30,8 @@ pip install -r requirements.txt
 
 ### Databricks
 
-You need a SQL warehouse and a token for a user or service principal that has:
+You need a SQL warehouse and credentials for a user or service principal: a
+personal access token, or an OAuth client ID and secret. They need:
 
 - `USE CATALOG` on the `system` catalog and `SELECT` on
   `system.information_schema`, which is the same access the built-in collector needs.
@@ -52,15 +53,21 @@ automatically.
 
 | Flag | Environment variable | Required | Description |
 | --- | --- | --- | --- |
-| `--host` | `DATABRICKS_HOST` | yes | Workspace host, for example `dbc-1234abcd-5678.cloud.databricks.com` |
+| `--host` | `DATABRICKS_HOST` | yes* | Workspace host, for example `dbc-1234abcd-5678.cloud.databricks.com` |
 | `--warehouse-id` | `DATABRICKS_WAREHOUSE_ID` | yes | SQL warehouse that runs the metadata queries |
-| | `DATABRICKS_TOKEN` | yes | Databricks personal access token or service principal token |
+| | `DATABRICKS_TOKEN` | yes* | Databricks personal access token |
+| | `DATABRICKS_CLIENT_ID`, `DATABRICKS_CLIENT_SECRET` | | OAuth service principal credentials, used instead of `DATABRICKS_TOKEN` |
 | | `ORCHESTRA_API_KEY` | yes | Orchestra API key |
 | `--catalog` | `DATABRICKS_CATALOGS` | no | Comma-separated catalogs to collect. Collects every catalog if unset |
 | `--asset-types` | `DATABRICKS_ASSET_TYPES` | no | `TABLE`, `VIEW` or both (default `TABLE,VIEW`) |
 | `--lineage-days` | `DATABRICKS_LINEAGE_DAYS` | no | Days of lineage history to publish (default `30`). `0` turns lineage off |
 | `--dry-run` | | no | Log what would be created or updated without writing anything |
-| | `ORCHESTRA_API_BASE` | no | Defaults to `https://app.getorchestra.io/api/engine/public` |
+| | `ORCHESTRA_BASE_URL` | no | Orchestra host, for example `stage.getorchestra.io`. Defaults to `app.getorchestra.io` |
+
+\* Not needed when a Databricks connection is linked to the Orchestra Python
+task. The script reads the host and credentials from the linked connection's
+`DATABRICKS__<CONNECTION>__<FIELD>` variables. If several Databricks connections
+are linked, set the host and credentials explicitly to choose one.
 
 ## Running it
 
@@ -91,8 +98,9 @@ Run the script as an
 [Orchestra Python task](https://docs.getorchestra.io/docs/integrations/python)
 on a cron trigger:
 
-1. Create a Python connection to the repository that holds this folder. Add
-   `DATABRICKS_TOKEN` to the connection's secrets.
+1. Create a [Python connection](https://docs.getorchestra.io/docs/integrations/python)
+   to the repository that holds this folder, with your Databricks connection
+   under **Linked connections**.
 2. Add a pipeline with a single Python task, for example:
 
 ```yaml
@@ -112,10 +120,7 @@ pipeline:
           command: python collect_assets.py
           project_dir: python/databricks_assets
           shallow_clone_dirs: python/databricks_assets
-          environment_variables: '{
-            "DATABRICKS_HOST": "dbc-1234abcd-5678.cloud.databricks.com",
-            "DATABRICKS_WAREHOUSE_ID": "abcdef1234567890"
-            }'
+          environment_variables: '{"DATABRICKS_WAREHOUSE_ID": "abcdef1234567890"}'
         depends_on: []
         name: Collect Databricks assets
         connection: <your_python_connection>
@@ -130,3 +135,10 @@ schedule:
 Match the schedule to how often your old asset configuration ran. Once a run
 has succeeded, check that your Databricks assets in Orchestra show recent
 `updatedAt` timestamps, then turn off the old asset configuration.
+
+## Tests
+
+```bash
+pip install pytest
+pytest test_collect_assets.py
+```
