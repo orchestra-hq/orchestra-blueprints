@@ -57,11 +57,11 @@ def test_api_base_accepts_bare_host(monkeypatch):
 
 def test_linked_connection_reads_single_connection(monkeypatch):
     monkeypatch.setenv("DATABRICKS__PROD_1__DATABRICKS_WORKSPACE_HOST", "dbc-1234")
-    monkeypatch.setenv("DATABRICKS__PROD_1__DATABRICKS_ACCESS_TOKEN", "pat")
-    assert linked_connection() == {
-        "databricks_workspace_host": "dbc-1234",
-        "databricks_access_token": "pat",
-    }
+    monkeypatch.setenv("DATABRICKS__PROD_1__DATABRICKS_ACCESS_TOKEN", "pat\n")
+    assert linked_connection() == (
+        "PROD_1",
+        {"databricks_workspace_host": "dbc-1234", "databricks_access_token": "pat"},
+    )
 
 
 def test_linked_connection_refuses_to_guess(monkeypatch):

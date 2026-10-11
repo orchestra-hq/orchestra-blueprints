@@ -82,13 +82,13 @@ def api_base() -> str:
     return f"{host.rstrip('/')}/api/engine/public"
 
 
-def linked_connection() -> dict[str, str]:
-    """Fields of the one Databricks connection linked to the task, keyed by field ID."""
+def linked_connection() -> tuple[str | None, dict[str, str]]:
+    """Name and fields, keyed by field ID, of the one Databricks connection linked to the task."""
     connections = sorted(
         match.group(1) for name in os.environ if (match := _LINKED_HOST.match(name))
     )
     if not connections:
-        return {}
+        return None, {}
     if len(connections) > 1:
         raise SystemExit(
             f"several Databricks connections linked ({', '.join(connections)}); "
@@ -96,8 +96,8 @@ def linked_connection() -> dict[str, str]:
             "DATABRICKS_CLIENT_SECRET) to choose one"
         )
     prefix = f"DATABRICKS__{connections[0]}__"
-    return {
-        name.removeprefix(prefix).lower(): value
+    return connections[0], {
+        name.removeprefix(prefix).lower(): value.strip()
         for name, value in os.environ.items()
         if name.startswith(prefix)
     }
@@ -436,17 +436,25 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     args = parser.parse_args(argv)
 
-    args.token = os.environ.get("DATABRICKS_TOKEN")
-    args.client_id = os.environ.get("DATABRICKS_CLIENT_ID")
-    args.client_secret = os.environ.get("DATABRICKS_CLIENT_SECRET")
-    if not args.host or not (args.token or (args.client_id and args.client_secret)):
-        linked = linked_connection()
+    args.token = os.environ.get("DATABRICKS_TOKEN", "").strip()
+    args.client_id = os.environ.get("DATABRICKS_CLIENT_ID", "").strip()
+    args.client_secret = os.environ.get("DATABRICKS_CLIENT_SECRET", "").strip()
+    has_credentials = bool(args.token or (args.client_id and args.client_secret))
+    args.credentials_source = (
+        "DATABRICKS_TOKEN"
+        if args.token
+        else "DATABRICKS_CLIENT_ID and DATABRICKS_CLIENT_SECRET"
+    )
+    if not args.host or not has_credentials:
+        connection, linked = linked_connection()
         args.host = args.host or linked.get("databricks_workspace_host")
-        args.token = args.token or linked.get("databricks_access_token")
-        args.client_id = args.client_id or linked.get("databricks_client_id")
-        args.client_secret = args.client_secret or linked.get(
-            "databricks_client_secret"
-        )
+        if not has_credentials:
+            args.credentials_source = f"linked connection {connection}"
+            # A connection switched to OAuth can still export its old access token.
+            if linked.get("databricks_auth_type") != "OAUTH":
+                args.token = linked.get("databricks_access_token")
+            args.client_id = linked.get("databricks_client_id")
+            args.client_secret = linked.get("databricks_client_secret")
     args.api_key = os.environ.get("ORCHESTRA_API_KEY")
     missing = [
         name
@@ -482,6 +490,12 @@ def main(argv: list[str]) -> int:
     # Matches the built-in collector's integrationAccountId and externalId prefix.
     integration_account_id = args.host.split(".")[0]
 
+    logger.info(
+        "Using Databricks %s on %s from %s",
+        "access token" if args.token else "OAuth client",
+        args.host,
+        args.credentials_source,
+    )
     token = args.token or oauth_token(args.host, args.client_id, args.client_secret)
     databricks = Databricks(args.host, token, args.warehouse_id)
     orchestra = Orchestra(args.api_key)
