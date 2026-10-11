@@ -29,42 +29,60 @@ pip install -r requirements.txt
 
 ### Auth
 
-Everything is read from environment variables.
+The script reads Snowflake credentials from your Orchestra Snowflake connection.
+Link it to the Python connection under **Linked connections**, and Orchestra
+exports each of its fields as `SNOWFLAKE__<CONNECTION_ID>__<FIELD>`. If one
+Snowflake connection is linked, the script uses it. If several are linked, set
+`SNOWFLAKE_CONNECTION_ID` to choose one.
+
+The connection's account identifier forms the start of every `externalId`, so
+using the same connection the old asset configuration used keeps assets matched.
+
+To run it outside Orchestra, set the same fields as plain variables instead:
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
-| `ORCHESTRA_API_KEY` | yes | An Orchestra API key with write access. Orchestra Python tasks set it for you. |
-| `SNOWFLAKE_ACCOUNT` | yes | Account identifier, e.g. `abc12345.eu-west-1`. Use the same value as on your Orchestra Snowflake connection, because it forms the start of every `externalId`. |
+| `SNOWFLAKE_ACCOUNT` | yes | Account identifier, e.g. `abc12345.eu-west-1`. Use the value from your Orchestra Snowflake connection. |
 | `SNOWFLAKE_USER` | yes | Snowflake user. |
 | `SNOWFLAKE_PRIVATE_KEY` | one of these two | PEM private key for key-pair auth. |
 | `SNOWFLAKE_PASSWORD` | one of these two | Password, used when no private key is set. |
 | `SNOWFLAKE_PRIVATE_KEY_PASSPHRASE` | no | Passphrase for an encrypted private key. |
 | `SNOWFLAKE_ROLE` | no | Role to run the metadata queries as. |
 | `SNOWFLAKE_WAREHOUSE` | no | Default for `--warehouse`. |
-| `ORCHESTRA_API_BASE` | no | Defaults to `https://app.getorchestra.io/api/engine/public`. |
+| `SNOWFLAKE_DATABASE` | no | Default for `--database`. |
+
+The Orchestra side needs:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `ORCHESTRA_API_KEY` | set by Orchestra Python tasks | An Orchestra API key with write access. |
+| `ORCHESTRA_BASE_URL` | `app.getorchestra.io` | Orchestra host, e.g. `stage.getorchestra.io`. |
 
 The role needs `USAGE` on the database and its schemas, and on the warehouse. Lineage
 also needs Snowflake Enterprise Edition and access to `SNOWFLAKE.CORE.GET_LINEAGE`.
 Without them the script logs a warning and publishes the assets with no lineage.
+Private link connections aren't supported, since the script connects directly.
 
 ## Running it
 
 ```bash
-python collect_snowflake_assets.py --database ANALYTICS --warehouse COMPUTE_WH
+python collect_snowflake_assets.py --dry-run   # read Snowflake and log, send nothing
+python collect_snowflake_assets.py
 ```
 
 | Option | Default | Purpose |
 | --- | --- | --- |
-| `--database` | required | Database to collect. To collect several, run the script once per database. |
-| `--warehouse` | `$SNOWFLAKE_WAREHOUSE` | Warehouse to run the metadata queries on. |
+| `--database` | the connection's database | Database to collect. To collect several, run the script once per database. |
+| `--warehouse` | the connection's warehouse | Warehouse to run the metadata queries on. |
 | `--asset-types` | `TABLE,VIEW` | Which asset types to collect. |
+| `--dry-run` | off | Read Snowflake and log what would be written, without calling Orchestra. |
 
 The metadata API allows 50 requests a minute, so the script spaces its requests
-about 1.5 seconds apart and retries a `429` with backoff. A first run over a few
-hundred tables takes several minutes. Later runs skip assets that haven't
-changed, so they finish faster. Progress is logged every 25 assets, with counts
-of assets created, updated, skipped and failed. The script exits non-zero if
-any write fails.
+about 1.5 seconds apart. It retries a `429`, a `5xx` or a network error with
+backoff. A first run over a few hundred tables takes several minutes. Later runs
+skip assets that haven't changed, so they finish faster. Progress is logged every
+25 assets, with counts of assets created, updated, skipped and failed. The script
+exits non-zero if any write fails.
 
 To check the publish logic without Snowflake or Orchestra:
 
@@ -74,51 +92,40 @@ python test_collect_snowflake_assets.py
 
 ## Scheduling it in Orchestra
 
-Run it as an Orchestra [Python task](https://docs.getorchestra.io/docs/integrations/python).
+Create a [Python connection](https://docs.getorchestra.io/docs/integrations/python)
+pointing at a repository containing this folder, with your Snowflake connection
+under **Linked connections**. Then add a pipeline with one Python task per
+database and a schedule. Match the cadence of your old asset configuration.
 
-1. Copy this folder into the repository your Python connection points at.
-2. Put the Snowflake variables above in the connection's secret JSON:
+```yaml
+version: v1
+name: Snowflake asset collection
+pipeline:
+  collect:
+    tasks:
+      analytics:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        connection: <your_python_connection>
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          source: GIT
+          project_dir: python/snowflake_assets
+          build_command: pip install -r requirements.txt
+          command: python collect_snowflake_assets.py --database ANALYTICS
+        depends_on: []
+        name: Collect ANALYTICS
+    depends_on: []
+    name: Collect
+schedule:
+  - name: Daily at 6am
+    cron: 0 6 ? * * *
+    timezone: Europe/London
+```
 
-   ```json
-   {
-     "SNOWFLAKE_ACCOUNT": "abc12345.eu-west-1",
-     "SNOWFLAKE_USER": "ORCHESTRA_ASSETS",
-     "SNOWFLAKE_PRIVATE_KEY": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n",
-     "SNOWFLAKE_ROLE": "ORCHESTRA_ASSETS"
-   }
-   ```
-
-3. Add a pipeline with a Python task and a schedule. Run one task for each database.
-
-   ```yaml
-   version: v1
-   name: Snowflake asset collection
-   pipeline:
-     collect:
-       tasks:
-         analytics:
-           integration: PYTHON
-           integration_job: PYTHON_EXECUTE_SCRIPT
-           connection: <your_python_connection>
-           parameters:
-             package_manager: PIP
-             python_version: '3.12'
-             source: GIT
-             project_dir: python/snowflake_assets
-             build_command: pip install -r requirements.txt
-             command: python collect_snowflake_assets.py --database ANALYTICS --warehouse COMPUTE_WH
-           depends_on: []
-           name: Collect ANALYTICS
-       depends_on: []
-       name: Collect
-   schedule:
-     - name: Daily at 6am
-       cron: 0 6 ? * * *
-       timezone: Europe/London
-   ```
-
-Any other scheduler works the same way, as long as it sets the environment
-variables above.
+Any other scheduler works the same way, as long as it sets the plain variables
+above.
 
 ## Differences from the built-in collector
 
@@ -132,3 +139,5 @@ variables above.
   Orchestra, either from this run or from before it.
 - **New assets get their created and last-changed times on the second run.**
   `POST /assets` doesn't store them yet, so the next run adds them with a `PATCH`.
+- **Nothing is deleted.** A table dropped from Snowflake stays in Orchestra, as
+  it did with asset runs. Delete it with `DELETE /assets/{id}` if you need to.

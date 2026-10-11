@@ -2,15 +2,18 @@
 
 import json
 from datetime import UTC, datetime
+from unittest import mock
 
 import httpx
 from collect_snowflake_assets import (
     OrchestraClient,
+    api_base,
     fetch_lineage,
     fetch_tables,
     list_existing_assets,
     publish_assets,
     publish_edges,
+    snowflake_settings,
 )
 
 ACCOUNT = "ACME"
@@ -96,6 +99,29 @@ def test_publish():
     assert calls.count(("POST", "/assets")) == 2  # one 429, one retry
 
 
+def test_settings():
+    linked = {
+        "SNOWFLAKE__PROD_1__SNOWFLAKE_ACCOUNT": "acme",
+        "SNOWFLAKE__PROD_1__SNOWFLAKE_USER": "bot",
+        "SNOWFLAKE__PROD_1__SNOWFLAKE_PASSWORD": "pw",
+    }
+    with mock.patch.dict("os.environ", linked, clear=True):
+        assert snowflake_settings()["snowflake_user"] == "bot"
+    second = {k.replace("PROD_1", "DEV_2"): v for k, v in linked.items()}
+    with mock.patch.dict("os.environ", linked | second, clear=True):
+        try:
+            snowflake_settings()
+            raise AssertionError("several linked connections should need a choice")
+        except SystemExit:
+            pass
+    chosen = linked | second | {"SNOWFLAKE_CONNECTION_ID": "dev-2"}
+    with mock.patch.dict("os.environ", chosen, clear=True):
+        assert snowflake_settings()["snowflake_account"] == "acme"
+    with mock.patch.dict("os.environ", {"ORCHESTRA_BASE_URL": "stage.getorchestra.io"}):
+        assert api_base() == "https://stage.getorchestra.io/api/engine/public"
+
+
 if __name__ == "__main__":
     test_publish()
+    test_settings()
     print("ok")

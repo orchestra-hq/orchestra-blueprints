@@ -6,6 +6,7 @@ Replaces Orchestra's scheduled Snowflake asset runs; see README.md for setup.
 import argparse
 import logging
 import os
+import re
 import sys
 import time
 from datetime import datetime
@@ -17,10 +18,6 @@ from cryptography.hazmat.primitives import serialization
 
 logger = logging.getLogger("collect_snowflake_assets")
 
-API_BASE = os.environ.get(
-    "ORCHESTRA_API_BASE", "https://app.getorchestra.io/api/engine/public"
-).rstrip("/")
-
 # Under the metadata API's 50/minute limit, leaving headroom for other jobs on the same key.
 PACING_SECONDS = 60 / 50 * 1.25
 MAX_RETRIES = 5
@@ -28,18 +25,38 @@ PAGE_SIZE = 100
 EDGE_BATCH_SIZE = 100
 ASSET_TYPES = ("TABLE", "VIEW")
 LINEAGE_UNAVAILABLE = "Unsupported feature 'Data Lineage'"
+# The Snowflake connection's field IDs, as Orchestra names them.
+SNOWFLAKE_FIELDS = (
+    "snowflake_auth_type",
+    "snowflake_user",
+    "snowflake_password",
+    "snowflake_private_key",
+    "snowflake_private_key_passphrase",
+    "snowflake_account",
+    "snowflake_role",
+    "snowflake_warehouse",
+    "snowflake_database",
+)
+
+
+def api_base() -> str:
+    """Public API root on ORCHESTRA_BASE_URL, which may be a bare host."""
+    host = os.environ.get("ORCHESTRA_BASE_URL") or "app.getorchestra.io"
+    if "://" not in host:
+        host = f"https://{host}"
+    return f"{host.rstrip('/')}/api/engine/public"
 
 
 class OrchestraClient:
     def __init__(
         self,
         api_key: str,
-        base_url: str = API_BASE,
+        base_url: str | None = None,
         pacing_seconds: float = PACING_SECONDS,
         transport: httpx.BaseTransport | None = None,
     ):
         self._http = httpx.Client(
-            base_url=base_url,
+            base_url=base_url or api_base(),
             headers={"Authorization": f"Bearer {api_key}"},
             timeout=120,
             transport=transport,
@@ -54,16 +71,24 @@ class OrchestraClient:
                 time.sleep(wait)
             self._last_request_at = time.monotonic()
 
-            response = self._http.request(method, path, **kwargs)
-            if response.status_code != 429 or attempt == MAX_RETRIES:
-                return response
+            try:
+                response = self._http.request(method, path, **kwargs)
+            except httpx.TransportError as error:
+                if attempt == MAX_RETRIES:
+                    raise
+                reason, delay = str(error), None
+            else:
+                retryable = response.status_code == 429 or response.status_code >= 500
+                if not retryable or attempt == MAX_RETRIES:
+                    return response
+                reason, delay = (
+                    f"returned {response.status_code}",
+                    _retry_after(response),
+                )
 
-            delay = _retry_after(response)
             if delay is None:
                 delay = 2 ** (attempt + 1)
-            logger.warning(
-                "Rate limited on %s %s; retrying in %ss", method, path, delay
-            )
+            logger.warning("%s %s %s; retrying in %ss", method, path, reason, delay)
             time.sleep(delay)
         raise AssertionError("unreachable")
 
@@ -75,22 +100,67 @@ def _retry_after(response: httpx.Response) -> float | None:
         return None
 
 
+def snowflake_settings() -> dict[str, str | None]:
+    """Plain SNOWFLAKE_* variables if set, else those of the one linked Snowflake connection."""
+    prefix = _snowflake_prefix()
+    settings = {
+        field: os.environ.get(prefix + field.upper()) for field in SNOWFLAKE_FIELDS
+    }
+    missing = [
+        prefix + field.upper()
+        for field in ("snowflake_account", "snowflake_user")
+        if not settings[field]
+    ]
+    if not (settings["snowflake_password"] or settings["snowflake_private_key"]):
+        missing.append(f"{prefix}SNOWFLAKE_PRIVATE_KEY or {prefix}SNOWFLAKE_PASSWORD")
+    if missing:
+        sys.exit(f"Missing environment variables: {', '.join(missing)}; see README.md")
+    return settings
+
+
+def _snowflake_prefix() -> str:
+    if os.environ.get("SNOWFLAKE_ACCOUNT"):
+        return ""
+    linked = sorted(
+        name.removesuffix("SNOWFLAKE_ACCOUNT")
+        for name in os.environ
+        if name.startswith("SNOWFLAKE__") and name.endswith("__SNOWFLAKE_ACCOUNT")
+    )
+    if chosen := os.environ.get("SNOWFLAKE_CONNECTION_ID"):
+        normalised = re.sub("[^A-Z0-9]+", "_", chosen.upper()).strip("_")
+        prefix = f"SNOWFLAKE__{normalised}__"
+        if prefix not in linked:
+            sys.exit(f"No linked Snowflake connection {chosen!r}; see README.md")
+        return prefix
+    if len(linked) > 1:
+        sys.exit(
+            f"Several Snowflake connections linked ({', '.join(linked)}); "
+            "set SNOWFLAKE_CONNECTION_ID to choose one"
+        )
+    if not linked:
+        sys.exit("No Snowflake credentials found; see README.md")
+    return linked[0]
+
+
 def connect_to_snowflake(
-    warehouse: str | None,
+    settings: dict[str, str | None], warehouse: str | None
 ) -> snowflake.connector.SnowflakeConnection:
     params: dict[str, Any] = {
-        "account": _require_env("SNOWFLAKE_ACCOUNT"),
-        "user": _require_env("SNOWFLAKE_USER"),
-        "role": os.environ.get("SNOWFLAKE_ROLE"),
+        "account": settings["snowflake_account"],
+        "user": settings["snowflake_user"],
+        "role": settings["snowflake_role"],
         "warehouse": warehouse,
     }
-    if os.environ.get("SNOWFLAKE_PRIVATE_KEY"):
+    use_key_pair = settings["snowflake_private_key"] and (
+        settings["snowflake_auth_type"] != "USERNAME_PASSWORD"
+    )
+    if use_key_pair:
         params["private_key"] = _private_key_der(
-            os.environ["SNOWFLAKE_PRIVATE_KEY"],
-            os.environ.get("SNOWFLAKE_PRIVATE_KEY_PASSPHRASE"),
+            settings["snowflake_private_key"],
+            settings["snowflake_private_key_passphrase"],
         )
     else:
-        params["password"] = _require_env("SNOWFLAKE_PASSWORD")
+        params["password"] = settings["snowflake_password"]
     return snowflake.connector.connect(**{k: v for k, v in params.items() if v})
 
 
@@ -103,13 +173,6 @@ def _private_key_der(pem: str, passphrase: str | None) -> bytes:
         format=serialization.PrivateFormat.PKCS8,
         encryption_algorithm=serialization.NoEncryption(),
     )
-
-
-def _require_env(name: str) -> str:
-    value = os.environ.get(name)
-    if not value:
-        sys.exit(f"Missing required environment variable {name}; see README.md")
-    return value
 
 
 def asset_type_for(table_type: str) -> str:
@@ -149,7 +212,7 @@ def fetch_tables(
                 "databaseName": db,
                 "schemaName": schema,
                 "tableName": name,
-                "description": comment,
+                "description": comment or None,
                 "owners": [owner] if owner else None,
                 "createdInIntegration": _iso(created),
                 "lastUpdatedInIntegration": _iso(last_ddl),
@@ -285,6 +348,9 @@ def publish_assets(
 
         if response.is_success:
             counts[outcome] += 1
+        elif response.status_code == 409:
+            # Exists under another integration account, so the listing missed it.
+            counts["skipped"] += 1
         else:
             counts["failed"] += 1
             failed_ids.add(asset["externalId"])
@@ -331,17 +397,21 @@ def publish_edges(
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument(
-        "--database", required=True, help="Snowflake database to collect"
+        "--database", help="Database to collect (default: the connection's database)"
     )
     parser.add_argument(
         "--warehouse",
-        default=os.environ.get("SNOWFLAKE_WAREHOUSE"),
-        help="Warehouse to run the metadata queries on (default: $SNOWFLAKE_WAREHOUSE)",
+        help="Warehouse to run the metadata queries on (default: the connection's warehouse)",
     )
     parser.add_argument(
         "--asset-types",
         default=",".join(ASSET_TYPES),
         help="Comma-separated asset types to collect: TABLE, VIEW (default: both)",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Read Snowflake and log what would be written, without calling Orchestra",
     )
     args = parser.parse_args()
     logging.basicConfig(
@@ -352,16 +422,31 @@ def main() -> int:
     if unknown := asset_types - set(ASSET_TYPES):
         parser.error(f"unknown asset types: {', '.join(sorted(unknown))}")
 
-    client = OrchestraClient(_require_env("ORCHESTRA_API_KEY"))
-    account = _require_env("SNOWFLAKE_ACCOUNT").upper()
+    api_key = os.environ.get("ORCHESTRA_API_KEY")
+    if not api_key and not args.dry_run:
+        sys.exit("Missing environment variable ORCHESTRA_API_KEY; see README.md")
+    settings = snowflake_settings()
+    account = settings["snowflake_account"].upper()
+    database = args.database or settings["snowflake_database"]
+    if not database:
+        parser.error("--database is required when the connection has no database")
+    warehouse = args.warehouse or settings["snowflake_warehouse"]
 
     with (
-        connect_to_snowflake(args.warehouse) as connection,
+        connect_to_snowflake(settings, warehouse) as connection,
         connection.cursor() as cursor,
     ):
-        assets = fetch_tables(cursor, account, args.database, asset_types)
+        assets = fetch_tables(cursor, account, database, asset_types)
         edges = fetch_lineage(cursor, account, assets)
 
+    if args.dry_run:
+        for asset in assets:
+            logger.info("Would write %s %s", asset["assetType"], asset["externalId"])
+        for edge in edges:
+            logger.info("Would link %s -> %s", edge["fromId"], edge["toId"])
+        return 0
+
+    client = OrchestraClient(api_key)
     existing = list_existing_assets(client, account)
     logger.info("Orchestra already has %d assets for %s", len(existing), account)
 
