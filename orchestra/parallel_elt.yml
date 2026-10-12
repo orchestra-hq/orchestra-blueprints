@@ -82,20 +82,6 @@ pipeline:
         connection: ${{ ENV.SNOWFLAKE_CONNECTION }}
     depends_on:
     - ef92b6c1-86d3-4145-a8c4-c6f5ba6b2a45
-    - 45f93d3c-5877-4a77-b9ce-7bb8eaffb956
-    name: ''
-  45f93d3c-5877-4a77-b9ce-7bb8eaffb956:
-    tasks:
-      e45c8297-fe82-4d69-8dc7-dce300b9526e:
-        integration: AIRBYTE_CLOUD
-        integration_job: AIRBYTE_CLOUD_JOB
-        parameters:
-          connection_id: some_id
-          job_type: sync
-        depends_on: []
-        name: Airbyte
-        treat_failure_as_warning: true
-    depends_on: []
     name: ''
 schedule:
 - name: Production
