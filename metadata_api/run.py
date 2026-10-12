@@ -2,6 +2,7 @@ import argparse
 from datetime import datetime, timedelta, timezone
 
 import dlt
+from dlt.sources.helpers import requests
 from dlt.sources.helpers.rest_client.paginators import PageNumberPaginator
 from dlt.sources.rest_api import rest_api_resources, rest_api_source
 
@@ -18,6 +19,45 @@ WINDOW_OVERLAP = timedelta(minutes=5)
 # they were inserted, but cost figures are written onto an operation after that, so
 # operations are re-read for a day.
 OPERATIONS_LOOKBACK = timedelta(days=1)
+AGENTS_API_URL = "https://app.getorchestra.io/api/ai/v1"
+# The usage API counts a session's tokens towards the day it was created, so a
+# session that keeps running adds tokens to past days: re-read the last few.
+TOKEN_USAGE_LOOKBACK = timedelta(days=2)
+# The usage API caps each request to 366 days.
+MAX_TOKEN_USAGE_WINDOW_DAYS = 366
+
+
+@dlt.resource(primary_key="time_from", write_disposition="merge")
+def agent_token_usage(time_from: datetime, time_to: datetime):
+    """Daily input/output tokens spent by agent sessions, summed across the account."""
+    # Buckets start at time_from, so start at midnight UTC to keep each day's key stable.
+    day_start = time_from.replace(hour=0, minute=0, second=0, microsecond=0)
+    try:
+        response = requests.get(
+            f"{AGENTS_API_URL}/usage",
+            headers={"Authorization": f"Bearer {dlt.secrets['orchestra_api_token']}"},
+            params={
+                "time_from": day_start.isoformat(),
+                "time_to": time_to.isoformat(),
+                "bucket_size": 1440,
+            },
+        )
+    except requests.HTTPError as e:
+        if e.response.status_code != 403:
+            raise
+        print(
+            "Skipping agent_token_usage: the API token needs permission to view account settings."
+        )
+        return
+    yield [
+        {
+            "time_from": bucket["timeFrom"],
+            "time_to": bucket["timeTo"],
+            "total_input_tokens": bucket["values"]["totalInputTokens"],
+            "total_output_tokens": bucket["values"]["totalOutputTokens"],
+        }
+        for bucket in response.json()["buckets"]
+    ]
 
 
 def _time_filtered_resource(name: str, time_from: str, time_to: str) -> dict:
@@ -124,8 +164,16 @@ def orchestra_metadata_since_last_run(backfilled_days: int = 0):
     )
     return [
         *rest_api_resources(_orchestra_api_config(windows, include_assets=True)),
+        agent_token_usage(time_from - TOKEN_USAGE_LOOKBACK, time_to),
         advance_load_window,
     ]
+
+
+@dlt.source(name="rest_api")
+def agent_token_usage_backfill(days: int):
+    time_to = datetime.now(timezone.utc)
+    days = min(days, MAX_TOKEN_USAGE_WINDOW_DAYS)
+    return agent_token_usage(time_to - timedelta(days=days), time_to)
 
 
 def _backfill_windows(days: int):
@@ -156,6 +204,8 @@ def orchestra_metadata_api_dlt_pipeline(warehouse: str, backfill_days: int = 0) 
             )
             load_info = pipeline.run(build_backfill_source(time_from, time_to))
             print(load_info)
+        load_info = pipeline.run(agent_token_usage_backfill(backfill_days))
+        print(load_info)
 
     # Each Orchestra task runs in a fresh container, so restore the previous run's
     # state from the destination before reading it.
