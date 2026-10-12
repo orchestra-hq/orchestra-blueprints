@@ -1,0 +1,59 @@
+version: v1
+name: 'dbt MotherDuck SAO - custom seed-paths #dbt #motherduck #sao #testing'
+pipeline:
+  cold:
+    tasks:
+      dbt_build_cold:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build --select numbers store_sales seed_clean store_sales_example
+          package_manager: UV
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: ${{ inputs.dbt_branch }}
+          production_run_identifier: sao-custom-seed-paths
+          project_dir: dbt_projects/duckdb_example
+          shallow_clone_dirs: dbt_projects/duckdb_example
+          environment_variables: >-
+            {"ORCHESTRA_DBT_BRANCH": "${{ inputs.orchestra_dbt_branch }}", "ORCHESTRA_SEED_STATE_ORCHESTRATION": "true"}
+        depends_on: []
+        name: dbt build (cold)
+        connection: dbt_motherduck__prod__39243
+    depends_on: []
+    name: Cold run
+  warm:
+    tasks:
+      dbt_build_warm:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build --select numbers store_sales seed_clean store_sales_example
+          package_manager: UV
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: ${{ inputs.dbt_branch }}
+          production_run_identifier: sao-custom-seed-paths
+          project_dir: dbt_projects/duckdb_example
+          shallow_clone_dirs: dbt_projects/duckdb_example
+          environment_variables: >-
+            {"ORCHESTRA_DBT_BRANCH": "${{ inputs.orchestra_dbt_branch }}", "ORCHESTRA_SEED_STATE_ORCHESTRATION": "true"}
+        depends_on: []
+        name: dbt build (warm, seeds should be reused)
+        connection: dbt_motherduck__prod__39243
+    depends_on:
+      - cold
+    name: Warm run
+inputs:
+  dbt_branch:
+    type: string
+    default: test/sao-custom-seed-paths
+  orchestra_dbt_branch:
+    type: string
+    default: claude/confident-cray-627c71
+meta:
+  notes: >-
+    Exercises dbt-orchestra seed reuse when the project uses custom seed-paths
+    (data/ instead of seeds/). `numbers` already has a properties entry in
+    data/schema.yml; `store_sales` has none. The warm run should report both
+    seeds as reused and dbt should not load them.
