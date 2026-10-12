@@ -12,6 +12,7 @@ pipeline:
           build_command: pip install -r requirements.txt
           set_outputs: false
           source: GIT
+          branch: ${{ orchestra.current_branch }}
           command: python -m run ${{inputs.warehouse}}
           project_dir: metadata_api
         depends_on: []
