@@ -24,8 +24,14 @@ in Orchestra until you delete it.
 ## Setup
 
 ```bash
-cd python/databricks_assets
+cd python/data_assets/databricks
 pip install -r requirements.txt
+```
+
+Or with [uv](https://docs.astral.sh/uv/), which installs the requirements as it runs:
+
+```bash
+uv run --with-requirements requirements.txt collect_assets.py --dry-run
 ```
 
 ### Databricks
@@ -122,8 +128,8 @@ pipeline:
           build_command: pip install -r requirements.txt
           source: GIT
           command: python collect_assets.py
-          project_dir: python/databricks_assets
-          shallow_clone_dirs: python/databricks_assets
+          project_dir: python/data_assets/databricks
+          shallow_clone_dirs: python/data_assets/databricks
           environment_variables: '{"DATABRICKS_WAREHOUSE_ID": "abcdef1234567890"}'
         depends_on: []
         name: Collect Databricks assets
@@ -136,6 +142,13 @@ schedule:
   timezone: UTC
 ```
 
+To use uv instead of pip, swap these parameters:
+
+```yaml
+package_manager: UV
+build_command: uv init --bare && uv add -r requirements.txt
+```
+
 Match the schedule to how often your old asset configuration ran. Once a run
 has succeeded, check that your Databricks assets in Orchestra show recent
 `updatedAt` timestamps, then turn off the old asset configuration.
@@ -145,4 +158,7 @@ has succeeded, check that your Databricks assets in Orchestra show recent
 ```bash
 pip install pytest
 pytest test_collect_assets.py
+
+# or with uv
+uv run --with-requirements requirements.txt --with pytest pytest test_collect_assets.py
 ```

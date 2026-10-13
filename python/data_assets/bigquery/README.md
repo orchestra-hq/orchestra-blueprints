@@ -25,8 +25,14 @@ and bytes are not part of the public asset API.
 ## Setup
 
 ```bash
-cd python/bigquery_assets
+cd python/data_assets/bigquery
 pip install -r requirements.txt
+```
+
+Or with [uv](https://docs.astral.sh/uv/), which installs the requirements as it runs:
+
+```bash
+uv run --with-requirements requirements.txt collect_bigquery_assets.py --dry-run
 ```
 
 The script depends on `google-cloud-bigquery`, `httpx` and `orchestra-sdk`.
@@ -101,7 +107,7 @@ pipeline:
           package_manager: PIP
           python_version: '3.12'
           source: GIT
-          project_dir: python/bigquery_assets
+          project_dir: python/data_assets/bigquery
           build_command: pip install -r requirements.txt
           command: python collect_bigquery_assets.py
         depends_on: []
@@ -115,9 +121,19 @@ schedule:
     timezone: Europe/London
 ```
 
+To use uv instead of pip, swap these parameters:
+
+```yaml
+package_manager: UV
+build_command: uv init --bare && uv add -r requirements.txt
+```
+
 ## Tests
 
 ```bash
 pip install pytest
 pytest test_collect_bigquery_assets.py
+
+# or with uv
+uv run --with-requirements requirements.txt --with pytest pytest test_collect_bigquery_assets.py
 ```
