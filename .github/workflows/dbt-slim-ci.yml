@@ -1,0 +1,34 @@
+name: dbt CI
+
+on:
+  # Configure triggers and paths as appropriate for your dbt project
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'models/**'
+      - 'seeds/**'
+      - 'dbt_project.yml'
+
+jobs:
+  dbt-slim-ci:
+    runs-on: ubuntu-latest
+    env:
+      # Only a way to keep the dbt_command below short; inline it if you prefer.
+      COMMON: "--defer --state latest_production --target ci"
+    steps:
+      - name: Trigger Orchestra pipeline
+        uses: orchestra-hq/run-pipeline@v1.7.0
+        with:
+          api_key: ${{ secrets.DEMO_KEY }}
+          pipeline_id: 570883d8-ee13-4d14-bb51-7e46184b73af
+          environment: CI # Orchestra environment name
+          task_ids: 3bd9baa0-778b-453f-b10d-e26b9c8ce39b # Orchestra task ID for dbt Core task
+          poll_interval: 20
+          cancel_on_exit: true
+          run_inputs: |
+            {
+              "dbt_command": "clone --state latest_production --target ci; dbt build --full-refresh --selector modified_incremental ${{ env.COMMON }}; dbt build -s state:modified+ ${{ env.COMMON }}",
+              "dbt_branch": "${{ github.head_ref }}",
+              "dbt_ci_schema_suffix": "${{ github.event.pull_request.number }}"
+            }
