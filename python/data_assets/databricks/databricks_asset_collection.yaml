@@ -15,7 +15,6 @@ pipeline:
           set_outputs: false
           source: GIT
           command: python collect_assets.py
-          branch: main
           project_dir: python/data_assets/databricks
         depends_on: []
         name: run asset collection
