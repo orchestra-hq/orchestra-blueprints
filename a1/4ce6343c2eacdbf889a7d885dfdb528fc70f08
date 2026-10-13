@@ -1,0 +1,23 @@
+python/data_assets/bigquery/bigquery_asset_collection.yaml
+  s_f95f9b82971568::t_05e6af55aadb2a 4,6,24
+python/data_assets/snowflake/snowflake_asset_collection.yaml
+  s_f95f9b82971568::t_05e6af55aadb2a 4,6,24
+python/data_assets/databricks/databricks_asset_collection.yaml
+  s_f95f9b82971568::t_05e6af55aadb2a 4,6,26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a14ce6343c2eacdbf889a7d885dfdb528fc70f08",
+  "prompts": {},
+  "sessions": {
+    "s_f95f9b82971568": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e8a30445-31ce-4c65-86b1-2716079e4c0b",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Will Davies <42768478+willdavies0@users.noreply.github.com>"
+    }
+  }
+}
