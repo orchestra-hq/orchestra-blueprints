@@ -27,6 +27,12 @@ You need Python 3.11 or later.
 pip install -r requirements.txt
 ```
 
+Or with [uv](https://docs.astral.sh/uv/), which installs the requirements as it runs:
+
+```bash
+uv run --with-requirements requirements.txt collect_snowflake_assets.py --dry-run
+```
+
 ### Auth
 
 The script reads Snowflake credentials from your Orchestra Snowflake connection.
@@ -88,6 +94,7 @@ To check the publish logic without Snowflake or Orchestra:
 
 ```bash
 python test_collect_snowflake_assets.py
+# or: uv run --with-requirements requirements.txt test_collect_snowflake_assets.py
 ```
 
 ## Scheduling it in Orchestra
@@ -111,7 +118,7 @@ pipeline:
           package_manager: PIP
           python_version: '3.12'
           source: GIT
-          project_dir: python/snowflake_assets
+          project_dir: python/data_assets/snowflake
           build_command: pip install -r requirements.txt
           command: python collect_snowflake_assets.py --database ANALYTICS
         depends_on: []
@@ -122,6 +129,13 @@ schedule:
   - name: Daily at 6am
     cron: 0 6 ? * * *
     timezone: Europe/London
+```
+
+To use uv instead of pip, swap these parameters:
+
+```yaml
+package_manager: UV
+build_command: uv init --bare && uv add -r requirements.txt
 ```
 
 Any other scheduler works the same way, as long as it sets the plain variables
