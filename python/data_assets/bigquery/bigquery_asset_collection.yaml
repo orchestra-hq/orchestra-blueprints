@@ -1,9 +1,9 @@
 version: v1
 name: BigQuery asset collection
 pipeline:
-  19c9549d-c5f1-417b-ba74-8f99c56bf04e:
+  collect:
     tasks:
-      e019b6be-c589-46e5-8872-8ef517ca6fb3:
+      collect_bigquery_assets:
         integration: PYTHON
         integration_job: PYTHON_EXECUTE_SCRIPT
         parameters:
@@ -21,7 +21,7 @@ pipeline:
 schedule:
   - name: Weekly at 6.30am
     cron: 30 6 ? * 2 *
-    timezone: Europe/London
+    timezone: UTC
 webhook:
   enabled: false
 meta:
