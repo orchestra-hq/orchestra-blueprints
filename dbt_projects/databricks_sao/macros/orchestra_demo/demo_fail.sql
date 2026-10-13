@@ -29,15 +29,20 @@
     {% do run_query("select raise_error('DEMO_FAIL[run-operation]')") %}
 {%- endmacro %}
 
+{% macro demo_raw_schema() -%}
+    {{ return(var('demo_catalog', 'main') ~ '.orchestra_demo_raw' ~ (('_' ~ var('demo_lane')) if var('demo_lane', '') else '')) }}
+{%- endmacro %}
+
 {% macro demo_setup() -%}
-    {% set db = var('demo_catalog', 'main') %}
-    {% do run_query('create schema if not exists ' ~ db ~ '.orchestra_demo_raw') %}
-    {% do run_query('create table if not exists ' ~ db ~ '.orchestra_demo_raw.demo_events (id int, user_id int, loaded_at timestamp)') %}
-    {% do run_query('insert into ' ~ db ~ '.orchestra_demo_raw.demo_events select 1, 1, current_timestamp() where not exists (select 1 from ' ~ db ~ '.orchestra_demo_raw.demo_events)') %}
+    {% set t = demo_raw_schema() ~ '.demo_events' %}
+    {% do run_query('create schema if not exists ' ~ demo_raw_schema()) %}
+    {% do run_query('create table if not exists ' ~ t ~ ' (id int, user_id int, loaded_at timestamp)') %}
+    {% do run_query('insert into ' ~ t ~ ' select 1, 1, current_timestamp() where not exists (select 1 from ' ~ t ~ ')') %}
 {%- endmacro %}
 
 {% macro demo_touch_source() -%}
-    {% set t = var('demo_catalog', 'main') ~ '.orchestra_demo_raw.demo_events' %}
+    {% do demo_setup() %}
+    {% set t = demo_raw_schema() ~ '.demo_events' %}
     {% do run_query('insert into ' ~ t ~ ' select coalesce(max(id), 0) + 1, 1, current_timestamp() from ' ~ t) %}
 {%- endmacro %}
 

@@ -31,6 +31,7 @@ models:
       +schema: dbt_sao_demo
     orchestra_demo:
       +tags: orchestra_demo
-      +schema: orchestra_demo
+      # demo_lane isolates parallel experiments: own tables, assets and SAO state.
+      +schema: "{{ 'orchestra_demo' ~ (('_' ~ var('demo_lane')) if var('demo_lane', '') else '') }}"
       +materialized: table
       +database: "{{ var('demo_catalog', 'main') }}"
