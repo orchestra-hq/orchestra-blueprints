@@ -1,0 +1,19 @@
+version: 2
+
+sources:
+  - name: orchestra_demo_raw
+    database: "{{ var('demo_catalog', 'main') }}"
+    schema: orchestra_demo_raw
+    tables:
+      - name: demo_events
+        loaded_at_field: loaded_at
+
+models:
+  - name: stg_demo_events
+    columns:
+      - name: id
+        tests: [not_null]
+  - name: mart_demo_summary
+    columns:
+      - name: src
+        tests: [not_null]

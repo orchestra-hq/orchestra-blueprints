@@ -10,6 +10,9 @@ profile: "orchestra_dbt_databricks"
 model-paths: ["models"]
 macro-paths: ["macros"]
 
+on-run-start:
+  - "{{ demo_hook() }}"
+
 clean-targets:
   - "target"
   - "dbt_packages"
@@ -26,3 +29,8 @@ models:
     marts:
       +materialized: table
       +schema: dbt_sao_demo
+    orchestra_demo:
+      +tags: orchestra_demo
+      +schema: orchestra_demo
+      +materialized: table
+      +database: "{{ var('demo_catalog', 'main') }}"
