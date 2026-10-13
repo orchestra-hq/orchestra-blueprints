@@ -1,0 +1,38 @@
+version: v1
+name: Databricks asset collection
+pipeline:
+  collect:
+    tasks:
+      collect_databricks_assets:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: >-
+            {"DATABRICKS_WAREHOUSE_ID":"${{ inputs.databricks_warehouse_id }}"}
+          set_outputs: false
+          source: GIT
+          command: python collect_assets.py
+          project_dir: python/data_assets/databricks
+        depends_on: []
+        name: run asset collection
+    depends_on: []
+    name: group
+schedule:
+  - name: Weekly at 6am
+    cron: 0 6 ? * 2 *
+    timezone: UTC
+    run_inputs:
+      databricks_warehouse_id: <your_sql_warehouse_id>
+webhook:
+  enabled: false
+meta:
+  notes: >-
+    Make sure the Databricks connection you are using is a linked connection on
+    the python connection, and set the databricks_warehouse_id run input on the
+    schedule to your SQL warehouse ID
+inputs:
+  databricks_warehouse_id:
+    type: string
