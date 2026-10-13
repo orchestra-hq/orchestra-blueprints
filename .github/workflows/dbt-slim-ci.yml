@@ -6,9 +6,7 @@ on:
     branches:
       - main
     paths:
-      - 'models/**'
-      - 'seeds/**'
-      - 'dbt_project.yml'
+      - 'dbt_projects/snowflake/**'
 
 jobs:
   dbt-slim-ci:
