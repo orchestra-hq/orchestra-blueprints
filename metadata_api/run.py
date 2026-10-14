@@ -19,6 +19,7 @@ WINDOW_OVERLAP = timedelta(minutes=5)
 # they were inserted, but cost figures are written onto an operation after that, so
 # operations are re-read for a day.
 OPERATIONS_LOOKBACK = timedelta(days=1)
+ENGINE_API_URL = "https://app.getorchestra.io/api/engine/public"
 AGENTS_API_URL = "https://app.getorchestra.io/api/ai/v1"
 # The usage API counts a session's tokens towards the day it was created, so a
 # session that keeps running adds tokens to past days: re-read the last few.
@@ -60,6 +61,43 @@ def agent_token_usage(time_from: datetime, time_to: datetime):
     ]
 
 
+def _incident_events_since(incident_id: str, since: datetime | None):
+    """Yield pages of an incident's events inserted at or after `since` (all if None)."""
+    page = 1
+    while True:
+        response = requests.get(
+            f"{ENGINE_API_URL}/incidents/{incident_id}/events",
+            headers={"Authorization": f"Bearer {dlt.secrets['orchestra_api_token']}"},
+            params={"page": page, "page_size": 100},
+        )
+        body = response.json()
+        events = body["results"]
+        yield [
+            event
+            for event in events
+            if since is None or datetime.fromisoformat(event["insertedAt"]) >= since
+        ]
+        # Events come newest first, so stop at the first page reaching back past `since`.
+        if (
+            page * 100 >= body["total"]
+            or not events
+            or (since and datetime.fromisoformat(events[-1]["insertedAt"]) < since)
+        ):
+            return
+        page += 1
+
+
+@dlt.transformer(primary_key="incidentEventId", write_disposition="merge")
+def incident_events(incidents: list[dict], since: datetime | None):
+    """Events added since `since` to each incident and the incidents merged into it.
+    A new event bumps its incident's updatedAt, so older incidents are skipped."""
+    for parent in incidents:
+        for incident in [parent, *parent.get("children", [])]:
+            if since and datetime.fromisoformat(incident["updatedAt"]) < since:
+                continue
+            yield from _incident_events_since(incident["incidentId"], since)
+
+
 def _time_filtered_resource(name: str, time_from: str, time_to: str) -> dict:
     return {
         "name": name,
@@ -71,13 +109,13 @@ def _time_filtered_resource(name: str, time_from: str, time_to: str) -> dict:
 
 
 def _orchestra_api_config(
-    windows: dict[str, tuple[str, str]], include_assets: bool
+    windows: dict[str, tuple[str, str]], include_snapshots: bool
 ) -> dict:
     resources = [
         _time_filtered_resource(name, *windows[name])
         for name in TIME_FILTERED_RESOURCES
     ]
-    if include_assets:
+    if include_snapshots:
         resources.append(
             {
                 "name": "assets",
@@ -87,10 +125,25 @@ def _orchestra_api_config(
                 "primary_key": "assetId",
             }
         )
+        resources.append(
+            {
+                "name": "incidents",
+                "endpoint": {
+                    "paginator": PageNumberPaginator(base_page=1),
+                    # A stable sort, so pages don't shift while they're read.
+                    "params": {
+                        "include_archived": True,
+                        "sort_column": "created_at",
+                        "sort_direction": "asc",
+                    },
+                },
+                "primary_key": "incidentId",
+            }
+        )
 
     return {
         "client": {
-            "base_url": "https://app.getorchestra.io/api/engine/public/",
+            "base_url": f"{ENGINE_API_URL}/",
             "auth": {
                 "type": "bearer",
                 "token": dlt.secrets["orchestra_api_token"],
@@ -111,14 +164,14 @@ def _orchestra_api_config(
 
 def build_backfill_source(time_from: str, time_to: str):
     windows = {name: (time_from, time_to) for name in TIME_FILTERED_RESOURCES}
-    return rest_api_source(_orchestra_api_config(windows, include_assets=False))
+    return rest_api_source(_orchestra_api_config(windows, include_snapshots=False))
 
 
 # Named like rest_api_source so every load shares one dlt schema.
 @dlt.source(name="rest_api")
 def orchestra_metadata_since_last_run(backfilled_days: int = 0):
     """pipeline_runs/task_runs/operations changed since the previous successful run,
-    plus a full snapshot of assets.
+    plus a full snapshot of assets and incidents, and the incident events added since.
 
     The window's end is kept in dlt source state, which dlt stores in the destination,
     so it survives the fresh container each Orchestra task runs in. A failed load does
@@ -128,9 +181,12 @@ def orchestra_metadata_since_last_run(backfilled_days: int = 0):
     time_to = datetime.now(timezone.utc)
     earliest_time_from = time_to - timedelta(days=MAX_BACKFILL_WINDOW_DAYS)
 
+    # Events have no 7-day API limit: read all since the last run, or all on a first run.
+    events_since = None
     if "time_to" in state:
         last_time_to = datetime.fromisoformat(state["time_to"])
         time_from = last_time_to - WINDOW_OVERLAP
+        events_since = time_from
         if time_from < earliest_time_from:
             if last_time_to < min(
                 earliest_time_from, time_to - timedelta(days=backfilled_days)
@@ -162,8 +218,13 @@ def orchestra_metadata_since_last_run(backfilled_days: int = 0):
         max(time_from - OPERATIONS_LOOKBACK, earliest_time_from).isoformat(),
         time_to.isoformat(),
     )
+    api_resources = rest_api_resources(
+        _orchestra_api_config(windows, include_snapshots=True)
+    )
+    incidents = next(r for r in api_resources if r.name == "incidents")
     return [
-        *rest_api_resources(_orchestra_api_config(windows, include_assets=True)),
+        *api_resources,
+        incidents | incident_events(events_since),
         agent_token_usage(time_from - TOKEN_USAGE_LOOKBACK, time_to),
         advance_load_window,
     ]
