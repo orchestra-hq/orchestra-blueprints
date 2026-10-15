@@ -17,6 +17,15 @@ pipeline:
         depends_on: []
         name: dbt build
         connection: ${{ inputs.connection }}
+        alerts:
+          # A failure no monitor claims, like run #5's, needs its own task's alert to open an incident.
+          - name: Failed dbt build to dev-alerts
+            statuses:
+              - FAILED
+            destinations:
+              - integration: SLACK
+                destination: dev-alerts
+                connection_id: default_00000
     depends_on: []
     name: dbt
 alerts:
