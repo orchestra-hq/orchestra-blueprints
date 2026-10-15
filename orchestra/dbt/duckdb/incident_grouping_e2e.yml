@@ -19,6 +19,15 @@ pipeline:
         connection: ${{ inputs.connection }}
     depends_on: []
     name: dbt
+alerts:
+  # Staging only opens an incident for a failure no monitor claims (run #5) when an alert is set.
+  - name: Failed runs to dev-alerts
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: dev-alerts
+        connection_id: default_00000
 inputs:
   fail:
     type: string
