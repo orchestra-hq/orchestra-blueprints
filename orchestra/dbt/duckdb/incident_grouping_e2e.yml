@@ -31,7 +31,7 @@ inputs:
     default: test/eng-12727-dbt-grouping
   connection:
     type: string
-    default: incident_grouping_e2e
+    default: incident_grouping_e2e__eng_12727__86457
 meta:
   notes: >-
     Replays the ENG-12727 grouping diagram's task runs against one monitor (dbt events,
