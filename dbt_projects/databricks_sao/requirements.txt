@@ -1,2 +1,1 @@
-dbt-core==1.10.9
-dbt-databricks==1.10.10
+dbt-oss>=2.0.5,<3
