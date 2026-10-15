@@ -1,0 +1,40 @@
+version: v1
+name: 'Incident grouping e2e (ENG-12727) #dbt #duckdb #testing'
+pipeline:
+  dbt:
+    tasks:
+      dbt_build:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: >-
+            dbt build --target ${{ inputs.target }} --vars '{"fail": "${{ inputs.fail }}"}'
+          package_manager: PIP
+          python_version: '3.12'
+          branch: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/incident_grouping_e2e
+          shallow_clone_dirs: dbt_projects/incident_grouping_e2e
+        depends_on: []
+        name: dbt build
+        connection: ${{ inputs.connection }}
+    depends_on: []
+    name: dbt
+inputs:
+  fail:
+    type: string
+    default: ''
+  target:
+    type: string
+    default: dev
+  dbt_branch:
+    type: string
+    default: test/eng-12727-dbt-grouping
+  connection:
+    type: string
+    default: incident_grouping_e2e
+meta:
+  notes: >-
+    Replays the ENG-12727 grouping diagram's task runs against one monitor (dbt events,
+    operation failures only, grouped with downstream dbt models). Set `fail` to the nodes
+    that break, e.g. "b,d" for run #1, and `target` to anything but dev for run #5's
+    infrastructure failure.

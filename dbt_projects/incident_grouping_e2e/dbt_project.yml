@@ -1,0 +1,15 @@
+# The ENG-12727 grouping diagram's DAGs, A -> B -> C and D -> E, for testing incident grouping.
+# Pick the nodes that break on a run with --vars '{"fail": "b,d"}'. Node names are
+# a, b, c, d, e (models), a_warn (a warning test on A) and orphan (a test with no model).
+name: "incident_grouping_e2e"
+version: "1.0.0"
+config-version: 2
+profile: "incident_grouping_e2e"
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+
+models:
+  incident_grouping_e2e:
+    +materialized: table
