@@ -1,0 +1,6 @@
+# Not at the project root on purpose: dbt refuses to run when packages.yml
+# lists packages that aren't installed, which would break every other
+# scenario. Scenario 14 copies this file in and runs `dbt deps` itself:
+#   cp demo_packages/packages.yml . && dbt deps && dbt build ...
+packages:
+  - local: demo_packages/demo_chain_pkg

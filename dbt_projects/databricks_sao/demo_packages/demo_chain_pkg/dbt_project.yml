@@ -1,0 +1,6 @@
+# Local dbt package for failure-sim scenario 14: models D/E of the chain live
+# here, installed by `dbt deps` (packages.yml in databricks_sao).
+name: "demo_chain_pkg"
+version: "1.0.0"
+config-version: 2
+model-paths: ["models"]

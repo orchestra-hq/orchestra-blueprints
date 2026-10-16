@@ -35,3 +35,16 @@ models:
       +schema: "{{ 'orchestra_demo' ~ (('_' ~ var('demo_lane')) if var('demo_lane', '') else '') }}"
       +materialized: table
       +database: "{{ var('demo_catalog', 'main') }}"
+    # Scenarios 13/14: a 5-model chain A->B->C->D->E, own tag so the other
+    # scenarios' tag:orchestra_demo selections are unchanged.
+    orchestra_demo_chain:
+      +tags: orchestra_demo_chain
+      +schema: "{{ 'orchestra_demo' ~ (('_' ~ var('demo_lane')) if var('demo_lane', '') else '') }}"
+      +materialized: table
+      +database: "{{ var('demo_catalog', 'main') }}"
+  # Scenario 14: D/E from the local package demo_packages/demo_chain_pkg.
+  demo_chain_pkg:
+    +tags: orchestra_demo_chain
+    +schema: "{{ 'orchestra_demo' ~ (('_' ~ var('demo_lane')) if var('demo_lane', '') else '') }}"
+    +materialized: table
+    +database: "{{ var('demo_catalog', 'main') }}"
