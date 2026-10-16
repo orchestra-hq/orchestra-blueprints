@@ -1,2 +1,1 @@
-dbt-core==1.11.7
-dbt-bigquery==1.11.3
+dbt-oss>=2.0.5,<3
