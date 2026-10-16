@@ -1,24 +1,89 @@
 version: 2
 
+# Alerting metadata for the purposefully failing models.
+# Orchestra parses `owner`, `team_owner`, `channel`, `tags` and `subscribers` from
+# `meta` and uses them to route and annotate dbt Core alerts:
+# https://docs.getorchestra.io/docs/guides/dbt-core/orchestra-setup#configuring-owners-and-slack-channels-for-alerts
+#
+# Severity and importance are not first-class Orchestra fields, so they are encoded
+# as `key:value` tags in `meta.tags` (surfaced on the alert message) and mirrored in
+# dbt `tags` (with `_` instead of `:`) for node selection, e.g. `dbt build -s tag:severity_critical`.
+#
+# Model-level `meta` keys override the folder-level `+meta` in dbt_project.yml, so the
+# baseline tags (`failing_demo`, `alert-testing`) are repeated here.
+
 models:
   - name: failing_cast_error
     description: >-
       Purposefully failing model. Raises a DuckDB Conversion Error at run time so
       that `dbt run` fails. Used to exercise Orchestra failure handling.
+    config:
+      tags: ["failing_demo", "severity_high", "importance_tier_2", "error_type_runtime"]
+      meta:
+        owner: "hugo@getorchestra.io"
+        channel: "#alert-testing"
+        tags:
+          - "failing_demo"
+          - "alert-testing"
+          - "severity:high"
+          - "importance:tier_2"
+          - "error_type:runtime"
+        subscribers:
+          - "hugo@getorchestra.io"
+
   - name: failing_missing_column
     description: >-
       Purposefully failing model. References a column that does not exist so that
       dbt fails at compile/bind time. Used to exercise Orchestra failure handling.
+    config:
+      tags: ["failing_demo", "severity_critical", "importance_tier_1", "error_type_compile"]
+      meta:
+        owner: "hugo@getorchestra.io"
+        channel: "#alert-testing"
+        tags:
+          - "failing_demo"
+          - "alert-testing"
+          - "severity:critical"
+          - "importance:tier_1"
+          - "error_type:compile"
+        subscribers:
+          - "hugo@getorchestra.io"
+
   - name: failing_test_assertions
     description: >-
       Purposefully failing model. Builds successfully but violates its own tests,
       so `dbt run` passes and `dbt test` fails.
+    config:
+      tags: ["failing_demo", "severity_medium", "importance_tier_3", "error_type_data_quality"]
+      meta:
+        owner: "hugo@getorchestra.io"
+        channel: "#alert-testing"
+        tags:
+          - "failing_demo"
+          - "alert-testing"
+          - "severity:medium"
+          - "importance:tier_3"
+          - "error_type:data_quality"
+        subscribers:
+          - "hugo@getorchestra.io"
     columns:
       - name: store_key
         description: Always NULL on purpose, so the not_null test fails.
         tests:
-          - not_null
+          - not_null:
+              config:
+                severity: error
+                tags: ["severity_high"]
+                meta:
+                  owner: "hugo@getorchestra.io"
+                  tags: ["failing_demo", "alert-testing", "severity:high", "check:completeness"]
       - name: store
         description: Always duplicated on purpose, so the unique test fails.
         tests:
-          - unique
+          - unique:
+              config:
+                severity: error
+                tags: ["severity_medium"]
+                meta:
+                  owner: "hugo@getorchestra.io"
+                  tags: ["failing_demo", "alert-testing", "severity:medium", "check:uniqueness"]
