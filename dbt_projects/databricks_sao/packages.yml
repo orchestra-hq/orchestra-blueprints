@@ -1,0 +1,6 @@
+# Scenario 14 (failure-sim): models D/E of the chain come from this local
+# package. dbt refuses to run if a listed package isn't installed, so the
+# install is committed too, as the symlink dbt_packages/demo_chain_pkg, which is
+# exactly what `dbt deps` produces. Scenario 14 still runs `dbt deps` itself.
+packages:
+  - local: demo_packages/demo_chain_pkg
