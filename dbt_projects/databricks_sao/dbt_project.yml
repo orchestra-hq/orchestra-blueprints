@@ -26,5 +26,3 @@ models:
     marts:
       +materialized: table
       +schema: dbt_sao_demo
-flags:
-  require_generic_test_arguments_property: true

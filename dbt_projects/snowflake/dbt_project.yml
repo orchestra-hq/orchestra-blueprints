@@ -40,13 +40,16 @@ models:
     clean:
       +materialized: table
       +transient: false
-      schema: clean
+      +schema: clean
     staging:
       +materialized: table
-      schema: staging
+      +schema: staging
     aggregated:
       +materialized: table
-      schema: aggregated
+      +schema: aggregated
     production:
       +materialized: table
-      schema: prod
+      +schema: prod
+
+flags:
+  require_generic_test_arguments_property: true
