@@ -59,10 +59,11 @@ Run links use `https://app.getorchestra.io/pipeline-runs/<id>/lineage`, which is
 - **Asset grouping across lanes is untested.** Lanes use separate schemas, so the same model in different lanes is a different asset. Same-asset grouping across SAO and non-SAO is still covered within the both lane and by 06-both.
 - **Model counts are partly inferred.** For failed runs they come from the dbt `Done.` summary plus FAILED/SKIPPED operations; run_results artifacts weren't decoded. Green PASS counts in the both lane are inferred, and two both-lane failure summaries are reconstructed (09 R1 `0d337df1`, 10 R1c `c1237842` non-SAO).
 - **Scenarios 13 and 14 used only the by-asset monitor too.** All 24 of their incidents were resolved manually via the API.
-- **Six incidents are left OPEN:**
-  - sao-12 `c43aba9b` and `ba87d083`, and both-12 `e1f346bb` and `cd9eeb23`: all four pipelines have since gone green, so the next sweep (likely 19:00 UTC) should auto-resolve them.
+- **Two incidents are left OPEN** (was six at the time of the sweep):
+  - sao-12 `c43aba9b` and `ba87d083`, and both-12 `e1f346bb` and `cd9eeb23`: resolved by SYSTEM at 19:00:21 on 13 Oct, as predicted (checked 17 Oct).
   - The 10x test incidents `c57dd264` and `8cba8ed3`: that pipeline's last run failed, so these won't auto-resolve.
 - `demo-dbt-by-asset` is still enabled at order 0, scoped to the 50 demo pipelines.
+- `failure-sim-results.xlsx` (repo root) is the same data as a workbook: scenarios, findings, runs, incidents, pipelines, monitors, rerun playbook, config.
 - The raw data and scripts are in the session scratchpad: `lane_*_raw.json`, `incidents_all.json`, `ledger.jsonl`, `findings.md`.
 
 ## Scenario × lane: incidents created (monitor `demo-dbt-by-asset`)
