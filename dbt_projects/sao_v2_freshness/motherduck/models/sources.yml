@@ -1,0 +1,30 @@
+version: 2
+
+# One source per kind of freshness state-aware orchestration has to handle on
+# dbt v2. All four live in the sao_v2_fresh schema, created by sao_v2_setup.
+sources:
+  - name: fresh_field
+    schema: sao_v2_fresh
+    tables:
+      - name: raw_field
+        config:
+          loaded_at_field: loaded_at
+
+  - name: fresh_query
+    schema: sao_v2_fresh
+    tables:
+      - name: raw_query
+        config:
+          loaded_at_query: "select max(loaded_at) from {{ this }}"
+
+  # No loaded_at_*: freshness comes from dbt v2's metadata freshness.
+  - name: fresh_implicit
+    schema: sao_v2_fresh
+    tables:
+      - name: raw_implicit
+
+  # A view with no loaded_at_*: always counts as changed.
+  - name: fresh_view
+    schema: sao_v2_fresh
+    tables:
+      - name: raw_view

@@ -1,0 +1,15 @@
+name: "sao_v2_freshness_motherduck"
+version: "1.0.0"
+config-version: 2
+
+# Must match the profile name on the Orchestra dbt Core connection.
+profile: "motherduck"
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+
+models:
+  sao_v2_freshness_motherduck:
+
+    +materialized: table
+    +schema: sao_v2_fresh

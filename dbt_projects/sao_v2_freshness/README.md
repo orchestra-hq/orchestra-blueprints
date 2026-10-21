@@ -1,6 +1,6 @@
 # SAO on dbt v2: source freshness test
 
-One small project per warehouse (BigQuery, Snowflake, Databricks), each with a
+One small project per warehouse (BigQuery, Snowflake, Databricks, MotherDuck), each with a
 source of every kind `dbt-orchestra` has to judge freshness for on dbt v2, and
 one table model on each:
 
@@ -22,3 +22,6 @@ Run order:
 2. `dbt build` with state orchestration: cold, then warm.
 3. `dbt run-operation sao_v2_insert --args '{table: raw_field}'`, then build
    again: only `stg_field` (and `stg_view`) should rebuild.
+
+MotherDuck (DuckDB) can't do metadata freshness on dbt v2, so there the
+implicit source is left out and `stg_implicit` should rebuild every run.
