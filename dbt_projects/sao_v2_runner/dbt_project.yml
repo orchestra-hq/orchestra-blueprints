@@ -1,0 +1,7 @@
+# Empty placeholder project: Orchestra's dbt Core task runs `dbt debug` in its
+# project_dir before any command, and that fails outside a dbt project. The
+# real project is reached with --project-dir ../bigquery_sao_v2_edge.
+name: "sao_v2_runner"
+version: "1.0.0"
+config-version: 2
+profile: "dbt_bigquery"
