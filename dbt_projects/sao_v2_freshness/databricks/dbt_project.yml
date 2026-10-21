@@ -1,0 +1,15 @@
+name: "sao_v2_freshness_databricks"
+version: "1.0.0"
+config-version: 2
+
+# Must match the profile name on the Orchestra dbt Core connection.
+profile: "orchestra_dbt_databricks"
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+
+models:
+  sao_v2_freshness_databricks:
+    +database: main
+    +materialized: table
+    +schema: sao_v2_fresh
