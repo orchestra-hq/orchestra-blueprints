@@ -17,6 +17,10 @@ There are no sources, so reuse is driven by checksums alone: run with
 it) always rebuilds. Snapshots always rebuild. `selectors.yml` has one
 selector, `edge_marts` (`models/marts`).
 
+`profiles_duckdb/` is a credential-free profile (DuckDB `dev` and `alt`
+targets) for exercising `--profiles-dir` and `--target`; it is force-added
+past the repo's `profiles.yml` ignore rule.
+
 Everything lands in the `dbt_sao_v2_edge` dataset, separate from
 `dbt_sao_demo`, so this project's SAO state never mixes with the `bigquery`
 project's. `macros/log_target.sql` logs the active target without secrets

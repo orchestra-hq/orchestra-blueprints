@@ -1,0 +1,16 @@
+# For testing --profiles-dir and --target without warehouse credentials: the
+# Orchestra BigQuery connection's profile has only a `dev` target. Same profile
+# name as dbt_project.yml; each target is its own DuckDB file, so a relation's
+# name (and its SAO state key) differs per target. The files live only as long
+# as the task's container, so run cold and warm builds in one task.
+dbt_bigquery:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: edge_dev.duckdb
+      schema: main
+    alt:
+      type: duckdb
+      path: edge_alt.duckdb
+      schema: main
