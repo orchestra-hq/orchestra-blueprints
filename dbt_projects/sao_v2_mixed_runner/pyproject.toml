@@ -1,0 +1,12 @@
+# Same deliberately broken mix as requirements.txt, for Orchestra's UV package
+# manager (which reads pyproject.toml rather than requirements.txt).
+[project]
+name = "sao-v2-mixed-runner"
+version = "0.0.0"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "dbt-core==1.11.7",
+    "dbt-bigquery==1.11.3",
+    "dbt-oss>=2,<3",
+    "dbt-orchestra @ git+https://github.com/orchestra-hq/sao-paolo.git@main",
+]
