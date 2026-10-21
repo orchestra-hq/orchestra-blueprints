@@ -1,0 +1,26 @@
+name: "sao_v2_edge"
+version: "1.0.0"
+config-version: 2
+
+# Must match the profile name on the Orchestra dbt Core connection
+# (dbt_core__bigquery__01406), not the project name.
+profile: "dbt_bigquery"
+
+flags:
+  require_generic_test_arguments_property: true
+
+models:
+  sao_v2_edge:
+    +schema: dbt_sao_v2_edge
+    +materialized: table
+  edge_pkg:
+    +schema: dbt_sao_v2_edge
+    +materialized: table
+
+seeds:
+  sao_v2_edge:
+    +schema: dbt_sao_v2_edge
+
+snapshots:
+  sao_v2_edge:
+    +schema: dbt_sao_v2_edge

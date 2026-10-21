@@ -1,0 +1,5 @@
+selectors:
+  - name: edge_marts
+    definition:
+      method: path
+      value: models/marts

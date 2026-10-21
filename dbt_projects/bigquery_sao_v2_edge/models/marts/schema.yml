@@ -1,0 +1,8 @@
+version: 2
+
+models:
+  - name: dim_edge
+    latest_version: 2
+    versions:
+      - v: 1
+      - v: 2

@@ -1,0 +1,7 @@
+snapshots:
+  - name: snap_edge
+    relation: ref('edge_seed')
+    config:
+      unique_key: id
+      strategy: check
+      check_cols: all

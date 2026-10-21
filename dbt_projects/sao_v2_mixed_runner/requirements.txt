@@ -1,0 +1,6 @@
+# Deliberately broken: dbt 1.x and dbt v2 in one environment, to record what
+# dbt-orchestra does. The README says not to do this.
+dbt-core==1.11.7
+dbt-bigquery==1.11.3
+dbt-oss>=2,<3
+dbt-orchestra @ git+https://github.com/orchestra-hq/sao-paolo.git@main

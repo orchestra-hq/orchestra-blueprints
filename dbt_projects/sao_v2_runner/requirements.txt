@@ -1,0 +1,2 @@
+dbt-oss>=2,<3
+dbt-orchestra @ git+https://github.com/orchestra-hq/sao-paolo.git@main
