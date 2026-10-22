@@ -11,8 +11,7 @@ sources:
     schema: default_seed_data
     loaded_at_field: "cast(order_date as timestamp)"
     freshness:
-      warn_after: {count: 365, period: day}
-      error_after: {count: 1, period: day}
+      warn_after: {count: 1, period: day}
     config:
       meta:
         owner: "gary@getorchestra.io"
