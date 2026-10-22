@@ -23,15 +23,13 @@ models:
   orchestra_dbt_databricks:
     clean:
       +materialized: table
-      +dataset: clean
     aggregated:
       +materialized: table
-      +dataset: aggregated
 
 seeds:
   orchestra_dbt_databricks:
-    enabled: true
-    schema: seed_data
+    +enabled: true
+    +schema: seed_data
     # This configures seeds/country_codes.csv
     gsheet_accountids:
       # Override column types
