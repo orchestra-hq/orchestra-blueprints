@@ -77,7 +77,7 @@ pipeline:
           project_dir: dbt_projects/snowflake
           shallow_clone_dirs: dbt_projects/snowflake
         depends_on: []
-        name: run dbt
+        name: run dbt___
         connection: dbt_snowflake_blueprints_prod_07025
     depends_on:
       - 3459fb19-f081-43ca-8997-f7f2d54d331d
