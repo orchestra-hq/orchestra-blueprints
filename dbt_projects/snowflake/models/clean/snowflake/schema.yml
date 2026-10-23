@@ -20,7 +20,8 @@ models:
         description: "The primary key for this table"
         tests:
           - test_recent_days:
-              num_days: 1000000
+              arguments:
+                num_days: 1000000
           - not_null:
               config:
                 severity: warn
