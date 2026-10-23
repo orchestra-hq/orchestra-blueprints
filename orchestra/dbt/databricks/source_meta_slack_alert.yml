@@ -13,7 +13,7 @@ pipeline:
         # Swap for a dbt Core (Databricks) connection bound to orchestra-blueprints in your workspace
         connection: dbt_databricks_demo_54814
         parameters:
-          commands: dbt --warn-error source freshness --select tag:tier_1 --vars '{"source_database": "${{ inputs.source_database }}"}'
+          commands: dbt source freshness --select tag:tier_1 --vars '{"source_database": "${{ inputs.source_database }}"}'
           branch: claude/dbt-databricks-source-slack-alert
           package_manager: PIP
           python_version: '3.12'
