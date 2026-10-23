@@ -1,0 +1,6 @@
+# dbt v2. Orchestra installs this with package_manager UV; PIP reads requirements.txt (dbt 1.11) instead.
+[project]
+name = "databricks_sao"
+version = "0.0.1"
+requires-python = ">=3.12"
+dependencies = ["dbt-oss>=2.0.5,<3"]
