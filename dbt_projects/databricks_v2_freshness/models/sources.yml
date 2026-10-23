@@ -1,0 +1,25 @@
+version: 2
+
+# Each table is a model built by `dbt run`, aged so its source lands in one
+# freshness state: warn, error or pass.
+sources:
+  - name: v2f
+    database: hive_metastore
+    schema: default
+    config:
+      loaded_at_field: ts
+      meta:
+        channel: "#alert-testing"
+    tables:
+      - name: v2f_warn_only
+        config: {freshness: {warn_after: {count: 5, period: minute}}}
+      - name: v2f_warn_with_err
+        config: {freshness: {warn_after: {count: 5, period: minute}, error_after: {count: 1, period: day}}}
+      - name: v2f_err_both
+        config: {freshness: {warn_after: {count: 5, period: minute}, error_after: {count: 1, period: hour}}}
+      - name: v2f_err_only
+        config: {freshness: {error_after: {count: 1, period: hour}}}
+      - name: v2f_err_only_fresh
+        config: {freshness: {error_after: {count: 1, period: day}}}
+      - name: v2f_fresh
+        config: {freshness: {warn_after: {count: 5, period: minute}}}

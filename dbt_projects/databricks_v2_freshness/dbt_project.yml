@@ -1,0 +1,13 @@
+name: "databricks_v2_freshness"
+version: "1.0.0"
+config-version: 2
+
+# Must match the profile name on the Orchestra dbt Core connection for
+# Databricks (dbt_databricks_demo_54814).
+profile: "orchestra_dbt_databricks"
+
+model-paths: ["models"]
+
+models:
+  databricks_v2_freshness:
+    +materialized: table
