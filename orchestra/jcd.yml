@@ -1,0 +1,131 @@
+version: v1
+name: 'Snowflake dbt #python #dlt #glue #dbt #snowflake #powerbi'
+pipeline:
+  a1f3c2d4-1b2e-4c3d-9e8f-101112131415:
+    tasks:
+      b2e4d3c5-2c3f-4d4e-8f90-161718192021:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          environment_variables: >-
+            {"SHEET_NAME": "${{ MATRIX.gsheets['SHEET_NAME'] }}", "TABLE_NAME":
+            "${{ MATRIX.gsheets['TABLE_NAME'] }}", "RANGE_NAME": "dlt_range"}
+          set_outputs: false
+          source: GIT
+          command: python -m run_dlt_pipelines
+          branch: ${{ inputs.git_branch }}
+          project_dir: python/dlt
+          shallow_clone_dirs: python/dlt
+        depends_on: []
+        name: Execute parallel dlt
+        connection: python__production__blueprints__19239
+        treat_failure_as_warning: true
+    depends_on: []
+    name: dlt load to Snowflake
+    matrix:
+      inputs:
+        gsheets:
+          - SHEET_NAME: 1H0UnZ1vJ6WSsZgiVkg96zq52p7qaXkhvodlO1Mzoj6s
+            TABLE_NAME: dbt_leads
+          - SHEET_NAME: 1TMNhQFZbmaBsa1vIehQzh3vdyfc05damwJ_PIKDF14A
+            TABLE_NAME: social_leads
+          - SHEET_NAME: 1tImqLq_zLNthL7DDUkTUjU0xHoV_PhdM1zpuJ-TB0kk
+            TABLE_NAME: unstructured_feedback
+  c3a5e4d6-3d40-4e5f-9a01-222324252627:
+    tasks:
+      d4b6f5e7-4e51-4f60-8b12-282930313233:
+        integration: AWS_GLUE
+        integration_job: AWS_GLUE_RUN_JOB
+        parameters:
+          job_name: ${{ inputs.glue_job_name }}
+        depends_on: []
+        name: Glue heavy ingest
+        connection: glue_crawlers_79392
+    depends_on: []
+    name: AWS Glue ingest
+  e5c7a6f8-5f62-4071-9c23-343536373839:
+    tasks:
+      f6d8b7a9-6073-4182-8d34-404142434445:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt ${{ inputs.dbt_command }}
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: ${{ inputs.git_branch }}
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
+        depends_on: []
+        name: dbt Snowflake build
+        connection: dbt_snowflake_blueprints_prod_07025
+        alerts:
+          - name: dbt failures
+            statuses:
+              - FAILED
+            destinations:
+              - integration: SLACK
+                destination: alert-demos
+                connection_id: default_00000
+    depends_on:
+      - a1f3c2d4-1b2e-4c3d-9e8f-101112131415
+      - c3a5e4d6-3d40-4e5f-9a01-222324252627
+    name: dbt transform
+  07e9c8ba-7184-4293-9e45-464748495051:
+    tasks:
+      18fad9cb-8295-43a4-8f56-525354555657:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: 3a04b7a7-edea-4510-84b9-83a4d92c396e
+        depends_on: []
+        name: Refresh table-semantic-model
+        connection: power_bi__prod__54578
+      290beadc-93a6-44b5-9067-585960616263:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: 6453861e-112a-4252-b064-ab4475a8c2d0
+        depends_on: []
+        name: Refresh test-fabric-warehouse
+        connection: power_bi__prod__54578
+    depends_on:
+      - e5c7a6f8-5f62-4071-9c23-343536373839
+    name: Power BI refresh
+webhook:
+  enabled: false
+inputs:
+  git_branch:
+    type: string
+    default: main
+  dbt_command:
+    type: string
+    default: build
+  glue_job_name:
+    type: string
+    default: Testing
+meta:
+  notes: >-
+    metaengine dlt Google Sheets -> Snowflake loader
+    (python/dlt/run_dlt_pipelines_snowflake.py, matrixed over 3 sheets) and an
+    AWS Glue job run in parallel, then the dbt_projects/snowflake dbt project
+    builds, then two Power BI semantic models refresh (Power BI UAT workspace).
+alerts:
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: alert-demos
+        connection_id: default_00000
+anomalies:
+  - destinations:
+      - integration: SLACK
+        destination: alert-demos
+        connection_id: default_00000
+    min_baseline_seconds: 10
+    percentage_above_baseline: 20
+    type: pipeline_duration_above_baseline
