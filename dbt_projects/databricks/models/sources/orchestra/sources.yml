@@ -17,7 +17,6 @@ sources:
       meta:
         owner: "gary@getorchestra.io"
         channel: "#alert-testing"
-        team_owner: "!subteam^S0A6R0YDZKP"
     tables:
       - name: orders_raw
         description: "One row per order: id, customer, date, amount, status."
