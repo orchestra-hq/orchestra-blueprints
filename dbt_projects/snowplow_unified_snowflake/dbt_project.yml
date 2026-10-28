@@ -1,0 +1,37 @@
+name: 'snowplow_unified_snowflake'
+version: '1.0.0'
+config-version: 2
+
+# Must match the profile name on the Orchestra dbt Core connection.
+profile: 'snowflake_airflow_dbt'
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# snowplow_utils shadows dbt built-in macros; dbt only honours `dispatch` from
+# the root project, so it has to be repeated here.
+dispatch:
+  - macro_namespace: dbt
+    search_order: ['snowplow_utils', 'dbt']
+
+vars:
+  # Global (not package-scoped) so snowplow_utils sees them too.
+  snowplow__license_accepted: true
+  snowplow__database: SNOWPLOW_TRACKING
+  snowplow__atomic_schema: ATOMIC
+  snowplow__start_date: '2020-01-01'
+  # First run backfills everything in one go; drop to 30 after it succeeds.
+  snowplow__backfill_limit_days: 3000
+  snowplow__enable_web: true
+  snowplow__enable_mobile: false
+  snowplow__session_timestamp: collector_tstamp
+  # -1 disables the late-arriving filter, which needs dvce_sent_tstamp /
+  # dvce_created_tstamp (not in SNOWPLOW_TRACKING.ATOMIC.EVENTS).
+  snowplow__days_late_allowed: -1
+
+flags:
+  require_generic_test_arguments_property: true
