@@ -109,10 +109,13 @@ def load_sample_data(cur):
         ]
     )
     rows = list(sample.itertuples(index=False, name=None))
-    cur.executemany(
-        "INSERT INTO orchestra_ingest_demo (source, event_ts, payload) SELECT %s, %s, PARSE_JSON(%s)",
-        rows,
-    )
+    # INSERT ... SELECT (needed for PARSE_JSON) can't be batched by executemany()
+    # in newer snowflake-connector-python versions, so insert row by row.
+    for row in rows:
+        cur.execute(
+            "INSERT INTO orchestra_ingest_demo (source, event_ts, payload) SELECT %s, %s, PARSE_JSON(%s)",
+            row,
+        )
     logger.info("Inserted %d row(s).", len(rows))
 
 
