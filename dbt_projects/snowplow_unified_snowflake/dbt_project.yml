@@ -39,6 +39,15 @@ vars:
   snowplow__enable_mobile: false
   snowplow__session_timestamp: collector_tstamp
 
+models:
+  snowplow_unified:
+    # snowplow_utils works out each run's time window with run_query /
+    # adapter.get_relation at compile time. dbt v2 compiles ahead of execution
+    # by default, when those relations "don't exist" yet, so the package falls
+    # back to a 9999-01-01 window and every *_this_run model comes out empty.
+    # Turning static analysis off defers compilation to execution time.
+    +static_analysis: 'off'
+
 on-run-start:
   - "{{ create_snowplow_events_compat() }}"
 
