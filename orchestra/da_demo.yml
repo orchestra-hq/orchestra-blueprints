@@ -1,0 +1,125 @@
+version: v1
+name: >-
+  Python load + Glue to Snowflake dbt and Power BI #python #glue #dbt #snowflake
+  #powerbi
+pipeline:
+  ingest-python:
+    tasks:
+      load-to-snowflake:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          package_manager: PIP
+          python_version: '3.12'
+          build_command: pip install -r requirements.txt
+          source: GIT
+          branch: ${{ inputs.python_branch }}
+          command: python load_to_snowflake.py
+          project_dir: scripts
+          shallow_clone_dirs: scripts
+          set_outputs: false
+        depends_on: []
+        name: Python load to Snowflake
+        connection: python__blueprints__snowflake_linked__17190
+    depends_on: []
+    name: Python ingest
+  ingest-glue:
+    tasks:
+      glue-job:
+        integration: AWS_GLUE
+        integration_job: AWS_GLUE_RUN_JOB
+        parameters:
+          job_name: ${{ inputs.glue_job_name }}
+        depends_on: []
+        name: 'AWS Glue job '
+        connection: glue_crawlers_79392
+    depends_on: []
+    name: AWS Glue ingest
+  transform-dbt:
+    tasks:
+      dbt-build:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt ${{ inputs.dbt_command }}
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: true
+          branch: ${{ inputs.dbt_branch }}
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
+        depends_on: []
+        name: dbt Snowflake build
+        connection: dbt_snowflake_blueprints_prod_07025
+        alerts:
+          - name: dbt failures
+            statuses:
+              - FAILED
+            destinations:
+              - integration: SLACK
+                destination: alert-demos
+                connection_id: default_00000
+    depends_on:
+      - ingest-python
+      - ingest-glue
+    name: dbt transform
+  bi-refresh:
+    tasks:
+      pbi-table-model:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: 3a04b7a7-edea-4510-84b9-83a4d92c396e
+        depends_on: []
+        name: Refresh table-semantic-model
+        connection: power_bi__prod__54578
+      pbi-fabric-wh:
+        integration: POWER_BI
+        integration_job: POWER_BI_REFRESH_DATASET
+        parameters:
+          dataset_id: 6453861e-112a-4252-b064-ab4475a8c2d0
+        depends_on: []
+        name: Refresh test-fabric-warehouse
+        connection: power_bi__prod__54578
+    depends_on:
+      - transform-dbt
+    name: Power BI refresh
+webhook:
+  enabled: false
+inputs:
+  python_branch:
+    type: string
+    default: orchestra/load-to-snowflake-linked-creds
+  dbt_branch:
+    type: string
+    default: main
+  dbt_command:
+    type: string
+    default: build
+  glue_job_name:
+    type: string
+    default: Testing
+meta:
+  notes: >-
+    Python loader (orchestra-blueprints scripts/load_to_snowflake.py) simulates
+    loading data into Snowflake, in parallel with an AWS Glue job. Then the
+    dbt_projects/snowflake dbt project builds, then two Power BI semantic models
+    refresh (Power BI UAT workspace). The Python task reads Snowflake
+    credentials from the Snowflake (Prod) connection linked to its Python
+    connection.
+alerts:
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: alert-demos
+        connection_id: default_00000
+anomalies:
+  - destinations:
+      - integration: SLACK
+        destination: alert-demos
+        connection_id: default_00000
+    min_baseline_seconds: 10
+    percentage_above_baseline: 20
+    type: pipeline_duration_above_baseline
