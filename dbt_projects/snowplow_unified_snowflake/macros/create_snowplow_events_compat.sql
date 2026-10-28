@@ -17,7 +17,7 @@
 
 {% macro snowplow_events_compat_sql(view_name) %}
 {%- set nulls = [
-  ('timestamp_ntz', ['dvce_created_tstamp', 'dvce_sent_tstamp', 'load_tstamp']),
+  ('timestamp_ntz', ['dvce_sent_tstamp', 'load_tstamp']),
   ('varchar', ['page_referrer', 'page_urlscheme', 'page_urlquery', 'page_urlfragment',
                'refr_urlscheme', 'refr_urlpath', 'refr_urlquery', 'refr_urlfragment',
                'refr_medium', 'refr_source', 'refr_term',
@@ -34,6 +34,9 @@ select
   -- ponytail: hardcoded column list; if the source table gains one of these
   -- columns the view fails with a duplicate column, drop it from the list then.
   e.event_name as event,
+  -- No device clock in the source. derived_tstamp is the closest stand-in, and
+  -- unified needs this column non-null (views test, page-ping engaged time).
+  e.derived_tstamp as dvce_created_tstamp,
   parse_url(e.page_url, 1):host::varchar as page_urlhost,
   '/' || parse_url(e.page_url, 1):path::varchar as page_urlpath,
   -- No web_page context is loaded, so each page_view gets its event_id as its
