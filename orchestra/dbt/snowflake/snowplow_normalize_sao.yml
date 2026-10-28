@@ -18,6 +18,25 @@ pipeline:
         connection: dbt_snowflake_blueprints_prod_07025
     depends_on: []
     name: ''
+  8d1f0c3a-5b6e-4f7a-9c2d-3e4f5a6b7c81:
+    tasks:
+      b2c4e6f8-1a3b-4c5d-8e9f-0a1b2c3d4e51:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build
+          # dbt v2 (dbt-oss) via pyproject.toml; the normalize task above stays on dbt 1.11 (PIP).
+          package_manager: UV
+          python_version: '3.12'
+          use_state_orchestration: false
+          project_dir: dbt_projects/snowplow_unified_snowflake
+          shallow_clone_dirs: dbt_projects/snowplow_unified_snowflake
+        depends_on: []
+        name: dbt Build (Snowplow Unified)
+        connection: dbt_snowflake_blueprints_prod_07025
+    depends_on:
+    - e2867f57-90d5-4e8a-a2fa-b0ae504d50f2
+    name: snowplow unified
   42ca818d-f9e4-44cd-8c69-150c850e3af0:
     tasks:
       ec8b313f-6b34-4667-9663-b9c411553e7e:
