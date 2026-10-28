@@ -29,6 +29,8 @@ pipeline:
           package_manager: UV
           python_version: '3.12'
           use_state_orchestration: false
+          # Clone the branch the pipeline YAML was loaded from (default: the repo's default branch).
+          branch: ${{ ORCHESTRA.CURRENT_BRANCH }}
           project_dir: dbt_projects/snowplow_unified_snowflake
           shallow_clone_dirs: dbt_projects/snowplow_unified_snowflake
         depends_on: []
