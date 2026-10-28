@@ -36,8 +36,9 @@ vars:
   # compat view, so the predicate is NULL and every view / session is dropped.
   snowplow__ua_bot_filter: false
   snowplow__start_date: '2020-01-01'
-  # First run backfills everything in one go; drop to 30 after it succeeds.
-  snowplow__backfill_limit_days: 3000
+  # Package default. The first load (2026-10-28) used 3000 to backfill from
+  # start_date in one go; raise it again only if the manifest is reset.
+  snowplow__backfill_limit_days: 30
   snowplow__enable_web: true
   snowplow__enable_mobile: false
   snowplow__session_timestamp: collector_tstamp
