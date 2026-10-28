@@ -3,6 +3,9 @@ load_to_snowflake.py
 --------------------
 Loads sample/staged data into Snowflake.
 
+Credentials can come from an Orchestra linked Snowflake connection
+(SNOWFLAKE__<CONNECTION_ID>__SNOWFLAKE_*); explicit variables below win.
+
 Required environment variables:
   SNOWFLAKE_ACCOUNT    - e.g. xy12345.us-east-1
   SNOWFLAKE_USER       - Snowflake username
@@ -26,7 +29,36 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def apply_linked_connection_env():
+    """Fill missing SNOWFLAKE_* variables from an Orchestra linked Snowflake connection.
+
+    Orchestra exports linked connection credentials as
+    SNOWFLAKE__<CONNECTION_ID>__SNOWFLAKE_<FIELD>. Set SNOWFLAKE_CONNECTION_ID
+    to choose one when several Snowflake connections are linked.
+    """
+    wanted = os.environ.get("SNOWFLAKE_CONNECTION_ID", "").upper()
+    prefixes = sorted(
+        {
+            k.rsplit("__", 1)[0] + "__"
+            for k in os.environ
+            if k.startswith("SNOWFLAKE__") and k.count("__") == 2
+        }
+    )
+    if wanted:
+        prefixes = [p for p in prefixes if p == f"SNOWFLAKE__{wanted}__"]
+    if not prefixes:
+        return
+    prefix = prefixes[0]
+    for field in ["ACCOUNT", "USER", "PASSWORD", "DATABASE", "SCHEMA", "WAREHOUSE", "ROLE"]:
+        name = f"SNOWFLAKE_{field}"
+        linked = os.environ.get(f"{prefix}{name}")
+        if linked and not os.environ.get(name):
+            os.environ[name] = linked
+    logger.info("Using linked Snowflake connection %s", prefix.strip("_"))
+
+
 def get_snowflake_connection():
+    apply_linked_connection_env()
     required = [
         "SNOWFLAKE_ACCOUNT",
         "SNOWFLAKE_USER",
