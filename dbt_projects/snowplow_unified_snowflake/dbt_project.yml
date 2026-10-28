@@ -32,21 +32,15 @@ vars:
   # late-event filter coalesce them to collector_tstamp instead of dropping
   # every row.
   snowplow__allow_null_dvce_tstamps: true
+  # The bot filter is `not rlike(useragent, ...)`. useragent is NULL in the
+  # compat view, so the predicate is NULL and every view / session is dropped.
+  snowplow__ua_bot_filter: false
   snowplow__start_date: '2020-01-01'
   # First run backfills everything in one go; drop to 30 after it succeeds.
   snowplow__backfill_limit_days: 3000
   snowplow__enable_web: true
   snowplow__enable_mobile: false
   snowplow__session_timestamp: collector_tstamp
-
-models:
-  snowplow_unified:
-    # snowplow_utils works out each run's time window with run_query /
-    # adapter.get_relation at compile time. dbt v2 compiles ahead of execution
-    # by default, when those relations "don't exist" yet, so the package falls
-    # back to a 9999-01-01 window and every *_this_run model comes out empty.
-    # Turning static analysis off defers compilation to execution time.
-    +static_analysis: 'off'
 
 on-run-start:
   - "{{ create_snowplow_events_compat() }}"
