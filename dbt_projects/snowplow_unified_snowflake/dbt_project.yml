@@ -43,6 +43,15 @@ vars:
   snowplow__enable_mobile: false
   snowplow__session_timestamp: collector_tstamp
 
+# TEST ONLY: tags every query with the simulation step so cost can be read
+# back from Snowflake's query history per step.
+models:
+  +query_tag: "{{ var('sim_tag', 'snowplow_unified') }}"
+data_tests:
+  +query_tag: "{{ var('sim_tag', 'snowplow_unified') }}"
+seeds:
+  +query_tag: "{{ var('sim_tag', 'snowplow_unified') }}"
+
 on-run-start:
   - "{{ create_snowplow_events_compat() }}"
 
