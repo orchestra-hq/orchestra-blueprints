@@ -54,3 +54,59 @@ Findings, applied to the skill:
   didn't change outputs: worth doing, but not the large win the skill promised.
 - dbt v2 (dbt-oss 2.0.8) doesn't apply `+query_tag`; the report splits cost per step by
   Snowflake session timing instead.
+
+### v2: one change at a time, scored against the raw events (2026-10-30)
+
+v1 compared bundled changes against package defaults over 34 days of history, so it
+couldn't say which change did what, or whether "default" was itself right. v2:
+
+- **Data:** 1M events/day for 45 days ([generate_snowplow_sim.sql](macros/sim/generate_snowplow_sim.sql),
+  `logged_in_pct: 30` so stitching has user_ids to map), with the same planted late tails.
+- **Starting state:** one default build to 2026-10-01, then about a year of history added
+  ([sim_v2.sql](macros/sim/sim_v2.sql) `sim_inflate_history`: 12 back-dated copies of the
+  manifest, sessions and views, users back-dated). Every variant starts from a zero-copy
+  clone of it, so they differ only in the setting under test.
+- **Runs:** five daily increments per variant, `dbt run` only.
+- **Truth:** the raw events. Every human page view loaded during the five days should be
+  a row in `views`. Misses are bucketed by cause (`sim_eval`). Session totals are checked
+  against raw event counts too.
+- **Cost:** per model from `information_schema.query_history`, read in 2-minute slices
+  (`sim_cost_sliced`). Rows written is the reliable volume measure. Bytes scanned for
+  scratch tables swings 3x between query plans for the same rows. Execution time has
+  about ±20% noise: two identical default runs measured 253 s and 317 s per run.
+
+Accuracy: 1,400,400 page views expected. Default misses 1,796 (0.13%): 1,162 held on
+device more than 3 days, 292 loaded more than 6 h late, 342 in quarantined multi-day
+human sessions.
+
+| Setting (default) | Value | Page views missed | Cost effect per daily run |
+| --- | --- | --- | --- |
+| `lookback_window_hours` (6) | 2 | 2,812 (+1,016 loaded 1–6 h late) | 12% fewer event rows |
+| | 15 | 1,504 (load-lag misses → 0; under-counted sessions 1,289 → 286) | 28% more event rows |
+| `days_late_allowed` (3) | 1 | 2,105 | none measurable |
+| | 7 | 634 (device-lateness misses → 0) | none measurable |
+| `max_session_days` (3) | 1 | 3,111 (quarantine 342 → 1,301) | 10% fewer event rows |
+| | 7 | 1,464 (quarantine → 10) | 10% more event rows |
+| `session_lookback_days` (730) | 30 / 7 | identical to default | manifest bytes −30% / −42% |
+| `upsert_lookback_days` (30) | 10 / 3 | identical to default | views merge bytes −57% / −75% |
+| `session_timestamp` (collector) | load_tstamp | 1,503 (load-lag misses → 0 even with a 1 h lookback) | 4% more event rows (6 h), 11% fewer (1 h); needs a fresh build |
+| `session_stitching` (true) | false | identical to default (stitched ids not populated) | sessions model 123 s → 26 s, rows rewritten 21.5M → 0.65M per run; package time −30% |
+
+Combined (`lookback 15, days_late 7, max_session 5, session_lookback 14, upsert 8`,
+stitching on) against a default run at the same load: **2 page views missed instead of
+1,796**, sessions missing 238 → 35, under-counted 1,289 → 8. Cost: 37% more event rows,
+bytes 8.5 → 5.3 GB, time 135 → 143 s (within noise).
+
+Findings:
+- The window vars are mostly correctness settings. Only `session_lookback_days` and
+  `upsert_lookback_days` are free cost savings. Both left outputs byte-identical here.
+- The largest package cost is session stitching. Its post-hook UPDATE matches every
+  historical row of every mapped user and rewrites about the whole sessions table each
+  run (21M rows per run here, clustering depth 2 → 35 after five runs).
+  [stitch_user_identifiers.sql](macros/stitch_user_identifiers.sql) tested skipping rows
+  already holding the mapped id (via dispatch, var-gated). Outputs were identical, but
+  Snowflake still rewrote the same volume in the same time, so it saves nothing.
+  Disabling stitching is the only change that removed the cost.
+- `users_sessions_this_run` reads every historical session of each returning user
+  (7M rows per run). No var bounds it, so it grows with history.
+- `ACCOUNT_USAGE` isn't readable by this role, so partition pruning wasn't measured.
