@@ -22,3 +22,35 @@ inputs `dbt_branch` / `dbt_command`.
 Recover from an empty or bad first load with `dbt build --full-refresh` (pipeline input
 `dbt_command`). snowplow_utils only allows the full refresh because the connection's
 target is named `dev` (`snowplow__dev_target_name`).
+
+## Window-var tuning simulation (TEST ONLY, branch `claude/snowplow-unified-tuning-sim`)
+
+Tests the `tune-snowplow-windows` skill on synthetic data at three volumes. Data comes from
+[macros/sim/generate_snowplow_sim.sql](macros/sim/generate_snowplow_sim.sql): 34 days with a
+planted late tail (0.1% of sessions held on device 2–6 days, 0.1% of events loaded 8–14 h
+late), 0.5% bots, 0.2% multi-day human sessions. Each case ran an initial load to 2026-10-01
+plus three daily increments. Baseline is package defaults; tuned is the skill's proposal.
+Results from [macros/sim/sim_report.sql](macros/sim/sim_report.sql), run 2026-10-30.
+
+| Scale (events/day) | Applied | Increment exec s (base → tuned) | Increment GB scanned (base → tuned) | Output vs baseline |
+| --- | --- | --- | --- | --- |
+| S (50k) | lookback 6→8, days_late 3→4, session_lookback 730→12, upsert 30→8 | 56 → 68 | 1.35 → 1.32 | +113 views, +22 sessions (late events recovered) |
+| M (1M) | days_late 3→2, session_lookback 730→12, upsert 30→6 (lookback 6→7 skipped by the 20% rule) | 168 → 122 | 23.2 → 22.0 | −2,045 views, −369 sessions (narrowed days_late dropped events) |
+| L (5M) | session_lookback 730→12, upsert 30→6 (days_late narrowing rejected after M) | 414 → 270 | 67.7 → 60.6 | identical (same sessions hash) |
+
+Execution times are from Snowflake query history and are noisy: cases shared one
+warehouse and overlapped. Bytes scanned are the steadier measure.
+
+Findings, applied to the skill:
+- `days_late_allowed` filters on device lateness (`dvce_sent - dvce_created`), not load lag.
+- Its p99.9 isn't stable when the late tail is near 0.1% of events (74 h at S, 26–30 h at
+  M/L, same distribution), which led M to propose narrowing to 2 days and lose data. The
+  skill now picks the setting from a dropped-events-per-N-days curve.
+- Session length read from the lifecycle manifest is capped at `max_session_days`, so it
+  could never suggest raising it. It's now measured from the raw events.
+- The 20% churn rule blocked a widening (lookback 6→7) the data needed. Widening when the
+  metric is already past the setting now bypasses it.
+- `session_lookback_days` / `upsert_lookback_days` cut about 5–10% of increment bytes and
+  didn't change outputs: worth doing, but not the large win the skill promised.
+- dbt v2 (dbt-oss 2.0.8) doesn't apply `+query_tag`; the report splits cost per step by
+  Snowflake session timing instead.
