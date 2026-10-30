@@ -151,3 +151,32 @@ select 'manifest', parse_json(system$clustering_information('{{ pre }}_snowplow_
   {% do sim_print('clustering ' ~ case, clustering) %}
   {% do sim_model_cost([case]) %}
 {% endmacro %}
+
+{#
+  Per-model cost of each case's increments from ACCOUNT_USAGE (no row cap,
+  has partitions; lags up to 45 minutes). Scoring queries read the raw
+  events table directly, so they are excluded by that name.
+#}
+{% macro sim_cost_au(cases, since) %}
+  {% set sql %}
+select case_name, model, count(*) as queries,
+    round(sum(execution_time) / 1000, 1) as exec_s, round(sum(bytes_scanned) / 1e6) as mb,
+    sum(partitions_scanned) as parts_scanned, sum(partitions_total) as parts_total
+from (
+    select regexp_substr(lower(query_text), 'public_(m2_v[0-9]+)_', 1, 1, 'e') as case_name,
+        lower(regexp_replace(regexp_substr(query_text, 'snowplow_unified_[a-z0-9_]+', 1, 1, 'i'), '__dbt_tmp.*$', '')) as model,
+        execution_time, bytes_scanned, partitions_scanned, partitions_total
+    from snowflake.account_usage.query_history
+    where start_time >= '{{ since }}'::timestamp_ltz
+      and query_text ilike '%public_m2_v%'
+      and query_text not ilike '%snowplow_sim_m2.events%'
+      and query_text not ilike '%query_history%'
+      and execution_status = 'SUCCESS'
+)
+where case_name in ('{{ cases | join("', '") }}')
+group by 1, 2
+having sum(bytes_scanned) > 0 or sum(execution_time) > 2000
+order by 1, mb desc
+  {% endset %}
+  {% do sim_print('cost_au', sql) %}
+{% endmacro %}
