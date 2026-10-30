@@ -76,19 +76,35 @@ select
   {% endset %}
   {% do sim_print('outputs', outputs) %}
 
+  {#- dbt v2 doesn't apply +query_tag, so dbt invocations are told apart by
+      time: a step is a run of Snowflake sessions that starts after every
+      earlier session has ended. The last step is this report. #}
   {% set cost %}
-select
-    query_tag,
-    count(*) as queries,
-    sum(execution_time) / 1000 as exec_s,
-    sum(bytes_scanned) as bytes_scanned,
-    sum(iff(query_text ilike '%base_events_this_run%' and query_type in ('CREATE_TABLE_AS_SELECT', 'INSERT', 'MERGE'), execution_time, 0)) / 1000 as this_run_exec_s,
-    sum(iff(query_text ilike '%base_events_this_run%' and query_type in ('CREATE_TABLE_AS_SELECT', 'INSERT', 'MERGE'), bytes_scanned, 0)) as this_run_bytes
-from table({{ target.database }}.information_schema.query_history(
-    end_time_range_start => dateadd(hour, -24, current_timestamp()), result_limit => 10000))
-where query_text ilike '%public_{{ case }}_%'
-group by query_tag
-order by query_tag
+with q as (
+    select session_id, start_time, end_time, execution_time, bytes_scanned,
+        query_text ilike '%base_events_this_run%' and query_type in ('CREATE_TABLE_AS_SELECT', 'INSERT', 'MERGE') as is_this_run
+    from table({{ target.database }}.information_schema.query_history(
+        end_time_range_start => dateadd(hour, -24, current_timestamp()), result_limit => 10000))
+    where query_text ilike '%public_{{ case }}_%'
+),
+sessions as (
+    select session_id, min(start_time) as first_start, max(end_time) as last_end,
+        count(*) as queries, sum(execution_time) as exec_ms, sum(bytes_scanned) as bytes,
+        sum(iff(is_this_run, execution_time, 0)) as this_run_ms, sum(iff(is_this_run, bytes_scanned, 0)) as this_run_bytes
+    from q group by session_id
+),
+stepped as (
+    select *,
+        conditional_true_event(first_start > coalesce(max(last_end) over (
+            order by first_start rows between unbounded preceding and 1 preceding), '1970-01-01')) over (order by first_start) as step
+    from sessions
+)
+select step, min(first_start) as started, datediff(second, min(first_start), max(last_end)) as wall_s,
+    sum(queries) as queries, sum(exec_ms) / 1000 as exec_s, sum(bytes) as bytes_scanned,
+    sum(this_run_ms) / 1000 as this_run_exec_s, sum(this_run_bytes) as this_run_bytes
+from stepped
+group by step
+order by step
   {% endset %}
   {% do sim_print('cost', cost) %}
 {% endmacro %}
