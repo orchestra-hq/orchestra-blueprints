@@ -93,11 +93,13 @@ sessions as (
         sum(iff(is_this_run, execution_time, 0)) as this_run_ms, sum(iff(is_this_run, bytes_scanned, 0)) as this_run_bytes
     from q group by session_id
 ),
-stepped as (
-    select *,
-        conditional_true_event(first_start > coalesce(max(last_end) over (
-            order by first_start rows between unbounded preceding and 1 preceding), '1970-01-01')) over (order by first_start) as step
+prior as (
+    select *, max(last_end) over (order by first_start rows between unbounded preceding and 1 preceding) as prior_end
     from sessions
+),
+stepped as (
+    select *, conditional_true_event(prior_end is null or first_start > prior_end) over (order by first_start) as step
+    from prior
 )
 select step, min(first_start) as started, datediff(second, min(first_start), max(last_end)) as wall_s,
     sum(queries) as queries, sum(exec_ms) / 1000 as exec_s, sum(bytes) as bytes_scanned,
