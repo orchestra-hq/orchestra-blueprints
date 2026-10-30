@@ -80,11 +80,10 @@ select
 select
     query_tag,
     count(*) as queries,
-    sum(total_elapsed_time) / 1000 as elapsed_s,
+    sum(execution_time) / 1000 as exec_s,
     sum(bytes_scanned) as bytes_scanned,
-    sum(iff(query_text ilike '%base_events_this_run%' and query_type in ('CREATE_TABLE_AS_SELECT', 'INSERT', 'MERGE'), bytes_scanned, 0)) as this_run_bytes,
-    sum(iff(query_text ilike '%base_events_this_run%' and query_type in ('CREATE_TABLE_AS_SELECT', 'INSERT', 'MERGE'), partitions_scanned, 0)) as this_run_partitions,
-    max(iff(query_text ilike '%base_events_this_run%' and query_type in ('CREATE_TABLE_AS_SELECT', 'INSERT', 'MERGE'), partitions_total, 0)) as this_run_partitions_total
+    sum(iff(query_text ilike '%base_events_this_run%' and query_type in ('CREATE_TABLE_AS_SELECT', 'INSERT', 'MERGE'), execution_time, 0)) / 1000 as this_run_exec_s,
+    sum(iff(query_text ilike '%base_events_this_run%' and query_type in ('CREATE_TABLE_AS_SELECT', 'INSERT', 'MERGE'), bytes_scanned, 0)) as this_run_bytes
 from table({{ target.database }}.information_schema.query_history(
     end_time_range_start => dateadd(hour, -24, current_timestamp()), result_limit => 10000))
 where query_tag like '{{ case }}%'
