@@ -17,6 +17,8 @@ clean-targets:
 dispatch:
   - macro_namespace: dbt
     search_order: ['snowplow_utils', 'dbt']
+  - macro_namespace: snowplow_unified
+    search_order: ['snowplow_unified_snowflake', 'snowplow_unified']
 
 vars:
   # Global (not package-scoped) so snowplow_utils sees them too.

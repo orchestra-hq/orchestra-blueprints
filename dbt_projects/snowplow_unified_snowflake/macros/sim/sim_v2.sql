@@ -180,3 +180,40 @@ order by 1, mb desc
   {% endset %}
   {% do sim_print('cost_au', sql) %}
 {% endmacro %}
+
+{#
+  Per-model cost of each case's increments from information_schema, read in
+  slices of slice_min minutes so no call reaches the 10,000-row limit while
+  many cases run at once. Scoring queries read the raw events table
+  directly, so they are excluded by that name.
+#}
+{% macro sim_cost_sliced(cases, start, minutes, slice_min=2) %}
+  {% set sql %}
+with q as (
+  {% for i in range(0, minutes, slice_min) %}
+    select query_id, query_text, query_type, execution_time, bytes_scanned, rows_produced
+    from table({{ target.database }}.information_schema.query_history(
+        end_time_range_start => dateadd(minute, {{ i }}, '{{ start }}'::timestamp_ltz),
+        end_time_range_end => dateadd(minute, {{ i + slice_min }}, '{{ start }}'::timestamp_ltz),
+        result_limit => 10000))
+    {% if not loop.last %}union all{% endif %}
+  {% endfor %}
+),
+tagged as (
+    select regexp_substr(lower(query_text), 'public_(m2_v[0-9]+)_', 1, 1, 'e') as case_name,
+        lower(regexp_replace(regexp_substr(query_text, 'snowplow_unified_[a-z0-9_]+', 1, 1, 'i'), '__dbt_tmp.*$', '')) as model,
+        query_type, execution_time, bytes_scanned, rows_produced
+    from q
+    where query_text not ilike '%snowplow_sim_m2.events%'
+      and query_text not ilike '%query_history%'
+)
+select case_name, model, count(*) as queries, round(sum(execution_time) / 1000, 1) as exec_s,
+    round(sum(bytes_scanned) / 1e6) as mb, sum(iff(query_type in ('CREATE_TABLE_AS_SELECT', 'INSERT', 'MERGE', 'UPDATE'), rows_produced, 0)) as rows_written
+from tagged
+where case_name in ('{{ cases | join("', '") }}')
+group by 1, 2
+having sum(bytes_scanned) > 0 or sum(execution_time) > 2000
+order by 1, mb desc
+  {% endset %}
+  {% do sim_print('cost_sliced', sql) %}
+{% endmacro %}
