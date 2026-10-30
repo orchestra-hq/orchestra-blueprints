@@ -12,9 +12,12 @@
   - loader lag (load_tstamp - collector_tstamp), per event: 99% 1-10 minutes,
     0.9% 1-6 hours, 0.1% 8-14 hours
 
+  - logins: users with mod(user_n, 100) < logged_in_pct carry a user_id after
+    their session's first event, so session stitching has a mapping to apply
+
   Events "arrive" by load_tstamp: the compat view filters on var sim_now.
 #}
-{% macro generate_snowplow_sim(scale, events_per_day, start_date='2026-09-01', days=34, seed=42) %}
+{% macro generate_snowplow_sim(scale, events_per_day, start_date='2026-09-01', days=34, seed=42, logged_in_pct=0) %}
   {% set sessions_per_day = (events_per_day / 20) | int %}
   {% set n_users = sessions_per_day * 8 %}
   {% set schema = target.database ~ '.SNOWPLOW_SIM_' ~ scale %}
@@ -69,7 +72,7 @@ select
   dateadd(millisecond, 200, event_ts) as derived_tstamp,
   'sim' as app_id,
   'web' as platform,
-  null::varchar as user_id,
+  case when mod(user_n, 100) < {{ logged_in_pct }} and k > 0 then 'uid_' || user_n end as user_id,
   'du_' || user_n as domain_userid,
   'nu_' || user_n as network_userid,
   'ds_{{ scale }}_' || s as domain_sessionid,
