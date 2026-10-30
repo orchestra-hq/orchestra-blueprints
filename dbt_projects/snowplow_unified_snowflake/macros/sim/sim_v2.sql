@@ -244,7 +244,7 @@ select count(*) as mapped_rows,
     count_if(s.stitched_user_id is distinct from um.user_id) as differing,
     count(distinct um.user_identifier) as mapped_users,
     (select count(*) - count(distinct user_identifier) from {{ pre }}.snowplow_unified_user_mapping) as mapping_dupes,
-    any_value(iff(s.stitched_user_id is distinct from um.user_id, s.stitched_user_id || ' | ' || um.user_id || ' | ' || s.user_identifier, null)) as sample
+    any_value(iff(s.stitched_user_id is distinct from um.user_id, s.stitched_user_id || ' | ' || um.user_id || ' | ' || s.user_identifier, null)) as example_row
 from {{ pre }}.snowplow_unified_sessions s
 join {{ pre }}.snowplow_unified_user_mapping um on s.user_identifier = um.user_identifier
   {% endset %}
