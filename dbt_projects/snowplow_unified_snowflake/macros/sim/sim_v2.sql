@@ -235,3 +235,23 @@ order by 1, 2
   {% endset %}
   {% do sim_print('updates', sql) %}
 {% endmacro %}
+
+{# Why do stitched rows keep differing from the mapping? Samples them. #}
+{% macro sim_stitch_probe(case) %}
+  {% set pre = target.database ~ '.' ~ target.schema ~ '_' ~ case ~ '_derived' %}
+  {% set sql %}
+select count(*) as mapped_rows,
+    count_if(s.stitched_user_id is distinct from um.user_id) as differing,
+    count(distinct um.user_identifier) as mapped_users,
+    (select count(*) - count(distinct user_identifier) from {{ pre }}.snowplow_unified_user_mapping) as mapping_dupes,
+    any_value(iff(s.stitched_user_id is distinct from um.user_id, s.stitched_user_id || ' | ' || um.user_id || ' | ' || s.user_identifier, null)) as sample
+from {{ pre }}.snowplow_unified_sessions s
+join {{ pre }}.snowplow_unified_user_mapping um on s.user_identifier = um.user_identifier
+  {% endset %}
+  {% do sim_print('stitch_probe ' ~ case, sql) %}
+  {% set sql2 %}
+select user_identifier, count(*) as n, count(distinct user_id) as ids, min(user_id) as a, max(user_id) as b
+from {{ pre }}.snowplow_unified_user_mapping group by 1 having count(*) > 1 limit 3
+  {% endset %}
+  {% do sim_print('mapping_dupes ' ~ case, sql2) %}
+{% endmacro %}
