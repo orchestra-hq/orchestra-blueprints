@@ -86,7 +86,7 @@ select
     sum(iff(query_text ilike '%base_events_this_run%' and query_type in ('CREATE_TABLE_AS_SELECT', 'INSERT', 'MERGE'), bytes_scanned, 0)) as this_run_bytes
 from table({{ target.database }}.information_schema.query_history(
     end_time_range_start => dateadd(hour, -24, current_timestamp()), result_limit => 10000))
-where query_tag like '{{ case }}%'
+where query_text ilike '%public_{{ case }}\\_%'
 group by query_tag
 order by query_tag
   {% endset %}
