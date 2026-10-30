@@ -217,3 +217,21 @@ order by 1, mb desc
   {% endset %}
   {% do sim_print('cost_sliced', sql) %}
 {% endmacro %}
+
+{# Lists each case's stitching UPDATEs with rows written and timing. #}
+{% macro sim_updates(cases, start, minutes) %}
+  {% set sql %}
+select regexp_substr(lower(query_text), 'public_(m2_v[0-9]+)_', 1, 1, 'e') as case_name,
+    regexp_substr(lower(query_text), 'snowplow_unified_[a-z_]+') as tbl,
+    count(*) as n, sum(rows_produced) as rows_updated, round(sum(execution_time) / 1000, 1) as exec_s,
+    round(sum(bytes_scanned) / 1e6) as mb, max(iff(query_text ilike '%is distinct from%', 1, 0)) as has_fix
+from table({{ target.database }}.information_schema.query_history(
+    end_time_range_start => '{{ start }}'::timestamp_ltz,
+    end_time_range_end => dateadd(minute, {{ minutes }}, '{{ start }}'::timestamp_ltz), result_limit => 10000))
+where query_type = 'UPDATE' and query_text ilike '%stitched_user_id%'
+group by 1, 2
+having case_name in ('{{ cases | join("', '") }}')
+order by 1, 2
+  {% endset %}
+  {% do sim_print('updates', sql) %}
+{% endmacro %}
