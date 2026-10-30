@@ -97,6 +97,25 @@ stitching on) against a default run at the same load: **2 page views missed inst
 1,796**, sessions missing 238 → 35, under-counted 1,289 → 8. Cost: 37% more event rows,
 bytes 8.5 → 5.3 GB, time 135 → 143 s (within noise).
 
+Cost-minimal (`session_timestamp: load_tstamp`, `lookback 1`, `session_lookback 7`,
+`upsert 3`, `session_stitching: false`), run alongside a fresh default run at the same
+time. Same five daily increments:
+
+| Per run | Default (v21) | Cost-minimal (v19) | + `days_late_allowed: 7` (v20) |
+| --- | --- | --- | --- |
+| Rows written | 34.3M | 12.5M (−64%) | 12.7M |
+| Execution time | 102 s (135 s earlier) | 70 s (−31 to −48%) | 71 s |
+| Bytes scanned | 8.65 GB | 5.65 GB (−35%) | 5.69 GB |
+| Page views missed | 1,796 | 1,503 | 341 |
+| Sessions missing / under-counted | 238 / 1,289 | 229 / 286 | 36 / 286 |
+| Sessions clustering depth | 34 | 2.4 | 2.5 |
+
+Most of the saving is stitching: the sessions model fell from 21M rows and 45–66 s to
+0.5M rows and 8 s. `users_sessions_this_run` (6.5M rows, about 17 s) is now the largest
+model and no var reaches it. The cost-minimal set drops fewer events than the default, and
+v20 shows `days_late_allowed: 7` recovers the device-held tail at no measurable cost.
+`load_tstamp` needs a full refresh and stitching off means `stitched_user_id` is empty.
+
 Findings:
 - The window vars are mostly correctness settings. Only `session_lookback_days` and
   `upsert_lookback_days` are free cost savings. Both left outputs byte-identical here.
