@@ -110,3 +110,37 @@ order by step
   {% endset %}
   {% do sim_print('cost', cost) %}
 {% endmacro %}
+
+{#- Per-model bytes and execution time for each dbt step of the given cases,
+    from the last 24 h of query history. Steps are split as in sim_report. #}
+{% macro sim_model_cost(cases) %}
+  {% for case in cases %}
+  {% set sql %}
+with q as (
+    select session_id, start_time, end_time, execution_time, bytes_scanned,
+        lower(regexp_replace(regexp_substr(query_text, 'snowplow_unified_[a-z0-9_]+', 1, 1, 'i'), '__dbt_tmp.*$', '')) as model
+    from table({{ target.database }}.information_schema.query_history(
+        end_time_range_start => dateadd(hour, -24, current_timestamp()), result_limit => 10000))
+    where query_text ilike '%public_{{ case }}_%'
+),
+sessions as (
+    select session_id, min(start_time) as first_start, max(end_time) as last_end from q group by session_id
+),
+prior as (
+    select *, max(last_end) over (order by first_start rows between unbounded preceding and 1 preceding) as prior_end
+    from sessions
+),
+stepped as (
+    select session_id, conditional_true_event(prior_end is null or first_start > prior_end) over (order by first_start) as step
+    from prior
+)
+select s.step, q.model, count(*) as queries, round(sum(q.execution_time) / 1000, 1) as exec_s,
+    round(sum(q.bytes_scanned) / 1e6) as mb
+from q join stepped s using (session_id)
+group by 1, 2
+having sum(q.bytes_scanned) > 0 or sum(q.execution_time) > 2000
+order by 1, mb desc
+  {% endset %}
+  {% do sim_print('model_cost ' ~ case, sql) %}
+  {% endfor %}
+{% endmacro %}
