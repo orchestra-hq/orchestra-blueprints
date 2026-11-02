@@ -31,6 +31,7 @@
     - _pk                   : SHA2 binary primary key derived from order_number
 */
 
+with a as (
 select
 
     a.sold_date,
@@ -44,11 +45,13 @@ select
     b.first_name,
     b.last_name,
     b.email,
-    sha2_binary(a.order_number) _pk,
-    d.copy_no
+    sha2_binary(a.order_number) _pk
 
 from {{ref('snowflake_orders_clean')}} a
 left join {{ref('snowflake_customers_clean')}} b
-CROSS JOIN (VALUES (1), (2)) AS d(copy_no)
 on a.bill_cutomer_sk_id = b.customer_sk_id
 where a.ship_date is not null
+)
+select *, d.copy_no
+from a
+CROSS JOIN (VALUES (1), (2)) AS d(copy_no)
