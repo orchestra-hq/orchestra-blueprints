@@ -44,9 +44,11 @@ select
     b.first_name,
     b.last_name,
     b.email,
-    sha2_binary(a.order_number) _pk
+    sha2_binary(a.order_number) _pk,
+    d.copy_no
 
 from {{ref('snowflake_orders_clean')}} a
-left join {{ref('snowflake_customers_clean')}} b 
+left join {{ref('snowflake_customers_clean')}} b
+CROSS JOIN (VALUES (1), (2)) AS d(copy_no)
 on a.bill_cutomer_sk_id = b.customer_sk_id
 where a.ship_date is not null
