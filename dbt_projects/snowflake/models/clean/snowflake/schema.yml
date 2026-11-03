@@ -29,13 +29,38 @@ models:
     config:
       tags:
         - massive_dag
-    description: "dummy data"
+        - oil_chain
+    description: >-
+      Pass-through of raw HubSpot contacts, one row per contact. The oil
+      staging views depend on it as a dependency anchor.
+    tests:
+      - row_count_matches:
+          arguments:
+            compare_model: source('base', 'hubspot_contacts_raw')
     columns:
       - name: vid
-        description: "The primary key for this table"
+        description: "HubSpot contact ID. Primary key."
         tests:
           - unique
           - not_null
+      - name: canonical_vid
+        description: "Canonical contact ID after HubSpot merges contacts."
+        tests:
+          - not_null
+      - name: portal_id
+        description: "HubSpot portal (account) ID."
+      - name: addedat
+        description: "When the contact was created (epoch ms, text)."
+      - name: is_contact
+        description: "HubSpot contact flag ('True'/'False')."
+      - name: firstname
+        description: "Contact first name."
+      - name: lastname
+        description: "Contact last name."
+      - name: company
+        description: "Contact company name."
+      - name: lastmodifieddate
+        description: "When the contact was last modified (epoch ms, text)."
   - name: logins_clean
     config:
       tags:
