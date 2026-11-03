@@ -37,6 +37,7 @@
     config(
         materialized='table',
         transient=false,
+        on_error='continue',
         post_hook=[
             "SELECT 1;
             {{clone()}}"
