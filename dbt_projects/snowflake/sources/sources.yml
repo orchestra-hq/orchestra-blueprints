@@ -80,12 +80,11 @@ sources:
           Oil well production readings synced from Google Sheets by the Fivetran
           connector `faithfulness_coal`. One row per sheet row (a site measurement
           at a point in time).
-        loaded_at_field: _fivetran_synced
         config:
           tags: ['oil_chain']
+          loaded_at_field: _fivetran_synced
           freshness:
-            warn_after: {count: 12, period: hour}
-            error_after: {count: 24, period: hour}
+            warn_after: {count: 24, period: hour}
         tests:
           - row_count_at_least:
               arguments:
@@ -128,11 +127,10 @@ sources:
       PUBLIC dataset of the connection's default database.
     database: BIGQUERY_SAMPLE
     schema: PUBLIC
-    loaded_at_field: "to_timestamp_ntz(try_to_number(_dlt_load_id, 38, 6))"
     config:
+      loaded_at_field: "to_timestamp_ntz(try_to_number(_dlt_load_id, 38, 6))"
       freshness:
         warn_after: {count: 24, period: hour}
-        error_after: {count: 72, period: hour}
     tables:
       - name: dbt_leads
         description: "Inbound dbt community leads from the 'dbt_leads' Google Sheet."
