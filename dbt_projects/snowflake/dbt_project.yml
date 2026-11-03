@@ -54,7 +54,7 @@ models:
 # All data tests in this project report as warnings rather than failing the build.
 data_tests:
   snowflake_airflow_dbt:
-    +severity: warn
+    +severity: error
 
 flags:
   require_generic_test_arguments_property: true
