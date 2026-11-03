@@ -72,6 +72,6 @@ group by
     ifnull(cast(ship_customer_sk_id as string), 'None'),
     ship_date
 )
-select *, d.copy_no
+select a.*, d.copy_no
 from a
 CROSS JOIN (VALUES (1), (2)) AS d(copy_no)

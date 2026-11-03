@@ -52,6 +52,6 @@ left join {{ref('snowflake_customers_clean')}} b
 on a.bill_cutomer_sk_id = b.customer_sk_id
 where a.ship_date is not null
 )
-select *, d.copy_no
+select a.*, d.copy_no
 from a
 CROSS JOIN (VALUES (1), (2)) AS d(copy_no)
