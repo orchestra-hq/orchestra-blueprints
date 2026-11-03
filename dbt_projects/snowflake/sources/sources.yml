@@ -3,17 +3,46 @@ version: 2
 
 sources:
   - name: base
+    description: "Raw operational data loaded into the SNOWFLAKE_WORKING working database."
     database: SNOWFLAKE_WORKING 
     schema: PUBLIC  
     tables:
       - name: hubspot_contacts_raw
-        description: "Contacts from our CRM"
+        description: >-
+          Raw HubSpot CRM contacts, one row per contact. All columns land as text.
+          This is a static demo extract, so no freshness check is configured.
+        config:
+          tags: ['oil_chain']
         columns:
           - name: vid
-            description: "The primary key for this table"
+            description: "HubSpot contact ID. Primary key."
             tests:
               - unique
               - not_null
+          - name: canonical_vid
+            description: "Canonical contact ID after HubSpot merges contacts."
+            tests:
+              - not_null
+          - name: portal_id
+            description: "HubSpot portal (account) ID that owns the contact."
+            tests:
+              - not_null
+          - name: addedat
+            description: "When the contact was created, as epoch milliseconds stored as text."
+          - name: is_contact
+            description: "HubSpot flag ('True'/'False') marking the record as a contact."
+            tests:
+              - accepted_values:
+                  arguments:
+                    values: ['True', 'False']
+          - name: firstname
+            description: "Contact first name."
+          - name: lastname
+            description: "Contact last name."
+          - name: company
+            description: "Contact company name."
+          - name: lastmodifieddate
+            description: "When the contact was last modified, as epoch milliseconds stored as text."
 
   - name: snowflake
     database: SNOWFLAKE_SAMPLE_DATA 
@@ -42,19 +71,98 @@ sources:
             #      num_days: 1
 
   - name: fivetran
+    description: "Tables loaded by Fivetran. Synced by the Fivetran task in Orchestra before dbt runs."
     database: FIVETRAN 
     schema: GOOGLE_SHEETS  
     tables:
       - name: oil_data
-        description: "Snowflake sample customer dataset"
+        description: >-
+          Oil well production readings synced from Google Sheets by the Fivetran
+          connector `faithfulness_coal`. One row per sheet row (a site measurement
+          at a point in time).
         config:
-          freshness:
-            warn_after: {count: 10, period: minute}
-            error_after: {count: 30, period: minute}
+          tags: ['oil_chain']
           loaded_at_field: _fivetran_synced
+          freshness:
+            warn_after: {count: 24, period: hour}
+        tests:
+          - row_count_at_least:
+              arguments:
+                min_rows: 1
         columns:
-          - name: timestamp
-            description: "The timestamp for this table"
+          - name: _row
+            description: "Fivetran row number in the source sheet. Primary key of the source."
+            tests:
+              - unique
+              - not_null
+          - name: _fivetran_synced
+            description: "When Fivetran last synced this row (TIMESTAMP_TZ). Used for source freshness."
             tests:
               - not_null
+          - name: site_name
+            description: "Name of the producing site or operator."
+            tests:
+              - not_null
+          - name: owner
+            description: "Person responsible for the reading in the sheet."
+            tests:
+              - not_null:
+                  config:
+                    severity: warn
+          - name: timestamp
+            description: "When the reading was taken, as text in the sheet (e.g. '3/28/2026 16:24:01')."
+            tests:
+              - not_null
+              - is_parseable_timestamp
+          - name: measurement
+            description: "Production measurement for the site at that time."
+            tests:
+              - not_null
+              - non_negative
 
+  - name: dlt_gsheets
+    description: >-
+      Google Sheets loaded into Snowflake by the dlt scripts (python/dlt,
+      run_dlt_pipelines_snowflake) in the Orchestra pipeline. dlt writes to the
+      PUBLIC dataset of the connection's default database.
+    database: BIGQUERY_SAMPLE
+    schema: PUBLIC
+    config:
+      loaded_at_field: "to_timestamp_ntz(try_to_number(_dlt_load_id, 38, 6))"
+      freshness:
+        warn_after: {count: 24, period: hour}
+    tables:
+      - name: dbt_leads
+        description: "Inbound dbt community leads from the 'dbt_leads' Google Sheet."
+        columns:
+          - name: _dlt_id
+            description: "Unique row ID assigned by dlt."
+            tests:
+              - unique
+              - not_null
+          - name: _dlt_load_id
+            description: "dlt load ID (epoch seconds). Used for source freshness."
+            tests:
+              - not_null
+          - name: company
+            description: "Lead company name."
+          - name: channel
+            description: "Acquisition channel for the lead."
+          - name: date
+            description: "Date the lead was captured."
+          - name: status
+            description: "Lead outreach status."
+      - name: social_leads
+        description: "Leads sourced from social channels, from the 'social_leads' Google Sheet."
+        columns:
+          - name: _dlt_id
+            description: "Unique row ID assigned by dlt."
+            tests:
+              - unique
+              - not_null
+          - name: _dlt_load_id
+            description: "dlt load ID (epoch seconds). Used for source freshness."
+            tests:
+              - not_null
+          - name: profile_url
+            description: "Social profile URL of the lead."

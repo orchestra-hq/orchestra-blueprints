@@ -46,13 +46,46 @@ models:
     config:
       tags:
         - massive_dag
-    description: "Example store sales"
+        - oil_chain
+    description: >-
+      Clean oil production readings from the Fivetran Google Sheets sync,
+      with a surrogate key `_pk` added. One row per site reading.
+    tests:
+      - row_count_matches:
+          arguments:
+            compare_model: source('fivetran', 'oil_data')
     columns:
       - name: _pk
-        description: "The primary key for this table"
+        description: "Surrogate key: SHA-256 of the reading timestamp + site_name. One per site reading."
         tests:
-          - not_null:
-              config:
-                severity: warn
-                warn_if: ">= 1"
           - unique
+          - not_null
+      - name: site_name
+        description: "Name of the producing site or operator."
+        tests:
+          - not_null
+      - name: owner
+        description: "Person responsible for the reading in the sheet."
+      - name: timestamp
+        description: "When the reading was taken (text in the clean and staging layers, cast to TIMESTAMP in oil_data_aggregated)."
+        tests:
+          - not_null
+      - name: measurement
+        description: "Production measurement for the site at that time."
+        tests:
+          - not_null
+          - non_negative
+      - name: _row
+        description: "Fivetran row number in the source sheet."
+      - name: _fivetran_synced
+        description: "When Fivetran last synced the row."
+        tests:
+          - not_null
+      - name: _test_column
+        description: "Constant demo column ('test_column')."
+      - name: broken_column
+        description: "Constant demo column ('additional_column')."
+      - name: _third_column
+        description: "Constant demo column ('third column')."
+      - name: _fourth_column
+        description: "Constant demo column ('fourth column'). Read by oil_data_aggregated."

@@ -60,12 +60,39 @@ models:
         tests:
           - not_null
   - name: oil_data_aggregated
-    description: "Aggregated Oil Field Production Data"
+    config:
+      tags:
+        - oil_chain
+    description: >-
+      Reporting-ready oil production readings for BI. Business columns only,
+      with `timestamp` cast to TIMESTAMP. One row per site reading.
+    tests:
+      - row_count_matches:
+          arguments:
+            compare_model: ref('oil_data_clean')
+      - row_count_at_least:
+          arguments:
+            min_rows: 1
     columns:
       - name: _pk
-        description: "The primary key for this table"
+        description: "Surrogate key: SHA-256 of the reading timestamp + site_name. One per site reading."
+        tests:
+          - unique
+          - not_null
+      - name: site_name
+        description: "Name of the producing site or operator."
         tests:
           - not_null
-          - unique
-
-
+      - name: owner
+        description: "Person responsible for the reading in the sheet."
+      - name: timestamp
+        description: "When the reading was taken (cast to TIMESTAMP from the sheet text)."
+        tests:
+          - not_null
+      - name: measurement
+        description: "Production measurement for the site at that time."
+        tests:
+          - not_null
+          - non_negative
+      - name: _fourth_column
+        description: "Constant demo column carried through from oil_data_clean."

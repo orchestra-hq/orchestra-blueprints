@@ -1,22 +1,22 @@
 {{ config(materialized='view') }}
 
 /*
-  Model: marketing_data_staging
+  Model: oil_data_aggregated
   Description:
-    Staging model that surfaces Google Analytics marketing data from the
-    ga_data_clean layer. The upstream CTE references (base, tasks) act as
-    dependency anchors, confirming that customer data is present and
-    consistent before the final output is produced.
+    Reporting-ready oil production readings for BI (Power BI). Selects the
+    business columns from oil_data_clean and casts the sheet's text timestamp
+    to a real TIMESTAMP.
 
-    All columns from ga_data_clean are passed through without transformation,
-    making this model the canonical staging source for marketing / web
-    analytics consumption in downstream reporting and attribution models.
+    The CTEs below are dependency anchors only. They make dbt build both
+    staging views first and do not change the output.
 
   Upstream models:
-    - customers_clean : Validates customer dimension availability
-    - ga_data_clean   : Primary source — all GA marketing event columns
-                        surfaced downstream (e.g. sessions, conversions,
-                        traffic source, campaign data)
+    - oil_data_clean         : All selected columns come from this model
+    - oil_area_staging       : Dependency anchor only
+    - oil_production_staging : Dependency anchor only
+
+  Grain:   one row per site reading
+  Output:  site_name, owner, timestamp, measurement, _fourth_column, _pk
 */
 
 with base as (

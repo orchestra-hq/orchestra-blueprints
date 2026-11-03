@@ -10,7 +10,8 @@
     names, deduplicating on customer ID, casting types) should be added here
     so that downstream models receive a consistently shaped dataset.
 
-  Source:  base.hubspot_contacts_raw  (placeholder — update to customers source)
+  Source:  base.hubspot_contacts_raw  (SNOWFLAKE_WORKING.PUBLIC)
+  Used by: oil_area_staging, oil_production_staging (as a dependency anchor)
   Grain:   one row per customer
   Output:  all columns from the source (pass-through)
 */
