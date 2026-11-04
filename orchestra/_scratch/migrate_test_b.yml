@@ -1,0 +1,23 @@
+version: v1
+name: ZZ Docs Test B - premerged then migrate
+pipeline:
+  9b1f0a30-1111-4aaa-8001-00000000000b:
+    name: group
+    depends_on: []
+    tasks:
+      9b1f0a30-1111-4aaa-8002-00000000000c:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt parse;
+          package_manager: PIP
+          python_version: '3.12'
+        depends_on: []
+        name: dbt parse
+        connection: dbt_snowflake_blueprints_prod_07025
+schedule:
+  - name: Yearly noop
+    cron: 0 4 1 1 ? *
+    timezone: Europe/London
+webhook:
+  enabled: false
