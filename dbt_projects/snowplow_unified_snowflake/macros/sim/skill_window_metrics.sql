@@ -72,8 +72,19 @@ union all
 -- Events days_late_allowed = N would drop, for N = 1..7. Read the setting off
 -- this curve rather than a percentile: a late tail near 0.1% of events makes
 -- p99.9 jump between hours and days from one sample to the next.
-select 'device_late_events_over_' || n.n || 'd', count_if(d.late_hours > 24 * n.n), 'days_late_allowed'
+-- concat() rather than ||: Orchestra's dbt task splits commands on ||.
+select concat('device_late_events_over_', n.n, 'd'), count_if(d.late_hours > 24 * n.n), 'days_late_allowed'
 from device_lateness d
+cross join (select seq4() + 1 as n from table(generator(rowcount => 7))) n
+group by n.n
+union all
+select 'human_sessions', count(*), 'max_session_days' from session_length
+union all
+-- Human sessions max_session_days = N would quarantine, for N = 1..7. Read the
+-- setting off this curve: multi-day sessions are rare enough that p99.9 can
+-- land inside the tail.
+select concat('human_sessions_over_', n.n, 'd'), count_if(s.length_days > n.n), 'max_session_days'
+from session_length s
 cross join (select seq4() + 1 as n from table(generator(rowcount => 7))) n
 group by n.n
 union all
