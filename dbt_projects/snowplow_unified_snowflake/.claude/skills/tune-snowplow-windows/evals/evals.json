@@ -1,0 +1,56 @@
+{
+  "skill_name": "tune-snowplow-windows",
+  "evals": [
+    {
+      "id": 1,
+      "name": "m2-defaults",
+      "prompt": "our snowplow unified dbt run on snowflake (dbt_projects/snowplow_unified_snowflake) has got slow and the warehouse bill is creeping up. it's still on the package defaults for the window vars. can you work out what we should change? I've already pulled the snowflake numbers into the inputs folder so you don't need to query anything.",
+      "expected_output": "Planted data: load lag up to 14 h, 0.1% of sessions held on device 2-6 days, human sessions up to 4.5 days, bots 4-6 days. Expect lookback widened to cover ~14 h (or load_tstamp proposed), days_late_allowed 7 read off the dropped-events curve, max_session_days 5 (not bot length), session_lookback 7, upsert 3. Stitching named as the largest cost but kept out of the vars PR. Full refresh needed for history.",
+      "files": [
+        "inputs/m2-defaults"
+      ],
+      "assertions": [
+        "lookback_window_hours >= 14 (late_hours_max 13.999 h), or session_timestamp switched to load_tstamp",
+        "days_late_allowed >= 6 (device_late_events_over_6d is 0, over_5d is 8,148)",
+        "max_session_days is 5: covers the longest human session (4.41 d) without stretching to bot sessions",
+        "session_lookback_days cut from 730 to between max_session_days + 2 and 30",
+        "upsert_lookback_days cut from 30 to between 3 and 10",
+        "session_stitching left on in proposed vars, and stitching named as the largest cost with its measured numbers",
+        "Says a full refresh is needed for the correctness changes to reach history",
+        "Doesn't invent clustering numbers for the raw events table (says it wasn't measured)"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "m2-already-tuned",
+      "prompt": "weekly check on the snowplow unified window settings in dbt_projects/snowplow_unified_snowflake - are they still right or do any need changing? latest snowflake query results are in the inputs folder.",
+      "expected_output": "Correctness vars (lookback 15, days_late 7, max_session 5) already cover the planted tails, so they stay. Cost vars can still drop: session_lookback 14 -> 7, upsert 8 -> 3. No narrowing of correctness vars. Cost data missing, so stitching can't be quantified.",
+      "files": [
+        "inputs/m2-already-tuned"
+      ],
+      "assertions": [
+        "lookback_window_hours stays >= 14",
+        "days_late_allowed stays >= 6",
+        "max_session_days stays >= 5 (longest human session 4.41 d)",
+        "session_lookback_days cut from 14 to between 7 and 9",
+        "upsert_lookback_days cut from 8 to between 3 and 4",
+        "Says cost data is missing rather than quoting stitching or model costs"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "demo-tiny-sample",
+      "prompt": "can you right-size the snowplow unified lookback windows for our demo project (dbt_projects/snowplow_unified_snowflake)? query results are in the inputs folder.",
+      "expected_output": "The real demo table is tiny and lacks load_tstamp, dvce_* and useragent, so lateness and session-length metrics are missing or untrustworthy. Expect no change to correctness vars, the skipped metrics listed with reasons, and at most the cost vars changed.",
+      "files": [
+        "inputs/demo-tiny-sample"
+      ],
+      "assertions": [
+        "lookback_window_hours, days_late_allowed, max_session_days and session_timestamp unchanged",
+        "Gives the tiny sample (2,000 events) or the empty lateness columns as the reason",
+        "Lists the metrics it skipped as untrustworthy",
+        "Doesn't size anything from the 0.08-day session lengths (e.g. max_session_days 1)"
+      ]
+    }
+  ]
+}

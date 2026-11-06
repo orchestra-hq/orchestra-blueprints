@@ -52,16 +52,18 @@ for good, and widening them costs little.
 | --- | --- | --- |
 | `snowplow__lookback_window_hours` (6) | ≥ `late_hours_max`, rounded up to a whole hour. If that's over about 24 h, propose `session_timestamp: load_tstamp` instead. | Each uncovered hour of load lag loses those events. 2 h missed 1,016 more page views than 6 h. Going 6 → 15 h added about 28% event rows per run, roughly 3% per hour. |
 | `snowplow__days_late_allowed` (3) | The smallest N whose `device_late_events_over_Nd` is negligible (under about 0.001% of `events_in_window`). It filters on how long the device held the event (`dvce_sent_tstamp - dvce_created_tstamp`), not load lag. Don't use a percentile: p99.9 read 74 h on one sample and 26 h on another from the same distribution. | Widening had no measurable cost (3 → 7 recovered 1,162 page views). Narrowing to 1 lost 309. |
-| `snowplow__max_session_days` (3) | ≥ the p99.9 of human session length from the raw events, excluding bot user agents, rounded up. The lifecycle manifest caps sessions at the current setting, so don't read length from it. | Each day costs about 5% more event rows. 1 day quarantined 4x as many sessions (342 → 1,301). 7 days left 10. |
+| `snowplow__max_session_days` (3) | The smallest N whose `human_sessions_over_Nd` is zero or negligible (under about 0.001% of `human_sessions`). Lengths come from the raw events with bot user agents excluded: the lifecycle manifest caps sessions at the current setting, and bots run multi-day sessions that should stay quarantined. Don't use a percentile: multi-day human sessions were 0.2% of sessions, so p99.9 (3.06 d) landed inside the tail and missed sessions up to 4.41 d. | Each day costs about 5% more event rows. 1 day quarantined 4x as many sessions (342 → 1,301). 7 days left 10. |
 | `snowplow__session_timestamp` (`collector_tstamp`) | Propose `load_tstamp` when the load-lag tail is long. It needs a full refresh, so leave the decision to a human. | Late-loaded misses dropped to 0, even with a 1 h lookback, which processed 11% fewer event rows than the default. |
 
 **Cost vars.** These left outputs byte-identical at every value tested, so they're the
-free savings.
+free savings. Set the two lookbacks to their floor, computed from the proposed values of
+the correctness vars. The floor already covers every session and row a run can touch,
+so any day above it is scanned and merged for nothing.
 
 | Var (package default) | Rule | Measured effect |
 | --- | --- | --- |
-| `snowplow__session_lookback_days` (730) | ≥ `max_session_days` + 2, minimum 7 | 7 days cut manifest bytes by 42% |
-| `snowplow__upsert_lookback_days` (30) | ≥ `ceil(lookback_window_hours / 24)` + 2, minimum 3 | 3 days cut views-merge bytes by 75% |
+| `snowplow__session_lookback_days` (730) | `max(max_session_days + 2, 7)` | 7 days cut manifest bytes by 42% |
+| `snowplow__upsert_lookback_days` (30) | `max(ceil(lookback_window_hours / 24) + 2, 3)` | 3 days cut views-merge bytes by 75% |
 | `snowplow__backfill_limit_days` (30) | Days that fit within about half the run's time budget, from elapsed time per day processed | Changes how much each run processes, not the results |
 
 **Package costs no var reaches.** Report these with their numbers, but don't put them in
@@ -92,9 +94,10 @@ Clustering on `collector_tstamp`:
 
 ## 4. Decide what to change
 
-- **Cost vars** (`backfill_limit_days`, `session_lookback_days`,
-  `upsert_lookback_days`): change them freely, as long as they stay at or above their
-  floors. `backfill_limit_days` can also be passed at run time with
+- **Cost vars**: move `session_lookback_days` and `upsert_lookback_days` to their
+  floors. Missing cost data isn't a reason to hold them higher: the saving is scan the
+  run no longer does, and the outputs don't change. Change `backfill_limit_days` only
+  with run timings. It can also be passed at run time with
   `dbt build --vars '{snowplow__backfill_limit_days: N}'`.
 - **Correctness vars**:
   - Widen them whenever a metric says data is being dropped. It costs a few percent
