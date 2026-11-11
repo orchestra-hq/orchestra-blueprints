@@ -38,5 +38,11 @@ tasks as (
 
 )
 
-select *
+select 
+    site_name_clean,
+    owner,
+    to_timestamp(timestamp) timestamp,
+    measurement,
+    _fourth_column,
+    _pk
 from {{ref('oil_data_clean')}}
