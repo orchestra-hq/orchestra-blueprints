@@ -17,7 +17,7 @@
 select
 
 _fivetran_synced,
-site_name,
+site_name as site_name_clean,
 owner,
 timestamp,
 measurement,
