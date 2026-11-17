@@ -1,5 +1,5 @@
 version: v1
-name: 'Incident monitor test - dbt chain (downstream models + asset) #dbt #bigquery #testing'
+name: 'Incident monitor test - dbt chain (group by asset) #dbt #bigquery #testing'
 pipeline:
   run:
     tasks:
@@ -29,4 +29,4 @@ meta:
     Set input fail to a JSON list of models to break, e.g.
     ["incident_chain_a", "incident_chain_d"]. Every model has on_error=continue,
     so all five always run. Run once with the default first so Orchestra has the
-    lineage. Claimed by the monitor 'Incident test - dbt chain (downstream models + asset)'.
+    lineage. Claimed by the monitor 'Incident test - dbt chain (group by asset)'.
