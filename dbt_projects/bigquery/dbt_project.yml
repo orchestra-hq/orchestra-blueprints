@@ -21,5 +21,11 @@ models:
     marts:
       +materialized: table
       +schema: dbt_sao_demo
+    # Incident-monitor test chain. One dataset per lane (var incident_lane) so
+    # each lane has its own assets, lineage and monitor.
+    incident_chain:
+      +materialized: table
+      +on_error: continue
+      +schema: "incident_chain_{{ var('incident_lane', 'docs') }}"
 flags:
   require_generic_test_arguments_property: true

@@ -1,0 +1,32 @@
+version: v1
+name: 'Incident monitor test - dbt chain (downstream models) #dbt #bigquery #testing'
+pipeline:
+  run:
+    tasks:
+      dbt_run_chain:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: >-
+            dbt run --select incident_chain --vars '{"incident_lane": "docs", "fail": ${{ inputs.fail }}}'
+          package_manager: PIP
+          python_version: '3.12'
+          branch: claude/incident-monitor-dbt-test-9b42ed
+          project_dir: dbt_projects/bigquery
+          shallow_clone_dirs: dbt_projects/bigquery
+        depends_on: []
+        name: dbt run incident_chain (docs lane)
+        connection: dbt_core__bigquery__01406
+    depends_on: []
+    name: dbt run
+inputs:
+  fail:
+    type: string
+    default: '[]'
+meta:
+  notes: >-
+    Chain incident_chain_a -> b -> c -> d -> e in dataset incident_chain_docs.
+    Set input fail to a JSON list of models to break, e.g.
+    ["incident_chain_a", "incident_chain_d"]. Every model has on_error=continue,
+    so all five always run. Run once with the default first so Orchestra has the
+    lineage. Claimed by the monitor 'Incident test - dbt chain (downstream models)'.
