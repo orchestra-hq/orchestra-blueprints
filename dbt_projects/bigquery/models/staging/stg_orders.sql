@@ -7,3 +7,4 @@ select
     lower(status) as status,
     cast(amount as numeric) as amount
 from {{ source('raw', 'raw_orders') }}
+where order_id is not null
