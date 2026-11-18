@@ -1,0 +1,35 @@
+version: v1
+name: 'TEST cross-pipeline trigger: parent #test'
+pipeline:
+  parent-group:
+    tasks:
+      parent-wait:
+        integration: ORCHESTRA
+        integration_job: WAIT
+        parameters:
+          wait_minutes: 1
+        depends_on: []
+        name: Parent wait (no-op)
+      trigger-child:
+        integration: ORCHESTRA
+        integration_job: TRIGGER_PIPELINE
+        parameters:
+          # UUID of test_xpipe_child. ${{ ENV.* }} is rejected by the validator here.
+          pipeline_id: 4200e02c-b955-4973-8157-202668294eaa
+          branch: ${{ inputs.child_branch }}
+        depends_on:
+        - parent-wait
+        name: Trigger child pipeline
+    depends_on: []
+    name: Parent
+inputs:
+  child_branch:
+    type: string
+    default: test/cross-pipeline-trigger-staging
+webhook:
+  enabled: false
+meta:
+  notes: >-
+    Test fixture. Triggers child.yml (test_xpipe_child) on the branch given by
+    inputs.child_branch, to test git-backed pipeline-to-pipeline triggering on a
+    non-main branch in the Staging environment. Safe to delete.
