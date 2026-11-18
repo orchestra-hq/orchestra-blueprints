@@ -11,11 +11,12 @@ pipeline:
           branch: feature/orders-ci
           package_manager: PIP
           python_version: '3.12'
-          project_dir: dbt_projects/bigquery
-          shallow_clone_dirs: dbt_projects/bigquery
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
+          environment_variables: '{"DBT_SCHEMA": "orders_ci"}'
         depends_on: []
         name: dbt build (state a)
-        connection: dbt_core__bigquery__01406
+        connection: dbt_snowflake_blueprints_prod_07025
       build_state_b:
         integration: DBT_CORE
         integration_job: DBT_CORE_EXECUTE
@@ -24,11 +25,12 @@ pipeline:
           branch: feature/orders-ci
           package_manager: PIP
           python_version: '3.12'
-          project_dir: dbt_projects/bigquery
-          shallow_clone_dirs: dbt_projects/bigquery
+          project_dir: dbt_projects/snowflake
+          shallow_clone_dirs: dbt_projects/snowflake
+          environment_variables: '{"DBT_SCHEMA": "orders_ci"}'
         depends_on:
         - build_state_a
         name: dbt build (state b)
-        connection: dbt_core__bigquery__01406
+        connection: dbt_snowflake_blueprints_prod_07025
     depends_on: []
     name: CI
