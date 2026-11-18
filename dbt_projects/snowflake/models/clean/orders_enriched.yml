@@ -1,0 +1,10 @@
+version: 2
+models:
+  - name: orders_enriched
+    description: Orders joined to their customer.
+    columns:
+      - name: customer_id
+        data_tests:
+          - not_null:
+              config:
+                severity: error
