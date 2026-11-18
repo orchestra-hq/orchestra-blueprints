@@ -1,0 +1,9 @@
+version: 2
+models:
+  - name: contact_updates
+    description: "One row per HubSpot contact, latest state."
+    columns:
+      - name: contact_id
+        data_tests:
+          - unique
+          - not_null
