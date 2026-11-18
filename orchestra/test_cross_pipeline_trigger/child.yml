@@ -1,0 +1,21 @@
+version: v1
+name: 'TEST cross-pipeline trigger: child #test'
+pipeline:
+  child-group:
+    tasks:
+      child-wait:
+        integration: ORCHESTRA
+        integration_job: WAIT
+        parameters:
+          wait_minutes: 1
+        depends_on: []
+        name: Child wait (no-op)
+    depends_on: []
+    name: Child
+webhook:
+  enabled: false
+meta:
+  notes: >-
+    Test fixture. Child pipeline triggered by parent.yml in the same folder, used to
+    test cross-pipeline triggering of git-backed pipelines from a non-main branch
+    in the Staging environment. Safe to delete.
