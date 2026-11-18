@@ -1,0 +1,34 @@
+version: v1
+name: Orders CI
+pipeline:
+  ci:
+    tasks:
+      build_state_a:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build -s state:modified.body+ --defer --state prod_state_a --exclude resource_type:test
+          branch: feature/orders-ci
+          package_manager: PIP
+          python_version: '3.12'
+          project_dir: dbt_projects/bigquery
+          shallow_clone_dirs: dbt_projects/bigquery
+        depends_on: []
+        name: dbt build (state a)
+        connection: dbt_core__bigquery__01406
+      build_state_b:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: dbt build -s state:modified.body+ --defer --state prod_state_b --exclude resource_type:test
+          branch: feature/orders-ci
+          package_manager: PIP
+          python_version: '3.12'
+          project_dir: dbt_projects/bigquery
+          shallow_clone_dirs: dbt_projects/bigquery
+        depends_on:
+        - build_state_a
+        name: dbt build (state b)
+        connection: dbt_core__bigquery__01406
+    depends_on: []
+    name: CI
