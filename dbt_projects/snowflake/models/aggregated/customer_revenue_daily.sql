@@ -13,6 +13,15 @@ customers as (
         seq4() + 1 as customer_id,
         case mod(seq4(), 4) when 0 then 'EMEA' when 1 then 'AMER' when 2 then 'APAC' else 'LATAM' end as region
     from table(generator(rowcount => 1000))
+),
+
+-- customer address history (SCD2)
+customer_addresses as (
+    select
+        mod(seq4(), 1000) + 1 as customer_id,
+        seq4() as address_version,
+        seq4() >= 999000 as is_current
+    from table(generator(rowcount => 1000000))
 )
 
 select
@@ -22,4 +31,5 @@ select
     sum(o.amount) as revenue
 from orders o
 inner join customers c on o.customer_id = c.customer_id
+inner join customer_addresses a on o.customer_id = a.customer_id
 group by 1, 2
