@@ -22,3 +22,11 @@ warnings:
     reflag_when: "freshness error, or the table is missing"
     reason: "Same as raw_orders: static, read-only demo data."
     owner: team
+  - unique_id: test.bigquery_sao_demo.assert_no_stale_pending_orders
+    baseline: "fails with 2 rows: order_id 5 (2026-08-03) and 8 (2026-08-04), both pending, on a static source (run 11f64746-6c1b-4a8b-a80f-515e012f3458)"
+    reflag_when: "more than 2 rows, any pending row with order_date after 2026-08-04, or the failing rows differ from order_id 5 and 8"
+    reason: >-
+      Only fires with --vars agent_memory_demo=true. The demo data's pending
+      orders are fixed in August 2026, so the 7-day staleness check always
+      fails. Data/timing, not a code bug.
+    owner: agent

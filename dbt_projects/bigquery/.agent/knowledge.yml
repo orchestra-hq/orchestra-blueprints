@@ -12,4 +12,34 @@
 #                  stale when it stops matching. Never delete a note.
 #   runs           pipeline run IDs that produced or matched it
 
-notes: []
+notes:
+  - unique_id: test.bigquery_sao_demo.assert_no_stale_pending_orders
+    kind: data
+    symptom: "Failure in test assert_no_stale_pending_orders: Got 2 results, configured to fail if != 0 (orders_daily and its 2 tests skipped)"
+    note: >-
+      Not a code bug. The test returns pending orders older than 7 days. The
+      static demo source raw.raw_orders has exactly 2 pending rows (order_id 5
+      on 2026-08-03, order_id 8 on 2026-08-04), now 107-108 days old, so the
+      test fails on every run with agent_memory_demo=true. The test file's own
+      header says this is intentional. Staging is correct (status is
+      lower-cased, matches the test). No fix applied; triaged in
+      KNOWN_TEST_WARNINGS.yml. A human may want severity: warn, per the
+      conventions for business-timing assertions.
+    tried_and_failed: []
+    seen: 1
+    confidence: candidate
+    runs:
+      - 11f64746-6c1b-4a8b-a80f-515e012f3458
+  - unique_id: source.bigquery_sao_demo.raw.raw_orders
+    kind: gotcha
+    symptom: "Not found: Dataset reference-baton-392114:dbt_sao_demo was not found in location europe-west2"
+    note: >-
+      When querying the warehouse read-only, the dataset lives in europe-west1
+      (the dbt profile and the run's adapter_response say so). The BigQuery
+      integration connection's LOCATION variable says europe-west2, which
+      404s. Pass europe-west1 explicitly.
+    tried_and_failed: []
+    seen: 1
+    confidence: candidate
+    runs:
+      - 11f64746-6c1b-4a8b-a80f-515e012f3458
