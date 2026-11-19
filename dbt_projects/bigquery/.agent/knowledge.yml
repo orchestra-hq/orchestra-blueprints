@@ -26,10 +26,11 @@ notes:
       KNOWN_TEST_WARNINGS.yml. A human may want severity: warn, per the
       conventions for business-timing assertions.
     tried_and_failed: []
-    seen: 1
+    seen: 2
     confidence: candidate
     runs:
       - 11f64746-6c1b-4a8b-a80f-515e012f3458
+      - a2627953-4250-4673-819e-5111fd8a013c
   - unique_id: source.bigquery_sao_demo.raw.raw_orders
     kind: gotcha
     symptom: "Not found: Dataset reference-baton-392114:dbt_sao_demo was not found in location europe-west2"
@@ -39,7 +40,8 @@ notes:
       integration connection's LOCATION variable says europe-west2, which
       404s. Pass europe-west1 explicitly.
     tried_and_failed: []
-    seen: 1
+    seen: 2
     confidence: candidate
     runs:
       - 11f64746-6c1b-4a8b-a80f-515e012f3458
+      - a2627953-4250-4673-819e-5111fd8a013c
