@@ -67,3 +67,23 @@ dbt build
 In Orchestra, point a dbt Core task at `project_dir: dbt_projects/bigquery` with
 the connection above; [`orchestra/dbt/sao_multi_warehouse.yml`](../../orchestra/dbt/sao_multi_warehouse.yml)
 is the pipeline that does.
+
+## Agent memory
+
+This project also carries context for a debugging agent, in plain files outside
+every dbt path: [`AGENTS.md`](AGENTS.md) (team rules),
+[`KNOWN_TEST_WARNINGS.yml`](KNOWN_TEST_WARNINGS.yml) (triaged tests),
+[`.agent/`](.agent/) (conventions, and notes the agent learns) and the
+[`dbt-debug` skill](.claude/skills/dbt-debug/SKILL.md) that ties them together.
+
+[`orchestra/dbt_agent_memory_bigquery.yml`](../../orchestra/dbt_agent_memory_bigquery.yml)
+runs `dbt build`; only if it fails, the Orchestra agent
+`dbt debugger with memory (BigQuery)` follows the skill: it reads that context
+before proposing a fix, then pushes what it learned to a daily
+`agent-kb/YYYY-MM-DD` branch for a human to review and merge. The next failure
+reads the merged notes back.
+
+The pipeline's default command sets `agent_memory_demo: true`, which enables
+`tests/assert_no_stale_pending_orders.sql` — a test that fails on the static
+demo data — so there is always something to debug. Run it twice: the first run
+should add a `candidate` note, later ones should find it and bump `seen`.

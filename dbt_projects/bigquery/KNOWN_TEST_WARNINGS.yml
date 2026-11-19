@@ -1,0 +1,24 @@
+# Tests that have been triaged and are expected to warn or fail.
+# The agent checks this first: a failure that matches an entry and is within
+# its threshold is known, not new, and is not "fixed".
+#
+# Fields:
+#   unique_id   dbt unique_id of the test (or source, for freshness)
+#   baseline    what "normal" looks like today
+#   reflag_when the condition that makes it news again
+#   reason      why it is accepted
+#   owner       team | agent (agent entries arrive via the knowledge PR)
+
+warnings:
+  - unique_id: source.bigquery_sao_demo.raw.raw_orders
+    baseline: "freshness warn: max(order_date) is 2026-08-04"
+    reflag_when: "freshness error, or the table is missing"
+    reason: >-
+      Static demo data with a 365-day warn_after. It goes stale by design;
+      only a missing table or a hard error is a real problem.
+    owner: team
+  - unique_id: source.bigquery_sao_demo.crm.raw_customers
+    baseline: "freshness warn: max(updated_at) is 2026-08-04"
+    reflag_when: "freshness error, or the table is missing"
+    reason: "Same as raw_orders: static, read-only demo data."
+    owner: team

@@ -1,0 +1,73 @@
+version: v1
+name: '[AI AGENT] dbt agent memory - BigQuery #dbt #bigquery #agent'
+pipeline:
+  dbt:
+    tasks:
+      dbt_build:
+        integration: DBT_CORE
+        integration_job: DBT_CORE_EXECUTE
+        parameters:
+          commands: ${{ inputs.dbt_command }}
+          package_manager: PIP
+          python_version: '3.12'
+          use_state_orchestration: false
+          branch: ${{ inputs.branch }}
+          project_dir: dbt_projects/bigquery
+          shallow_clone_dirs: dbt_projects/bigquery
+        depends_on: []
+        name: dbt build (BigQuery)
+        connection: dbt_core__bigquery__01406
+        alerts:
+        - name: dbt failed
+          statuses:
+          - FAILED
+          destinations:
+          - integration: SLACK
+            destination: alert-demos
+          - integration: EMAIL
+            destination: hugo@getorchestra.io
+    depends_on: []
+    name: dbt
+  debug:
+    tasks:
+      dbt_debug_agent:
+        integration: ORCHESTRA
+        integration_job: RUN_AGENT
+        parameters:
+          agent_id: 513ad75b-41bc-44c1-a1c8-4ad3e188129a
+          prompt: |-
+            The dbt build of dbt_projects/bigquery failed.
+
+            - Pipeline run ID: ${{ ORCHESTRA.PIPELINE_RUN_ID }}
+            - Failed dbt task run ID: ${{ ORCHESTRA.PIPELINE_RUN_TASKS['dbt_build'].TASK_RUN_ID }}
+            - Command: ${{ inputs.dbt_command }}
+            - Branch: ${{ inputs.branch }}
+
+            Check out the branch above (not main, unless it says main) and follow
+            dbt_projects/bigquery/.claude/skills/dbt-debug/SKILL.md: read the
+            repo's context before proposing a fix, then write what you learned
+            to the agent-kb/<today> branch, created from the branch above. Report which context files
+            you used and whether they changed your diagnosis.
+          set_outputs: false
+        depends_on: []
+        name: Debug with repo memory
+    depends_on:
+    - dbt
+    condition: ${{ task_groups['dbt'].any().status == 'FAILED' }}
+    name: debug (only on failure)
+inputs:
+  branch:
+    type: string
+    default: main
+  dbt_command:
+    type: string
+    default: "dbt build --vars '{agent_memory_demo: true}'"
+alerts:
+- name: Failures
+  statuses:
+  - FAILED
+  destinations:
+  - integration: SLACK
+    destination: alert-demos
+  - integration: EMAIL
+    destination: hugo@getorchestra.io

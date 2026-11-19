@@ -1,0 +1,15 @@
+# Learned notes, one per finding. Written by the debug agent on an
+# `agent-kb/YYYY-MM-DD` branch and merged by a human.
+#
+# Fields:
+#   unique_id      dbt unique_id of the node the note is about
+#   kind           gotcha | upstream | flaky | data
+#   symptom        the error or test failure, as it appeared
+#   note           what fixed it (or what the cause turned out to be)
+#   tried_and_failed  fixes that did not work, so nobody tries them again
+#   seen           how many failed runs this note has matched
+#   confidence     candidate -> confirmed after 3 sightings or one human edit;
+#                  stale when it stops matching. Never delete a note.
+#   runs           pipeline run IDs that produced or matched it
+
+notes: []
