@@ -1,5 +1,0 @@
-name: duckdb_v2
-version: "1.0.0"
-profile: duckdb_v2
-model-paths: ["models"]
-seed-paths: ["seeds"]
