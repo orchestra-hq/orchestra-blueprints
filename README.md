@@ -12,6 +12,7 @@ integration examples across multiple tooling stacks.
 | [`python/bauplan/`](python/bauplan/) | Bauplan project examples and helper scripts. |
 | [`dbt_projects/`](dbt_projects/) | dbt blueprint projects for multiple warehouses. |
 | [`estuary/`](estuary/) | Estuary-related sample configuration files. |
+| [`metadata_api/`](metadata_api/) | Metadata API ingestion pipeline and worker code. |
 | [`multi_workspace_test/`](multi_workspace_test/) | Multi-workspace test pipeline examples. |
 | [`orchestra/`](orchestra/) | Orchestra pipeline YAML definitions. |
 | [`patterns/`](patterns/) | Reusable implementation patterns and demos. |
@@ -25,7 +26,7 @@ integration examples across multiple tooling stacks.
 
 ## Directory notes
 
-The dlt, lineage, metadata API, multithread and pipeline-error-demo code moved to
+The dlt, lineage, multithread and pipeline-error-demo code moved to
 [orchestra-hq/demos](https://github.com/orchestra-hq/demos) under `python/`.
 The default Python connection in the Demo workspace points there.
 
@@ -52,6 +53,12 @@ repository.
 `dbt_projects/` includes warehouse-specific dbt setups (for example, Snowflake,
 Postgres, Databricks, and Azure Fabric) that can be paired with Orchestra
 pipelines.
+
+### Metadata API
+
+`metadata_api/` shows how to ingest Orchestra metadata with dlt and run checks
+in downstream warehouses. It includes an example Orchestra pipeline file and
+runtime script.
 
 ### Patterns
 `patterns/` holds reusable workflow patterns and supporting examples.

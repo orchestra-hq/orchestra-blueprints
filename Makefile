@@ -1,7 +1,7 @@
 .PHONY: validate validate-pipelines lint audit all install-tools
 
 # All Orchestra pipeline YAMLs live under orchestra/. If the audit surfaces
-# pipelines elsewhere, extend this glob.
+# pipelines elsewhere (e.g. metadata_api/), extend this glob.
 PIPELINE_FILES := $(shell find orchestra -type f \( -name '*.yml' -o -name '*.yaml' \) 2>/dev/null)
 
 validate: validate-pipelines
