@@ -14,7 +14,7 @@ pipeline:
           source: GIT
           branch: ${{ orchestra.current_branch }}
           command: python -m run ${{inputs.warehouse}}
-          project_dir: metadata_api
+          project_dir: python/metadata_api
         depends_on: []
         name: Import Metadata to bigQuery (edited)
         connection: ${{ ENV.PYTHON_CREDENTIAL }}

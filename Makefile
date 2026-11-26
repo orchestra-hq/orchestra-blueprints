@@ -1,7 +1,7 @@
 .PHONY: validate validate-pipelines lint audit all install-tools
 
 # All Orchestra pipeline YAMLs live under orchestra/. If the audit surfaces
-# pipelines elsewhere (e.g. metadata_api/), extend this glob.
+# pipelines elsewhere, extend this glob.
 PIPELINE_FILES := $(shell find orchestra -type f \( -name '*.yml' -o -name '*.yaml' \) 2>/dev/null)
 
 validate: validate-pipelines
@@ -24,7 +24,7 @@ lint:
 	ruff format --check . --exclude worktrees
 
 audit:
-	pip-audit -r python/dlt/requirements.txt || true
+	find . -name requirements.txt -not -path '*/.venv/*' -exec pip-audit -r {} \; || true
 
 install-tools:
 	pipx install orchestra-cli ruff vulture pip-audit yamllint

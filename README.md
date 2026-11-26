@@ -11,22 +11,23 @@ integration examples across multiple tooling stacks.
 | [`python/azure/`](python/azure/) | Azure ML example assets and pipeline support files. |
 | [`python/bauplan/`](python/bauplan/) | Bauplan project examples and helper scripts. |
 | [`dbt_projects/`](dbt_projects/) | dbt blueprint projects for multiple warehouses. |
-| [`dlt/`](dlt/) | dlt ingestion examples and runner scripts. |
 | [`estuary/`](estuary/) | Estuary-related sample configuration files. |
-| [`metadata_api/`](metadata_api/) | Metadata API ingestion pipeline and worker code. |
 | [`multi_workspace_test/`](multi_workspace_test/) | Multi-workspace test pipeline examples. |
 | [`orchestra/`](orchestra/) | Orchestra pipeline YAML definitions. |
 | [`patterns/`](patterns/) | Reusable implementation patterns and demos. |
 | [`python/`](python/) | General-purpose Python workers and integrations. |
 | [`python/data_assets/bigquery/`](python/data_assets/bigquery/) | Self-run BigQuery asset collection that writes tables, views and lineage through the public asset API. |
 | [`python/data_assets/databricks/`](python/data_assets/databricks/) | Self-run Databricks Unity Catalog asset collection through Orchestra's public asset API. |
-| [`python/lineage/`](python/lineage/) | dlt metadata extracts (Lightdash, BigQuery, Fivetran) that publish an end-to-end lineage graph into Orchestra. |
 | [`python/data_assets/snowflake/`](python/data_assets/snowflake/) | Self-run Snowflake asset collection into Orchestra through the public asset API, replacing scheduled asset runs. |
 | [`patterns/run_multiple_pipelines/`](patterns/run_multiple_pipelines/) | Examples for programmatic multi-pipeline runs (Orchestra API patterns). |
 | [`patterns/warehouse_savings/`](patterns/warehouse_savings/) | Warehouse optimization and analytics (Orchestra API pattern). |
 | [`patterns/duckdb_quality/`](patterns/duckdb_quality/) | Declarative Snowflake data quality tests driven by the DuckDB CLI. |
 
 ## Directory notes
+
+The dlt, lineage, metadata API, multithread and pipeline-error-demo code moved to
+[orchestra-hq/demos](https://github.com/orchestra-hq/demos) under `python/`.
+The default Python connection in the Demo workspace points there.
 
 ### HOW WE BUILD PIPELINES
 
@@ -52,12 +53,6 @@ repository.
 Postgres, Databricks, and Azure Fabric) that can be paired with Orchestra
 pipelines.
 
-### Metadata API
-
-`metadata_api/` shows how to ingest Orchestra metadata with dlt and run checks
-in downstream warehouses. It includes an example Orchestra pipeline file and
-runtime script.
-
 ### Patterns
 `patterns/` holds reusable workflow patterns and supporting examples.
 
@@ -70,15 +65,6 @@ Orchestra as a platform (programmatic multi-pipeline runs via the API).
 
 `patterns/warehouse_savings/` contains the warehouse optimization and analytics
 pattern examples, implemented as an Orchestra API client/analysis.
-
-### Platform lineage
-
-`python/lineage/` extracts metadata from Lightdash, BigQuery, and Fivetran with
-dlt, and `publish_lineage.py` queries the landed tables directly (see
-`queries.py`) and publishes the result through Orchestra's `POST /assets` and
-`POST /assets/dependencies` endpoints so the whole stack shows up under Data
-assets → Lineage. Adding another platform is three localised edits; see
-[`python/lineage/README.md`](python/lineage/README.md) for the full setup.
 
 ### Python workers
 

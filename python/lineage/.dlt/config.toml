@@ -1,3 +1,0 @@
-[runtime]
-log_level = "INFO"
-dlthub_telemetry = false
