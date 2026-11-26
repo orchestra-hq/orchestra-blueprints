@@ -1,16 +1,15 @@
 .PHONY: validate validate-pipelines lint audit all install-tools
 
-# All Orchestra pipeline YAMLs live under orchestra/. If the audit surfaces
-# pipelines elsewhere (e.g. metadata_api/), extend this glob.
-PIPELINE_FILES := $(shell find orchestra -type f \( -name '*.yml' -o -name '*.yaml' \) 2>/dev/null)
+# Example pipeline YAMLs that the public docs link to.
+PIPELINE_FILES := metadata_api/orchestra_pipeline.yaml $(wildcard python/data_assets/*/*.yaml)
 
 validate: validate-pipelines
-	yamllint orchestra/
+	yamllint $(PIPELINE_FILES)
 
 validate-pipelines:
 	@fail=0; \
 	if [ -z "$(PIPELINE_FILES)" ]; then \
-		echo "No pipeline YAML files found under orchestra/"; \
+		echo "No pipeline YAML files found"; \
 	else \
 		for f in $(PIPELINE_FILES); do \
 			echo "→ orchestra validate $$f"; \

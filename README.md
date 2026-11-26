@@ -14,7 +14,6 @@ integration examples across multiple tooling stacks.
 | [`estuary/`](estuary/) | Estuary-related sample configuration files. |
 | [`metadata_api/`](metadata_api/) | Metadata API ingestion pipeline and worker code. |
 | [`multi_workspace_test/`](multi_workspace_test/) | Multi-workspace test pipeline examples. |
-| [`orchestra/`](orchestra/) | Orchestra pipeline YAML definitions. |
 | [`patterns/`](patterns/) | Reusable implementation patterns and demos. |
 | [`python/`](python/) | General-purpose Python workers and integrations. |
 | [`python/data_assets/bigquery/`](python/data_assets/bigquery/) | Self-run BigQuery asset collection that writes tables, views and lineage through the public asset API. |
@@ -26,9 +25,9 @@ integration examples across multiple tooling stacks.
 
 ## Directory notes
 
-The dlt, lineage, multithread and pipeline-error-demo code moved to
-[orchestra-hq/demos](https://github.com/orchestra-hq/demos) under `python/`.
-The default Python connection in the Demo workspace points there.
+Demo Workspace pipelines, and the code they run, live in
+[orchestra-hq/demos](https://github.com/orchestra-hq/demos). This repo keeps
+the examples the public docs link to.
 
 ### HOW WE BUILD PIPELINES
 
@@ -42,11 +41,6 @@ Always add alerts, adding Slack, Teams if available and adding email hugo@getorc
 Add a task-level alert to any dbt Tasks; not just the pipeline
 Automatically add anomaly detection to Pipelines
 
-
-### Orchestra
-
-`orchestra/` contains runnable pipeline definitions used by the examples in this
-repository.
 
 ### dbt Projects
 
