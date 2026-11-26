@@ -312,6 +312,6 @@ ready to merge to `main`.
   branch. `start_pipeline`'s `branch` argument overrides the whole pipeline's
   `inputs.branch`, including the dbt and other Git-aware tasks if you later add
   them. Don't try to override per-task.
-- See `fix-and-rerun-pipeline` for the failure-diagnosis loop once the pipeline
-  exists. See `orchestra-pipeline` (built-in) for full YAML generation against
+- See `identify-pipeline-error` (orchestra-skills) for the failure-diagnosis
+  loop once the pipeline exists. See `orchestra-pipeline` (built-in) for full YAML generation against
   the documented schema.
