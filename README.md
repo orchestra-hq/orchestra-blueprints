@@ -1,76 +1,17 @@
 # orchestra-blueprints
 
-Reference blueprints for building and operating Orchestra-driven data platforms
-in a monorepo. The repository includes pipeline definitions, worker scripts, and
-integration examples across multiple tooling stacks.
+Public examples that the [Orchestra docs](https://docs.getorchestra.io) link to.
+Each folder is self-contained and has its own README.
 
-## Codebase structure
+## Contents
 
-| Directory | Purpose |
-| --- | --- |
-| [`python/azure/`](python/azure/) | Azure ML example assets and pipeline support files. |
-| [`python/bauplan/`](python/bauplan/) | Bauplan project examples and helper scripts. |
-| [`dbt_projects/`](dbt_projects/) | dbt project for the state management tutorial. |
-| [`estuary/`](estuary/) | Estuary-related sample configuration files. |
-| [`metadata_api/`](metadata_api/) | Metadata API ingestion pipeline and worker code. |
-| [`multi_workspace_test/`](multi_workspace_test/) | Multi-workspace test pipeline examples. |
-| [`patterns/`](patterns/) | Reusable implementation patterns and demos. |
-| [`python/`](python/) | General-purpose Python workers and integrations. |
-| [`python/data_assets/bigquery/`](python/data_assets/bigquery/) | Self-run BigQuery asset collection that writes tables, views and lineage through the public asset API. |
-| [`python/data_assets/databricks/`](python/data_assets/databricks/) | Self-run Databricks Unity Catalog asset collection through Orchestra's public asset API. |
-| [`python/data_assets/snowflake/`](python/data_assets/snowflake/) | Self-run Snowflake asset collection into Orchestra through the public asset API, replacing scheduled asset runs. |
-| [`patterns/run_multiple_pipelines/`](patterns/run_multiple_pipelines/) | Examples for programmatic multi-pipeline runs (Orchestra API patterns). |
-| [`patterns/warehouse_savings/`](patterns/warehouse_savings/) | Warehouse optimization and analytics (Orchestra API pattern). |
+| Directory | Purpose | Docs |
+| --- | --- | --- |
+| [`metadata_api/`](metadata_api/) | Export Orchestra metadata to a warehouse with dlt, plus an example pipeline. | Export metadata via REST API and dlt; Metadata to Warehouse template; API introduction |
+| [`python/data_assets/`](python/data_assets/) | Self-run asset collection for BigQuery, Databricks and Snowflake through the public asset API. | Asset collection template; Assets |
+| [`patterns/run_multiple_pipelines/`](patterns/run_multiple_pipelines/) | Start and monitor several pipelines programmatically via the Orchestra API. | Run multiple pipelines |
+| [`patterns/warehouse_savings/`](patterns/warehouse_savings/) | Warehouse cost analysis using the Orchestra API. | dbt Core state management guide |
+| [`dbt_projects/state_management/`](dbt_projects/state_management/) | dbt project for the state management tutorial. | dbt Core state management tutorial |
 
-## Directory notes
-
-Demo Workspace pipelines, and the code they run, live in
-[orchestra-hq/demos](https://github.com/orchestra-hq/demos). This repo keeps
-the examples the public docs link to.
-
-### HOW WE BUILD PIPELINES
-
-1. If you're reading this, make an ELT pipeline basically classifying jobs into types; extract, Load, transform or downstream. Example EL jobs are Fivetran, Kubernetes jobs, python jobs. Example T jobs are Snowflake Tasks or Coalesce or dbt core. Example Downstream are dashboard refreshes
-2. If you are asked to add a python script, add an arbitrary python script or use an existing one in this repo, simulating a load of data
-3. Depending on the credentials available choose a working Coalesce or dbt project to run as the T step
-4. Depending on the credentials available, pick something adequate for your downstream tasks as well
-
-Always fetch into the underlying platforms to get actual Job IDs etc.
-Always add alerts, adding Slack, Teams if available and adding email hugo@getorchestra.io.
-Add a task-level alert to any dbt Tasks; not just the pipeline
-Automatically add anomaly detection to Pipelines
-
-
-### dbt Projects
-
-`dbt_projects/state_management/` backs the dbt Core state management tutorial in
-the Orchestra docs.
-
-### Metadata API
-
-`metadata_api/` shows how to ingest Orchestra metadata with dlt and run checks
-in downstream warehouses. It includes an example Orchestra pipeline file and
-runtime script.
-
-### Patterns
-`patterns/` holds reusable workflow patterns and supporting examples.
-
-### Run multiple pipelines
-
-`patterns/run_multiple_pipelines/` contains patterns for interacting with
-Orchestra as a platform (programmatic multi-pipeline runs via the API).
-
-### Warehouse savings
-
-`patterns/warehouse_savings/` contains the warehouse optimization and analytics
-pattern examples, implemented as an Orchestra API client/analysis.
-
-### Python workers
-
-`python/` contains Python modules used by the repo’s demos.
-
-Most subfolders are intended to be executed by Orchestra via Python task
-integrations.
-
-
-
+Before moving or renaming anything here, check the docs that link to it; those
+links break otherwise.
