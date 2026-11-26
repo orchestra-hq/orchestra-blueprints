@@ -59,6 +59,24 @@ models:
         description: "The shipment date"
         tests:
           - not_null
+  - name: daily_orders
+    description: "Daily rollup of order volume, customers, and spend. One row per order date."
+    columns:
+      - name: sold_date
+        description: "The calendar date on which orders were placed."
+        tests:
+          - unique
+          - not_null
+      - name: orders
+        description: "Count of distinct orders placed on this date."
+      - name: customers
+        description: "Count of distinct customers who placed an order on this date."
+      - name: quantity
+        description: "Total quantity of items ordered on this date."
+      - name: cost
+        description: "Total cost of orders placed on this date."
+      - name: avg_order_value
+        description: "Average cost per order on this date (total cost divided by order count)."
   - name: oil_data_aggregated
     config:
       tags:
