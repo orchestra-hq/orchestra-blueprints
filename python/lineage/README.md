@@ -19,9 +19,6 @@ Lightdash API ─┘                                                      │
                                          Orchestra Data assets → Lineage
 ```
 
-The Orchestra pipeline that runs all of this is
-[`orchestra/platform_lineage_dlt_bigquery_lightdash_fivetran.yml`](../../orchestra/platform_lineage_dlt_bigquery_lightdash_fivetran.yml).
-
 ## Why publish through the API
 
 Orchestra collects lineage automatically from integrations that expose
@@ -229,7 +226,7 @@ contract. Walking through adding a hypothetical `snowflake` platform:
      usage/error messages `load_source.py` prints; keep it in sync).
 2. **Pipeline input** — add `"snowflake"` to the `sources` input's `default`
    list (`inputs.sources.default`) in
-   `orchestra/platform_lineage_dlt_bigquery_lightdash_fivetran.yml`. The
+   the Orchestra pipeline that runs this. The
    extract task group's `matrix.inputs.source` already reads
    `${{ inputs.sources }}`, so that's the only orchestration change needed —
    the new platform becomes another parallel extract child automatically.

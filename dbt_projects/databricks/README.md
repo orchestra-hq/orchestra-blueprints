@@ -11,8 +11,7 @@ table is now declared as `source('raw', 'orders_raw')` in
 
 The reason is state-aware orchestration: a seed is always treated as dirty, so
 every model downstream of one rebuilds on every run and can never be reused.
-`orders` is the model
-[`orchestra/dbt/sao_multi_warehouse.yml`](../../orchestra/dbt/sao_multi_warehouse.yml)
+`orders` is the model a state-aware orchestration test
 drops to test reuse, so it has to be reusable in the first place.
 
 The other seeds (`customers_raw`, `daily_calendar`, `gsheet_accountids`,

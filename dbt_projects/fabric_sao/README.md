@@ -14,8 +14,7 @@ cheap to build and safe to drop.
   (table). The staging model is still named `stg_orders` in dbt; only its
   `alias` carries the awkward relation name.
 - **Mid-DAG model:** `dbt_sao_demo.[Stg Orders Clean]` — the relation
-  [`orchestra/dbt/sao_multi_warehouse.yml`](../../orchestra/dbt/sao_multi_warehouse.yml)
-  drops and then queries to exercise state-aware orchestration's reuse path.
+  a state-aware orchestration test drops and then queries to exercise state-aware orchestration's reuse path.
 
 ## The source
 

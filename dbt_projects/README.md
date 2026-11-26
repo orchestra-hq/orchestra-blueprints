@@ -11,24 +11,22 @@ This directory contains standalone dbt blueprint examples.
 ## Current subprojects
 
 - `azure_fabric` - UNUSED
-- `bigquery` - Small source -> staging -> mart project for the BigQuery demo connection
 - `clickhouse` - Sample ClickHouse integration
 - `databricks`
-- `databricks_sao` - `bigquery` mirrored onto Databricks Unity Catalog, for the multi-warehouse SAO demo
+- `databricks_sao` - Small source -> staging -> mart project on Databricks Unity Catalog, for the multi-warehouse SAO demo
 - `duckdb_example` - UNUSED
-- `fabric_sao` - `bigquery` mirrored onto Fabric, for the multi-warehouse SAO demo
+- `fabric_sao` - Small source -> staging -> mart project on Fabric, for the multi-warehouse SAO demo
 - `motherduck_postgres` - UNUSED
 - `motherduck_s3`
-- `motherduck_sao` - `bigquery` mirrored onto MotherDuck, for the multi-warehouse SAO demo
+- `motherduck_sao` - Small source -> staging -> mart project on MotherDuck, for the multi-warehouse SAO demo
 - `postgres` - UNUSED
-- `postgres_sao` - `bigquery` mirrored onto Postgres, for the multi-warehouse SAO demo
-- `redshift_sao` - `bigquery` mirrored onto Redshift, for the multi-warehouse SAO demo
+- `postgres_sao` - Small source -> staging -> mart project on Postgres, for the multi-warehouse SAO demo
+- `redshift_sao` - Small source -> staging -> mart project on Redshift, for the multi-warehouse SAO demo
 - `snowflake`
 - `snowflake_anomaly` - Four models with a dialable delay, for the node-level anomaly detection demo
 - `state_management` - UNUSED
 
-The four `*_sao` projects and `bigquery` are all the same three-node DAG
+The `*_sao` projects are all the same three-node DAG
 (`raw_orders` source -> `stg_orders` view -> `orders_daily` table) in each
-warehouse's dialect, so
-[`orchestra/dbt/sao_multi_warehouse.yml`](../orchestra/dbt/sao_multi_warehouse.yml)
-can run the identical state-aware-orchestration A/B test against any of them.
+warehouse's dialect, so the same state-aware-orchestration A/B test can run
+against any of them.
