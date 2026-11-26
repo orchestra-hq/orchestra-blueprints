@@ -1,0 +1,71 @@
+version: v1
+name: Orchestra Metadata -> dlt -> Warehouse
+pipeline:
+  run-dlt:
+    tasks:
+      dlt:
+        integration: PYTHON
+        integration_job: PYTHON_EXECUTE_SCRIPT
+        parameters:
+          command: python run.py ${{ inputs.warehouse }} --backfill-days ${{ inputs.backfill_days }}
+          package_manager: PIP
+          python_version: "3.12"
+          build_command: pip install -r requirements.txt
+          set_outputs: false
+        depends_on: []
+        name: dlt (Orchestra Metadata)
+    depends_on: []
+  snowflake:
+    tasks:
+      dq-snowflake:
+        integration: SNOWFLAKE
+        integration_job: SNOWFLAKE_RUN_TEST
+        parameters:
+          statement: "SELECT COUNT(*) FROM PIPELINE_RUNS;"
+          error_threshold_expression: "= 0"
+          warn_threshold_expression: "= 0"
+          schema: ORCHESTRA_METADATA_APP
+        depends_on: []
+        name: Snowflake Test
+    depends_on:
+      - run-dlt
+    condition: ${{ task_groups['run-dlt'].all().status
+      == 'SUCCEEDED' and inputs.warehouse == 'snowflake' }}
+  bigquery:
+    tasks:
+      dq-bigquery:
+        integration: GCP_BIG_QUERY
+        integration_job: GCP_BQ_RUN_TEST
+        parameters:
+          query: "SELECT COUNT(*) FROM orchestrametadatastore.orchestra_metadata_app.pipeline_runs;"
+          enable_drive_scope: false
+          error_threshold_expression: "= 0"
+          warn_threshold_expression: "= 0"
+        depends_on: []
+        name: BigQuery Test
+    depends_on:
+      - run-dlt
+    condition: ${{ task_groups['run-dlt'].all().status
+      == 'SUCCEEDED' and inputs.warehouse == 'bigquery' }}
+schedule:
+  - name: Daily at 5am (UTC)
+    cron: 0 5 ? * * *
+    timezone: UTC
+sensors: {}
+trigger_events: []
+webhook:
+  enabled: false
+alerts:
+  - name: Failures
+    statuses:
+      - FAILED
+    destinations:
+      - integration: SLACK
+        destination: alert-demos
+inputs:
+  warehouse:
+    type: string
+    default: "snowflake"
+  backfill_days:
+    type: string
+    default: "0"
