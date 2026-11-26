@@ -21,7 +21,6 @@ integration examples across multiple tooling stacks.
 | [`python/data_assets/snowflake/`](python/data_assets/snowflake/) | Self-run Snowflake asset collection into Orchestra through the public asset API, replacing scheduled asset runs. |
 | [`patterns/run_multiple_pipelines/`](patterns/run_multiple_pipelines/) | Examples for programmatic multi-pipeline runs (Orchestra API patterns). |
 | [`patterns/warehouse_savings/`](patterns/warehouse_savings/) | Warehouse optimization and analytics (Orchestra API pattern). |
-| [`patterns/duckdb_quality/`](patterns/duckdb_quality/) | Declarative Snowflake data quality tests driven by the DuckDB CLI. |
 
 ## Directory notes
 
