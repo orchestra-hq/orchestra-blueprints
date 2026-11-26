@@ -1,0 +1,7 @@
+order_id,customer_id,amount
+O1,C1,50.00
+O2,C1,20.00
+O3,C2,75.00
+O4,C3,10.00
+O5,C3,30.00
+O6,C3,45.00

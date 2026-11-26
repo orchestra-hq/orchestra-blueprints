@@ -1,0 +1,6 @@
+customer_id,address_type,city
+C1,billing,Leeds
+C1,shipping,York
+C2,billing,Bath
+C3,billing,Hull
+C3,shipping,Hull
