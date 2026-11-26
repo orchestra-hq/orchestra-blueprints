@@ -36,3 +36,6 @@ profiles.yml
 .env
 .env.*
 !.env.example
+
+# local DuckDB files
+*.duckdb
