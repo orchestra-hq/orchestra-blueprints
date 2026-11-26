@@ -11,9 +11,6 @@ This directory contains standalone dbt blueprint examples.
 ## Current subprojects
 
 - `azure_fabric` - UNUSED
-- `clickhouse` - Sample ClickHouse integration
-- `databricks`
-- `databricks_sao` - Small source -> staging -> mart project on Databricks Unity Catalog, for the multi-warehouse SAO demo
 - `duckdb_example` - UNUSED
 - `fabric_sao` - Small source -> staging -> mart project on Fabric, for the multi-warehouse SAO demo
 - `motherduck_postgres` - UNUSED
@@ -22,8 +19,6 @@ This directory contains standalone dbt blueprint examples.
 - `postgres` - UNUSED
 - `postgres_sao` - Small source -> staging -> mart project on Postgres, for the multi-warehouse SAO demo
 - `redshift_sao` - Small source -> staging -> mart project on Redshift, for the multi-warehouse SAO demo
-- `snowflake`
-- `snowflake_anomaly` - Four models with a dialable delay, for the node-level anomaly detection demo
 - `state_management` - UNUSED
 
 The `*_sao` projects are all the same three-node DAG

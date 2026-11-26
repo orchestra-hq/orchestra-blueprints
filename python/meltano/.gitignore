@@ -1,5 +1,0 @@
-.env
-.meltano/
-logs/
-output/
-*.log

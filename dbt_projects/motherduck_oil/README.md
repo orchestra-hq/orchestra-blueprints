@@ -1,6 +1,6 @@
 # MotherDuck oil dbt project
 
-This project mirrors the [orchestra-blueprints Snowflake dbt layout](https://github.com/orchestra-hq/orchestra-blueprints/tree/main/dbt_projects/snowflake) for the oil pipeline only:
+This project mirrors the Snowflake dbt project's layout (now in the internal orchestra-hq/demos repo) for the oil pipeline only:
 
 - `models/clean/oil_data_clean.sql` — same logic as Snowflake; `_pk` uses `sha256` instead of `sha2_binary` for DuckDB.
 - `models/aggregated/oil_data_aggregated.sql` — same SQL as the Snowflake model.

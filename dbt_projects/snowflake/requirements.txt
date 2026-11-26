@@ -1,2 +1,0 @@
-dbt-snowflake==1.11.3
-dbt-core==1.11.7

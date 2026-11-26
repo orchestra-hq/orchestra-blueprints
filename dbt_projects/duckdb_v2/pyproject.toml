@@ -1,0 +1,12 @@
+[project]
+name = "duckdb_v2"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+v2 = ["dbt==2.0.6"]
+v1 = ["dbt-core==1.11.*", "dbt-duckdb"]
+
+[tool.uv]
+conflicts = [[{ extra = "v1" }, { extra = "v2" }]]
