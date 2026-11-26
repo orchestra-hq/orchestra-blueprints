@@ -10,18 +10,6 @@ This directory contains standalone dbt blueprint examples.
 
 ## Current subprojects
 
-- `azure_fabric` - UNUSED
-- `duckdb_example` - UNUSED
-- `fabric_sao` - Small source -> staging -> mart project on Fabric, for the multi-warehouse SAO demo
-- `motherduck_postgres` - UNUSED
-- `motherduck_s3`
-- `motherduck_sao` - Small source -> staging -> mart project on MotherDuck, for the multi-warehouse SAO demo
-- `postgres` - UNUSED
-- `postgres_sao` - Small source -> staging -> mart project on Postgres, for the multi-warehouse SAO demo
-- `redshift_sao` - Small source -> staging -> mart project on Redshift, for the multi-warehouse SAO demo
-- `state_management` - UNUSED
+- `state_management` - Example for the dbt Core state management tutorial in the Orchestra docs
 
-The `*_sao` projects are all the same three-node DAG
-(`raw_orders` source -> `stg_orders` view -> `orders_daily` table) in each
-warehouse's dialect, so the same state-aware-orchestration A/B test can run
-against any of them.
+The demo dbt projects moved to the internal orchestra-hq/demos repo.

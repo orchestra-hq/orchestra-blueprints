@@ -1,7 +1,0 @@
-motherduck:
-  target: dev
-  outputs:
-    dev:
-      type: duckdb
-      path: md:your_database
-      schema: motherduck_oil

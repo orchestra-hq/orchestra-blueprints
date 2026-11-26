@@ -10,7 +10,7 @@ integration examples across multiple tooling stacks.
 | --- | --- |
 | [`python/azure/`](python/azure/) | Azure ML example assets and pipeline support files. |
 | [`python/bauplan/`](python/bauplan/) | Bauplan project examples and helper scripts. |
-| [`dbt_projects/`](dbt_projects/) | dbt blueprint projects for multiple warehouses. |
+| [`dbt_projects/`](dbt_projects/) | dbt project for the state management tutorial. |
 | [`estuary/`](estuary/) | Estuary-related sample configuration files. |
 | [`metadata_api/`](metadata_api/) | Metadata API ingestion pipeline and worker code. |
 | [`multi_workspace_test/`](multi_workspace_test/) | Multi-workspace test pipeline examples. |
@@ -44,9 +44,8 @@ Automatically add anomaly detection to Pipelines
 
 ### dbt Projects
 
-`dbt_projects/` includes warehouse-specific dbt setups (for example, Snowflake,
-Postgres, Databricks, and Azure Fabric) that can be paired with Orchestra
-pipelines.
+`dbt_projects/state_management/` backs the dbt Core state management tutorial in
+the Orchestra docs.
 
 ### Metadata API
 
